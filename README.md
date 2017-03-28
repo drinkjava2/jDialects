@@ -1,2 +1,2 @@
-# sqldialect
-Collect all database's dialects, this project is for jSqlBox but can be used for all Java projects which use SQL, I'm now working on it.
+# (In developing)
+# HiDialect is a small Java tool collect all database's dialects, usually used for build pagination in SQL. This tool is built for jSqlBox project, but can be used for all Java projects which use SQL.
