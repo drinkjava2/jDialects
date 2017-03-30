@@ -1,6 +1,7 @@
 package test.sqldialect;
 
 import static com.github.drinkjava2.jsqlbox.SqlHelper.empty;
+import org.apache.commons.lang.StringUtils;
 import static com.github.drinkjava2.jsqlbox.SqlHelper.valuesAndQuestions;
 
 import java.lang.reflect.Field;
@@ -68,8 +69,9 @@ import com.github.drinkjava2.jsqlbox.SqlHelper;
 import test.config.PrepareTestContext;
 
 /**
- * ========================== will move this into a new project =============================== This is for test sql
- * dialect, not finished, SqlDialect will be a new tiny project
+ * ========================== will move this into a new project
+ * =============================== This is for test sql dialect, not finished,
+ * SqlDialect will be a new tiny project
  *
  * @author Yong Zhu
  *
@@ -89,7 +91,7 @@ public class DialectHelperTest {
 		testGuessDialects();// first test if Dialects exist
 		transferPagination();// Save Pagination into DB
 		transferTypeNames();// Save TypeNames & HibernateTypeNames into DB
-		transferFunctions();//Save registered functions into DB
+		transferFunctions();// Save registered functions into DB
 	}
 
 	public void testGuessDialects() {
@@ -184,21 +186,28 @@ public class DialectHelperTest {
 				String supportsLimitOffset = l.supportsLimitOffset() + "";
 				String pagination1 = "N/A";
 				try {
-					pagination1 = l.processSql("select a from b", r);
+					String sql = "a from b";
+					pagination1 = l.processSql("select " + sql, r);
+					pagination1 = StringUtils.replace(pagination1, sql, "XXX");
+					pagination1 = StringUtils.replace(pagination1, "hibernate", "hidia");
 				} catch (Exception e) {
 				}
 
 				String pagination2 = "N/A";
 				try {
-					pagination2 = l.processSql("select * from b order by b.id", r);
+					String sql = "* from b order by b.id";
+					pagination2 = l.processSql("select " + sql, r);
+					pagination2 = StringUtils.replace(pagination2, sql, "XXX");
+					pagination2 = StringUtils.replace(pagination2, "hibernate", "hidia");
 				} catch (Exception e) {
 				}
 
 				String pagination3 = "N/A";
 				try {
-					pagination3 = l.processSql(
-							"select a.col1 as c1, a.col2 as c2, b.col3 as b1 from atb a, btb b order by a.col1, b.col4",
-							r);
+					String sql = "a.c1 as c1, b.c2 as c2 from ta a, tb b group by a.c1 order by a.c1, b.c2";
+					pagination3 = l.processSql("select " + sql, r);
+					pagination3 = StringUtils.replace(pagination3, sql, "XXX");
+					pagination3 = StringUtils.replace(pagination3, "hibernate", "hidia");
 				} catch (Exception e) {
 				}
 				Dao.executeInsert("insert into tb_pagination ("//
@@ -317,7 +326,8 @@ public class DialectHelperTest {
 					+ valuesAndQuestions();
 			Dao.executeInsert(insertSQL);
 
-			t = (TypeNames) findFieldObject(dia, "hibernateTypeNames");// Hibernate Type
+			t = (TypeNames) findFieldObject(dia, "hibernateTypeNames");// Hibernate
+																		// Type
 			insertSQL = "insert into tb_typeNames ("//
 					+ "line," + empty(++line)//
 					+ "dialect," + empty("Hib_" + dia.getClass().getSimpleName())//
