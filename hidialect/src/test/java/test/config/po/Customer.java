@@ -1,10 +1,6 @@
 package test.config.po;
 
-import java.util.List;
-
 import com.github.drinkjava2.jsqlbox.Entity;
-import com.github.drinkjava2.jsqlbox.IgnoreField;
-import com.github.drinkjava2.jsqlbox.id.SimpleGenerator;
 
 /**
  * Entity class is not a POJO, need extends from EntityBase or implements EntityInterface interface<br/>
@@ -15,18 +11,13 @@ import com.github.drinkjava2.jsqlbox.id.SimpleGenerator;
  * @since 1.0.0
  */
 public class Customer implements Entity {
-	public static final String CREATE_SQL = "create table customer("//
+	public static final String CREATE_SQL = "create table customertable("//
 			+ "id varchar(32),"//
 			+ "customer_name varchar(50),"//
 			+ "constraint customer_pk primary key (id)" //
 			+ ")";//
 	private String id;
 	private String customerName;
-	@IgnoreField
-	private List<Order> ordersList;
-	{
-		this.box().configIdGenerator("id", SimpleGenerator.INSTANCE);
-	}
 
 	public String getId() {
 		return id;
@@ -42,14 +33,6 @@ public class Customer implements Entity {
 
 	public void setCustomerName(String customerName) {
 		this.customerName = customerName;
-	}
-
-	public List<Order> getOrdersList() {
-		return ordersList;
-	}
-
-	public void setOrdersList(List<Order> ordersList) {
-		this.ordersList = ordersList;
 	}
 
 	// ====================

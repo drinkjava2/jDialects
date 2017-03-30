@@ -69,9 +69,8 @@ import com.github.drinkjava2.jsqlbox.SqlHelper;
 import test.config.PrepareTestContext;
 
 /**
- * ========================== will move this into a new project
- * =============================== This is for test sql dialect, not finished,
- * SqlDialect will be a new tiny project
+ * ========================== will move this into a new project =============================== This is for test sql
+ * dialect, not finished, SqlDialect will be a new tiny project
  *
  * @author Yong Zhu
  *
@@ -88,10 +87,10 @@ public class DialectHelperTest {
 
 	@Test
 	public void doBuild() {
-		testGuessDialects();// first test if Dialects exist
+		// testGuessDialects();// first test if Dialects exist
 		transferPagination();// Save Pagination into DB
-		transferTypeNames();// Save TypeNames & HibernateTypeNames into DB
-		transferFunctions();// Save registered functions into DB
+		// transferTypeNames();// Save TypeNames & HibernateTypeNames into DB
+		// transferFunctions();// Save registered functions into DB
 	}
 
 	public void testGuessDialects() {
@@ -173,7 +172,7 @@ public class DialectHelperTest {
 		System.out.println("exportDialectPaginations========================");
 		RowSelection r = new RowSelection();
 		r.setFirstRow(90);
-		r.setMaxRows(100);
+		r.setMaxRows(4);
 		r.setFetchSize(5);
 		r.setTimeout(1000);
 		List<Class<? extends Dialect>> dialects = DialectHelper.SUPPORTED_DIALECTS;

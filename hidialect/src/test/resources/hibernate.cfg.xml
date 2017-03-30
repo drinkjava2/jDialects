@@ -8,9 +8,7 @@
         <property name="connection.driver_class">
 			com.mysql.jdbc.Driver
 		</property>
-        <property name="connection.url">
-			jdbc:mysql://localhost:3306/test
-		</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/test?autoReconnect=true&amp;useSSL=false</property>
         <property name="connection.username">root</property>
         <property name="connection.password">root888</property>
  
@@ -21,6 +19,7 @@
         <property name="dialect">
 			org.hibernate.dialect.MySQLDialect
 		</property>
+  
  
         <!-- Enable Hibernate's automatic session context management -->
     	<property name="current_session_context_class">thread</property>
@@ -33,6 +32,6 @@
         <!-- Echo all executed SQL to stdout -->
         <property name="show_sql">true</property>
    
-        <!--mapping resource="com/wsw/struts/model/Person.hbm.xml" -->
+        <mapping resource="Customer.hbm.xml"/> 
     </session-factory>
 </hibernate-configuration>
