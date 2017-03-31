@@ -12,7 +12,7 @@ import com.github.drinkjava2.jsqlbox.Entity;
  */
 public class Customer implements Entity {
 	public static final String CREATE_SQL = "create table customertable("//
-			+ "id varchar(32),"//
+			+ "id varchar(36),"//
 			+ "customer_name varchar(50),"//
 			+ "constraint customer_pk primary key (id)" //
 			+ ")";//

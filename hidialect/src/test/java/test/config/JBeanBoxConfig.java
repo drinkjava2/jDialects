@@ -37,8 +37,7 @@ public class JBeanBoxConfig {
 
 	/**
 	 * ==================================================================================================<br/>
-	 * Data source setting, change "H2DataSourceBox" to MySqlDataSourceBox to test on MySql <br/>
-	 * This project is already tested on H2, MySql5, Oracle11g, MSSQL2012
+	 * Data source setting
 	 * ==================================================================================================<br/>
 	 */
 	public static class DataSourceBox extends MySqlDataSourceBox {// change here to test on different database

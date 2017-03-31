@@ -1,7 +1,6 @@
 package test.sqldialect;
 
 import static com.github.drinkjava2.jsqlbox.SqlHelper.empty;
-import org.apache.commons.lang.StringUtils;
 import static com.github.drinkjava2.jsqlbox.SqlHelper.valuesAndQuestions;
 
 import java.lang.reflect.Field;
@@ -11,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.boot.registry.BootstrapServiceRegistry;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistry;
@@ -93,7 +93,7 @@ public class DialectHelperTest {
 		// transferFunctions();// Save registered functions into DB
 	}
 
-	public void testGuessDialects() {
+	public void testGuessDialects() { 
 		System.out.println("testDialectHelper=======================");
 		DialectResolver resolver = StandardDialectResolver.INSTANCE;
 		Assert.assertEquals(HSQLDialect.class, DialectHelper.guessDialect("HSQL Database Engine", resolver).getClass());
@@ -171,9 +171,9 @@ public class DialectHelperTest {
 	public void exportDialectPaginations() {
 		System.out.println("exportDialectPaginations========================");
 		RowSelection r = new RowSelection();
-		r.setFirstRow(90);
-		r.setMaxRows(4);
-		r.setFetchSize(5);
+		r.setFirstRow(37);
+		r.setMaxRows(13);
+		r.setFetchSize(100);
 		r.setTimeout(1000);
 		List<Class<? extends Dialect>> dialects = DialectHelper.SUPPORTED_DIALECTS;
 		for (Class<? extends Dialect> class1 : dialects) {
@@ -188,6 +188,7 @@ public class DialectHelperTest {
 					String sql = "a from b";
 					pagination1 = l.processSql("select " + sql, r);
 					pagination1 = StringUtils.replace(pagination1, sql, "XXX");
+					pagination1 = StringUtils.replace(pagination1, "select XXX", "$$$");
 					pagination1 = StringUtils.replace(pagination1, "hibernate", "hidia");
 				} catch (Exception e) {
 				}
@@ -197,15 +198,17 @@ public class DialectHelperTest {
 					String sql = "* from b order by b.id";
 					pagination2 = l.processSql("select " + sql, r);
 					pagination2 = StringUtils.replace(pagination2, sql, "XXX");
+					pagination2 = StringUtils.replace(pagination2, "select XXX", "$$$");
 					pagination2 = StringUtils.replace(pagination2, "hibernate", "hidia");
 				} catch (Exception e) {
 				}
 
 				String pagination3 = "N/A";
 				try {
-					String sql = "a.c1 as c1, b.c2 as c2 from ta a, tb b group by a.c1 order by a.c1, b.c2";
+					String sql = "a.c1 as c1, b.c2 as c2 from ta a, tb b where a.c2 like 'a%' group by a.c1 order by a.c1, b.c2";
 					pagination3 = l.processSql("select " + sql, r);
 					pagination3 = StringUtils.replace(pagination3, sql, "XXX");
+					pagination3 = StringUtils.replace(pagination3, "select XXX", "$$$");
 					pagination3 = StringUtils.replace(pagination3, "hibernate", "hidia");
 				} catch (Exception e) {
 				}
