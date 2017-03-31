@@ -30,22 +30,22 @@ package com.github.drinkjava2.hidialect;
  * @since 1.0.0
  */
 public class Paging {
-	private HiDialect dialect;
+	private Dialect dialect;
 	private int pageNumber = 0;
 	private int pageSize = 0;
 
 	public Paging() {
 	}
 
-	public Paging(HiDialect dialect) {
+	public Paging(Dialect dialect) {
 		this.dialect = dialect;
 	}
 
-	public HiDialect getDialect() {
+	public Dialect getDialect() {
 		return dialect;
 	}
 
-	public Paging setDialect(HiDialect dialect) {
+	public Paging setDialect(Dialect dialect) {
 		this.dialect = dialect;
 		return this;
 	}

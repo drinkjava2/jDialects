@@ -69,8 +69,7 @@ import com.github.drinkjava2.jsqlbox.SqlHelper;
 import test.config.PrepareTestContext;
 
 /**
- * ========================== will move this into a new project =============================== This is for test sql
- * dialect, not finished, SqlDialect will be a new tiny project
+ * This is not a unit test class, it's a code generator tool to create pagination code piece in Dialect.java
  *
  * @author Yong Zhu
  *
@@ -93,7 +92,7 @@ public class DialectHelperTest {
 		// transferFunctions();// Save registered functions into DB
 	}
 
-	public void testGuessDialects() { 
+	public void testGuessDialects() {
 		System.out.println("testDialectHelper=======================");
 		DialectResolver resolver = StandardDialectResolver.INSTANCE;
 		Assert.assertEquals(HSQLDialect.class, DialectHelper.guessDialect("HSQL Database Engine", resolver).getClass());
@@ -148,9 +147,7 @@ public class DialectHelperTest {
 				+ "dialect varchar(100),"//
 				+ "SupoortLimit varchar(10),"//
 				+ "supportsLimitOffset varchar(10),"//
-				+ "pagination1 varchar(800),"//
-				+ "pagination2 varchar(800),"//
-				+ "pagination3 varchar(800) "//
+				+ "pagination varchar(500)"//
 				+ ")";
 		Dao.executeQuiet("drop table tb_pagination");
 		Dao.execute(createSQL);
@@ -183,42 +180,28 @@ public class DialectHelperTest {
 				String dialect = class1.getSimpleName();
 				String supoortLimit = l.supportsLimit() + "";
 				String supportsLimitOffset = l.supportsLimitOffset() + "";
-				String pagination1 = "N/A";
-				try {
-					String sql = "a from b";
-					pagination1 = l.processSql("select " + sql, r);
-					pagination1 = StringUtils.replace(pagination1, sql, "XXX");
-					pagination1 = StringUtils.replace(pagination1, "select XXX", "$$$");
-					pagination1 = StringUtils.replace(pagination1, "hibernate", "hidia");
-				} catch (Exception e) {
-				}
-
-				String pagination2 = "N/A";
-				try {
-					String sql = "* from b order by b.id";
-					pagination2 = l.processSql("select " + sql, r);
-					pagination2 = StringUtils.replace(pagination2, sql, "XXX");
-					pagination2 = StringUtils.replace(pagination2, "select XXX", "$$$");
-					pagination2 = StringUtils.replace(pagination2, "hibernate", "hidia");
-				} catch (Exception e) {
-				}
-
-				String pagination3 = "N/A";
+				String pagination = "N/A";
 				try {
 					String sql = "a.c1 as c1, b.c2 as c2 from ta a, tb b where a.c2 like 'a%' group by a.c1 order by a.c1, b.c2";
-					pagination3 = l.processSql("select " + sql, r);
-					pagination3 = StringUtils.replace(pagination3, sql, "XXX");
-					pagination3 = StringUtils.replace(pagination3, "select XXX", "$$$");
-					pagination3 = StringUtils.replace(pagination3, "hibernate", "hidia");
+					pagination = l.processSql("select " + sql, r);
+					pagination = StringUtils.replace(pagination, sql, "$BODY");
+					pagination = StringUtils.replace(pagination, "select $BODY", "$SQL");
+					pagination = StringUtils.replace(pagination, "37", "$OFFSET");
+					pagination = StringUtils.replace(pagination, "13", "$MAX");
+					pagination = StringUtils.replace(pagination, "50", "$END");
+
+					pagination = StringUtils.replace(pagination, "limit ?, ?", "limit $OFFSET, $MAX");
+					pagination = StringUtils.replace(pagination, " limit ? offset ?", " limit ? offset ?");
+
+					pagination = StringUtils.replace(pagination, "hibernate", "hidialect");
 				} catch (Exception e) {
 				}
+
 				Dao.executeInsert("insert into tb_pagination ("//
 						+ "dialect ," + empty(dialect)//
 						+ "SupoortLimit ," + empty(supoortLimit)//
 						+ "supportsLimitOffset ," + empty(supportsLimitOffset)//
-						+ "pagination1  ," + empty(pagination1)//
-						+ "pagination2  ," + empty(pagination2)//
-						+ "pagination3) " + empty(pagination3)//
+						+ "pagination )" + empty(pagination)//
 						+ valuesAndQuestions());
 			} finally {
 				SqlHelper.clear();

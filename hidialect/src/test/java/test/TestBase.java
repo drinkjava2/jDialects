@@ -7,7 +7,7 @@ import test.config.PrepareTestContext;
 
 /**
  * This is the base class for all test cases which need prepare a database for test, default using H2 memory database,
- * see configurations in JBeanBoxConfig.java
+ * if want run on other database need change configuration in JBeanBoxConfig.java
  *
  * @author Yong Zhu
  *

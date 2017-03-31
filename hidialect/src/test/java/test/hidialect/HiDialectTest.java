@@ -1,6 +1,6 @@
 package test.hidialect;
 
-import static com.github.drinkjava2.hidialect.HiDialect.Oracle10g;
+import static com.github.drinkjava2.hidialect.Dialect.Oracle10g;
 
 /**
  * This is unit test for HiDialect

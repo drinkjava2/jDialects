@@ -1,4 +1,4 @@
-package test.hql;
+package test.hibernatestudy;
 
 import java.util.List;
 
@@ -19,8 +19,16 @@ import com.github.drinkjava2.jsqlbox.Dao;
 import test.config.PrepareTestContext;
 import test.config.po.Customer;
 
+/**
+ * This is study Hibernate, not related to this project, not just keep here
+ *
+ * @author Yong Zhu
+ *
+ * @version 1.0.0
+ * @since 1.0.0
+ */
 @SuppressWarnings({ "unused", "deprecation", "rawtypes" })
-public class HqlPaginationUsage {
+public class HibernateStudy {
 
 	private static void createTablesByjSqlBox() {
 		PrepareTestContext.prepareDatasource_setDefaultSqlBoxConetxt_recreateTables();
@@ -61,8 +69,7 @@ public class HqlPaginationUsage {
 	private static Configuration buildConfig(String dialect) {
 		Configuration c = new Configuration();
 		c.setProperty("hibernate.dialect", dialect);
-		c.setProperty("hibernate.connection.url",
-				"jdbc:mysql://localhost:3306/test?autoReconnect=true&amp;useSSL=false");
+		c.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/test?autoReconnect=true&useSSL=false");
 		c.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
 		c.setProperty("hibernate.connection.username", "root");
 		c.setProperty("hibernate.connection.password", "root888");
@@ -93,8 +100,8 @@ public class HqlPaginationUsage {
 	}
 
 	public static void main(String[] args) {
-		// createTablesByjSqlBox();
-		// insertDataByHibernate();
+		createTablesByjSqlBox();
+		insertDataByHibernate();
 		nativeQuery();
 
 	}
