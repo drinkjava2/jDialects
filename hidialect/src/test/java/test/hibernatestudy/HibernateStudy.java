@@ -1,3 +1,9 @@
+/*
+ * HiDialect, a tiny SQL dialect tool 
+ *
+ * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
+ * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ */
 package test.hibernatestudy;
 
 import java.util.List;
@@ -20,7 +26,8 @@ import test.config.PrepareTestContext;
 import test.config.po.Customer;
 
 /**
- * This is study Hibernate, not related to this project, not just keep here
+ * This is for study Hibernate, not related to this project, but just keep here,
+ * some day may need this
  *
  * @author Yong Zhu
  *
@@ -47,7 +54,6 @@ public class HibernateStudy {
 
 	private static void insertDataByHibernate() {
 		try {
-
 			Configuration c = new Configuration().configure();
 			SessionFactory sf = c.buildSessionFactory();
 

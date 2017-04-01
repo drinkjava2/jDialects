@@ -1,30 +1,22 @@
-/**
- * Copyright (C) 2016 Yong Zhu.
+/*
+ * HiDialect, a tiny SQL dialect tool 
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
+ * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package test.sqldialect;
+package test.codegenerator;
+
 import org.hibernate.engine.jdbc.dialect.spi.DialectResolutionInfo;
 
 /**
- * Default DialectResolutionInfo used for determine database dialect type
+ * Default DialectResolutionInfo will be used for guess database dialect type
  *
  * @author Yong Zhu
  *
  * @version 1.0.0
  * @since 1.0.0
  */
-public class DefaultDialectResolutionInfo implements DialectResolutionInfo {
+public class HibernateDialectResInfo implements DialectResolutionInfo {
 	private final String databaseName;
 	private final int databaseMajorVersion;
 	private final int databaseMinorVersion;
@@ -33,7 +25,7 @@ public class DefaultDialectResolutionInfo implements DialectResolutionInfo {
 	private final int driverMajorVersion;
 	private final int driverMinorVersion;
 
-	public DefaultDialectResolutionInfo(String databaseName, int databaseMajorVersion, int databaseMinorVersion,
+	public HibernateDialectResInfo(String databaseName, int databaseMajorVersion, int databaseMinorVersion,
 			String driverName, int driverMajorVersion, int driverMinorVersion) {
 		this.databaseName = databaseName;
 		this.databaseMajorVersion = databaseMajorVersion;
@@ -73,16 +65,16 @@ public class DefaultDialectResolutionInfo implements DialectResolutionInfo {
 		return driverMinorVersion;
 	}
 
-	public static DefaultDialectResolutionInfo forDatabaseInfo(String name) {
+	public static HibernateDialectResInfo forDatabaseInfo(String name) {
 		return forDatabaseInfo(name, NO_VERSION);
 	}
 
-	public static DefaultDialectResolutionInfo forDatabaseInfo(String name, int majorVersion) {
+	public static HibernateDialectResInfo forDatabaseInfo(String name, int majorVersion) {
 		return forDatabaseInfo(name, majorVersion, NO_VERSION);
 	}
 
-	public static DefaultDialectResolutionInfo forDatabaseInfo(String name, int majorVersion, int minorVersion) {
-		return new DefaultDialectResolutionInfo(name, majorVersion, minorVersion, null, NO_VERSION, NO_VERSION);
+	public static HibernateDialectResInfo forDatabaseInfo(String name, int majorVersion, int minorVersion) {
+		return new HibernateDialectResInfo(name, majorVersion, minorVersion, null, NO_VERSION, NO_VERSION);
 	}
 
 }

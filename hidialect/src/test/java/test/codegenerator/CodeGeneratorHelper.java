@@ -1,19 +1,10 @@
-/**
- * Copyright (C) 2016 Yong Zhu.
+/*
+ * HiDialect, a tiny SQL dialect tool 
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
+ * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package test.sqldialect;
+package test.codegenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +74,7 @@ import org.hibernate.dialect.SQLServer2005Dialect;
 import org.hibernate.dialect.SQLServer2008Dialect;
 import org.hibernate.dialect.SQLServer2012Dialect;
 import org.hibernate.dialect.SQLServerDialect;
+import org.hibernate.dialect.SQLiteDialect;
 import org.hibernate.dialect.Sybase11Dialect;
 import org.hibernate.dialect.SybaseASE157Dialect;
 import org.hibernate.dialect.SybaseASE15Dialect;
@@ -158,6 +150,7 @@ import org.hibernate.service.spi.ServiceRegistryImplementor;
  * Progress
  * RDMSOS2200
  * SAPDB
+ * SQLLite 
  * SQLServer
  * SQLServer2005
  * SQLServer2008
@@ -177,9 +170,10 @@ import org.hibernate.service.spi.ServiceRegistryImplementor;
  * @since 1.0.0
  */
 @SuppressWarnings("deprecation")
-public class DialectHelper {
+public class CodeGeneratorHelper {
 	public static List<Class<? extends Dialect>> SUPPORTED_DIALECTS = new ArrayList<>();
 	static {
+		SUPPORTED_DIALECTS.add(SQLiteDialect.class);
 		SUPPORTED_DIALECTS.add(Cache71Dialect.class);
 		SUPPORTED_DIALECTS.add(CUBRIDDialect.class);
 		SUPPORTED_DIALECTS.add(DataDirectOracle9Dialect.class);
@@ -284,7 +278,7 @@ public class DialectHelper {
 	public static Dialect guessDialect(final String databaseName, final int majorVersion, final int minorVersion,
 			DialectResolver resolver) {
 		BootstrapServiceRegistry bootReg = new BootstrapServiceRegistryBuilder()
-				.applyClassLoader(DialectHelper.class.getClassLoader()).build();
+				.applyClassLoader(CodeGeneratorHelper.class.getClassLoader()).build();
 		StandardServiceRegistry registry = new StandardServiceRegistryBuilder(bootReg).build();
 		DialectFactoryImpl dialectFactory = new DialectFactoryImpl();
 		dialectFactory.injectServices((ServiceRegistryImplementor) registry);
@@ -292,7 +286,7 @@ public class DialectHelper {
 		return dialectFactory.buildDialect(new Properties(), new DialectResolutionInfoSource() {// NOSONAR
 			@Override
 			public DialectResolutionInfo getDialectResolutionInfo() {
-				return DefaultDialectResolutionInfo.forDatabaseInfo(databaseName, majorVersion, minorVersion);
+				return HibernateDialectResInfo.forDatabaseInfo(databaseName, majorVersion, minorVersion);
 			}
 		});
 	}
