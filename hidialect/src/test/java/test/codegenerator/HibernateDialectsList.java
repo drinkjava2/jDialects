@@ -8,12 +8,7 @@ package test.codegenerator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
-import org.hibernate.boot.registry.BootstrapServiceRegistry;
-import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.dialect.CUBRIDDialect;
 import org.hibernate.dialect.Cache71Dialect;
 import org.hibernate.dialect.DB2390Dialect;
@@ -83,11 +78,6 @@ import org.hibernate.dialect.SybaseDialect;
 import org.hibernate.dialect.Teradata14Dialect;
 import org.hibernate.dialect.TeradataDialect;
 import org.hibernate.dialect.TimesTenDialect;
-import org.hibernate.engine.jdbc.dialect.internal.DialectFactoryImpl;
-import org.hibernate.engine.jdbc.dialect.spi.DialectResolutionInfo;
-import org.hibernate.engine.jdbc.dialect.spi.DialectResolutionInfoSource;
-import org.hibernate.engine.jdbc.dialect.spi.DialectResolver;
-import org.hibernate.service.spi.ServiceRegistryImplementor;
 
 /**
  * Transfer Hibernate's dialect to build a universal and tiny pagination tool
@@ -170,10 +160,10 @@ import org.hibernate.service.spi.ServiceRegistryImplementor;
  * @since 1.0.0
  */
 @SuppressWarnings("deprecation")
-public class CodeGeneratorHelper {
+public class HibernateDialectsList {
 	public static List<Class<? extends Dialect>> SUPPORTED_DIALECTS = new ArrayList<>();
 	static {
-		SUPPORTED_DIALECTS.add(SQLiteDialect.class);
+		SUPPORTED_DIALECTS.add(SQLiteDialect.class);// this if found on web
 		SUPPORTED_DIALECTS.add(Cache71Dialect.class);
 		SUPPORTED_DIALECTS.add(CUBRIDDialect.class);
 		SUPPORTED_DIALECTS.add(DataDirectOracle9Dialect.class);
@@ -241,54 +231,6 @@ public class CodeGeneratorHelper {
 		SUPPORTED_DIALECTS.add(TeradataDialect.class);
 		SUPPORTED_DIALECTS.add(Teradata14Dialect.class);
 		SUPPORTED_DIALECTS.add(TimesTenDialect.class);
-	}
-
-	/**
-	 * Guess database type and build Dialect
-	 * 
-	 * @param databaseName
-	 * @param resolver
-	 * @return
-	 */
-	public static Dialect guessDialect(String databaseName, DialectResolver resolver) {
-		return guessDialect(databaseName, -9999, resolver);
-	}
-
-	/**
-	 * Guess database type and build Dialect
-	 * 
-	 * @param databaseName
-	 * @param databaseMajorVersion
-	 * @param resolver
-	 * @return
-	 */
-	public static Dialect guessDialect(String databaseName, int databaseMajorVersion, DialectResolver resolver) {
-		return guessDialect(databaseName, databaseMajorVersion, -9999, resolver);
-	}
-
-	/**
-	 * Guess database type and build Dialect
-	 * 
-	 * @param databaseName
-	 * @param majorVersion
-	 * @param minorVersion
-	 * @param resolver
-	 * @return
-	 */
-	public static Dialect guessDialect(final String databaseName, final int majorVersion, final int minorVersion,
-			DialectResolver resolver) {
-		BootstrapServiceRegistry bootReg = new BootstrapServiceRegistryBuilder()
-				.applyClassLoader(CodeGeneratorHelper.class.getClassLoader()).build();
-		StandardServiceRegistry registry = new StandardServiceRegistryBuilder(bootReg).build();
-		DialectFactoryImpl dialectFactory = new DialectFactoryImpl();
-		dialectFactory.injectServices((ServiceRegistryImplementor) registry);
-		dialectFactory.setDialectResolver(resolver);
-		return dialectFactory.buildDialect(new Properties(), new DialectResolutionInfoSource() {// NOSONAR
-			@Override
-			public DialectResolutionInfo getDialectResolutionInfo() {
-				return HibernateDialectResInfo.forDatabaseInfo(databaseName, majorVersion, minorVersion);
-			}
-		});
 	}
 
 }

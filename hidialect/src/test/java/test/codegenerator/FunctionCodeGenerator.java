@@ -60,7 +60,7 @@ public class FunctionCodeGenerator extends TestBase {
 
 	private static Dialect buildDialectByName(Class<?> dialect) {
 		BootstrapServiceRegistry bootReg = new BootstrapServiceRegistryBuilder()
-				.applyClassLoader(CodeGeneratorHelper.class.getClassLoader()).build();
+				.applyClassLoader(HibernateDialectsList.class.getClassLoader()).build();
 		StandardServiceRegistry registry = new StandardServiceRegistryBuilder(bootReg).build();
 		DialectFactoryImpl dialectFactory = new DialectFactoryImpl();
 		dialectFactory.injectServices((ServiceRegistryImplementor) registry);
@@ -92,7 +92,7 @@ public class FunctionCodeGenerator extends TestBase {
 
 	public void exportDialectFunctions() {
 		System.out.println("exportDialectFunctions========================");
-		List<Class<? extends Dialect>> dialects = CodeGeneratorHelper.SUPPORTED_DIALECTS;
+		List<Class<? extends Dialect>> dialects = HibernateDialectsList.SUPPORTED_DIALECTS;
 		for (Class<? extends Dialect> class1 : dialects) {
 			Dialect dia = buildDialectByName(class1);
 			String diaName = dia.getClass().getSimpleName();

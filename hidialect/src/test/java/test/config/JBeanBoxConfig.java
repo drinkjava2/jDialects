@@ -50,7 +50,7 @@ public class JBeanBoxConfig {
 	}
 
 	// H2Database memory database connection URL
-	public static class H2DataSourceBox extends MySqlDataSourceBox {
+	public static class H2DataSourceBox extends HikariCPBox {
 		{
 			setProperty("jdbcUrl", "jdbc:h2:mem:DBName;MODE=MYSQL;DB_CLOSE_DELAY=-1;TRACE_LEVEL_SYSTEM_OUT=0");
 			setProperty("driverClassName", "org.h2.Driver");

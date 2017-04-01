@@ -32,8 +32,7 @@ import com.github.drinkjava2.jsqlbox.Dao;
 import test.TestBase;
 
 /**
- * This is not a unit test class, it's a code generator tool to create source
- * code in Dialect.java
+ * This is not a unit test class, it's a code generator tool to create source code in Dialect.java
  *
  * @author Yong Zhu
  *
@@ -43,14 +42,9 @@ import test.TestBase;
 @SuppressWarnings({ "unchecked" })
 public class TypeCodeGenerator extends TestBase {
 
-	@Test
-	public void doBuild() {
-		transferTypeNames();// Save TypeNames & HibernateTypeNames into DB
-	}
-
 	private static Dialect buildDialectByName(Class<?> dialect) {
 		BootstrapServiceRegistry bootReg = new BootstrapServiceRegistryBuilder()
-				.applyClassLoader(CodeGeneratorHelper.class.getClassLoader()).build();
+				.applyClassLoader(HibernateDialectsList.class.getClassLoader()).build();
 		StandardServiceRegistry registry = new StandardServiceRegistryBuilder(bootReg).build();
 		DialectFactoryImpl dialectFactory = new DialectFactoryImpl();
 		dialectFactory.injectServices((ServiceRegistryImplementor) registry);
@@ -59,8 +53,9 @@ public class TypeCodeGenerator extends TestBase {
 		return dialectFactory.buildDialect(configValues, null);
 	}
 
+	@Test
 	public void transferTypeNames() {
-		String createSQL = "create table tb_typeNames ("//
+		String createSQL = "create table tb_typeNames ("// Save TypeNames into DB
 				+ "line integer,"//
 				+ "dialect varchar(100),"//
 				+ "Types_BIT varchar(300),"//
@@ -111,7 +106,7 @@ public class TypeCodeGenerator extends TestBase {
 	public void exportDialectTypeNames() {
 		int line = 0;
 		System.out.println("exportDialectTypeNames========================");
-		List<Class<? extends Dialect>> dialects = CodeGeneratorHelper.SUPPORTED_DIALECTS;
+		List<Class<? extends Dialect>> dialects = HibernateDialectsList.SUPPORTED_DIALECTS;
 		for (Class<? extends Dialect> class1 : dialects) {
 			Dialect dia = buildDialectByName(class1);
 			TypeNames t = (TypeNames) findFieldObject(dia, "typeNames");
@@ -160,9 +155,8 @@ public class TypeCodeGenerator extends TestBase {
 					+ ")" //
 					+ valuesAndQuestions();
 			Dao.executeInsert(insertSQL);
-
-			t = (TypeNames) findFieldObject(dia, "hibernateTypeNames");// Hibernate
-																		// Type
+			// Hibernate type
+			t = (TypeNames) findFieldObject(dia, "hibernateTypeNames");
 			insertSQL = "insert into tb_typeNames ("//
 					+ "line," + empty(++line)//
 					+ "dialect," + empty("Hib_" + dia.getClass().getSimpleName())//

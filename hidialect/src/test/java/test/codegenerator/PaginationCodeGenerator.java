@@ -34,8 +34,7 @@ import com.github.drinkjava2.jsqlbox.Entity;
 import test.TestBase;
 
 /**
- * This is not a unit test class, it's a code generator tool to create source
- * code for Dialect.java
+ * This is not a unit test class, it's a code generator tool to create source code for Dialect.java
  *
  * @author Yong Zhu
  * @version 1.0.0
@@ -52,12 +51,14 @@ public class PaginationCodeGenerator extends TestBase {
 				+ ")";
 		Dao.executeQuiet("drop table tb_pagination");
 		Dao.execute(createSQL);
+		Dao.refreshMetaData();
 		exportDialectPaginations();
+
 	}
 
 	private static Dialect buildDialectByName(Class<?> dialect) {
 		BootstrapServiceRegistry bootReg = new BootstrapServiceRegistryBuilder()
-				.applyClassLoader(CodeGeneratorHelper.class.getClassLoader()).build();
+				.applyClassLoader(HibernateDialectsList.class.getClassLoader()).build();
 		StandardServiceRegistry registry = new StandardServiceRegistryBuilder(bootReg).build();
 		DialectFactoryImpl dialectFactory = new DialectFactoryImpl();
 		dialectFactory.injectServices((ServiceRegistryImplementor) registry);
@@ -66,7 +67,7 @@ public class PaginationCodeGenerator extends TestBase {
 		return dialectFactory.buildDialect(configValues, null);
 	}
 
-	public static class TB_Pagination implements Entity {
+	public static class TB_pagination implements Entity {
 		private String dialect;
 		private String pagination;
 		private Integer sortorder;
@@ -107,14 +108,14 @@ public class PaginationCodeGenerator extends TestBase {
 		r.setMaxRows(13);// MAX
 		r.setFetchSize(100);// no use
 		r.setTimeout(1000);// no use
-		List<Class<? extends Dialect>> dialects = CodeGeneratorHelper.SUPPORTED_DIALECTS;
+		List<Class<? extends Dialect>> dialects = HibernateDialectsList.SUPPORTED_DIALECTS;
 		for (Class<? extends Dialect> class1 : dialects) {
 			Dialect dia = buildDialectByName(class1);
 			LimitHandler l = dia.getLimitHandler();
 
 			String dialect = class1.getSimpleName();
 			dialect = StringUtils.replace(dialect, "Dialect", "");
-			String pagination = "Not Support";
+			String pagination = "NOT SUPPORT";
 			try {
 				String baitSQL = "a.c1 as c1, b.c2 as c2 from ta a, tb b where a.c2 like 'a%' group by a.c1 order by a.c1, b.c2";
 				pagination = l.processSql("select " + baitSQL, r);
@@ -152,14 +153,15 @@ public class PaginationCodeGenerator extends TestBase {
 		}
 		// Done
 
+		// Dao.getDefaultContext().setShowSql(true);
 		// Now delete repeat pagination
-		TB_Pagination tp = new TB_Pagination();
-		List<TB_Pagination> l = Dao.queryForEntityList(TB_Pagination.class, select(), tp.all(), from(), tp.table(),
+		TB_pagination tp = new TB_pagination();
+		List<TB_pagination> l = Dao.queryForEntityList(TB_pagination.class, select(), tp.all(), from(), tp.table(),
 				" order by pagination,dialect");
-		TB_Pagination lastLine = null;
+		TB_pagination lastLine = null;
 		int sortorder = 1;
 		// Dao.getDefaultContext().setShowSql(true);
-		for (TB_Pagination thisLine : l) {
+		for (TB_pagination thisLine : l) {
 			thisLine.setSortorder(sortorder++);
 			thisLine.update();
 			if (lastLine != null && lastLine.getPagination().equals(thisLine.getPagination())) {
@@ -174,8 +176,8 @@ public class PaginationCodeGenerator extends TestBase {
 
 		sb.append("public String getPaginSqlTemplate() {\r\n");
 		sb.append("switch (this) {// NOSONAR\r\n");
-		l = Dao.queryForEntityList(TB_Pagination.class, select(), tp.all(), from(), tp.table(), " order by sortorder");
-		for (TB_Pagination t : l) {
+		l = Dao.queryForEntityList(TB_pagination.class, select(), tp.all(), from(), tp.table(), " order by sortorder");
+		for (TB_pagination t : l) {
 			sb.append("case ").append(t.getDialect()).append(":");
 			if (!StringUtils.isEmpty(t.getPagination())) {
 				sb.append("return \"" + t.getPagination() + "\";");
