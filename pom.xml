@@ -20,20 +20,20 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
   <groupId>com.github.drinkjava2</groupId>
 
-  <artifactId>hidialect-package</artifactId>
+  <artifactId>alldialects-package</artifactId>
 
   <version>1.0.0-SNAPSHOT</version>
 
-  <name>hidialect-package</name>
+  <name>alldialects-package</name>
 
-  <description>HiDialect is a small Java tool collect all database's dialects, ususally used for create pagination in SQL</description>
+  <description>AllDialects is a small Java tool collect all database's dialects, ususally used for create pagination SQL</description>
 
   <modules>
-    <!-- HiDialect-->
-    <module>hidialect</module>
+    <!-- AllDialects-->
+    <module>alldialects</module>
     
-    <!-- examples how to use hidialect-->
-    <!--module>hidialect-examples</module-->
+    <!-- examples how to use alldialects-->
+    <!--module>alldialects-examples</module-->
   </modules>
 
   <properties> 
@@ -44,7 +44,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 
   <build>
-      <finalName>hidialect-package</finalName>
+      <finalName>alldialects-package</finalName>
       <plugins>
           <plugin>
               <artifactId>maven-compiler-plugin</artifactId>

@@ -3,17 +3,17 @@
  <modelVersion>4.0.0</modelVersion>
  
  <groupId>com.github.drinkjava2</groupId>
- <artifactId>hidialect</artifactId>
+ <artifactId>alldialects</artifactId>
  <version>1.0.0-SNAPSHOT</version>
  <packaging>jar</packaging> 
  
- <name>hidialect</name>
- <description>HiDialect is a small Java tool collect all database's dialects, ususally used for create pagination in SQL</description>
- <url>https://github.com/drinkjava2/HiDialect</url>
+ <name>alldialects</name>
+ <description>AllDialects is a small Java tool collect all database's dialects, ususally used for create pagination in SQL</description>
+ <url>https://github.com/drinkjava2/AllDialects</url>
   
  <issueManagement>
     <system>Github Issue</system>
-    <url>https://github.com/drinkjava2/HiDialect/issues</url>
+    <url>https://github.com/drinkjava2/AllDialects/issues</url>
  </issueManagement>
 
  <licenses>
@@ -33,9 +33,9 @@
  </developers>
 
  <scm>
-   <connection>scm:git@github.com:drinkjava2/HiDialect.git</connection>
-   <developerConnection>scm:git@github.com:drinkjava2/HiDialect.git</developerConnection>
-   <url>git@github.com:drinkjava2/HiDialect.git</url>
+   <connection>scm:git@github.com:drinkjava2/AllDialects.git</connection>
+   <developerConnection>scm:git@github.com:drinkjava2/AllDialects.git</developerConnection>
+   <url>git@github.com:drinkjava2/AllDialects.git</url>
  </scm>
 
 
@@ -67,7 +67,7 @@
 
  <dependencies>   
  
-    <!-- At runtime, HiDialect has no any dependency of 3rd jars -->   
+    <!-- At runtime, AllDialects has no any dependency of 3rd party jars -->   
     <!--dependency>
     </dependency-->
 	
@@ -85,7 +85,7 @@
     	<version>2.6</version>
 	</dependency>
 
-	<!-- HiDialect depends on jSqlBox to access database -->
+	<!-- AllDialects depends on jSqlBox to access database -->
 	<dependency>
       <groupId>com.github.drinkjava2</groupId>
       <artifactId>jsqlbox</artifactId>
@@ -101,7 +101,7 @@
         <scope>test</scope>
     </dependency> 
 	
-    <!-- Hibernate is the main collection of HiDialect project -->   
+    <!-- Hibernate is the main collection of AllDialects project -->   
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>

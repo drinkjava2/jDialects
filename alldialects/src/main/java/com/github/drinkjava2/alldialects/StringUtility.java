@@ -1,10 +1,10 @@
 /*
- * HiDialect, a tiny SQL dialect tool 
+ * AllDialects, a tiny SQL dialect tool 
  *
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
  * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package com.github.drinkjava2.hidialect;
+package com.github.drinkjava2.alldialects;
 
 /**
  * String Utility
@@ -13,9 +13,9 @@ package com.github.drinkjava2.hidialect;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class StringUtils {
+public class StringUtility {
 
-	private StringUtils() {
+	private StringUtility() {
 		// default constructor
 	}
 
@@ -32,10 +32,10 @@ public class StringUtils {
 	 * <p>
 	 * 
 	 * <pre class="code">
-	 * StringUtils.hasLength(null) = false
-	 * StringUtils.hasLength("") = false
-	 * StringUtils.hasLength(" ") = true
-	 * StringUtils.hasLength("Hello") = true
+	 * StringUtility.hasLength(null) = false
+	 * StringUtility.hasLength("") = false
+	 * StringUtility.hasLength(" ") = true
+	 * StringUtility.hasLength("Hello") = true
 	 * </pre>
 	 * 
 	 * @param str

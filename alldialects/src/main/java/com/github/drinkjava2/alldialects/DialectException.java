@@ -1,10 +1,10 @@
 /*
-* HiDialect, a tiny SQL dialect tool 
+* AllDialects, a tiny SQL dialect tool 
 *
 * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
 * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
 */
-package com.github.drinkjava2.hidialect;
+package com.github.drinkjava2.alldialects;
 
 /**
  * @author Yong Zhu
@@ -30,16 +30,6 @@ public class DialectException extends RuntimeException {
 		return throwEX(null, errorMsg);
 	}
 
-	/**
-	 * Eat exception to avoid SONAR warning
-	 */
-	public static void eatException(Exception e) {
-		// do nothing here
-	}
-
-	/**
-	 * If is a null object, throw a SqlBoxException
-	 */
 	public static void assureNotNull(Object obj, String... optionMessages) {
 		if (obj == null)
 			throw new NullPointerException(optionMessages.length == 0 ? "" : optionMessages[0]);

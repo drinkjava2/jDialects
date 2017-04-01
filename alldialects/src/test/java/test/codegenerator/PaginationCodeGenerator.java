@@ -1,5 +1,5 @@
 /*
- * HiDialect, a tiny SQL dialect tool 
+ * AllDialects, a tiny SQL dialect tool 
  *
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
  * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
@@ -53,7 +53,6 @@ public class PaginationCodeGenerator extends TestBase {
 		Dao.execute(createSQL);
 		Dao.refreshMetaData();
 		exportDialectPaginations();
-
 	}
 
 	private static Dialect buildDialectByName(Class<?> dialect) {
@@ -114,7 +113,6 @@ public class PaginationCodeGenerator extends TestBase {
 			LimitHandler l = dia.getLimitHandler();
 
 			String dialect = class1.getSimpleName();
-			dialect = StringUtils.replace(dialect, "Dialect", "");
 			String pagination = "NOT SUPPORT";
 			try {
 				String baitSQL = "a.c1 as c1, b.c2 as c2 from ta a, tb b where a.c2 like 'a%' group by a.c1 order by a.c1, b.c2";
@@ -174,18 +172,20 @@ public class PaginationCodeGenerator extends TestBase {
 		// Now generate Java source code to console
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("public String getPaginSqlTemplate() {\r\n");
-		sb.append("switch (this) {// NOSONAR\r\n");
+		sb.append("private void initializePaginSqlTemplate() {// NOSONAR\r\n");
+		sb.append("switch (this.toString()) {// NOSONAR\r\n");
 		l = Dao.queryForEntityList(TB_pagination.class, select(), tp.all(), from(), tp.table(), " order by sortorder");
 		for (TB_pagination t : l) {
-			sb.append("case ").append(t.getDialect()).append(":");
+			sb.append("case \"").append(t.getDialect()).append("\":");
 			if (!StringUtils.isEmpty(t.getPagination())) {
-				sb.append("return \"" + t.getPagination() + "\";");
+
+				sb.append("paginSQLTemplate= \"" + t.getPagination() + "\";\r\n");
+				sb.append("break;");
 			}
 			sb.append("\r\n");
 		}
-		sb.append("default:\r\n");
-		sb.append("	return \"\";\r\n");
+		sb.append("default:  \r\n");
+		sb.append("	paginSQLTemplate = \"\";\r\n");
 		sb.append("}\r\n");
 		sb.append("}\r\n");
 

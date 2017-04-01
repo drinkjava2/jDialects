@@ -1,2 +1,4 @@
-# (In developing)
-# HiDialect is a small Java tool collect all database's dialects, usually used for build pagination in SQL. This tool is built for jSqlBox project, but can be used for all Java projects which use SQL.
+##AllDialects (In Developing)
+**License:** [LGPL 2.1](http://www.gnu.org/licenses/lgpl-2.1.html)  
+  
+AllDialects is a small Java tool collect all database's dialects, usually used for build pagination SQL
