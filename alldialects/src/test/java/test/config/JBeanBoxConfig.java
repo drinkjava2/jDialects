@@ -43,7 +43,7 @@ public class JBeanBoxConfig {
 
 	/**
 	 * ==================================================================================================<br/>
-	 * Data source setting
+	 * DataSource setting below
 	 * ==================================================================================================<br/>
 	 */
 	public static class DataSourceBox extends H2DataSourceBox {// change here to test on different database

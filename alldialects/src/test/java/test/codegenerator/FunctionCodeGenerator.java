@@ -42,8 +42,7 @@ import com.github.drinkjava2.jsqlbox.Dao;
 import test.TestBase;
 
 /**
- * This is not a unit test class, it's a code generator tool to create source
- * code in Dialect.java
+ * This is not a unit test class, it's a code generator tool to create source code in Dialect.java
  *
  * @author Yong Zhu
  *

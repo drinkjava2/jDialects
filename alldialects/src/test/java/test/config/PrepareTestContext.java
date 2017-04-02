@@ -23,8 +23,7 @@ public class PrepareTestContext {
 	public static void prepareDatasource_setDefaultSqlBoxConetxt_recreateTables() {
 		BeanBox.defaultContext.close();
 		SqlBoxContext.setDefaultSqlBoxContext(BeanBox.getBean(DefaultSqlBoxContextBox.class));
-		System.out.println("SqlBoxContext Initialization done.");
-	}
+ 	}
 
 	/**
 	 * Close BeanBox Context, DataSource will be closed automatically when

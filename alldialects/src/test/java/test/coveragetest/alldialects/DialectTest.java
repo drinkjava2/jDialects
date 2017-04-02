@@ -47,30 +47,49 @@ public class DialectTest {
 	// ========test pagination=========
 	@Test
 	public void selectTest() {
-		System.out.println(Dialect.MySQL5Dialect.pagin(1, 10, "select * from user where userid=1 order by id"));
-		System.out
-				.println(Dialect.pagin(Dialect.MySQL57Dialect, 1, 10, "select * from user where userid=1 order by id"));
+		String s = Dialect.MySQL5Dialect.paginate(1, 10, "select * from user where userid=1 order by id");
+		Assert.assertTrue(s.contains("0, 10"));
 	}
 
 	@Test(expected = DialectException.class)
 	public void selectWrongTest() {
-		System.out.println(Dialect.MySQL5Dialect.pagin(1, 10, "query from user"));
+		System.out.println(Dialect.MySQL5Dialect.paginate(1, 10, "query from user"));
 	}
 
 	@Test(expected = DialectException.class)
 	public void notSupportTest() {
-		System.out.println(Dialect.Cache71Dialect.pagin(1, 10, "select * from user"));
+		System.out.println(Dialect.Cache71Dialect.paginate(1, 10, "select * from user"));
 	}
 
 	@Test(expected = DialectException.class)
-	public void nullTest() {
-		System.out.println(Dialect.pagin(null, 1, 10, "select * from user where userid=1 order by id"));
+	public void notSupportTest2() {
+		System.out.println(Dialect.SQLServerDialect.paginate(1, 10, "select * from user"));
+	}
+
+	@Test
+	public void selectMSSQLPagination() {
+		String s;
+		s = Dialect.SQLServer2005Dialect.paginate(1, 10,
+				"select * from users a where id>'1' order by  id, a.username");
+		System.out.println(s);
+		s = Dialect.SQLServer2008Dialect.paginate(1, 10,
+				"select * from users a where id>'1' order by id, a.username");
+		System.out.println(s);
+		s = Dialect.SQLServer2012Dialect.paginate(1, 10,
+				"select * from users a where id>'1' order by id, a.username");
+		System.out.println(s);
+	}
+
+	@Test
+	public void testGetTemplatesAndMappings() {
+		System.out.println(Dialect.PostgresPlusDialect.getPaginSqlTemplate());
+		System.out.println(Dialect.MySQL55Dialect.getPaginSqlTemplate());
+		System.out.println(Dialect.MySQL55Dialect.getTypeMappings());
 	}
 
 	// =======test guess dialects=======
 	@Test
 	public void testGuessDialects() {
-		System.out.println("=====testGuessDialects========== ");
 		Assert.assertEquals(SQLiteDialect, Dialect.guessDialect("SQLite"));
 		Assert.assertEquals(HSQLDialect, Dialect.guessDialect("HSQL Database Engine"));
 		Assert.assertEquals(H2Dialect, Dialect.guessDialect("H2"));
