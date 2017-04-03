@@ -27,12 +27,26 @@ import java.util.Map;
 public enum Dialect {
 	SQLiteDialect, Cache71Dialect, CUBRIDDialect, DataDirectOracle9Dialect, DB2Dialect, DB2390Dialect, DB2400Dialect, DerbyDialect, DerbyTenFiveDialect, DerbyTenSevenDialect, DerbyTenSixDialect, FirebirdDialect, FrontBaseDialect, H2Dialect, HANAColumnStoreDialect, HANARowStoreDialect, HSQLDialect, InformixDialect, Informix10Dialect, IngresDialect, Ingres10Dialect, Ingres9Dialect, InterbaseDialect, JDataStoreDialect, MariaDBDialect, MariaDB53Dialect, MckoiDialect, MimerSQLDialect, MySQLDialect, MySQL5Dialect, MySQL55Dialect, MySQL57Dialect, MySQL57InnoDBDialect, MySQL5InnoDBDialect, MySQLInnoDBDialect, MySQLMyISAMDialect, OracleDialect, Oracle10gDialect, Oracle12cDialect, Oracle8iDialect, Oracle9Dialect, Oracle9iDialect, PointbaseDialect, PostgresPlusDialect, PostgreSQLDialect, PostgreSQL81Dialect, PostgreSQL82Dialect, PostgreSQL9Dialect, PostgreSQL91Dialect, PostgreSQL92Dialect, PostgreSQL93Dialect, PostgreSQL94Dialect, PostgreSQL95Dialect, ProgressDialect, RDMSOS2200Dialect, SAPDBDialect, SQLServerDialect, SQLServer2005Dialect, SQLServer2008Dialect, SQLServer2012Dialect, SybaseDialect, Sybase11Dialect, SybaseAnywhereDialect, SybaseASE15Dialect, SybaseASE157Dialect, TeradataDialect, Teradata14Dialect, TimesTen;// NOSONAR
 	private String paginSQLTemplate;
+	private String paginFirstOnlyTemplate;
 	private Map<String, String> typeMappings = new HashMap<>();
-	public static final String NOT_SUPPORTED = "NOT SUPPORT";
+	public static final String NOT_SUPPORT = "NOT_SUPPORT";
 
 	private Dialect() {
 		initializePaginSqlTemplate();
+		initializePaginFirstOnlySqlTemplate();
 		initializeTypeMappings();
+	}
+
+	public String getPaginSQLTemplate() {
+		return paginSQLTemplate;
+	}
+
+	public String getPaginFirstOnlyTemplate() {
+		return paginFirstOnlyTemplate;
+	}
+
+	public Map<String, String> getTypeMappings() {
+		return typeMappings;
 	}
 
 	// Initialize paginSQLTemplate
@@ -2156,10 +2170,11 @@ public enum Dialect {
 
 	// Initialize paginSQLTemplate
 	private void initializePaginSqlTemplate() {// NOSONAR
-		switch (this.toString()) { // NOSONAR
+		switch (this.toString()) {// NOSONAR
 		case "H2Dialect":
 		case "HANAColumnStoreDialect":
 		case "HANARowStoreDialect":
+		case "PostgresPlusDialect":
 		case "PostgreSQL81Dialect":
 		case "PostgreSQL82Dialect":
 		case "PostgreSQL91Dialect":
@@ -2169,7 +2184,6 @@ public enum Dialect {
 		case "PostgreSQL95Dialect":
 		case "PostgreSQL9Dialect":
 		case "PostgreSQLDialect":
-		case "PostgresPlusDialect":
 		case "SQLiteDialect":
 			paginSQLTemplate = "$SQL limit $MAX offset $OFFSET";
 			break;
@@ -2215,18 +2229,14 @@ public enum Dialect {
 		case "SAPDBDialect":
 		case "SQLServerDialect":
 		case "Sybase11Dialect":
+		case "SybaseAnywhereDialect":
 		case "SybaseASE157Dialect":
 		case "SybaseASE15Dialect":
-		case "SybaseAnywhereDialect":
 		case "SybaseDialect":
 		case "Teradata14Dialect":
 		case "TeradataDialect":
 		case "TimesTenDialect":
-			paginSQLTemplate = "NOT SUPPORT";
-			break;
-		case "SQLServer2005Dialect":
-		case "SQLServer2008Dialect":
-			paginSQLTemplate = "WITH query AS (SELECT inner_query.*, ROW_NUMBER() OVER (ORDER BY CURRENT_TIMESTAMP) as _rownum_ FROM ( select TOP($MAX) $BODY ) inner_query ) SELECT $MSSQL_ORDERBY FROM query WHERE _rownum_ >= $OFFSET AND _rownum_ < $END";
+			paginSQLTemplate = "NOT_SUPPORT";
 			break;
 		case "DB2400Dialect":
 		case "DB2Dialect":
@@ -2242,26 +2252,128 @@ public enum Dialect {
 		case "Oracle9iDialect":
 			paginSQLTemplate = "select * from ( select row_.*, rownum rownum_ from ( $SQL ) row_ where rownum <= $END) where rownum_ > $OFFSET";
 			break;
-		case "Informix10Dialect":
-			paginSQLTemplate = "select SKIP $OFFSET FIRST $MAX $BODY";
-			break;
 		case "FirebirdDialect":
 			paginSQLTemplate = "select first $OFFSET skip $MAX $BODY";
 			break;
 		case "HSQLDialect":
 			paginSQLTemplate = "select limit $OFFSET $MAX $BODY";
 			break;
+		case "Informix10Dialect":
+			paginSQLTemplate = "select SKIP $OFFSET FIRST $MAX $BODY";
+			break;
+		case "SQLServer2005Dialect":
+		case "SQLServer2008Dialect":
+			paginSQLTemplate = "WITH query AS (SELECT inner_query.*, ROW_NUMBER() OVER (ORDER BY CURRENT_TIMESTAMP) as _rownum_ FROM ( select TOP($END) $BODY ) inner_query ) SELECT $MSSQL_ORDERBY FROM query WHERE _rownum_ >= $OFFSET AND _rownum_ < $END";
+			break;
 		default:
-			paginSQLTemplate = "";
+			paginSQLTemplate = NOT_SUPPORT;
 		}
 	}
 
-	public String getPaginSqlTemplate() {// NOSONAR
-		return paginSQLTemplate;
-	}
-
-	public Map<String, String> getTypeMappings() {// N
-		return typeMappings;
+	// initialize paginFirstOnlySqlTemplate
+	private void initializePaginFirstOnlySqlTemplate() {// NOSONAR
+		switch (this.toString()) {// NOSONAR
+		case "DB2390Dialect":
+		case "DB2400Dialect":
+		case "DB2Dialect":
+		case "DerbyDialect":
+		case "DerbyTenFiveDialect":
+		case "DerbyTenSevenDialect":
+		case "DerbyTenSixDialect":
+		case "Ingres10Dialect":
+		case "Ingres9Dialect":
+			paginFirstOnlyTemplate = "$SQL fetch first $MAX rows only";
+			break;
+		case "RDMSOS2200Dialect":
+			paginFirstOnlyTemplate = "$SQL fetch first $MAX rows only ";
+			break;
+		case "Oracle12cDialect":
+			paginFirstOnlyTemplate = "$SQL fetch first ? rows only";
+			break;
+		case "CUBRIDDialect":
+		case "H2Dialect":
+		case "HANAColumnStoreDialect":
+		case "HANARowStoreDialect":
+		case "MariaDB53Dialect":
+		case "MariaDBDialect":
+		case "MySQL55Dialect":
+		case "MySQL57Dialect":
+		case "MySQL57InnoDBDialect":
+		case "MySQL5Dialect":
+		case "MySQL5InnoDBDialect":
+		case "MySQLDialect":
+		case "MySQLInnoDBDialect":
+		case "MySQLMyISAMDialect":
+		case "PostgresPlusDialect":
+		case "PostgreSQL81Dialect":
+		case "PostgreSQL82Dialect":
+		case "PostgreSQL91Dialect":
+		case "PostgreSQL92Dialect":
+		case "PostgreSQL93Dialect":
+		case "PostgreSQL94Dialect":
+		case "PostgreSQL95Dialect":
+		case "PostgreSQL9Dialect":
+		case "PostgreSQLDialect":
+		case "SQLiteDialect":
+			paginFirstOnlyTemplate = "$SQL limit ?";
+			break;
+		case "SQLServer2012Dialect":
+			paginFirstOnlyTemplate = "$SQL offset 0 rows fetch next ? rows only";
+			break;
+		case "InterbaseDialect":
+			paginFirstOnlyTemplate = "$SQL rows ?";
+			break;
+		case "FrontBaseDialect":
+		case "JDataStoreDialect":
+		case "MckoiDialect":
+		case "MimerSQLDialect":
+		case "PointbaseDialect":
+		case "ProgressDialect":
+		case "SAPDBDialect":
+		case "Sybase11Dialect":
+		case "SybaseAnywhereDialect":
+		case "SybaseASE157Dialect":
+		case "SybaseASE15Dialect":
+		case "SybaseDialect":
+		case "Teradata14Dialect":
+		case "TeradataDialect":
+			paginFirstOnlyTemplate = "NOT_SUPPORT";
+			break;
+		case "DataDirectOracle9Dialect":
+		case "Oracle10gDialect":
+		case "Oracle8iDialect":
+		case "Oracle9Dialect":
+		case "Oracle9iDialect":
+		case "OracleDialect":
+			paginFirstOnlyTemplate = "select * from ( $SQL ) where rownum <= ?";
+			break;
+		case "Informix10Dialect":
+			paginFirstOnlyTemplate = "select FIRST $MAX $BODY";
+			break;
+		case "InformixDialect":
+		case "IngresDialect":
+		case "TimesTenDialect":
+			paginFirstOnlyTemplate = "select first $MAX $BODY";
+			break;
+		case "FirebirdDialect":
+			paginFirstOnlyTemplate = "select first ? $BODY";
+			break;
+		case "SQLServerDialect":
+			paginFirstOnlyTemplate = "select TOP $MAX  $BODY";
+			break;
+		case "Cache71Dialect":
+			paginFirstOnlyTemplate = "select TOP ?  $BODY";
+			break;
+		case "HSQLDialect":
+			paginFirstOnlyTemplate = "select top ? $BODY";
+			break;
+		case "SQLServer2005Dialect":
+		case "SQLServer2008Dialect":
+			paginFirstOnlyTemplate = "select TOP($MAX) $BODY";
+			break;
+		default:
+			paginFirstOnlyTemplate = NOT_SUPPORT;
+		}
 	}
 
 	/**
@@ -2295,8 +2407,19 @@ public enum Dialect {
 		return realDDL;
 	}
 
+	private static String aTopLimitSqlExample(String template) {
+		String result = StrUtils.replace(template, "$SQL", "select username from user order by id");
+		result = StrUtils.replace(result, "$BODY", "username from users order by id");
+		result = StrUtils.replace(result, "$OFFSET", "0");
+		result = StrUtils.replace(result, "$MAX", "10");
+		result = StrUtils.replace(result, "$END", "10");
+		return result;
+	}
+
 	/**
-	 * Create a pagination SQL by given pageNumber, pageSize and SQL
+	 * Create a pagination SQL by given pageNumber, pageSize and SQL<br/>
+	 * A special note: for sql2005 and sql2008, "order by" should write alias name if exist like below:<br/>
+	 * select a.username as alias_username from user a order by alias_username
 	 * 
 	 * @param pageNumber
 	 *            pageNumber started from 0
@@ -2306,22 +2429,34 @@ public enum Dialect {
 	 *            the original sql
 	 * @return the pagination SQL String
 	 */
-	public String paginate(int pageNumber, int pageSize, String sql) {
+	public String paginate(int pageNumber, int pageSize, String sql) {// NOSONAR
 		if (!StrUtils.startsWithIgnoreCase(sql, "select "))
 			return (String) DialectException.throwEX("SQL should be started with \"select \".");
 		String body = sql.substring(7);
-		String pagintemplate = this.getPaginSqlTemplate();
-		if (Dialect.NOT_SUPPORTED.equals(pagintemplate))
-			return (String) DialectException
-					.throwEX("This dialect \"" + this + "\" does not support physical pagination.");
+
+		int offset = (pageNumber - 1) * pageSize;
+		int maxQty = pageNumber * pageSize;
+		String paginTemplate = this.paginSQLTemplate;
+
+		if (Dialect.NOT_SUPPORT.equals(paginTemplate)) {
+			if (!Dialect.NOT_SUPPORT.equals(this.paginFirstOnlyTemplate))
+				return (String) DialectException.throwEX("Dialect \"" + this
+						+ "\" does not support physical pagination, it only support top limit SQL, here is an example: \""
+						+ aTopLimitSqlExample(paginFirstOnlyTemplate) + "\"");
+			else
+				return (String) DialectException
+						.throwEX("Dialect \"" + this + "\" does not support physical pagination");
+		}
 
 		// if have $SQL, replace by real sql
-		String result = StrUtils.replace(pagintemplate, "$SQL", sql);
+		String result = StrUtils.replace(paginTemplate, "$OFFSET", String.valueOf(offset));
+		result = StrUtils.replace(result, "$MAX", String.valueOf(pageSize));
+		result = StrUtils.replace(result, "$END", String.valueOf(maxQty));
+
+		result = StrUtils.replace(result, "$SQL", sql);
 		// if have $BODY, replace by real body
 		result = StrUtils.replace(result, "$BODY", body);
-		result = StrUtils.replace(result, "$OFFSET", String.valueOf((pageNumber - 1) * pageSize));
-		result = StrUtils.replace(result, "$MAX", String.valueOf(pageSize));
-		result = StrUtils.replace(result, "$END", String.valueOf(pageNumber * pageSize));
+
 		if (result.contains("$MSSQL_ORDERBY")) {
 			int i = StrUtils.lastIndexOfIgnoreCase(sql, " order by ");
 			if (i < 0)
@@ -2332,7 +2467,7 @@ public enum Dialect {
 				List<String> l = StrUtils.substringsBetween(orderStr, ",");
 				StringBuilder sb = new StringBuilder();
 				for (String str : l) {
-					if (!StrUtils.isEmpty(str) && str.indexOf(".") < 0)
+					if (!StrUtils.isEmpty(str) && str.indexOf('.') < 0)// NOSONAR
 						sb.append(str).append(",");
 					else {
 						int i2 = str.indexOf('.');
@@ -2342,7 +2477,7 @@ public enum Dialect {
 				}
 				sb.deleteCharAt(sb.length() - 1);
 				orderStr = sb.toString();
-				//TODO: has problem if as exist				
+				// Still has problem if "as" exist, leave this problem to user
 			}
 			result = StrUtils.replace(result, "$MSSQL_ORDERBY", orderStr);
 		}

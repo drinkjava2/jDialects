@@ -47,43 +47,62 @@ public class DialectTest {
 	// ========test pagination=========
 	@Test
 	public void selectTest() {
-		String s = Dialect.MySQL5Dialect.paginate(1, 10, "select * from user where userid=1 order by id");
-		Assert.assertTrue(s.contains("0, 10"));
+		String s = Dialect.MySQL5Dialect.paginate(2, 10, "select * from user where userid=1 order by id");
+		System.out.println(s);
 	}
 
 	@Test(expected = DialectException.class)
 	public void selectWrongTest() {
-		System.out.println(Dialect.MySQL5Dialect.paginate(1, 10, "query from user"));
+		System.out.println(Dialect.MySQL5Dialect.paginate(2, 10, "query from user"));
 	}
 
 	@Test(expected = DialectException.class)
 	public void notSupportTest() {
-		System.out.println(Dialect.Cache71Dialect.paginate(1, 10, "select * from user"));
+		System.out.println(Dialect.Cache71Dialect.paginate(2, 10, "select * from user"));
 	}
 
 	@Test(expected = DialectException.class)
-	public void notSupportTest2() {
-		System.out.println(Dialect.SQLServerDialect.paginate(1, 10, "select * from user"));
+	public void selectMSSQLNotSupportPagination() {
+		String s;
+		s = Dialect.SQLServerDialect.paginate(2, 10, "select * from users a where id>'1' order by  id, a.username");
+		System.out.println(s);
+	}
+
+	@Test(expected = DialectException.class)
+	public void selectMSSQLNotSupportPagination2() {
+		String s;
+		s = Dialect.SQLServerDialect.paginate(1, 10, "select * from users a where id>'1' order by  id, a.username");
+		System.out.println(s);
+	}
+	
+	@Test 
+	public void selectMSSQLTEMP() {
+		String s;
+		s = Dialect.SQLServer2005Dialect.paginate(3, 4, "select a.id, a.userName from users a where 1=1 order by  id, a.username");
+		System.out.println(s); 
 	}
 
 	@Test
 	public void selectMSSQLPagination() {
 		String s;
-		s = Dialect.SQLServer2005Dialect.paginate(1, 10,
-				"select * from users a where id>'1' order by  id, a.username");
+		s = Dialect.SQLServer2005Dialect.paginate(1, 10, "select * from users a where id>'1' order by  id, a.username");
 		System.out.println(s);
-		s = Dialect.SQLServer2008Dialect.paginate(1, 10,
-				"select * from users a where id>'1' order by id, a.username");
+		s = Dialect.SQLServer2005Dialect.paginate(2, 10, "select * from users a where id>'1' order by  id, a.username");
 		System.out.println(s);
-		s = Dialect.SQLServer2012Dialect.paginate(1, 10,
-				"select * from users a where id>'1' order by id, a.username");
+		s = Dialect.SQLServer2008Dialect.paginate(1, 10, "select * from users a where id>'1' order by id, a.username");
+		System.out.println(s);
+		s = Dialect.SQLServer2008Dialect.paginate(2, 10, "select * from users a where id>'1' order by id, a.username");
+		System.out.println(s);
+		s = Dialect.SQLServer2012Dialect.paginate(1, 10, "select * from users a where id>'1' order by id, a.username");
+		System.out.println(s);
+		s = Dialect.SQLServer2012Dialect.paginate(2, 10, "select * from users a where id>'1' order by id, a.username");
 		System.out.println(s);
 	}
 
 	@Test
 	public void testGetTemplatesAndMappings() {
-		System.out.println(Dialect.PostgresPlusDialect.getPaginSqlTemplate());
-		System.out.println(Dialect.MySQL55Dialect.getPaginSqlTemplate());
+		System.out.println(Dialect.PostgresPlusDialect.getPaginSQLTemplate());
+		System.out.println(Dialect.MySQL55Dialect.getPaginSQLTemplate());
 		System.out.println(Dialect.MySQL55Dialect.getTypeMappings());
 	}
 

@@ -16,13 +16,13 @@ import org.junit.Test;
 import com.github.drinkjava2.alldialects.StrUtils;
 
 /**
- * Test
+ * StrUtils Unit Test
  * 
  * @author Yong Zhu
  * @version 1.0.0
  * @since 1.0.0
  */
-public class DialectStringUtilsTest {
+public class StrUtilsTest {
 	@Test
 	public void testContainsWhitespace() throws Exception {
 		assertFalse(StrUtils.containsWhitespace(null));
@@ -170,6 +170,20 @@ public class DialectStringUtilsTest {
 		assertEquals(StrUtils.indexOfIgnoreCase("Royal Blue", "BLUE"), 6);
 		assertEquals(StrUtils.indexOfIgnoreCase("Royal Blue", "BIGLONGSTRING"), -1);
 		assertEquals(StrUtils.indexOfIgnoreCase("Royal Blue", "Royal Blue LONGSTRING"), -1);
+	}
+
+	@Test
+	public void testSubStringBetween() {
+		assertTrue(StrUtils.substringBetween("wx[b]yz", "[", "]").equals("b"));
+		assertTrue(StrUtils.substringBetween(null, "", "") == null);
+		assertTrue(StrUtils.substringBetween("", null, "") == null);
+		assertTrue(StrUtils.substringBetween("", "", null) == null);
+		assertTrue(StrUtils.substringBetween("", "", "").equals(""));
+		assertTrue(StrUtils.substringBetween("", "", "]") == null);
+		assertTrue(StrUtils.substringBetween("", "[", "]") == null);
+		assertTrue(StrUtils.substringBetween("yabcz", "", "").equals(""));
+		assertTrue(StrUtils.substringBetween("yabcz", "y", "z").equals("abc"));
+		assertTrue(StrUtils.substringBetween("yabczyabcz", "y", "z").equals("abc"));
 	}
 
 }
