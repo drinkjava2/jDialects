@@ -10,7 +10,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -2168,6 +2167,8 @@ public enum Dialect {
 		}
 	}
 
+	// ====================================================
+	// ====================================================
 	// Initialize paginSQLTemplate
 	private void initializePaginSqlTemplate() {// NOSONAR
 		switch (this.toString()) {// NOSONAR
@@ -2236,7 +2237,7 @@ public enum Dialect {
 		case "Teradata14Dialect":
 		case "TeradataDialect":
 		case "TimesTenDialect":
-			paginSQLTemplate = "NOT_SUPPORT";
+			paginSQLTemplate = NOT_SUPPORT;
 			break;
 		case "DB2400Dialect":
 		case "DB2Dialect":
@@ -2252,6 +2253,10 @@ public enum Dialect {
 		case "Oracle9iDialect":
 			paginSQLTemplate = "select * from ( select row_.*, rownum rownum_ from ( $SQL ) row_ where rownum <= $END) where rownum_ > $OFFSET";
 			break;
+		case "SQLServer2005Dialect":
+		case "SQLServer2008Dialect":
+			paginSQLTemplate = "SELECT * FROM (SELECT ROW_NUMBER() OVER($ORDER_BY_ONLY) AS ROW__NM, $NO_ORDER_BODY) TMP_TB WHERE ROW__NM BETWEEN $1BASE_OFFSET AND $END";
+			break;
 		case "FirebirdDialect":
 			paginSQLTemplate = "select first $OFFSET skip $MAX $BODY";
 			break;
@@ -2260,10 +2265,6 @@ public enum Dialect {
 			break;
 		case "Informix10Dialect":
 			paginSQLTemplate = "select SKIP $OFFSET FIRST $MAX $BODY";
-			break;
-		case "SQLServer2005Dialect":
-		case "SQLServer2008Dialect":
-			paginSQLTemplate = "WITH query AS (SELECT inner_query.*, ROW_NUMBER() OVER (ORDER BY CURRENT_TIMESTAMP) as _rownum_ FROM ( select TOP($END) $BODY ) inner_query ) SELECT $MSSQL_ORDERBY FROM query WHERE _rownum_ >= $OFFSET AND _rownum_ < $END";
 			break;
 		default:
 			paginSQLTemplate = NOT_SUPPORT;
@@ -2337,7 +2338,7 @@ public enum Dialect {
 		case "SybaseDialect":
 		case "Teradata14Dialect":
 		case "TeradataDialect":
-			paginFirstOnlyTemplate = "NOT_SUPPORT";
+			paginFirstOnlyTemplate = NOT_SUPPORT;
 			break;
 		case "DataDirectOracle9Dialect":
 		case "Oracle10gDialect":
@@ -2369,12 +2370,14 @@ public enum Dialect {
 			break;
 		case "SQLServer2005Dialect":
 		case "SQLServer2008Dialect":
-			paginFirstOnlyTemplate = "select TOP($MAX) $BODY";
+			paginFirstOnlyTemplate = "select TOP($END) $BODY";
 			break;
 		default:
 			paginFirstOnlyTemplate = NOT_SUPPORT;
 		}
 	}
+	// ====================================================
+	// ====================================================
 
 	/**
 	 * This method transfer a universal DDL to database related DDL, to compare universal DDL and native DDl, please
@@ -2435,21 +2438,26 @@ public enum Dialect {
 		String body = sql.substring(7);
 
 		int offset = (pageNumber - 1) * pageSize;
+		int offsetBase1 = offset + 1;
 		int maxQty = pageNumber * pageSize;
 		String paginTemplate = this.paginSQLTemplate;
+		String firstOnly = this.paginFirstOnlyTemplate;
 
-		if (Dialect.NOT_SUPPORT.equals(paginTemplate)) {
+		if (Dialect.NOT_SUPPORT.equals(paginTemplate) || Dialect.NOT_SUPPORT.equals(firstOnly)) {
 			if (!Dialect.NOT_SUPPORT.equals(this.paginFirstOnlyTemplate))
 				return (String) DialectException.throwEX("Dialect \"" + this
-						+ "\" does not support physical pagination, it only support top limit SQL, here is an example: \""
+						+ "\" has no simple solution for physical pagination, it only has top limit SQL, like: \""
 						+ aTopLimitSqlExample(paginFirstOnlyTemplate) + "\"");
 			else
 				return (String) DialectException
 						.throwEX("Dialect \"" + this + "\" does not support physical pagination");
 		}
 
+		if (offset == 0)
+			paginTemplate = firstOnly;
 		// if have $SQL, replace by real sql
 		String result = StrUtils.replace(paginTemplate, "$OFFSET", String.valueOf(offset));
+		result = StrUtils.replace(result, "$1BASE_OFFSET", String.valueOf(offsetBase1));
 		result = StrUtils.replace(result, "$MAX", String.valueOf(pageSize));
 		result = StrUtils.replace(result, "$END", String.valueOf(maxQty));
 
@@ -2457,29 +2465,17 @@ public enum Dialect {
 		// if have $BODY, replace by real body
 		result = StrUtils.replace(result, "$BODY", body);
 
-		if (result.contains("$MSSQL_ORDERBY")) {
-			int i = StrUtils.lastIndexOfIgnoreCase(sql, " order by ");
+		// replace $MSORDER_BY to inner temp table's order by fields or alias name
+		if (result.contains("$ORDER_BY_ONLY") || result.contains("$NO_ORDER_BODY")) {
+			int i = StrUtils.lastIndexOfIgnoreCase(body, " order by ");
 			if (i < 0)
-				DialectException.throwEX("Error: paginate() can not locate order by in SQL");
-			String orderStr = sql.substring(i + 9, sql.length());
-			if (orderStr.indexOf('.') >= 0) {
-				orderStr = "," + StrUtils.trimAllWhitespace(orderStr) + ",";
-				List<String> l = StrUtils.substringsBetween(orderStr, ",");
-				StringBuilder sb = new StringBuilder();
-				for (String str : l) {
-					if (!StrUtils.isEmpty(str) && str.indexOf('.') < 0)// NOSONAR
-						sb.append(str).append(",");
-					else {
-						int i2 = str.indexOf('.');
-						sb.append(str.substring(i2 + 1, str.length()));
-						sb.append(",");
-					}
-				}
-				sb.deleteCharAt(sb.length() - 1);
-				orderStr = sb.toString();
-				// Still has problem if "as" exist, leave this problem to user
-			}
-			result = StrUtils.replace(result, "$MSSQL_ORDERBY", orderStr);
+				DialectException.throwEX("Error: paginate() can not locate order by in SQL" + sql);
+
+			String bodyNoOrder = body.substring(0, i);
+			String orderStr = body.substring(i, body.length());
+
+			result = StrUtils.replace(result, "$NO_ORDER_BODY", bodyNoOrder);
+			result = StrUtils.replace(result, "$ORDER_BY_ONLY", orderStr);
 		}
 		return result;
 	}

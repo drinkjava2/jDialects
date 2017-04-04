@@ -78,7 +78,7 @@ public class DialectTest {
 	@Test 
 	public void selectMSSQLTEMP() {
 		String s;
-		s = Dialect.SQLServer2005Dialect.paginate(3, 4, "select a.id, a.userName from users a where 1=1 order by  id, a.username");
+		s = Dialect.SQLServer2005Dialect.paginate(3, 3, "select a.id, a.userName, a.userName as u2 from users a where 1=1 order by  id, a.username");
 		System.out.println(s); 
 	}
 

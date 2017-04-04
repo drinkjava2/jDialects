@@ -8,6 +8,7 @@ package test.codegenerator;
 
 import static com.github.drinkjava2.jsqlbox.SqlHelper.empty;
 import static com.github.drinkjava2.jsqlbox.SqlHelper.from;
+import static com.github.drinkjava2.jsqlbox.SqlHelper.q;
 import static com.github.drinkjava2.jsqlbox.SqlHelper.select;
 import static com.github.drinkjava2.jsqlbox.SqlHelper.valuesAndQuestions;
 
@@ -59,8 +60,14 @@ public class PaginationCodeGenerator extends TestBase {
 		// put my sqls here
 		someSpecialSQLfix();
 
+		System.out.println("//====================================================");
+		System.out.println("//====================================================");
+
 		generatePaginationSourceCode();
 		generatePaginationFirstOnlySourceCode();
+		System.out.println("//====================================================");
+		System.out.println("//====================================================");
+
 	}
 
 	private static Dialect buildDialectByName(Class<?> dialect) {
@@ -177,7 +184,6 @@ public class PaginationCodeGenerator extends TestBase {
 	private String replaceSqlTags(String pagination, String baitSqlBody) {
 		pagination = StringUtils.replace(pagination, baitSqlBody, "$BODY");
 		pagination = StringUtils.replace(pagination, "select $BODY", "$SQL");
-
 		pagination = StringUtils.replace(pagination, "37", "$OFFSET");
 		pagination = StringUtils.replace(pagination, "13", "$MAX");
 		pagination = StringUtils.replace(pagination, "50", "$END");
@@ -196,17 +202,21 @@ public class PaginationCodeGenerator extends TestBase {
 		pagination = StringUtils.replace(pagination, "offset ? rows fetch next ? rows",
 				"offset $OFFSET rows fetch next $MAX rows");
 		pagination = StringUtils.replace(pagination, " first ? skip ?", " first $OFFSET skip $MAX");
-		pagination = StringUtils.replace(pagination, " TOP(?) ", " TOP($MAX) ");
+		pagination = StringUtils.replace(pagination, " TOP(?) ", " TOP($END) ");
+		// $OFFSET is from 0, $1BASE_OFFSET is from 1
 		pagination = StringUtils.replace(pagination, " _rownum_ >= ? AND _rownum_ < ?",
-				" _rownum_ >= $OFFSET AND _rownum_ < $END");
-		pagination = StringUtils.replace(pagination, " c1, c2 ", " $ORDER_BY ");
+				" _rownum_ >= $1BASE_OFFSET AND _rownum_ < $END");
 		return pagination;
 	}
 
+	/**
+	 * To fix or append some special SQL
+	 */
 	private void someSpecialSQLfix() {
-		TB_pagination tb=Dao.load(TB_pagination.class, com.github.drinkjava2.alldialects.Dialect.SQLServer2005Dialect.toString());
-		tb.setPagination("SELECT * FROM (SELECT ROW_NUMBER() OVER($ORDER_BY) AS ROW__NM, $BODY_NO_ORDER) TMP_TB WHERE ROW__NM BETWEEN $OFFSET_1 AND $MAX ");
-		//NOT FINISH
+		// For SQL SERVER 2005 and 2008, use simple SQL template
+		String pg = "SELECT * FROM (SELECT ROW_NUMBER() OVER($ORDER_BY_ONLY) AS ROW__NM, $NO_ORDER_BODY) TMP_TB WHERE ROW__NM BETWEEN $1BASE_OFFSET AND $END";
+		Dao.execute("update tb_pagination set pagination=" + q(pg) + " where dialect=" + q("SQLServer2005Dialect")
+				+ " or dialect=" + q("SQLServer2008Dialect"));
 	}
 
 	private void generatePaginationSourceCode() {
@@ -229,13 +239,10 @@ public class PaginationCodeGenerator extends TestBase {
 			lastLine = thisLine;
 		}
 
-		System.out.println("====================================================");
-		System.out.println("====================================================");
-		System.out.println("====================================================");
-
 		// Now generate Java source code to console
 		StringBuilder sb = new StringBuilder();
 
+		sb.append("// Initialize paginSQLTemplate\r\n");
 		sb.append("private void initializePaginSqlTemplate() {// NOSONAR\r\n");
 		sb.append("switch (this.toString()) {// NOSONAR\r\n");
 		l = Dao.queryForEntityList(TB_pagination.class, select(), tp.all(), from(), tp.table(), " order by sortorder");
@@ -256,9 +263,6 @@ public class PaginationCodeGenerator extends TestBase {
 		System.out.println();
 		System.out.println(sb.toString());
 		System.out.println();
-		System.out.println("====================================================");
-		System.out.println("====================================================");
-		System.out.println("====================================================");
 	}
 
 	private void generatePaginationFirstOnlySourceCode() {
@@ -281,13 +285,10 @@ public class PaginationCodeGenerator extends TestBase {
 			lastLine = thisLine;
 		}
 
-		System.out.println("====================================================");
-		System.out.println("====================================================");
-		System.out.println("====================================================");
-
 		// Now generate Java source code to console
 		StringBuilder sb = new StringBuilder();
 
+		sb.append("//initialize paginFirstOnlySqlTemplate\r\n");
 		sb.append("private void initializePaginFirstOnlySqlTemplate() {// NOSONAR\r\n");
 		sb.append("switch (this.toString()) {// NOSONAR\r\n");
 		l = Dao.queryForEntityList(TB_pagination.class, select(), tp.all(), from(), tp.table(), " order by sortorder");
@@ -307,8 +308,5 @@ public class PaginationCodeGenerator extends TestBase {
 		System.out.println();
 		System.out.println(sb.toString());
 		System.out.println();
-		System.out.println("====================================================");
-		System.out.println("====================================================");
-		System.out.println("====================================================");
 	}
 }
