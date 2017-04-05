@@ -78,7 +78,7 @@ public class DialectTest {
 	@Test 
 	public void selectMSSQLTEMP() {
 		String s;
-		s = Dialect.SQLServer2005Dialect.paginate(3, 3, "select a.id, a.userName, a.userName as u2 from users a where 1=1 order by  id, a.username");
+		s = Dialect.Oracle8iDialect.paginate(3, 3, "select a.id, a.userName, a.userName as u2 from usertemp a where 1=1 order by  id, a.username");
 		System.out.println(s); 
 	}
 
@@ -103,7 +103,7 @@ public class DialectTest {
 	public void testGetTemplatesAndMappings() {
 		System.out.println(Dialect.PostgresPlusDialect.getPaginSQLTemplate());
 		System.out.println(Dialect.MySQL55Dialect.getPaginSQLTemplate());
-		System.out.println(Dialect.MySQL55Dialect.getTypeMappings());
+		System.out.println(Dialect.MySQL55Dialect.getTypeMappings().size());
 	}
 
 	// =======test guess dialects=======

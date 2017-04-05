@@ -35,7 +35,8 @@ import com.github.drinkjava2.jsqlbox.Entity;
 import test.TestBase;
 
 /**
- * This is not a unit test class, it's a code generator tool to create source code for Dialect.java
+ * This is not a unit test class, it's a code generator tool to create source
+ * code for Dialect.java
  *
  * @author Yong Zhu
  * @version 1.0.0
@@ -141,7 +142,7 @@ public class PaginationCodeGenerator extends TestBase {
 			try {
 				String baitSqlBody = "a.c1 as c1, b.c2 as c2 from ta a, tb b where a.c2 like 'a%' group by a.c1 order by a.c1, b.c2";
 				pagination = l.processSql("select " + baitSqlBody, r);
-				pagination = replaceSqlTags(pagination, baitSqlBody);
+				pagination = replaceOffsetAndLimit(dialect, pagination, baitSqlBody);
 
 			} catch (Exception e) {
 			}
@@ -170,7 +171,7 @@ public class PaginationCodeGenerator extends TestBase {
 			try {
 				String baitSqlBody = "a.c1 as c1, b.c2 as c2 from ta a, tb b where a.c2 like 'a%' group by a.c1 order by a.c1, b.c2";
 				paginationFirstOnly = l.processSql("select " + baitSqlBody, r);
-				paginationFirstOnly = replaceSqlTags(paginationFirstOnly, baitSqlBody);
+				paginationFirstOnly = replaceFirstLimitOnly(dialect, paginationFirstOnly, baitSqlBody);
 			} catch (Exception e) {
 			}
 			Dao.execute("update tb_pagination  " //
@@ -181,32 +182,78 @@ public class PaginationCodeGenerator extends TestBase {
 
 	}
 
-	private String replaceSqlTags(String pagination, String baitSqlBody) {
-		pagination = StringUtils.replace(pagination, baitSqlBody, "$BODY");
-		pagination = StringUtils.replace(pagination, "select $BODY", "$SQL");
-		pagination = StringUtils.replace(pagination, "37", "$OFFSET");
-		pagination = StringUtils.replace(pagination, "13", "$MAX");
-		pagination = StringUtils.replace(pagination, "50", "$END");
-		pagination = StringUtils.replace(pagination, "__hibernate_row_nr__", "_rownum_");
+	private static String replaceDialectStr(String dialectName, String SQL, String strOld, String strNew,
+			String... dialects) {
+		if (StringUtils.isEmpty(dialectName) || dialects == null || dialects.length == 0)
+			return StringUtils.replace(SQL, strOld, strNew);
 
-		pagination = StringUtils.replace(pagination, "limit ?, ?", "limit $OFFSET, $MAX");
-		pagination = StringUtils.replace(pagination, " limit ? offset ?", " limit $MAX offset $OFFSET");
-		pagination = StringUtils.replace(pagination, " rows ? to ?", " rows $OFFSET to $END");
-		pagination = StringUtils.replace(pagination, " rownum_ <= ? and rownum_ > ?",
-				" rownum_ <= $END and rownum_ > $OFFSET");
+		String newSQL = SQL;
+		for (String dia : dialects) {
+			if (StringUtils.containsIgnoreCase(dialectName, dia))
+				newSQL = StringUtils.replace(SQL, strOld, strNew);
+		}
+		return newSQL;
+	}
 
-		pagination = StringUtils.replace(pagination, " rownum <= ?) where rownum_ > ?",
-				" rownum <= $END) where rownum_ > $OFFSET");
+	/**
+	 * $0BASE_OFFSET=0, $1BASE_ROW_START=$0BASE_OFFSET+1
+	 * 
+	 * <pre>
+	 *  Here is a good article:
+	 *  https://blog.jooq.org/2014/06/09/stop-trying-to-emulate-sql-offset-pagination-with-your-in-house-db-framework/
+	 * </pre>
+	 */
+	private String replaceOffsetAndLimit(String dialectName, String sql, String baitSqlBody) {
+		sql = replaceDialectStr(dialectName, sql, baitSqlBody, "$BODY");
+		sql = replaceDialectStr(dialectName, sql, "select $BODY", "$SQL");
+		sql = replaceDialectStr(dialectName, sql, "37", "$0BASE_OFFSET");
+		sql = replaceDialectStr(dialectName, sql, "13", "$PAGESIZE");
+		sql = replaceDialectStr(dialectName, sql, "50", "$1BASE_ROW_END");
 
-		pagination = StringUtils.replace(pagination, " limit ? ?", " limit $OFFSET $MAX");
-		pagination = StringUtils.replace(pagination, "offset ? rows fetch next ? rows",
-				"offset $OFFSET rows fetch next $MAX rows");
-		pagination = StringUtils.replace(pagination, " first ? skip ?", " first $OFFSET skip $MAX");
-		pagination = StringUtils.replace(pagination, " TOP(?) ", " TOP($END) ");
-		// $OFFSET is from 0, $1BASE_OFFSET is from 1
-		pagination = StringUtils.replace(pagination, " _rownum_ >= ? AND _rownum_ < ?",
-				" _rownum_ >= $1BASE_OFFSET AND _rownum_ < $END");
-		return pagination;
+		sql = replaceDialectStr(dialectName, sql, " rownum <= ?) where rownum_ > ?",
+				" rownum <= $1BASE_ROW_END) where rownum_ > $0BASE_OFFSET", "Oracle");
+
+		sql = replaceDialectStr(dialectName, sql, " rownum_ <= ? and rownum_ > ?",
+				" rownum_ <= $1BASE_ROW_END and rownum_ > $0BASE_OFFSET", "Oracle");
+
+		sql = replaceDialectStr(dialectName, sql, "offset ? rows fetch next ? rows",
+				"offset $0BASE_OFFSET rows fetch next $PAGESIZE rows", "Oracle12c");
+
+		sql = replaceDialectStr(dialectName, sql, " limit ? offset ?", " limit $PAGESIZE offset $0BASE_OFFSET");
+
+		sql = replaceDialectStr(dialectName, sql, " rows ? to ?", " rows $1BASE_ROW_START to $1BASE_ROW_END",
+				"Interbase");
+
+		sql = replaceDialectStr(dialectName, sql, " first ? skip ?", " first $PAGESIZE skip $0BASE_OFFSET", "FireBird");
+
+		sql = replaceDialectStr(dialectName, sql, " limit ?, ?", " limit $PAGESIZE, $0BASE_OFFSET", "PostgreSQL");
+
+		sql = replaceDialectStr(dialectName, sql, " limit ?, ?", " limit $0BASE_OFFSET, $PAGESIZE", "MySql", "Maria",
+				"CUBRID");
+
+		sql = replaceDialectStr(dialectName, sql, "select limit ? ? ", "select limit $0BASE_OFFSET $PAGESIZE ", "HSQL");
+
+		sql = replaceDialectStr(dialectName, sql, " offset ? rows fetch next ? rows",
+				" offset $0BASE_OFFSET rows fetch next $PAGESIZE rows", "SQLServer2012");
+		return sql;
+	}
+
+	private String replaceFirstLimitOnly(String dialectName, String sql, String baitSqlBody) {
+		sql = replaceDialectStr(dialectName, sql, baitSqlBody, "$BODY");
+		sql = replaceDialectStr(dialectName, sql, "select $BODY", "$SQL");
+		sql = replaceDialectStr(dialectName, sql, "13", "$PAGESIZE");
+
+		sql = replaceDialectStr(dialectName, sql, " limit ?", " limit $PAGESIZE");
+		sql = replaceDialectStr(dialectName, sql, " TOP ?", " TOP $PAGESIZE");
+		sql = replaceDialectStr(dialectName, sql, " rownum <= ?", " rownum <= $PAGESIZE");
+		sql = replaceDialectStr(dialectName, sql, " first ?", " first $PAGESIZE");
+		sql = replaceDialectStr(dialectName, sql, " top ?", " top $PAGESIZE");
+		sql = replaceDialectStr(dialectName, sql, " rows ?", " rows $PAGESIZE");
+		sql = replaceDialectStr(dialectName, sql, " TOP(?)", " TOP($PAGESIZE)");
+		sql = replaceDialectStr(dialectName, sql, " offset 0 rows fetch next ? rows",
+				" offset 0 rows fetch next $PAGESIZE rows");
+
+		return sql;
 	}
 
 	/**
@@ -214,7 +261,7 @@ public class PaginationCodeGenerator extends TestBase {
 	 */
 	private void someSpecialSQLfix() {
 		// For SQL SERVER 2005 and 2008, use simple SQL template
-		String pg = "SELECT * FROM (SELECT ROW_NUMBER() OVER($ORDER_BY_ONLY) AS ROW__NM, $NO_ORDER_BODY) TMP_TB WHERE ROW__NM BETWEEN $1BASE_OFFSET AND $END";
+		String pg = "SELECT * FROM (SELECT ROW_NUMBER() OVER($ORDER_BY_ONLY) AS ROW__NM, $NO_ORDER_BODY) TMP_TB WHERE ROW__NM BETWEEN $1BASE_ROW_START AND $1BASE_ROW_END";
 		Dao.execute("update tb_pagination set pagination=" + q(pg) + " where dialect=" + q("SQLServer2005Dialect")
 				+ " or dialect=" + q("SQLServer2008Dialect"));
 	}
