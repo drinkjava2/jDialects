@@ -8,7 +8,6 @@ package test.codegenerator;
 
 import static com.github.drinkjava2.jsqlbox.SqlHelper.empty;
 import static com.github.drinkjava2.jsqlbox.SqlHelper.from;
-import static com.github.drinkjava2.jsqlbox.SqlHelper.q;
 import static com.github.drinkjava2.jsqlbox.SqlHelper.select;
 import static com.github.drinkjava2.jsqlbox.SqlHelper.valuesAndQuestions;
 
@@ -35,8 +34,7 @@ import com.github.drinkjava2.jsqlbox.Entity;
 import test.TestBase;
 
 /**
- * This is not a unit test class, it's a code generator tool to create source
- * code for Dialect.java
+ * This is not a unit test class, it's a code generator tool to create pagination source code for Dialect.java
  *
  * @author Yong Zhu
  * @version 1.0.0
@@ -141,7 +139,7 @@ public class PaginationCodeGenerator extends TestBase {
 			String pagination = com.github.drinkjava2.alldialects.Dialect.NOT_SUPPORT;
 			try {
 				String baitSqlBody = "a.c1 as c1, b.c2 as c2 from ta a, tb b where a.c2 like 'a%' group by a.c1 order by a.c1, b.c2";
-				pagination = l.processSql("select " + baitSqlBody, r);
+				pagination = l.processSql("select distinct " + baitSqlBody, r);
 				pagination = replaceOffsetAndLimit(dialect, pagination, baitSqlBody);
 
 			} catch (Exception e) {
@@ -151,7 +149,6 @@ public class PaginationCodeGenerator extends TestBase {
 					, "pagination )" + empty(pagination)//
 					, valuesAndQuestions());
 		}
-		// Done
 	}
 
 	private void exportHibernateDialectPaginationFirstOnly() {
@@ -170,7 +167,7 @@ public class PaginationCodeGenerator extends TestBase {
 			String paginationFirstOnly = com.github.drinkjava2.alldialects.Dialect.NOT_SUPPORT;
 			try {
 				String baitSqlBody = "a.c1 as c1, b.c2 as c2 from ta a, tb b where a.c2 like 'a%' group by a.c1 order by a.c1, b.c2";
-				paginationFirstOnly = l.processSql("select " + baitSqlBody, r);
+				paginationFirstOnly = l.processSql("select distinct " + baitSqlBody, r);
 				paginationFirstOnly = replaceFirstLimitOnly(dialect, paginationFirstOnly, baitSqlBody);
 			} catch (Exception e) {
 			}
@@ -205,10 +202,15 @@ public class PaginationCodeGenerator extends TestBase {
 	 */
 	private String replaceOffsetAndLimit(String dialectName, String sql, String baitSqlBody) {
 		sql = replaceDialectStr(dialectName, sql, baitSqlBody, "$BODY");
-		sql = replaceDialectStr(dialectName, sql, "select $BODY", "$SQL");
+		sql = replaceDialectStr(dialectName, sql, " distinct ", " ($DISTINCT) ");
+		sql = replaceDialectStr(dialectName, sql, "($DISTINCT) $BODY", "$BODY");
+
 		sql = replaceDialectStr(dialectName, sql, "37", "$0BASE_OFFSET");
 		sql = replaceDialectStr(dialectName, sql, "13", "$PAGESIZE");
 		sql = replaceDialectStr(dialectName, sql, "50", "$1BASE_ROW_END");
+		sql = replaceDialectStr(dialectName, sql, " FIRST ", " first ");
+		sql = replaceDialectStr(dialectName, sql, " TOP ", " top ");
+		sql = replaceDialectStr(dialectName, sql, "  ", " ");
 
 		sql = replaceDialectStr(dialectName, sql, " rownum <= ?) where rownum_ > ?",
 				" rownum <= $1BASE_ROW_END) where rownum_ > $0BASE_OFFSET", "Oracle");
@@ -235,13 +237,27 @@ public class PaginationCodeGenerator extends TestBase {
 
 		sql = replaceDialectStr(dialectName, sql, " offset ? rows fetch next ? rows",
 				" offset $0BASE_OFFSET rows fetch next $PAGESIZE rows", "SQLServer2012");
+
+		sql = replaceDialectStr(dialectName, sql, " __hibernate_row_nr__", " ROW_NUM_", "SQLServer2005",
+				"SQLServer2008");
+		sql = replaceDialectStr(dialectName, sql, " inner_query", " TMP_", "SQLServer2005", "SQLServer2008");
+		sql = replaceDialectStr(dialectName, sql, " TOP(?) $BODY", " TOP($PAGESIZE) $BODY", "SQLServer2005",
+				"SQLServer2008");
+		sql = replaceDialectStr(dialectName, sql, " ROW_NUM_ >= ? AND ROW_NUM_ < ?",
+				" ROW_NUM_ >= $0BASE_OFFSET AND ROW_NUM_ < 1BASE_ROW_END", "SQLServer2005", "SQLServer2008");
 		return sql;
 	}
 
 	private String replaceFirstLimitOnly(String dialectName, String sql, String baitSqlBody) {
 		sql = replaceDialectStr(dialectName, sql, baitSqlBody, "$BODY");
-		sql = replaceDialectStr(dialectName, sql, "select $BODY", "$SQL");
+		sql = replaceDialectStr(dialectName, sql, " distinct ", " ($DISTINCT) ");
+		sql = replaceDialectStr(dialectName, sql, "($DISTINCT) $BODY", "$BODY");
+
 		sql = replaceDialectStr(dialectName, sql, "13", "$PAGESIZE");
+
+		sql = replaceDialectStr(dialectName, sql, " FIRST ", " first ");
+		sql = replaceDialectStr(dialectName, sql, " TOP ", " top ");
+		sql = replaceDialectStr(dialectName, sql, "  ", " ");
 
 		sql = replaceDialectStr(dialectName, sql, " limit ?", " limit $PAGESIZE");
 		sql = replaceDialectStr(dialectName, sql, " TOP ?", " TOP $PAGESIZE");
@@ -252,18 +268,20 @@ public class PaginationCodeGenerator extends TestBase {
 		sql = replaceDialectStr(dialectName, sql, " TOP(?)", " TOP($PAGESIZE)");
 		sql = replaceDialectStr(dialectName, sql, " offset 0 rows fetch next ? rows",
 				" offset 0 rows fetch next $PAGESIZE rows");
+		sql = replaceDialectStr(dialectName, sql, "fetch first 13 rows only ", "fetch first 13 rows only");
 
 		return sql;
 	}
 
 	/**
-	 * To fix or append some special SQL
+	 * for some special sql
 	 */
 	private void someSpecialSQLfix() {
-		// For SQL SERVER 2005 and 2008, use simple SQL template
-		String pg = "SELECT * FROM (SELECT ROW_NUMBER() OVER($ORDER_BY_ONLY) AS ROW__NM, $NO_ORDER_BODY) TMP_TB WHERE ROW__NM BETWEEN $1BASE_ROW_START AND $1BASE_ROW_END";
-		Dao.execute("update tb_pagination set pagination=" + q(pg) + " where dialect=" + q("SQLServer2005Dialect")
-				+ " or dialect=" + q("SQLServer2008Dialect"));
+		// For SQL SERVER 2005 and 2008, here is a simple SQL template
+		// String pg = "SELECT * FROM (SELECT ROW_NUMBER() OVER($ORDER_BY_ONLY) AS ROW__NM, $NO_ORDER_BODY) TMP_TB WHERE
+		// ROW__NM BETWEEN $1BASE_ROW_START AND $1BASE_ROW_END";
+		// Dao.execute("update tb_pagination set pagination=" + q(pg) + " where dialect=" + q("SQLServer2005Dialect")
+		// + " or dialect=" + q("SQLServer2008Dialect"));
 	}
 
 	private void generatePaginationSourceCode() {
@@ -296,8 +314,9 @@ public class PaginationCodeGenerator extends TestBase {
 		for (TB_pagination t : l) {
 			sb.append("case \"").append(t.getDialect()).append("\":");
 			if (!StringUtils.isEmpty(t.getPagination())) {
-
-				sb.append("paginSQLTemplate= \"" + t.getPagination() + "\";\r\n");
+				sb.append("paginSQLTemplate=  ").append(
+						"NOT_SUPPORT".equals(t.getPagination()) ? "NOT_SUPPORT" : "\"" + t.getPagination() + "\"")
+						.append(";\r\n");
 				sb.append("break;");
 			}
 			sb.append("\r\n");
@@ -342,7 +361,8 @@ public class PaginationCodeGenerator extends TestBase {
 		for (TB_pagination t : l) {
 			sb.append("case \"").append(t.getDialect()).append("\":");
 			if (!StringUtils.isEmpty(t.getpaginationFirstOnly())) {
-				sb.append("paginFirstOnlyTemplate= \"" + t.getpaginationFirstOnly() + "\";\r\n");
+				sb.append("paginFirstOnlyTemplate=  ").append("NOT_SUPPORT".equals(t.getpaginationFirstOnly())
+						? "NOT_SUPPORT" : "\"" + t.getpaginationFirstOnly() + "\"").append(";\r\n");
 				sb.append("break;");
 			}
 			sb.append("\r\n");
