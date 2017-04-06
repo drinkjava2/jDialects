@@ -79,6 +79,14 @@ import org.hibernate.dialect.Teradata14Dialect;
 import org.hibernate.dialect.TeradataDialect;
 import org.hibernate.dialect.TimesTenDialect;
 
+import com.hxtt.support.hibernate.AccessDialect;
+import com.hxtt.support.hibernate.CobolDialect;
+import com.hxtt.support.hibernate.DbfDialect;
+import com.hxtt.support.hibernate.ExcelDialect;
+import com.hxtt.support.hibernate.ParadoxDialect;
+import com.hxtt.support.hibernate.TextDialect;
+import com.hxtt.support.hibernate.XMLDialect;
+
 /**
  * Transfer Hibernate's dialect to build a universal and tiny pagination tool
  * 
@@ -163,7 +171,18 @@ import org.hibernate.dialect.TimesTenDialect;
 public class HibernateDialectsList {
 	public static List<Class<? extends Dialect>> SUPPORTED_DIALECTS = new ArrayList<>();
 	static {
-		SUPPORTED_DIALECTS.add(SQLiteDialect.class);// this if found on web
+		// above are found from internet
+		SUPPORTED_DIALECTS.add(SQLiteDialect.class);
+
+		SUPPORTED_DIALECTS.add(AccessDialect.class);
+		SUPPORTED_DIALECTS.add(ExcelDialect.class);
+		SUPPORTED_DIALECTS.add(TextDialect.class);
+		SUPPORTED_DIALECTS.add(ParadoxDialect.class);
+		SUPPORTED_DIALECTS.add(CobolDialect.class);
+		SUPPORTED_DIALECTS.add(XMLDialect.class);
+		SUPPORTED_DIALECTS.add(DbfDialect.class);
+
+		// below are supported by Hibernate
 		SUPPORTED_DIALECTS.add(Cache71Dialect.class);
 		SUPPORTED_DIALECTS.add(CUBRIDDialect.class);
 		SUPPORTED_DIALECTS.add(DataDirectOracle9Dialect.class);

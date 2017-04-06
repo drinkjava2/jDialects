@@ -35,17 +35,18 @@ import com.github.drinkjava2.jsqlbox.Entity;
 import test.TestBase;
 
 /**
- * This is not a unit test class, it's a code generator tool to create pagination source code for Dialect.java
+ * This is not a unit test class, it's a code generator tool to create
+ * pagination source code for Dialect.java
  *
  * @author Yong Zhu
  * @version 1.0.0
  * @since 1.0.0
  */
 public class PaginationCodeGenerator extends TestBase {
-	private static final String OFFSET_BASE0 = "$OFFSET_BASE0";
+	private static final String SKIP_ROWS = "$SKIP_ROWS";
 	private static final String PAGESIZE = "$PAGESIZE";
 	private static final String ROW_END_BASE0 = "$ROW_END_BASE0";
-	private static final String OFFSET_BASE1 = "$OFFSET_BASE1";
+	private static final String ROW_BEGIN_BASE1 = "$ROW_BEGIN_BASE1";
 	private static final String ROW_END_BASE1 = "$ROW_END_BASE1";
 
 	@Test
@@ -77,7 +78,7 @@ public class PaginationCodeGenerator extends TestBase {
 		System.out.println("//====================================================");
 
 		generatePaginationSourceCode();
-		 generatePaginationFirstOnlySourceCode();
+		generatePaginationFirstOnlySourceCode();
 		System.out.println("//====================================================");
 		System.out.println("//====================================================");
 
@@ -264,22 +265,24 @@ public class PaginationCodeGenerator extends TestBase {
 		sql = replaceDialectStr(dialectName, sql, " ac1, bc2", " $FIELDS_OR_ALIAS", "SQLServer2005", "SQLServer2008");
 
 		Map<String, String> rep = new HashMap<>();
-		rep.put("3", OFFSET_BASE0);
+		rep.put("3", SKIP_ROWS);
 		rep.put("9", PAGESIZE);
 		rep.put("12", ROW_END_BASE0);
-		rep.put("4", OFFSET_BASE1);
+		rep.put("4", ROW_BEGIN_BASE1);
 		rep.put("13", ROW_END_BASE1);
-		rep.put("55", ROW_END_BASE0);
+		rep.put("55", PAGESIZE);
 		rep.put("56", ROW_END_BASE1);
 
-		sql = replaceDialectStr(dialectName, sql, "3", rep.get("3"));
-		sql = replaceDialectStr(dialectName, sql, "9", rep.get("9"));
-		sql = replaceDialectStr(dialectName, sql, "12", rep.get("12"));
-		sql = replaceDialectStr(dialectName, sql, "4", rep.get("4"));
-		sql = replaceDialectStr(dialectName, sql, "13", rep.get("13"));
+		sql = replaceDialectStr(dialectName, sql, "3", rep.get("3").toLowerCase());
+		sql = replaceDialectStr(dialectName, sql, "9", rep.get("9").toLowerCase());
+		sql = replaceDialectStr(dialectName, sql, "12", rep.get("12").toLowerCase());
+		sql = replaceDialectStr(dialectName, sql, "4", rep.get("4").toLowerCase());
+		sql = replaceDialectStr(dialectName, sql, "13", rep.get("13").toLowerCase());
 
-		sql = replaceDialectStr(dialectName, sql, "55", rep.get("55"));// no offset
-		sql = replaceDialectStr(dialectName, sql, "56", rep.get("56"));// no offset
+		sql = replaceDialectStr(dialectName, sql, "55", rep.get("55").toLowerCase());// no
+																						// offset
+		sql = replaceDialectStr(dialectName, sql, "56", rep.get("56").toLowerCase());// no
+																						// offset
 
 		sql = replaceDialectStr(dialectName, sql, " FIRST ", " first ");
 		sql = replaceDialectStr(dialectName, sql, " TOP ", " top ");
