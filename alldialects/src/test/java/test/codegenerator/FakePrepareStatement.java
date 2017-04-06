@@ -282,14 +282,12 @@ public class FakePrepareStatement implements PreparedStatement {
 
 	@Override
 	public void setMaxFieldSize(int max) throws SQLException {
-		// TODO Auto-generated method stub
-
+		limits+="MaxFieldSize"+max;
 	}
 
 	@Override
-	public void setMaxRows(int max) throws SQLException {
-		// TODO Auto-generated method stub
-
+	public void setMaxRows(int max) throws SQLException { 
+		limits+="MaxRows"+max; 
 	}
 
 	@Override

@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
  * @author Yong Zhu(modify)
  */
 public class SQLServer2005LimitHandler extends AbstractLimitHandler {
-	public static SQLServer2005LimitHandler INSTANCE = new SQLServer2005LimitHandler();
 	private static final String SELECT = "select";
 	private static final String FROM = "from";
 	private static final String DISTINCT = "distinct";
@@ -30,7 +29,7 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 	private static final String SELECT_DISTINCT = SELECT + " " + DISTINCT;
 	private static final String SELECT_DISTINCT_SPACE = SELECT_DISTINCT + " ";
 
-	final String SELECT_SPACE = "select ";
+	static final String SELECT_SPACE = "select ";
 
 	private static final Pattern SELECT_DISTINCT_PATTERN = buildShallowIndexPattern(SELECT_DISTINCT_SPACE, true);
 	private static final Pattern SELECT_PATTERN = buildShallowIndexPattern(SELECT + "(.*)", true);
@@ -42,7 +41,7 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 
 	// Flag indicating whether TOP(?) expression has been added to the original
 	// query.
-	private boolean topAdded;
+	protected boolean topAdded;
 
 	/**
 	 * Constructs a SQLServer2005LimitHandler
@@ -79,8 +78,7 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 	}
 
 	/**
-	 * Add a LIMIT clause to the given SQL SELECT (HHH-2655: ROW_NUMBER for
-	 * Paging)
+	 * Add a LIMIT clause to the given SQL SELECT (HHH-2655: ROW_NUMBER for Paging)
 	 *
 	 * The LIMIT SQL will look like:
 	 *
@@ -93,8 +91,7 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 	 * SELECT alias_list FROM query WHERE __hibernate_row_nr__ >= offset AND __hibernate_row_nr__ < offset + last
 	 * </pre>
 	 *
-	 * When offset equals {@literal 0}, only <code>TOP(?)</code> expression is
-	 * added to the original query.
+	 * When offset equals {@literal 0}, only <code>TOP(?)</code> expression is added to the original query.
 	 *
 	 * @return A new SQL statement with the LIMIT clause applied.
 	 */
@@ -145,10 +142,8 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 	}
 
 	/**
-	 * Adds missing aliases in provided SELECT clause and returns coma-separated
-	 * list of them. If query takes advantage of expressions like {@literal *}
-	 * or {@literal {table}.*} inside SELECT clause, method returns
-	 * {@literal *}.
+	 * Adds missing aliases in provided SELECT clause and returns coma-separated list of them. If query takes advantage
+	 * of expressions like {@literal *} or {@literal {table}.*} inside SELECT clause, method returns {@literal *}.
 	 *
 	 * @param sb
 	 *            SQL query.
@@ -157,7 +152,7 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 	 */
 	protected String fillAliasInSelectClause(StringBuilder sb) {
 		final String separator = System.lineSeparator();
-		final List<String> aliases = new LinkedList<String>();
+		final List<String> aliases = new LinkedList<String>();//NOSONAR
 		final int startPos = getSelectColumnsStartPosition(sb);
 		int endPos = shallowIndexOfPattern(sb, FROM_PATTERN, startPos);
 
@@ -178,7 +173,7 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 					selectsMultipleColumns = true;
 				} else {
 					String alias = getAlias(expression);
-					if (alias == null) {
+					if (alias == null) {// NOSONAR
 						// Inserting alias. It is unlikely that we would have to
 						// add alias, but just in case.
 						alias = StringHelper.generateAlias("page", unique);
@@ -228,9 +223,9 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 		// adjustment for 'select distinct ' and 'select '.
 		final String sql = sb.toString().substring(startPos).toLowerCase();
 		if (sql.startsWith(SELECT_DISTINCT_SPACE)) {
-			return (startPos + SELECT_DISTINCT_SPACE.length());
+			return startPos + SELECT_DISTINCT_SPACE.length();
 		} else if (sql.startsWith(SELECT_SPACE)) {
-			return (startPos + SELECT_SPACE.length());
+			return startPos + SELECT_SPACE.length();
 		}
 		return startPos;
 	}
@@ -250,8 +245,7 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 	 * @param expression
 	 *            Select expression.
 	 *
-	 * @return {@code true} when expression selects multiple columns,
-	 *         {@code false} otherwise.
+	 * @return {@code true} when expression selects multiple columns, {@code false} otherwise.
 	 */
 	private boolean selectsMultipleColumns(String expression) {
 		final String lastExpr = expression.trim().replaceFirst("(?i)(.)*\\s", "").trim();
@@ -259,8 +253,8 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 	}
 
 	/**
-	 * Returns alias of provided single column selection or {@code null} if not
-	 * found. Alias should be preceded with {@code AS} keyword.
+	 * Returns alias of provided single column selection or {@code null} if not found. Alias should be preceded with
+	 * {@code AS} keyword.
 	 *
 	 * @param expression
 	 *            Single column select expression.
@@ -272,7 +266,7 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 		// 'cast(tab1.col1 as varchar(255)) as col1' -> 'cast as col1'
 		// 'cast(tab1.col1 as varchar(255)) col1 -> 'cast col1'
 		// 'cast(tab1.col1 as varchar(255))' -> 'cast'
-		expression = expression.replaceFirst("(\\((.)*\\))", "").trim();
+		expression = expression.replaceFirst("(\\((.)*\\))", "").trim();// NOSONAR
 
 		// This will match any text provided with:
 		// columnName [[as] alias]
@@ -288,12 +282,11 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 			}
 		}
 
-		return (alias != null ? alias.trim() : null);
+		return alias != null ? alias.trim() : null;
 	}
 
 	/**
-	 * Encloses original SQL statement with outer query that provides
-	 * {@literal __hibernate_row_nr__} column.
+	 * Encloses original SQL statement with outer query that provides {@literal __hibernate_row_nr__} column.
 	 *
 	 * @param sql
 	 *            SQL query.
@@ -306,8 +299,7 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 
 	/**
 	 * Adds {@code TOP} expression. Parameter value is bind in
-	 * {@link #bindLimitParametersAtStartOfQuery(RowSelection, PreparedStatement, int)}
-	 * method.
+	 * {@link #bindLimitParametersAtStartOfQuery(RowSelection, PreparedStatement, int)} method.
 	 *
 	 * @param sql
 	 *            SQL query.
@@ -328,8 +320,7 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 	}
 
 	/**
-	 * Returns index of the first case-insensitive match of search pattern that
-	 * is not enclosed in parenthesis.
+	 * Returns index of the first case-insensitive match of search pattern that is not enclosed in parenthesis.
 	 *
 	 * @param sb
 	 *            String to search.
@@ -375,8 +366,8 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 	}
 
 	/**
-	 * Builds a pattern that can be used to find matches of case-insensitive
-	 * matches based on the search pattern that is not enclosed in parenthesis.
+	 * Builds a pattern that can be used to find matches of case-insensitive matches based on the search pattern that is
+	 * not enclosed in parenthesis.
 	 *
 	 * @param pattern
 	 *            String search pattern.
@@ -391,16 +382,15 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 	}
 
 	/**
-	 * Geneartes a list of {@code IgnoreRange} objects that represent nested
-	 * sections of the provided SQL buffer that should be ignored when
-	 * performing regular expression matches.
+	 * Geneartes a list of {@code IgnoreRange} objects that represent nested sections of the provided SQL buffer that
+	 * should be ignored when performing regular expression matches.
 	 *
 	 * @param sql
 	 *            The SQL buffer.
 	 * @return list of {@code IgnoreRange} objects, never {@code null}.
 	 */
 	private static List<IgnoreRange> generateIgnoreRanges(String sql) {
-		List<IgnoreRange> ignoreRangeList = new ArrayList<IgnoreRange>();
+		List<IgnoreRange> ignoreRangeList = new ArrayList<IgnoreRange>();//NOSONAR
 
 		int depth = 0;
 		int start = -1;
@@ -413,7 +403,7 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 				}
 			} else if (ch == ')') {
 				if (depth > 0) {
-					if (depth == 1) {
+					if (depth == 1) {// NOSONAR
 						ignoreRangeList.add(new IgnoreRange(start, i));
 						start = -1;
 					}
@@ -432,16 +422,13 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 	}
 
 	/**
-	 * Returns whether the specified {@code position} is within the ranges of
-	 * the {@code ignoreRangeList}.
+	 * Returns whether the specified {@code position} is within the ranges of the {@code ignoreRangeList}.
 	 *
 	 * @param ignoreRangeList
-	 *            list of {@code IgnoreRange} objects deduced from the SQL
-	 *            buffer.
+	 *            list of {@code IgnoreRange} objects deduced from the SQL buffer.
 	 * @param position
 	 *            the position to determine whether is ignorable.
-	 * @return {@code true} if the position is to ignored/skipped, {@code false}
-	 *         otherwise.
+	 * @return {@code true} if the position is to ignored/skipped, {@code false} otherwise.
 	 */
 	private static boolean isPositionIgnorable(List<IgnoreRange> ignoreRangeList, int position) {
 		for (IgnoreRange ignoreRange : ignoreRangeList) {
@@ -466,8 +453,4 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 		}
 	}
 
-	public static void main(String[] args) {
-		String s = SQLServer2005LimitHandler.INSTANCE.processSql("select distincT a.iD aS a1, a.userName, a.userName as u2 from usertemp a where id>'0' order by id, a.username", new RowSelection(2, 5));
-		System.out.println(s);
-	}
 }

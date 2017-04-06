@@ -25,10 +25,9 @@ import com.github.drinkjava2.alldialects.DialectException;
  */
 public class PrepareStatementUtils {
 
-	public static String prepareQueryStatement(final RowSelection selection, Dialect dialect) throws SQLException {
+	public static String prepareQueryStatement(final RowSelection selection, Dialect dialect, LimitHandler limitHandler) throws SQLException {
 		FakePrepareStatement st = new FakePrepareStatement();
-		try {
-			LimitHandler limitHandler = dialect.getLimitHandler();
+		try { 
 			int col = 1;
 			col += limitHandler.bindLimitParametersAtStartOfQuery(selection, st, col);
 			col += limitHandler.bindLimitParametersAtEndOfQuery(selection, st, col);
