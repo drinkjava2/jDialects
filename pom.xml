@@ -20,20 +20,20 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
   <groupId>com.github.drinkjava2</groupId>
 
-  <artifactId>alldialects-package</artifactId>
+  <artifactId>jdialects-package</artifactId>
 
   <version>1.0.0-SNAPSHOT</version>
 
-  <name>alldialects-package</name>
+  <name>jdialects-package</name>
 
-  <description>AllDialects is a small Java tool collect all database's dialects, ususally used for create pagination SQL</description>
+  <description>jDialects is a small Java tool collect all database's dialects, ususally used for create pagination SQL</description>
 
   <modules>
-    <!-- AllDialects-->
-    <module>alldialects</module>
+    <!-- jDialects-->
+    <module>jdialects</module>
     
-    <!-- examples how to use alldialects-->
-    <!--module>alldialects-examples</module-->
+    <!-- examples how to use jdialects-->
+    <!--module>jdialects-examples</module-->
   </modules>
 
   <properties> 
@@ -44,7 +44,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
 
   <build>
-      <finalName>alldialects-package</finalName>
+      <finalName>jdialects-package</finalName>
       <plugins>
           <plugin>
               <artifactId>maven-compiler-plugin</artifactId>
