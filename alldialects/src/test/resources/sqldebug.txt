@@ -1,0 +1,17 @@
+# put some test sql for test use only
+
+create table usertemp(
+id varchar(10),
+username varchar(10)
+);
+
+
+insert into usertemp (id, username) values('1', 'a');
+insert into usertemp (id, username) values('2', 'b');
+insert into usertemp (id, username) values('3', 'c');
+insert into usertemp (id, username) values('4', 'd');
+insert into usertemp (id, username) values('5', 'e');
+insert into usertemp (id, username) values('6', 'f');
+insert into usertemp (id, username) values('7', 'g');
+insert into usertemp (id, username) values('8', 'h');
+insert into usertemp (id, username) values('9', 'i'); 
