@@ -45,7 +45,7 @@ import test.config.PrepareTestContext;
  * @since 1.0.0
  */
 @SuppressWarnings({ "unchecked" })
-public class TypeCodeGenerator {
+public class TypeMappingCodeGenerator {
 	@Before
 	public void setup() {
 		PrepareTestContext.prepareDatasource_setDefaultSqlBoxConetxt_recreateTables();
@@ -161,17 +161,17 @@ public class TypeCodeGenerator {
 
 			for (Entry<String, Object> entry : map.entrySet()) {
 				String key = entry.getKey();
-				key = StrUtils.replace(key, "T_", "$");
-				key = StrUtils.replace(key, "t_", "$");
+				key = StrUtils.replace(key, "T_", "");
+				key = StrUtils.replace(key, "t_", "");
 				String value = "" + entry.getValue();
 				if (!"LINE".equals(key) && !"line".equals(key) && !"DIALECT".equals(key) && !"dialect".equals(key)) {
-					sb.append("typeMappings.put(\"" + key + "\", \"" + value + "\");//NOSONAR\r\n");
+					sb.append("typeMappings.put(Type." + key + ", \"" + value + "\");//NOSONAR\r\n");
 				}
 			}
 			if (StrUtils.containsIgnoreCase(dialect, "innoDB"))
-				sb.append("typeMappings.put(\"$ENGINE\", \"engine=innoDB\");//NOSONAR\r\n");
+				sb.append("typeMappings.put(Type.ENGINE, \"engine=innoDB\");//NOSONAR\r\n");
 			if (StrUtils.containsIgnoreCase(dialect, "MyISAM"))
-				sb.append("typeMappings.put(\"$ENGINE\", \"engine=MyISAM\");//NOSONAR\r\n");
+				sb.append("typeMappings.put(Type.ENGINE, \"engine=MyISAM\");//NOSONAR\r\n");
 
 			sb.append("}\r\n");
 			sb.append("break;\r\n");

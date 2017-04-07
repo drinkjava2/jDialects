@@ -34,16 +34,29 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.DialectException;
+import com.github.drinkjava2.jdialects.StrUtils;
+import com.github.drinkjava2.jsqlbox.Dao;
+
+import test.config.PrepareTestContext;
 
 /**
- * This is unit test for jDialects
+ * This is unit test for jDialects.Dialect
  * 
  * @author Yong Z.
  *
  */
 public class DialectTest {
 
-	private static final String sql1 = "select distinct a.id, a.userName, a.userName as u2 from usertemp a where id>'0' order by id, a.username";
+	private static final String sql1 = "select distinct a.id, a.userName, a.userName as u2 from usertemp a where id>1 order by id, a.username";
+	private static final String sql2 = "select * from users";
+	private static final String sql3 = "select a.id, a.userName, a.userName as u2, b.c1 from usertemp a where id>? group by b.b1 order by id, a.username";
+	private static final String sql4 = "select distinct top(?) * from users";
+
+	public static void main(String[] args) {
+		String result = Dialect.SQLServer2012Dialect.paginate(1, 10, sql2);
+		System.out.println(result);
+	}
 
 	@Test
 	public void testPagination() {
@@ -54,17 +67,86 @@ public class DialectTest {
 			try {
 				result = dialect.paginate(1, 10, sql1);
 				System.out.println(result);
-			} catch (Exception e) {
-				System.out.println("Error:"+e.getMessage());
+			} catch (DialectException e) {
+				System.out.println("Error:" + e.getMessage());
 			}
-			Assert.assertFalse(result.contains("$") || result.contains("?"));
+			Assert.assertFalse(result.contains("$"));
+			try {
+				result = dialect.paginate(3, 10, sql1);
+				System.out.println(result);
+			} catch (DialectException e) {
+				System.out.println("Error:" + e.getMessage());
+			}
+			Assert.assertFalse(result.contains("$"));
+			try {
+				result = dialect.paginate(1, 10, sql2);
+				System.out.println(result);
+			} catch (DialectException e) {
+				System.out.println("Error:" + e.getMessage());
+			}
+			Assert.assertFalse(result.contains("$"));
+			try {
+				result = dialect.paginate(3, 10, sql2);
+				System.out.println(result);
+			} catch (DialectException e) {
+				System.out.println("Error:" + e.getMessage());
+			}
+			Assert.assertFalse(result.contains("$"));
+		}
+	}
+
+	@Test
+	public void testPagination2() {
+		Dialect[] dialects = Dialect.values();
+		for (Dialect dialect : dialects) {
+			System.out.println("=========" + dialect + "==========");
+			String result = "";
+			try {
+				result = dialect.paginate(1, 10, sql3);
+				System.out.println(result);
+			} catch (DialectException e) {
+				System.out.println("Error:" + e.getMessage());
+			}
+			Assert.assertFalse(result.contains("$"));
+			Assert.assertTrue(StrUtils.isEmpty(result) || 1 == StrUtils.countMatches(result, '?'));
+			try {
+				result = dialect.paginate(3, 10, sql4);
+				System.out.println(result);
+			} catch (DialectException e) {
+				System.out.println("Error:" + e.getMessage());
+			}
+			Assert.assertFalse(result.contains("$"));
+			Assert.assertTrue(StrUtils.isEmpty(result) || 1 == StrUtils.countMatches(result, '?'));
+			try {
+				result = dialect.paginate(1, 10, sql3);
+				System.out.println(result);
+			} catch (DialectException e) {
+				System.out.println("Error:" + e.getMessage());
+			}
+			Assert.assertFalse(result.contains("$"));
+			Assert.assertTrue(StrUtils.isEmpty(result) || 1 == StrUtils.countMatches(result, '?'));
+			try {
+				result = dialect.paginate(3, 10, sql4);
+				System.out.println(result);
+			} catch (DialectException e) {
+				System.out.println("Error:" + e.getMessage());
+			}
+			Assert.assertFalse(result.contains("$"));
+			Assert.assertTrue(StrUtils.isEmpty(result) || 1 == StrUtils.countMatches(result, '?'));
 		}
 	}
 
 	// =======test guess dialects=======
+	@Test
+	public void testGuessDialectsByDatasource() {
+		PrepareTestContext.prepareDatasource_setDefaultSqlBoxConetxt_recreateTables();
+		System.out.println(Dialect.guessDialect(Dao.getDefaultContext().getDataSource()));
+		PrepareTestContext.closeDatasource_closeDefaultSqlBoxConetxt();
+	}
+
 	@SuppressWarnings("deprecation")
 	@Test
-	public void testGuessDialects() {
+	public void testGuessDialectsByDatabaseName() {
 		Assert.assertEquals(SQLiteDialect, Dialect.guessDialect("SQLite"));
 		Assert.assertEquals(HSQLDialect, Dialect.guessDialect("HSQL Database Engine"));
 		Assert.assertEquals(H2Dialect, Dialect.guessDialect("H2"));
@@ -101,4 +183,40 @@ public class DialectTest {
 		Assert.assertEquals(Oracle10gDialect, Dialect.guessDialect("Oracle", 11));
 	}
 
+	// =======test toNativeDDL method=======
+	@Test
+	public void testToNativeType() {
+		Dialect d = Dialect.Oracle10gDialect;
+		String ddl = "create table ddl_test("//
+				+ "f1 " + d.BIGINT() //
+				+ ",f2 " + d.BINARY() //
+				+ ",f3 " + d.BIT() //
+				+ ",f4 " + d.BLOB() //
+				+ ",f5 " + d.BOOLEAN() //
+				+ ",f6 " + d.CHAR() //
+				+ ",f7 " + d.CLOB() //
+				+ ",f8 " + d.DATE() //
+				+ ",f9 " + d.DECIMAL() //
+				+ ",f10 " + d.DOUBLE() //
+				+ ",f11 " + d.FLOAT() //
+				+ ",f12 " + d.INTEGER() //
+				+ ",f13 " + d.JAVA_OBJECT() //
+				+ ",f14 " + d.LONGNVARCHAR() //
+				+ ",f15 " + d.LONGVARBINARY() //
+				+ ",f16 " + d.LONGVARCHAR() //
+				+ ",f17 " + d.NCHAR() //
+				+ ",f18 " + d.NCLOB() //
+				+ ",f19 " + d.NUMERIC() //
+				+ ",f20 " + d.NVARCHAR() //
+				+ ",f21 " + d.OTHER() //
+				+ ",f22 " + d.REAL() //
+				+ ",f23 " + d.SMALLINT() //
+				+ ",f24 " + d.TIME() //
+				+ ",f25 " + d.TIMESTAMP() //
+				+ ",f26 " + d.TINYINT() //
+				+ ",f27 " + d.VARBINARY() //
+				+ ",f28 " + d.VARCHAR() //
+				+ ")" + d.ENGINE();
+		System.out.println(ddl);
+	}
 }

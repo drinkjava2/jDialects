@@ -13,7 +13,7 @@ public class AccessDialect  extends HxttDialect {
         registerColumnType( Types.BIT, "boolean" );
         registerColumnType( Types.CHAR, "varchar($l)" );
         registerColumnType( Types.VARCHAR, "varchar($l)" );
-        //registerColumnType(Types.VARCHAR, 255, "varchar($l)");
+        //registerColumnType(Type.VARCHAR, 255, "varchar($l)");
         registerColumnType(Types.LONGVARCHAR, "longvarchar");
         registerColumnType(Types.NUMERIC, "numeric($p,$s)");
         registerColumnType(Types.BOOLEAN, "boolean");
@@ -32,11 +32,11 @@ public class AccessDialect  extends HxttDialect {
         registerColumnType( Types.TIME, "timestamp");//time" );   //  HXTT Access DON'T SUPPORT TIME
         registerColumnType(Types.TIMESTAMP, "timestamp");
         registerColumnType( Types.BLOB, "blob" ); // BLOB COLUMN WILL CHANGE TO  JAVA_OBJECT TYPE COLUMN
-//        registerColumnType( Types.CLOB, "clob" ); // CLOB COLUMN WILL CHANGE TO  LONGVARCHAR TYPE COLUMN
+//        registerColumnType( Type.CLOB, "clob" ); // CLOB COLUMN WILL CHANGE TO  LONGVARCHAR TYPE COLUMN
         registerColumnType( Types.CLOB, "longvarchar" ); // CLOB COLUMN WILL CHANGE TO  LONGVARCHAR TYPE COLUMN
         registerColumnType(Types.OTHER, "currency");
-        //registerColumnType( Types.OTHER, "graphics" );
-//        registerColumnType(Types.OTHER, "ole");
+        //registerColumnType( Type.OTHER, "graphics" );
+//        registerColumnType(Type.OTHER, "ole");
         registerColumnType(Types.BLOB, "ole");
         registerColumnType( Types.JAVA_OBJECT, "java_object" );
 

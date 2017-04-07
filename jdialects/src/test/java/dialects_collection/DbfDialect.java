@@ -13,7 +13,7 @@ public class DbfDialect extends HxttDialect {
         registerColumnType( Types.BIT, "boolean" );
         registerColumnType( Types.CHAR, "varchar($l)" );
         registerColumnType( Types.VARCHAR, "varchar($l)" );
-        //registerColumnType( Types.VARCHAR,255, "varchar($l)" );
+        //registerColumnType( Type.VARCHAR,255, "varchar($l)" );
         registerColumnType( Types.LONGVARCHAR,  "longvarchar");
         registerColumnType( Types.NUMERIC, "numeric($p,$s)" );
         registerColumnType( Types.BOOLEAN, "boolean" );
@@ -28,12 +28,12 @@ public class DbfDialect extends HxttDialect {
         registerColumnType( Types.LONGVARBINARY, "longvarbinary");
 
 	registerColumnType( Types.DATE, "date" );
-        // registerColumnType( Types.TIME, "time" );   //  HXTT DBF DON'T SUPPORT TIME
+        // registerColumnType( Type.TIME, "time" );   //  HXTT DBF DON'T SUPPORT TIME
 	registerColumnType( Types.TIMESTAMP, "timestamp" );
         registerColumnType( Types.BLOB, "blob" ); // BLOB COLUMN WILL CHANGE TO  JAVA_OBJECT TYPE COLUMN
         registerColumnType( Types.CLOB, "clob" ); // CLOB COLUMN WILL CHANGE TO  LONGVARCHAR TYPE COLUMN
         registerColumnType( Types.OTHER, "currency" );
-//        registerColumnType( Types.OTHER, "graphics" );
+//        registerColumnType( Type.OTHER, "graphics" );
         registerColumnType( Types.OTHER, "blob" );
         registerColumnType( Types.JAVA_OBJECT, "java_object" );
     }

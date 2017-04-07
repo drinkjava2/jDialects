@@ -13,7 +13,7 @@ public class ParadoxDialect  extends HxttDialect {
         registerColumnType( Types.BIT, "boolean" );
         registerColumnType( Types.CHAR, "varchar($l)" );
         registerColumnType( Types.VARCHAR, "varchar($l)" );
-        //registerColumnType(Types.VARCHAR, 254, "varchar($l)");
+        //registerColumnType(Type.VARCHAR, 254, "varchar($l)");
         registerColumnType(Types.LONGVARCHAR, "longvarchar");
         registerColumnType(Types.NUMERIC, "numeric($p,$s)");
         registerColumnType(Types.BOOLEAN, "boolean");

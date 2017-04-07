@@ -421,7 +421,7 @@ public abstract class HxttDialect extends Dialect {
 			.append(column)
 			.append("_seq')")
 			.toString();
- 		return type==Types.BIGINT ?
+ 		return type==Type.BIGINT ?
 			"select dbinfo('serial8') from systables where tabid=1" :
 			"select dbinfo('sqlca.sqlerrd1') from systables where tabid=1";
 
@@ -474,10 +474,10 @@ public abstract class HxttDialect extends Dialect {
      */
 /*    public String getIdentityColumnString(int type) {
             return getIdentityColumnString();
-/*		return type==Types.BIGINT ?
+/*		return type==Type.BIGINT ?
 			"bigserial not null" :
 			"serial not null";
- 		return type==Types.BIGINT ?
+ 		return type==Type.BIGINT ?
 			"serial8 not null" :
 			"serial not null";
 

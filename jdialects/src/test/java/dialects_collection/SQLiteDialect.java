@@ -53,8 +53,8 @@ public class SQLiteDialect extends Dialect {
 
 	public SQLiteDialect() {
 		registerColumnType(Types.BIT, "boolean");
-		// registerColumnType(Types.FLOAT, "float");
-		// registerColumnType(Types.DOUBLE, "double");
+		// registerColumnType(Type.FLOAT, "float");
+		// registerColumnType(Type.DOUBLE, "double");
 		registerColumnType(Types.DECIMAL, "decimal");
 		registerColumnType(Types.CHAR, "char");
 		registerColumnType(Types.LONGVARCHAR, "longvarchar");

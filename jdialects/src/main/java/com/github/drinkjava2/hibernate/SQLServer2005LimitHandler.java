@@ -180,7 +180,7 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 					if (alias == null) {// NOSONAR
 						// Inserting alias. It is unlikely that we would have to
 						// add alias, but just in case.
-						alias = StringHelper.generateAlias("page", unique);
+						alias = StringHelper.generateAlias("alias", unique);
 						sb.insert(nextComa, " as " + alias);
 						final int aliasExprLength = (" as " + alias).length();
 						++unique;
@@ -203,7 +203,7 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 			if (alias == null) {
 				// Inserting alias. It is unlikely that we would have to add
 				// alias, but just in case.
-				alias = StringHelper.generateAlias("page", unique);
+				alias = StringHelper.generateAlias("alias", unique);
 				final boolean endWithSeparator = sb.substring(endPos - separator.length()).startsWith(separator);
 				sb.insert(endPos - (endWithSeparator ? 2 : 1), " as " + alias);
 			}
@@ -318,10 +318,10 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 		final int selectDistinctPos = shallowIndexOfPattern(sql, SELECT_DISTINCT_PATTERN, 0);
 		if (selectPos == selectDistinctPos) {
 			// Place TOP after SELECT DISTINCT
-			sql.insert(selectDistinctPos + SELECT_DISTINCT.length(), " TOP(?)");
+			sql.insert(selectDistinctPos + SELECT_DISTINCT.length(), " $Top_Tag(?) ");
 		} else {
 			// Place TOP after SELECT
-			sql.insert(selectPos + SELECT.length(), " TOP(?)");
+			sql.insert(selectPos + SELECT.length(), " $Top_Tag(?) ");
 		}
 		topAdded = true;
 	}
