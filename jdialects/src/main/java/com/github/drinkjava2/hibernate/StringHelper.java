@@ -18,7 +18,7 @@ import java.util.StringTokenizer;
  * @author Hibernate
  * @author Hong Zhu(modify)
  */
-@SuppressWarnings("rawtypes")
+@SuppressWarnings("all")
 public final class StringHelper {
 
 	private static final int ALIAS_TRUNCATE_LENGTH = 10;

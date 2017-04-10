@@ -10,16 +10,20 @@ package com.github.drinkjava2.hibernate;
  * A helper for dealing with LimitHandler implementations
  *
  * @author Lukasz Antoniak (lukasz dot antoniak at gmail dot com)
- * @author Yong Zhu(modify) 
+ * @author Yong Zhu(modify)
  */
 public class LimitHelper {
 	/**
 	 * Is a max row limit indicated?
 	 *
-	 * @param selection The row selection options
+	 * @param selection
+	 *            The row selection options
 	 *
 	 * @return Whether a max row limit was indicated
 	 */
+	private LimitHelper() {
+	}
+
 	public static boolean hasMaxRows(RowSelection selection) {
 		return selection != null && selection.getMaxRows() != null && selection.getMaxRows() > 0;
 	}
@@ -27,37 +31,39 @@ public class LimitHelper {
 	/**
 	 * Should limit be applied?
 	 *
-	 * @param limitHandler The limit handler
-	 * @param selection The row selection
+	 * @param limitHandler
+	 *            The limit handler
+	 * @param selection
+	 *            The row selection
 	 *
 	 * @return Whether limiting is indicated
 	 */
 	public static boolean useLimit(LimitHandler limitHandler, RowSelection selection) {
-		return limitHandler.supportsLimit() && hasMaxRows( selection );
+		return limitHandler.supportsLimit() && hasMaxRows(selection);
 	}
 
 	/**
 	 * Is a first row limit indicated?
 	 *
-	 * @param selection The row selection options
+	 * @param selection
+	 *            The row selection options
 	 *
 	 * @return Whether a first row limit in indicated
 	 */
 	public static boolean hasFirstRow(RowSelection selection) {
-		return getFirstRow( selection ) > 0;
+		return getFirstRow(selection) > 0;
 	}
 
 	/**
 	 * Retrieve the indicated first row for pagination
 	 *
-	 * @param selection The row selection options
+	 * @param selection
+	 *            The row selection options
 	 *
 	 * @return The first row
 	 */
 	public static int getFirstRow(RowSelection selection) {
-		return ( selection == null || selection.getFirstRow() == null ) ? 0 : selection.getFirstRow();
+		return (selection == null || selection.getFirstRow() == null) ? 0 : selection.getFirstRow();
 	}
 
-	private LimitHelper() {
-	}
 }

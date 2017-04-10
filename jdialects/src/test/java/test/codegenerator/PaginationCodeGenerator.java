@@ -333,24 +333,24 @@ public class PaginationCodeGenerator extends TestBase {
 		// Now generate Java source code to console
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("// Initialize paginSQLTemplate\r\n");
-		sb.append("private void initializePaginSqlTemplate() {// NOSONAR\r\n");
-		sb.append("switch (this.toString()) {// NOSONAR\r\n");
+		sb.append("// Initialize paginSQLTemplate\n");
+		sb.append("private void initializePaginSqlTemplate() {// NOSONAR\n");
+		sb.append("switch (this.toString()) {// NOSONAR\n");
 		l = Dao.queryForEntityList(TB_pagination.class, select(), tp.all(), from(), tp.table(), " order by sortorder");
 		for (TB_pagination t : l) {
 			sb.append("case \"").append(t.getDialect()).append("\":");
 			if (!StringUtils.isEmpty(t.getPagination())) {
 				sb.append("paginSQLTemplate=  ").append(
 						"NOT_SUPPORT".equals(t.getPagination()) ? "NOT_SUPPORT" : "\"" + t.getPagination() + "\"")
-						.append(";\r\n");
+						.append(";\n");
 				sb.append("break;");
 			}
-			sb.append("\r\n");
+			sb.append("\n");
 		}
-		sb.append("default:  \r\n");
-		sb.append("	paginSQLTemplate = NOT_SUPPORT;\r\n");
-		sb.append("}\r\n");
-		sb.append("}\r\n");
+		sb.append("default:  \n");
+		sb.append("	paginSQLTemplate = NOT_SUPPORT;\n");
+		sb.append("}\n");
+		sb.append("}\n");
 
 		System.out.println();
 		System.out.println(sb.toString());
@@ -380,23 +380,23 @@ public class PaginationCodeGenerator extends TestBase {
 		// Now generate Java source code to console
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("//initialize paginFirstOnlySqlTemplate\r\n");
-		sb.append("private void initializePaginFirstOnlySqlTemplate() {// NOSONAR\r\n");
-		sb.append("switch (this.toString()) {// NOSONAR\r\n");
+		sb.append("//initialize paginFirstOnlySqlTemplate\n");
+		sb.append("private void initializePaginFirstOnlySqlTemplate() {// NOSONAR\n");
+		sb.append("switch (this.toString()) {// NOSONAR\n");
 		l = Dao.queryForEntityList(TB_pagination.class, select(), tp.all(), from(), tp.table(), " order by sortorder2");
 		for (TB_pagination t : l) {
 			sb.append("case \"").append(t.getDialect()).append("\":");
 			if (!StringUtils.isEmpty(t.getPaginationFirstOnly())) {
 				sb.append("paginFirstOnlyTemplate=  ").append("NOT_SUPPORT".equals(t.getPaginationFirstOnly())
-						? "NOT_SUPPORT" : "\"" + t.getPaginationFirstOnly() + "\"").append(";\r\n");
+						? "NOT_SUPPORT" : "\"" + t.getPaginationFirstOnly() + "\"").append(";\n");
 				sb.append("break;");
 			}
-			sb.append("\r\n");
+			sb.append("\n");
 		}
-		sb.append("default:  \r\n");
-		sb.append("	paginFirstOnlyTemplate = NOT_SUPPORT;\r\n");
-		sb.append("}\r\n");
-		sb.append("}\r\n");
+		sb.append("default:  \n");
+		sb.append("	paginFirstOnlyTemplate = NOT_SUPPORT;\n");
+		sb.append("}\n");
+		sb.append("}\n");
 
 		System.out.println();
 		System.out.println(sb.toString());

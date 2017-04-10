@@ -36,6 +36,7 @@ import org.junit.Test;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.StrUtils;
+import com.github.drinkjava2.jdialects.Type;
 import com.github.drinkjava2.jsqlbox.Dao;
 
 import test.config.PrepareTestContext;
@@ -52,11 +53,6 @@ public class DialectTest {
 	private static final String sql2 = "select * from users";
 	private static final String sql3 = "select a.id, a.userName, a.userName as u2, b.c1 from usertemp a where id>? group by b.b1 order by id, a.username";
 	private static final String sql4 = "select distinct top(?) * from users";
-
-	public static void main(String[] args) {
-		String result = Dialect.SQLServer2012Dialect.paginate(1, 10, sql2);
-		System.out.println(result);
-	}
 
 	@Test
 	public void testPagination() {
@@ -183,31 +179,63 @@ public class DialectTest {
 		Assert.assertEquals(Oracle10gDialect, Dialect.guessDialect("Oracle", 11));
 	}
 
-	// =======test toNativeDDL method=======
+	// =======test DDL Type Mapping method=======
 	@Test
-	public void testToNativeType() {
-		Dialect d = Dialect.Oracle10gDialect;
+	public void testDDLTypeMapping() { 
+		Dialect d = Dialect.MySQL5InnoDBDialect;
 		String ddl = "create table ddl_test("//
 				+ "f1 " + d.BIGINT() //
-				+ ",f2 " + d.BINARY() //
+				+ ",f2 " + d.BINARY(5) //
 				+ ",f3 " + d.BIT() //
 				+ ",f4 " + d.BLOB() //
 				+ ",f5 " + d.BOOLEAN() //
 				+ ",f6 " + d.CHAR() //
 				+ ",f7 " + d.CLOB() //
 				+ ",f8 " + d.DATE() //
-				+ ",f9 " + d.DECIMAL() //
+				// + ",f9 " + d.DECIMAL(3,5) //
+				+ ",f10 " + d.DOUBLE() //
+				+ ",f11 " + d.FLOAT() //
+				+ ",f12 " + d.INTEGER() //
+				// + ",f13 " + d.JAVA_OBJECT() //
+				+ ",f14 " + d.LONGNVARCHAR(10) //
+				+ ",f15 " + d.LONGVARBINARY() //
+				+ ",f16 " + d.LONGVARCHAR() //
+				+ ",f17 " + d.NCHAR(5) //
+				+ ",f18 " + d.NCLOB() //
+				+ ",f19 " + d.NUMERIC(6, 4) //
+				+ ",f20 " + d.NVARCHAR(6) //
+				// + ",f21 " + d.OTHER() //
+				+ ",f22 " + d.REAL() //
+				+ ",f23 " + d.SMALLINT() //
+				+ ",f24 " + d.TIME() //
+				+ ",f25 " + d.TIMESTAMP() //
+				+ ",f26 " + d.TINYINT() //
+				+ ",f27 " + d.VARBINARY() //
+				+ ",f28 " + d.VARCHAR() //
+				+ ")" + d.ENGINE();
+		System.out.println(ddl);
+		  d = Dialect.Oracle10gDialect;
+		  ddl = "create table ddl_test("//
+				+ "f1 " + d.BIGINT() //
+				+ ",f2 " + d.BINARY(5) //
+				+ ",f3 " + d.BIT() //
+				+ ",f4 " + d.BLOB() //
+				+ ",f5 " + d.BOOLEAN() //
+				+ ",f6 " + d.CHAR() //
+				+ ",f7 " + d.CLOB() //
+				+ ",f8 " + d.DATE() //
+				+ ",f9 " + d.DECIMAL(3,5) //
 				+ ",f10 " + d.DOUBLE() //
 				+ ",f11 " + d.FLOAT() //
 				+ ",f12 " + d.INTEGER() //
 				+ ",f13 " + d.JAVA_OBJECT() //
-				+ ",f14 " + d.LONGNVARCHAR() //
+				+ ",f14 " + d.LONGNVARCHAR(10) //
 				+ ",f15 " + d.LONGVARBINARY() //
 				+ ",f16 " + d.LONGVARCHAR() //
-				+ ",f17 " + d.NCHAR() //
+				+ ",f17 " + d.NCHAR(5) //
 				+ ",f18 " + d.NCLOB() //
-				+ ",f19 " + d.NUMERIC() //
-				+ ",f20 " + d.NVARCHAR() //
+				+ ",f19 " + d.NUMERIC(6, 4) //
+				+ ",f20 " + d.NVARCHAR(6) //
 				+ ",f21 " + d.OTHER() //
 				+ ",f22 " + d.REAL() //
 				+ ",f23 " + d.SMALLINT() //

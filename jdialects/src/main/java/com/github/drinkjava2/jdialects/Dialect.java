@@ -1,15 +1,16 @@
 /*
- * jDialects, a tiny SQL dialect tool 
- *
- * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
- * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
- */
+* jDialects, a tiny SQL dialect tool 
+*
+* License: GNU Lesser General Public License (LGPL), version 2.1 or later.
+* See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
+*/
 package com.github.drinkjava2.jdialects;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -39,79 +40,10 @@ import com.github.drinkjava2.hibernate.StringHelper;
  * 
  */
 public enum Dialect {
-
-	AccessDialect, //
-	Cache71Dialect, //
-	CUBRIDDialect, //
-	DataDirectOracle9Dialect, //
-	DB2Dialect, //
-	DB2390Dialect, //
-	DB2400Dialect, //
-	@Deprecated
-	DerbyDialect, // Use other Derby version instead
-	DerbyTenFiveDialect, //
-	DerbyTenSevenDialect, //
-	DerbyTenSixDialect, //
-	FirebirdDialect, //
-	FrontBaseDialect, //
-	H2Dialect, //
-	HANAColumnStoreDialect, //
-	HANARowStoreDialect, //
-	HSQLDialect, //
-	InformixDialect, //
-	Informix10Dialect, //
-	IngresDialect, //
-	Ingres10Dialect, //
-	Ingres9Dialect, //
-	InterbaseDialect, //
-	JDataStoreDialect, //
-	MariaDBDialect, //
-	MariaDB53Dialect, //
-	MckoiDialect, //
-	MimerSQLDialect, //
-	MySQLDialect, //
-	MySQL5Dialect, //
-	MySQL55Dialect, //
-	MySQL57Dialect, //
-	MySQL57InnoDBDialect, //
-	MySQL5InnoDBDialect, //
-	MySQLInnoDBDialect, //
-	MySQLMyISAMDialect, //
-	@Deprecated // use Oracle8iDialect instead
-	OracleDialect, //
-	Oracle8iDialect, //
-	@Deprecated // Use Oracle9i instead
-	Oracle9Dialect, //
-	Oracle9iDialect, //
-	Oracle10gDialect, //
-	Oracle12cDialect, //
-	PointbaseDialect, //
-	PostgresPlusDialect, //
-	PostgreSQLDialect, //
-	PostgreSQL81Dialect, //
-	PostgreSQL82Dialect, //
-	PostgreSQL9Dialect, //
-	PostgreSQL91Dialect, //
-	PostgreSQL92Dialect, //
-	PostgreSQL93Dialect, //
-	PostgreSQL94Dialect, //
-	PostgreSQL95Dialect, //
-	ProgressDialect, //
-	RDMSOS2200Dialect, //
-	SAPDBDialect, //
-	SQLiteDialect, //
-	SQLServerDialect, //
-	SQLServer2005Dialect, //
-	SQLServer2008Dialect, //
-	SQLServer2012Dialect, //
-	SybaseDialect, //
-	Sybase11Dialect, //
-	SybaseAnywhereDialect, //
-	SybaseASE15Dialect, //
-	SybaseASE157Dialect, //
-	TeradataDialect, //
-	Teradata14Dialect, //
-	TimesTen;//
+	@Deprecated DerbyDialect, // NOSONAR Use other Derby version instead
+	@Deprecated OracleDialect, // NOSONAR use Oracle8iDialect instead
+	@Deprecated Oracle9Dialect, // NOSONAR Use Oracle9i instead
+	AccessDialect, Cache71Dialect, CUBRIDDialect, DerbyTenFiveDialect, DataDirectOracle9Dialect, DB2Dialect, DB2390Dialect, DB2400Dialect, DerbyTenSevenDialect, DerbyTenSixDialect, FirebirdDialect, FrontBaseDialect, H2Dialect, HANAColumnStoreDialect, HANARowStoreDialect, HSQLDialect, InformixDialect, Informix10Dialect, IngresDialect, Ingres10Dialect, Ingres9Dialect, InterbaseDialect, JDataStoreDialect, MariaDBDialect, MariaDB53Dialect, MckoiDialect, MimerSQLDialect, MySQLDialect, MySQL5Dialect, MySQL55Dialect, MySQL57Dialect, MySQL57InnoDBDialect, MySQL5InnoDBDialect, MySQLInnoDBDialect, MySQLMyISAMDialect, Oracle8iDialect, Oracle9iDialect, Oracle10gDialect, Oracle12cDialect, PointbaseDialect, PostgresPlusDialect, PostgreSQLDialect, PostgreSQL81Dialect, PostgreSQL82Dialect, PostgreSQL9Dialect, PostgreSQL91Dialect, PostgreSQL92Dialect, PostgreSQL93Dialect, PostgreSQL94Dialect, PostgreSQL95Dialect, ProgressDialect, RDMSOS2200Dialect, SAPDBDialect, SQLiteDialect, SQLServerDialect, SQLServer2005Dialect, SQLServer2008Dialect, SQLServer2012Dialect, SybaseDialect, Sybase11Dialect, SybaseAnywhereDialect, SybaseASE15Dialect, SybaseASE157Dialect, TeradataDialect, Teradata14Dialect, TimesTen;// NOSONAR
 
 	private static final String SKIP_ROWS = "$SKIP_ROWS";
 	private static final String PAGESIZE = "$PAGESIZE";
@@ -123,7 +55,7 @@ public enum Dialect {
 
 	private String paginSQLTemplate;
 	private String paginFirstOnlyTemplate;
-	private Map<Type, String> typeMappings = new HashMap<>();
+	private Map<Type, String> typeMappings = new EnumMap<>(Type.class);
 
 	private Dialect() {
 		initializePaginSqlTemplate();
@@ -131,46 +63,89 @@ public enum Dialect {
 		initializeTypeMappings();
 	}
 
-	private String processType(Type type, String... args) {
-		String mappingType = this.typeMappings.get(type);
+	private String processType(Type type, int... lengths) {// NOSONAR
+		System.out.print("Type="+type+", lengths=" );
+		for (int i : lengths) {
+			System.out.print(i +",");
+		}
+		System.out.println();
+		String value = this.typeMappings.get(type);
+		System.out.println("V="+value);
 		if (Type.ENGINE.equals(type))
-			return StrUtils.isEmpty(mappingType) ? "" : mappingType;
-		if (mappingType == null || "N/A".equals(mappingType) || "n/a".equals(mappingType))
-			return (String) DialectException
-					.throwEX("Type \""+ type + "\" is not supported by dialect \"" + this + "\"");
-		return type.toString().toLowerCase() + "\n";
+			return StrUtils.isEmpty(value) ? "" : value;
+		
+		if (StrUtils.isEmpty(value) || "N/A".equals(value) || "n/a".equals(value))
+			DialectException.throwEX("Type \"" + type + "\" is not supported by dialect \"" + this + "\"");
+		
+		if (value.contains("|")) {
+			// format example: varchar($l)<255|lvarchar($l)<32739|varchar($l)
+			System.out.println("has |");
+			String[] mappings = StringHelper.split("|",value); 
+			
+			for (String mapping : mappings) {
+				System.out.println("mapping="+mapping);
+				if (mapping.contains("<")) {// varchar($l)<255
+					String[] limitType = StringHelper.split("<",mapping); 
+					if (lengths.length>0 &&  Integer.parseInt(limitType[1]) < lengths[0])
+						return putParamters(type, limitType[0], lengths);
+				} else {// varchar($l)
+					return putParamters(type, mapping, lengths);
+				}
+			}
+		} else {
+			if (value.contains("$")) {
+				// always this order: $l, $p, $s
+				return putParamters(type, value, lengths);
+			} else
+				return value ;
+		}
+		return "";
+	}
+
+	private String putParamters(Type type, String value, int... lengths) {
+		if (lengths.length < StrUtils.countMatches(value, '$'))
+			DialectException.throwEX("In Dialect \"" + this + "\", Type \"" + type + "\" should have "
+					+ StrUtils.countMatches(value, '$') + " parameters");
+		int i = 0;
+		if (value.contains("$l"))
+			value = StrUtils.replace(value, "$l", String.valueOf(lengths[i++]));
+		if (value.contains("$p"))
+			value = StrUtils.replace(value, "$p", String.valueOf(lengths[i++]));
+		if (value.contains("$s"))
+			value = StrUtils.replace(value, "$s", String.valueOf(lengths[i++]));
+		return value;
 	}
 
 	//@formatter:off shut off eclipse's formatter
-	public String BIGINT(String... args) {return processType(Type.BIGINT, args);}
-	public String BINARY(String... args) {return processType(Type.BINARY, args);}
-	public String BIT(String... args) {return processType(Type.BIT, args);}
-	public String BLOB(String... args) {return processType(Type.BLOB, args);}
-	public String BOOLEAN(String... args) {return processType(Type.BOOLEAN, args);}
-	public String CHAR(String... args) {return processType(Type.CHAR, args);}
-	public String CLOB(String... args) {return processType(Type.CLOB, args);}
-	public String DATE(String... args) {return processType(Type.DATE, args);}
-	public String DECIMAL(String... args) {return processType(Type.DECIMAL, args);}
-	public String DOUBLE(String... args) {return processType(Type.DOUBLE, args);}
-	public String FLOAT(String... args) {return processType(Type.FLOAT, args);}
-	public String INTEGER(String... args) {return processType(Type.INTEGER, args);}
-	public String JAVA_OBJECT(String... args) {return processType(Type.JAVA_OBJECT, args);}
-	public String LONGNVARCHAR(String... args) {return processType(Type.LONGNVARCHAR, args);}
-	public String LONGVARBINARY(String... args) {return processType(Type.LONGVARBINARY, args);}
-	public String LONGVARCHAR(String... args) {return processType(Type.LONGVARCHAR, args);}
-	public String NCHAR(String... args) {return processType(Type.NCHAR, args);}
-	public String NCLOB(String... args) {return processType(Type.NCLOB, args);}
-	public String NUMERIC(String... args) {return processType(Type.NUMERIC, args);}
-	public String NVARCHAR(String... args) {return processType(Type.NVARCHAR, args);}
-	public String OTHER(String... args) {return processType(Type.OTHER, args);}
-	public String REAL(String... args) {return processType(Type.REAL, args);}
-	public String SMALLINT(String... args) {return processType(Type.SMALLINT, args);}
-	public String TIME(String... args) {return processType(Type.TIME, args);}
-	public String TIMESTAMP(String... args) {return processType(Type.TIMESTAMP, args);}
-	public String TINYINT(String... args) {return processType(Type.TINYINT, args);}
-	public String VARBINARY(String... args) {return processType(Type.VARBINARY, args);}
-	public String VARCHAR(String... args) {return processType(Type.VARCHAR, args);}
-	public String ENGINE(String... args) {return processType(Type.ENGINE, args);}
+	public String BIGINT(int... lengths) {return processType(Type.BIGINT, lengths);}//NOSONAR
+	public String BINARY(int... lengths) {return processType(Type.BINARY, lengths);}//NOSONAR
+	public String BIT(int... lengths) {return processType(Type.BIT, lengths);}//NOSONAR
+	public String BLOB(int... lengths) {return processType(Type.BLOB, lengths);}//NOSONAR
+	public String BOOLEAN(int... lengths) {return processType(Type.BOOLEAN, lengths);}//NOSONAR
+	public String CHAR(int... lengths) {return processType(Type.CHAR, lengths);}//NOSONAR
+	public String CLOB(int... lengths) {return processType(Type.CLOB, lengths);}//NOSONAR
+	public String DATE(int... lengths) {return processType(Type.DATE, lengths);}//NOSONAR
+	public String DECIMAL(int... lengths) {return processType(Type.DECIMAL, lengths);}//NOSONAR
+	public String DOUBLE(int... lengths) {return processType(Type.DOUBLE, lengths);}//NOSONAR
+	public String FLOAT(int... lengths) {return processType(Type.FLOAT, lengths);}//NOSONAR
+	public String INTEGER(int... lengths) {return processType(Type.INTEGER, lengths);}//NOSONAR
+	public String JAVA_OBJECT(int... lengths) {return processType(Type.JAVA_OBJECT, lengths);}//NOSONAR
+	public String LONGNVARCHAR(int... lengths) {return processType(Type.LONGNVARCHAR, lengths);}//NOSONAR
+	public String LONGVARBINARY(int... lengths) {return processType(Type.LONGVARBINARY, lengths);}//NOSONAR
+	public String LONGVARCHAR(int... lengths) {return processType(Type.LONGVARCHAR, lengths);}//NOSONAR
+	public String NCHAR(int... lengths) {return processType(Type.NCHAR, lengths);}//NOSONAR
+	public String NCLOB(int... lengths) {return processType(Type.NCLOB, lengths);}//NOSONAR
+	public String NUMERIC(int... lengths) {return processType(Type.NUMERIC, lengths);}//NOSONAR
+	public String NVARCHAR(int... lengths) {return processType(Type.NVARCHAR, lengths);}//NOSONAR
+	public String OTHER(int... lengths) {return processType(Type.OTHER, lengths);}//NOSONAR
+	public String REAL(int... lengths) {return processType(Type.REAL, lengths);}//NOSONAR
+	public String SMALLINT(int... lengths) {return processType(Type.SMALLINT, lengths);}//NOSONAR
+	public String TIME(int... lengths) {return processType(Type.TIME, lengths);}//NOSONAR
+	public String TIMESTAMP(int... lengths) {return processType(Type.TIMESTAMP, lengths);}//NOSONAR
+	public String TINYINT(int... lengths) {return processType(Type.TINYINT, lengths);}//NOSONAR
+	public String VARBINARY(int... lengths) {return processType(Type.VARBINARY, lengths);}//NOSONAR
+	public String VARCHAR(int... lengths) {return processType(Type.VARCHAR, lengths);}//NOSONAR
+	public String ENGINE(int... lengths) {return processType(Type.ENGINE, lengths);}//NOSONAR
 	//@formatter:on
 
 	/**
@@ -178,6 +153,7 @@ public enum Dialect {
 	 */
 	public String getPaginSQLTemplate() {
 		return paginSQLTemplate;
+
 	}
 
 	/**
@@ -195,2335 +171,2336 @@ public enum Dialect {
 	}
 
 	// Initialize paginSQLTemplate
-	private void initializeTypeMappings() {// NOSONAR
-		switch (this.toString()) { // NOSONAR
-		case "SQLiteDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "blob");// NOSONAR
-			typeMappings.put(Type.BIT, "boolean");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "decimal");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float($p)");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "blob");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longvarchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "blob");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "AccessDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "integer");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A|255<binary");// NOSONAR
-			typeMappings.put(Type.BIT, "boolean");// NOSONAR
-			typeMappings.put(Type.BLOB, "ole");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.CLOB, "longvarchar");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "java_object");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longvarchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "currency");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "timestamp");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "bit varying($l)|255<varbinary");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "ExcelDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary");// NOSONAR
-			typeMappings.put(Type.BIT, "boolean");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "longvarchar");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longvarchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "numeric(5,0)");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "numeric(3,0)");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "TextDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary");// NOSONAR
-			typeMappings.put(Type.BIT, "boolean");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "decimal($p,$s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "java_object");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longvarchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "numeric(5,0)");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "numeric(3,0)");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "ParadoxDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "integer");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary");// NOSONAR
-			typeMappings.put(Type.BIT, "boolean");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "java_object");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longvarchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "ole");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "CobolDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary");// NOSONAR
-			typeMappings.put(Type.BIT, "boolean");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "decimal($p,$s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "java_object");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longvarchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "XMLDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary");// NOSONAR
-			typeMappings.put(Type.BIT, "boolean");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "longvarchar");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longvarchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "numeric(5,0)");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "numeric(3,0)");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "DbfDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "integer");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A|255<binary");// NOSONAR
-			typeMappings.put(Type.BIT, "boolean");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "java_object");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longvarchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "blob");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "bit varying($l)|255<varbinary");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "Cache71Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "BigInt");// NOSONAR
-			typeMappings.put(Type.BINARY, "varbinary($1)");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "longvarbinary");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "longvarchar");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "decimal");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longvarchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "longvarbinary");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "CUBRIDDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A");// NOSONAR
-			typeMappings.put(Type.BIT, "bit(8)");// NOSONAR
-			typeMappings.put(Type.BLOB, "bit varying(65535)");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "bit(8)");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "string");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "decimal");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "double");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "short");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "short");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "bit varying($l)|2000<bit varying($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "string|255<varchar($l)|2000<varchar($l)");// NOSONAR
-		}
-			break;
-		case "DataDirectOracle9Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "number(19,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A");// NOSONAR
-			typeMappings.put(Type.BIT, "number(1,0)");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1 char)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "number($p,$s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "number(10,0)");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "number($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "number(5,0)");// NOSONAR
-			typeMappings.put(Type.TIME, "date");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "number(3,0)");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "long raw|2000<raw($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "long|4000<varchar2($l char)");// NOSONAR
-		}
-			break;
-		case "DB2Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "varchar($l) for bit data|254<char($l) for bit data");// NOSONAR
-			typeMappings.put(Type.BIT, "smallint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob($l)");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "smallint");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob($l)");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "long varchar for bit data");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "long varchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varchar($l) for bit data");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "DB2390Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "varchar($l) for bit data|254<char($l) for bit data");// NOSONAR
-			typeMappings.put(Type.BIT, "smallint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob($l)");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "smallint");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob($l)");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "long varchar for bit data");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "long varchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varchar($l) for bit data");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "DB2400Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "varchar($l) for bit data|254<char($l) for bit data");// NOSONAR
-			typeMappings.put(Type.BIT, "smallint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob($l)");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "smallint");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob($l)");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "long varchar for bit data");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "long varchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varchar($l) for bit data");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "DerbyDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "varchar($l) for bit data|254<char($l) for bit data");// NOSONAR
-			typeMappings.put(Type.BIT, "smallint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "smallint");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob($l)");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "long varchar for bit data");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "long varchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varchar($l) for bit data");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "DerbyTenFiveDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "varchar($l) for bit data|254<char($l) for bit data");// NOSONAR
-			typeMappings.put(Type.BIT, "smallint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "smallint");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob($l)");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "long varchar for bit data");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "long varchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varchar($l) for bit data");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "DerbyTenSevenDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "varchar($l) for bit data|254<char($l) for bit data");// NOSONAR
-			typeMappings.put(Type.BIT, "smallint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob($l)");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "long varchar for bit data");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "long varchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varchar($l) for bit data");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "DerbyTenSixDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "varchar($l) for bit data|254<char($l) for bit data");// NOSONAR
-			typeMappings.put(Type.BIT, "smallint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "smallint");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob($l)");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "long varchar for bit data");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "long varchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varchar($l) for bit data");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "FirebirdDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "numeric(18,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A");// NOSONAR
-			typeMappings.put(Type.BIT, "smallint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "smallint");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "blob sub_type 1");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "blob");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "FrontBaseDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "longint");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "H2Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary");// NOSONAR
-			typeMappings.put(Type.BIT, "boolean");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char($l)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "decimal($p,$s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar(2147483647)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "HANAColumnStoreDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "blob|5000<varbinary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "smallint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "tinyint");// NOSONAR
-			typeMappings.put(Type.CHAR, "varchar(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "decimal($p, $s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float($p)");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "blob|5000<varbinary($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "clob|5000<varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nclob|5000<nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "blob|5000<varbinary($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "clob|5000<varchar($l)");// NOSONAR
-		}
-			break;
-		case "HANARowStoreDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "blob|5000<varbinary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "smallint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "tinyint");// NOSONAR
-			typeMappings.put(Type.CHAR, "varchar(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "decimal($p, $s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float($p)");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "blob|5000<varbinary($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "clob|5000<varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nclob|5000<nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "blob|5000<varbinary($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "clob|5000<varchar($l)");// NOSONAR
-		}
-			break;
-		case "HSQLDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "longvarbinary");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char($l)");// NOSONAR
-			typeMappings.put(Type.CLOB, "longvarchar");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "decimal($p,$s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longvarchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "clob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "InformixDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "int8");// NOSONAR
-			typeMappings.put(Type.BINARY, "byte");// NOSONAR
-			typeMappings.put(Type.BIT, "smallint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char($l)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "decimal");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "float");// NOSONAR
-			typeMappings.put(Type.FLOAT, "smallfloat");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "blob");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "clob");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "smallfloat");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "datetime hour to second");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime year to fraction(5)");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "byte");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)|255<varchar($l)|32739<lvarchar($l)");// NOSONAR
-		}
-			break;
-		case "Informix10Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "int8");// NOSONAR
-			typeMappings.put(Type.BINARY, "byte");// NOSONAR
-			typeMappings.put(Type.BIT, "smallint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char($l)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "decimal");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "float");// NOSONAR
-			typeMappings.put(Type.FLOAT, "smallfloat");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "blob");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "clob");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "smallfloat");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "datetime hour to second");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime year to fraction(5)");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "byte");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)|255<varchar($l)|32739<lvarchar($l)");// NOSONAR
-		}
-			break;
-		case "IngresDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "long byte|32000<byte($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "tinyint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char($l)|32000<char($l)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "decimal($p, $s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "float");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "long byte");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "long varchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal($p, $s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time with time zone");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp with time zone");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "long byte|32000<varbyte($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "long varchar|32000<varchar($l)");// NOSONAR
-		}
-			break;
-		case "Ingres10Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "long byte|32000<byte($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "boolean");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char($l)|32000<char($l)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "ansidate");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "decimal($p, $s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "float");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "long byte");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "long varchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal($p, $s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time with time zone");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp(9) with time zone");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "long byte|32000<varbyte($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "long varchar|32000<varchar($l)");// NOSONAR
-		}
-			break;
-		case "Ingres9Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "long byte|32000<byte($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "tinyint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char($l)|32000<char($l)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "ansidate");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "decimal($p, $s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "float");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "long byte");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "long varchar");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal($p, $s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time with time zone");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp(9) with time zone");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "long byte|32000<varbyte($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "long varchar|32000<varchar($l)");// NOSONAR
-		}
-			break;
-		case "InterbaseDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "numeric(18,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A");// NOSONAR
-			typeMappings.put(Type.BIT, "smallint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "smallint");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "blob sub_type 1");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "blob");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "JDataStoreDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A");// NOSONAR
-			typeMappings.put(Type.BIT, "tinyint");// NOSONAR
-			typeMappings.put(Type.BLOB, "varbinary");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "varchar");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "MariaDBDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "longblob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "bit");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longblob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longtext");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "longblob|255<tinyblob|65535<blob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "longtext|65535<varchar($l)");// NOSONAR
-		}
-			break;
-		case "MariaDB53Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "longblob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "bit");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longblob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longtext");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime(6)");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "longblob|255<tinyblob|65535<blob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "longtext|65535<varchar($l)");// NOSONAR
-		}
-			break;
-		case "MckoiDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "MimerSQLDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "BIGINT");// NOSONAR
-			typeMappings.put(Type.BINARY, "BLOB($1)|2000<BINARY");// NOSONAR
-			typeMappings.put(Type.BIT, "ODBC.BIT");// NOSONAR
-			typeMappings.put(Type.BLOB, "BLOB($l)");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "NCHAR(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "NCLOB($l)");// NOSONAR
-			typeMappings.put(Type.DATE, "DATE");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "DOUBLE PRECISION");// NOSONAR
-			typeMappings.put(Type.FLOAT, "FLOAT");// NOSONAR
-			typeMappings.put(Type.INTEGER, "INTEGER");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "BLOB($1)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "CLOB($1)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "NUMERIC(19, $l)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "SMALLINT");// NOSONAR
-			typeMappings.put(Type.TIME, "TIME");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "TIMESTAMP");// NOSONAR
-			typeMappings.put(Type.TINYINT, "ODBC.TINYINT");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "BLOB($1)|2000<BINARY VARYING($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "NCLOB($l)|2000<NATIONAL CHARACTER VARYING($l)");// NOSONAR
-		}
-			break;
-		case "MySQLDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "longblob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "bit");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longblob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longtext");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "longblob|255<tinyblob|65535<blob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "longtext|255<varchar($l)");// NOSONAR
-		}
-			break;
-		case "MySQL5Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "longblob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "bit");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longblob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longtext");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "longblob|255<tinyblob|65535<blob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "longtext|65535<varchar($l)");// NOSONAR
-		}
-			break;
-		case "MySQL55Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "longblob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "bit");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longblob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longtext");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "longblob|255<tinyblob|65535<blob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "longtext|65535<varchar($l)");// NOSONAR
-		}
-			break;
-		case "MySQL57Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "longblob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "bit");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "json");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longblob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longtext");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime(6)");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "longblob|255<tinyblob|65535<blob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "longtext|65535<varchar($l)");// NOSONAR
-		}
-			break;
-		case "MySQL57InnoDBDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "longblob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "bit");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "json");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longblob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longtext");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime(6)");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "longblob|255<tinyblob|65535<blob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "longtext|65535<varchar($l)");// NOSONAR
-			typeMappings.put(Type.ENGINE, "engine=innoDB");// NOSONAR
-		}
-			break;
-		case "MySQL5InnoDBDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "longblob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "bit");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longblob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longtext");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "longblob|255<tinyblob|65535<blob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "longtext|65535<varchar($l)");// NOSONAR
-			typeMappings.put(Type.ENGINE, "engine=innoDB");// NOSONAR
-		}
-			break;
-		case "MySQLInnoDBDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "longblob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "bit");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longblob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longtext");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "longblob|255<tinyblob|65535<blob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "longtext|255<varchar($l)");// NOSONAR
-			typeMappings.put(Type.ENGINE, "engine=innoDB");// NOSONAR
-		}
-			break;
-		case "MySQLMyISAMDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "longblob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "bit");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "longblob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "longtext");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "longtext");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "longblob|255<tinyblob|65535<blob|16777215<mediumblob");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "longtext|255<varchar($l)");// NOSONAR
-			typeMappings.put(Type.ENGINE, "engine=MyISAM");// NOSONAR
-		}
-			break;
-		case "OracleDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "number(19,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A");// NOSONAR
-			typeMappings.put(Type.BIT, "number(1,0)");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "number($p,$s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "number(10,0)");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "number($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "number(5,0)");// NOSONAR
-			typeMappings.put(Type.TIME, "date");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "date");// NOSONAR
-			typeMappings.put(Type.TINYINT, "number(3,0)");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "long raw|2000<raw($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "long|4000<varchar2($l)");// NOSONAR
-		}
-			break;
-		case "Oracle10gDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "number(19,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "long raw|2000<raw($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "number(1,0)");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "number(1,0)");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1 char)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "number($p,$s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "number(10,0)");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar2($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "long raw");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "long");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "number($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar2($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "number(5,0)");// NOSONAR
-			typeMappings.put(Type.TIME, "date");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "number(3,0)");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "long raw|2000<raw($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "long|4000<varchar2($l char)");// NOSONAR
-		}
-			break;
-		case "Oracle12cDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "number(19,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "long raw|2000<raw($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "number(1,0)");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "number(1,0)");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1 char)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "number($p,$s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "number(10,0)");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar2($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "long raw");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "long");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "number($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar2($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "number(5,0)");// NOSONAR
-			typeMappings.put(Type.TIME, "date");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "number(3,0)");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "long raw|2000<raw($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "long|4000<varchar2($l char)");// NOSONAR
-		}
-			break;
-		case "Oracle8iDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "number(19,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "long raw|2000<raw($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "number(1,0)");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "number(1,0)");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "number($p,$s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "number(10,0)");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "long raw");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "long");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "number($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "number(5,0)");// NOSONAR
-			typeMappings.put(Type.TIME, "date");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "date");// NOSONAR
-			typeMappings.put(Type.TINYINT, "number(3,0)");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "long raw|2000<raw($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "long|4000<varchar2($l)");// NOSONAR
-		}
-			break;
-		case "Oracle9Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "number(19,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A");// NOSONAR
-			typeMappings.put(Type.BIT, "number(1,0)");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1 char)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "number($p,$s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "number(10,0)");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "number($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "number(5,0)");// NOSONAR
-			typeMappings.put(Type.TIME, "date");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "number(3,0)");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "long raw|2000<raw($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "long|4000<varchar2($l char)");// NOSONAR
-		}
-			break;
-		case "Oracle9iDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "number(19,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "long raw|2000<raw($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "number(1,0)");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "number(1,0)");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1 char)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "number($p,$s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "number(10,0)");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar2($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "long raw");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "long");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "number($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar2($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "number(5,0)");// NOSONAR
-			typeMappings.put(Type.TIME, "date");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "number(3,0)");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "long raw|2000<raw($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "long|4000<varchar2($l char)");// NOSONAR
-		}
-			break;
-		case "PointbaseDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A");// NOSONAR
-			typeMappings.put(Type.BIT, "smallint");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "blob($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "PostgresPlusDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "int8");// NOSONAR
-			typeMappings.put(Type.BINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.BIT, "bool");// NOSONAR
-			typeMappings.put(Type.BLOB, "oid");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "float8");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float4");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int4");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "text");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "uuid");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "int2");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "int2");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "PostgreSQLDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "int8");// NOSONAR
-			typeMappings.put(Type.BINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.BIT, "bool");// NOSONAR
-			typeMappings.put(Type.BLOB, "oid");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "float8");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float4");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int4");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "text");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "uuid");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "int2");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "int2");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "PostgreSQL81Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "int8");// NOSONAR
-			typeMappings.put(Type.BINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.BIT, "bool");// NOSONAR
-			typeMappings.put(Type.BLOB, "oid");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "float8");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float4");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int4");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "text");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "uuid");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "int2");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "int2");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "PostgreSQL82Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "int8");// NOSONAR
-			typeMappings.put(Type.BINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.BIT, "bool");// NOSONAR
-			typeMappings.put(Type.BLOB, "oid");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "float8");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float4");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int4");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "text");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "uuid");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "int2");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "int2");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "PostgreSQL9Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "int8");// NOSONAR
-			typeMappings.put(Type.BINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.BIT, "bool");// NOSONAR
-			typeMappings.put(Type.BLOB, "oid");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "float8");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float4");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int4");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "text");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "uuid");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "int2");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "int2");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "PostgreSQL91Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "int8");// NOSONAR
-			typeMappings.put(Type.BINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.BIT, "bool");// NOSONAR
-			typeMappings.put(Type.BLOB, "oid");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "float8");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float4");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int4");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "text");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "uuid");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "int2");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "int2");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "PostgreSQL92Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "int8");// NOSONAR
-			typeMappings.put(Type.BINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.BIT, "bool");// NOSONAR
-			typeMappings.put(Type.BLOB, "oid");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "float8");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float4");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int4");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "json");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "text");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "uuid");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "int2");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "int2");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "PostgreSQL93Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "int8");// NOSONAR
-			typeMappings.put(Type.BINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.BIT, "bool");// NOSONAR
-			typeMappings.put(Type.BLOB, "oid");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "float8");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float4");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int4");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "json");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "text");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "uuid");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "int2");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "int2");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "PostgreSQL94Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "int8");// NOSONAR
-			typeMappings.put(Type.BINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.BIT, "bool");// NOSONAR
-			typeMappings.put(Type.BLOB, "oid");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "float8");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float4");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int4");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "json");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "text");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "uuid");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "int2");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "int2");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "PostgreSQL95Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "int8");// NOSONAR
-			typeMappings.put(Type.BINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.BIT, "bool");// NOSONAR
-			typeMappings.put(Type.BLOB, "oid");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "float8");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float4");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int4");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "json");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "text");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "uuid");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "int2");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "int2");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "bytea");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "ProgressDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "numeric");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "blob");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "character(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "real");// NOSONAR
-			typeMappings.put(Type.INTEGER, "integer");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "tinyint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "RDMSOS2200Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "NUMERIC(21,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A");// NOSONAR
-			typeMappings.put(Type.BIT, "SMALLINT");// NOSONAR
-			typeMappings.put(Type.BLOB, "BLOB($l)");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "CHARACTER(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "clob");// NOSONAR
-			typeMappings.put(Type.DATE, "DATE");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "NUMERIC(21,$l)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "DOUBLE PRECISION");// NOSONAR
-			typeMappings.put(Type.FLOAT, "FLOAT");// NOSONAR
-			typeMappings.put(Type.INTEGER, "INTEGER");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "NUMERIC(21,$l)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "REAL");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "SMALLINT");// NOSONAR
-			typeMappings.put(Type.TIME, "TIME");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "TIMESTAMP");// NOSONAR
-			typeMappings.put(Type.TINYINT, "SMALLINT");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "CHARACTER($l)");// NOSONAR
-		}
-			break;
-		case "SAPDBDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "fixed(19,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A");// NOSONAR
-			typeMappings.put(Type.BIT, "boolean");// NOSONAR
-			typeMappings.put(Type.BLOB, "long byte");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "long varchar");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "fixed($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "timestamp");// NOSONAR
-			typeMappings.put(Type.TINYINT, "fixed(3,0)");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "long byte");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "SQLServerDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "numeric(19,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "tinyint");// NOSONAR
-			typeMappings.put(Type.BLOB, "image");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "bit");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "datetime");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "image");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "text");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "datetime");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "image|8000<varbinary($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "SQLServer2005Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "varbinary(MAX)");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "bit");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "varchar(MAX)");// NOSONAR
-			typeMappings.put(Type.DATE, "datetime");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "varbinary(MAX)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar(MAX)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nvarchar(MAX)");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "datetime");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary(MAX)|8000<varbinary($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar(MAX)|8000<varchar($l)");// NOSONAR
-		}
-			break;
-		case "SQLServer2008Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "varbinary(MAX)");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "bit");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "varchar(MAX)");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "varbinary(MAX)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar(MAX)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nvarchar(MAX)");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar(MAX)|4000<nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime2");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary(MAX)|8000<varbinary($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar(MAX)|8000<varchar($l)");// NOSONAR
-		}
-			break;
-		case "SQLServer2012Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "bit");// NOSONAR
-			typeMappings.put(Type.BLOB, "varbinary(MAX)");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "bit");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "varchar(MAX)");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "varbinary(MAX)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar(MAX)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nvarchar(MAX)");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar(MAX)|4000<nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime2");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary(MAX)|8000<varbinary($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar(MAX)|8000<varchar($l)");// NOSONAR
-		}
-			break;
-		case "SybaseDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "numeric(19,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "tinyint");// NOSONAR
-			typeMappings.put(Type.BLOB, "image");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "datetime");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "datetime");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "Sybase11Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "numeric(19,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "tinyint");// NOSONAR
-			typeMappings.put(Type.BLOB, "image");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "datetime");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "datetime");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "SybaseAnywhereDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "numeric(19,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "tinyint");// NOSONAR
-			typeMappings.put(Type.BLOB, "image");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "datetime");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "datetime");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "SybaseASE15Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "tinyint");// NOSONAR
-			typeMappings.put(Type.BLOB, "image");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "tinyint");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "image");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "text");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "SybaseASE157Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "bigint");// NOSONAR
-			typeMappings.put(Type.BINARY, "binary($l)");// NOSONAR
-			typeMappings.put(Type.BIT, "tinyint");// NOSONAR
-			typeMappings.put(Type.BLOB, "image");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "tinyint");// NOSONAR
-			typeMappings.put(Type.CHAR, "char(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "text");// NOSONAR
-			typeMappings.put(Type.DATE, "date");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "double precision");// NOSONAR
-			typeMappings.put(Type.FLOAT, "float");// NOSONAR
-			typeMappings.put(Type.INTEGER, "int");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "image");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "text");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "smallint");// NOSONAR
-			typeMappings.put(Type.TIME, "time");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "datetime");// NOSONAR
-			typeMappings.put(Type.TINYINT, "smallint");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "varbinary($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "varchar($l)");// NOSONAR
-		}
-			break;
-		case "TeradataDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "NUMERIC(18,0)");// NOSONAR
-			typeMappings.put(Type.BINARY, "BYTEINT");// NOSONAR
-			typeMappings.put(Type.BIT, "BYTEINT");// NOSONAR
-			typeMappings.put(Type.BLOB, "BLOB");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "BYTEINT");// NOSONAR
-			typeMappings.put(Type.CHAR, "CHAR(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "CLOB");// NOSONAR
-			typeMappings.put(Type.DATE, "DATE");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "DECIMAL");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "DOUBLE PRECISION");// NOSONAR
-			typeMappings.put(Type.FLOAT, "FLOAT");// NOSONAR
-			typeMappings.put(Type.INTEGER, "INTEGER");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "LONG VARCHAR");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "NUMERIC($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "SMALLINT");// NOSONAR
-			typeMappings.put(Type.TIME, "TIME");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "TIMESTAMP");// NOSONAR
-			typeMappings.put(Type.TINYINT, "BYTEINT");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "VARBYTE($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "VARCHAR($l)");// NOSONAR
-		}
-			break;
-		case "Teradata14Dialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "BIGINT");// NOSONAR
-			typeMappings.put(Type.BINARY, "VARBYTE(100)");// NOSONAR
-			typeMappings.put(Type.BIT, "BYTEINT");// NOSONAR
-			typeMappings.put(Type.BLOB, "BLOB");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "BYTEINT");// NOSONAR
-			typeMappings.put(Type.CHAR, "CHAR(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "CLOB");// NOSONAR
-			typeMappings.put(Type.DATE, "DATE");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "DECIMAL");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "DOUBLE PRECISION");// NOSONAR
-			typeMappings.put(Type.FLOAT, "FLOAT");// NOSONAR
-			typeMappings.put(Type.INTEGER, "INTEGER");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "VARBYTE(32000)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "VARCHAR(32000)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "NUMERIC($p,$s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "SMALLINT");// NOSONAR
-			typeMappings.put(Type.TIME, "TIME");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "TIMESTAMP");// NOSONAR
-			typeMappings.put(Type.TINYINT, "BYTEINT");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "VARBYTE($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "VARCHAR($l)");// NOSONAR
-		}
-			break;
-		case "TimesTenDialect": {// NOSONAR
-			typeMappings.put(Type.BIGINT, "BIGINT");// NOSONAR
-			typeMappings.put(Type.BINARY, "N/A");// NOSONAR
-			typeMappings.put(Type.BIT, "TINYINT");// NOSONAR
-			typeMappings.put(Type.BLOB, "VARBINARY(4000000)");// NOSONAR
-			typeMappings.put(Type.BOOLEAN, "boolean");// NOSONAR
-			typeMappings.put(Type.CHAR, "CHAR(1)");// NOSONAR
-			typeMappings.put(Type.CLOB, "VARCHAR(4000000)");// NOSONAR
-			typeMappings.put(Type.DATE, "DATE");// NOSONAR
-			typeMappings.put(Type.DECIMAL, "N/A");// NOSONAR
-			typeMappings.put(Type.DOUBLE, "DOUBLE");// NOSONAR
-			typeMappings.put(Type.FLOAT, "FLOAT");// NOSONAR
-			typeMappings.put(Type.INTEGER, "INTEGER");// NOSONAR
-			typeMappings.put(Type.JAVA_OBJECT, "N/A");// NOSONAR
-			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");// NOSONAR
-			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");// NOSONAR
-			typeMappings.put(Type.NCHAR, "nchar($l)");// NOSONAR
-			typeMappings.put(Type.NCLOB, "nclob");// NOSONAR
-			typeMappings.put(Type.NUMERIC, "DECIMAL($p, $s)");// NOSONAR
-			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");// NOSONAR
-			typeMappings.put(Type.OTHER, "N/A");// NOSONAR
-			typeMappings.put(Type.REAL, "real");// NOSONAR
-			typeMappings.put(Type.SMALLINT, "SMALLINT");// NOSONAR
-			typeMappings.put(Type.TIME, "TIME");// NOSONAR
-			typeMappings.put(Type.TIMESTAMP, "TIMESTAMP");// NOSONAR
-			typeMappings.put(Type.TINYINT, "TINYINT");// NOSONAR
-			typeMappings.put(Type.VARBINARY, "VARBINARY($l)");// NOSONAR
-			typeMappings.put(Type.VARCHAR, "VARCHAR($l)");// NOSONAR
+	@SuppressWarnings("all")
+	private void initializeTypeMappings() {
+		switch (this.toString()) {
+		case "SQLiteDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "blob");
+			typeMappings.put(Type.BIT, "boolean");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "decimal");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float($p)");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "blob");
+			typeMappings.put(Type.LONGVARCHAR, "longvarchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "datetime");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "blob");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "AccessDialect": {
+			typeMappings.put(Type.BIGINT, "integer");
+			typeMappings.put(Type.BINARY, "binary<255|N/A");
+			typeMappings.put(Type.BIT, "boolean");
+			typeMappings.put(Type.BLOB, "ole");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "varchar($l)");
+			typeMappings.put(Type.CLOB, "longvarchar");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "java_object");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");
+			typeMappings.put(Type.LONGVARCHAR, "longvarchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "currency");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "timestamp");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "varbinary<255|bit varying($l)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "ExcelDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary");
+			typeMappings.put(Type.BIT, "boolean");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "varchar($l)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "longvarchar");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");
+			typeMappings.put(Type.LONGVARCHAR, "longvarchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "numeric(5,0)");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "numeric(3,0)");
+			typeMappings.put(Type.VARBINARY, "varbinary");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "TextDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary");
+			typeMappings.put(Type.BIT, "boolean");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "varchar($l)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "decimal($p,$s)");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "java_object");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");
+			typeMappings.put(Type.LONGVARCHAR, "longvarchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "numeric(5,0)");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "numeric(3,0)");
+			typeMappings.put(Type.VARBINARY, "varbinary");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "ParadoxDialect": {
+			typeMappings.put(Type.BIGINT, "integer");
+			typeMappings.put(Type.BINARY, "binary");
+			typeMappings.put(Type.BIT, "boolean");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "varchar($l)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "java_object");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");
+			typeMappings.put(Type.LONGVARCHAR, "longvarchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "ole");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "varbinary");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "CobolDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary");
+			typeMappings.put(Type.BIT, "boolean");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "varchar($l)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "decimal($p,$s)");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "java_object");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");
+			typeMappings.put(Type.LONGVARCHAR, "longvarchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "varbinary");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "XMLDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary");
+			typeMappings.put(Type.BIT, "boolean");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "varchar($l)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "longvarchar");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");
+			typeMappings.put(Type.LONGVARCHAR, "longvarchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "numeric(5,0)");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "numeric(3,0)");
+			typeMappings.put(Type.VARBINARY, "varbinary");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "DbfDialect": {
+			typeMappings.put(Type.BIGINT, "integer");
+			typeMappings.put(Type.BINARY, "binary<255|N/A");
+			typeMappings.put(Type.BIT, "boolean");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "varchar($l)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "java_object");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");
+			typeMappings.put(Type.LONGVARCHAR, "longvarchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "blob");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "varbinary<255|bit varying($l)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "Cache71Dialect": {
+			typeMappings.put(Type.BIGINT, "BigInt");
+			typeMappings.put(Type.BINARY, "varbinary($1)");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "longvarbinary");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "longvarchar");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "decimal");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");
+			typeMappings.put(Type.LONGVARCHAR, "longvarchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "longvarbinary");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "CUBRIDDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "N/A");
+			typeMappings.put(Type.BIT, "bit(8)");
+			typeMappings.put(Type.BLOB, "bit varying(65535)");
+			typeMappings.put(Type.BOOLEAN, "bit(8)");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "string");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "decimal");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "int");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "double");
+			typeMappings.put(Type.SMALLINT, "short");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "short");
+			typeMappings.put(Type.VARBINARY, "bit varying($l)<2000|bit varying($l)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<255|varchar($l)<2000|string");
+		}
+			break;
+		case "DataDirectOracle9Dialect": {
+			typeMappings.put(Type.BIGINT, "number(19,0)");
+			typeMappings.put(Type.BINARY, "N/A");
+			typeMappings.put(Type.BIT, "number(1,0)");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1 char)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "number($p,$s)");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "number(10,0)");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "number($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "number(5,0)");
+			typeMappings.put(Type.TIME, "date");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "number(3,0)");
+			typeMappings.put(Type.VARBINARY, "raw($l)<2000|long raw");
+			typeMappings.put(Type.VARCHAR, "varchar2($l char)<4000|long");
+		}
+			break;
+		case "DB2Dialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "char($l) for bit data<254|varchar($l) for bit data");
+			typeMappings.put(Type.BIT, "smallint");
+			typeMappings.put(Type.BLOB, "blob($l)");
+			typeMappings.put(Type.BOOLEAN, "smallint");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "clob($l)");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "long varchar for bit data");
+			typeMappings.put(Type.LONGVARCHAR, "long varchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varchar($l) for bit data");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "DB2390Dialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "char($l) for bit data<254|varchar($l) for bit data");
+			typeMappings.put(Type.BIT, "smallint");
+			typeMappings.put(Type.BLOB, "blob($l)");
+			typeMappings.put(Type.BOOLEAN, "smallint");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "clob($l)");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "long varchar for bit data");
+			typeMappings.put(Type.LONGVARCHAR, "long varchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varchar($l) for bit data");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "DB2400Dialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "char($l) for bit data<254|varchar($l) for bit data");
+			typeMappings.put(Type.BIT, "smallint");
+			typeMappings.put(Type.BLOB, "blob($l)");
+			typeMappings.put(Type.BOOLEAN, "smallint");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "clob($l)");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "long varchar for bit data");
+			typeMappings.put(Type.LONGVARCHAR, "long varchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varchar($l) for bit data");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "DerbyDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "char($l) for bit data<254|varchar($l) for bit data");
+			typeMappings.put(Type.BIT, "smallint");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "smallint");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "clob($l)");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "long varchar for bit data");
+			typeMappings.put(Type.LONGVARCHAR, "long varchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varchar($l) for bit data");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "DerbyTenFiveDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "char($l) for bit data<254|varchar($l) for bit data");
+			typeMappings.put(Type.BIT, "smallint");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "smallint");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "clob($l)");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "long varchar for bit data");
+			typeMappings.put(Type.LONGVARCHAR, "long varchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varchar($l) for bit data");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "DerbyTenSevenDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "char($l) for bit data<254|varchar($l) for bit data");
+			typeMappings.put(Type.BIT, "smallint");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "clob($l)");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "long varchar for bit data");
+			typeMappings.put(Type.LONGVARCHAR, "long varchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varchar($l) for bit data");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "DerbyTenSixDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "char($l) for bit data<254|varchar($l) for bit data");
+			typeMappings.put(Type.BIT, "smallint");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "smallint");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "clob($l)");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "long varchar for bit data");
+			typeMappings.put(Type.LONGVARCHAR, "long varchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varchar($l) for bit data");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "FirebirdDialect": {
+			typeMappings.put(Type.BIGINT, "numeric(18,0)");
+			typeMappings.put(Type.BINARY, "N/A");
+			typeMappings.put(Type.BIT, "smallint");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "smallint");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "blob sub_type 1");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "blob");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "FrontBaseDialect": {
+			typeMappings.put(Type.BIGINT, "longint");
+			typeMappings.put(Type.BINARY, "N/A");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "bit varying($l)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "H2Dialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary");
+			typeMappings.put(Type.BIT, "boolean");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char($l)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "decimal($p,$s)");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");
+			typeMappings.put(Type.LONGVARCHAR, "varchar(2147483647)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "binary($l)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "HANAColumnStoreDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "varbinary($l)<5000|blob");
+			typeMappings.put(Type.BIT, "smallint");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "tinyint");
+			typeMappings.put(Type.CHAR, "varchar(1)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "decimal($p, $s)");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float($p)");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "varbinary($l)<5000|blob");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)<5000|clob");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)<5000|nclob");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varbinary($l)<5000|blob");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<5000|clob");
+		}
+			break;
+		case "HANARowStoreDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "varbinary($l)<5000|blob");
+			typeMappings.put(Type.BIT, "smallint");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "tinyint");
+			typeMappings.put(Type.CHAR, "varchar(1)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "decimal($p, $s)");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float($p)");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "varbinary($l)<5000|blob");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)<5000|clob");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)<5000|nclob");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varbinary($l)<5000|blob");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<5000|clob");
+		}
+			break;
+		case "HSQLDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "longvarbinary");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char($l)");
+			typeMappings.put(Type.CLOB, "longvarchar");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "decimal($p,$s)");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "longvarbinary");
+			typeMappings.put(Type.LONGVARCHAR, "longvarchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "clob");
+			typeMappings.put(Type.NUMERIC, "numeric");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "varbinary($l)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "InformixDialect": {
+			typeMappings.put(Type.BIGINT, "int8");
+			typeMappings.put(Type.BINARY, "byte");
+			typeMappings.put(Type.BIT, "smallint");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char($l)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "decimal");
+			typeMappings.put(Type.DOUBLE, "float");
+			typeMappings.put(Type.FLOAT, "smallfloat");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "blob");
+			typeMappings.put(Type.LONGVARCHAR, "clob");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "decimal");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "smallfloat");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "datetime hour to second");
+			typeMappings.put(Type.TIMESTAMP, "datetime year to fraction(5)");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "byte");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<255|lvarchar($l)<32739|varchar($l)");
+		}
+			break;
+		case "Informix10Dialect": {
+			typeMappings.put(Type.BIGINT, "int8");
+			typeMappings.put(Type.BINARY, "byte");
+			typeMappings.put(Type.BIT, "smallint");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char($l)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "decimal");
+			typeMappings.put(Type.DOUBLE, "float");
+			typeMappings.put(Type.FLOAT, "smallfloat");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "blob");
+			typeMappings.put(Type.LONGVARCHAR, "clob");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "decimal");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "smallfloat");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "datetime hour to second");
+			typeMappings.put(Type.TIMESTAMP, "datetime year to fraction(5)");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "byte");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<255|lvarchar($l)<32739|varchar($l)");
+		}
+			break;
+		case "IngresDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "byte($l)<32000|long byte");
+			typeMappings.put(Type.BIT, "tinyint");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char($l)<32000|char($l)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "decimal($p, $s)");
+			typeMappings.put(Type.DOUBLE, "float");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "long byte");
+			typeMappings.put(Type.LONGVARCHAR, "long varchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "decimal($p, $s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time with time zone");
+			typeMappings.put(Type.TIMESTAMP, "timestamp with time zone");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "varbyte($l)<32000|long byte");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<32000|long varchar");
+		}
+			break;
+		case "Ingres10Dialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "byte($l)<32000|long byte");
+			typeMappings.put(Type.BIT, "boolean");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char($l)<32000|char($l)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "ansidate");
+			typeMappings.put(Type.DECIMAL, "decimal($p, $s)");
+			typeMappings.put(Type.DOUBLE, "float");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "long byte");
+			typeMappings.put(Type.LONGVARCHAR, "long varchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "decimal($p, $s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time with time zone");
+			typeMappings.put(Type.TIMESTAMP, "timestamp(9) with time zone");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "varbyte($l)<32000|long byte");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<32000|long varchar");
+		}
+			break;
+		case "Ingres9Dialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "byte($l)<32000|long byte");
+			typeMappings.put(Type.BIT, "tinyint");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char($l)<32000|char($l)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "ansidate");
+			typeMappings.put(Type.DECIMAL, "decimal($p, $s)");
+			typeMappings.put(Type.DOUBLE, "float");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "long byte");
+			typeMappings.put(Type.LONGVARCHAR, "long varchar");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "decimal($p, $s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time with time zone");
+			typeMappings.put(Type.TIMESTAMP, "timestamp(9) with time zone");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "varbyte($l)<32000|long byte");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<32000|long varchar");
+		}
+			break;
+		case "InterbaseDialect": {
+			typeMappings.put(Type.BIGINT, "numeric(18,0)");
+			typeMappings.put(Type.BINARY, "N/A");
+			typeMappings.put(Type.BIT, "smallint");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "smallint");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "blob sub_type 1");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "blob");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "JDataStoreDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "N/A");
+			typeMappings.put(Type.BIT, "tinyint");
+			typeMappings.put(Type.BLOB, "varbinary");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "varchar");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "varbinary($l)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "MariaDBDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "longblob");
+			typeMappings.put(Type.BOOLEAN, "bit");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "longtext");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "mediumblob<16777215|longblob");
+			typeMappings.put(Type.LONGVARCHAR, "longtext");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "longtext");
+			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "datetime");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "tinyblob<255|blob<65535|mediumblob<16777215|longblob");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<65535|longtext");
+		}
+			break;
+		case "MariaDB53Dialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "longblob");
+			typeMappings.put(Type.BOOLEAN, "bit");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "longtext");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "mediumblob<16777215|longblob");
+			typeMappings.put(Type.LONGVARCHAR, "longtext");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "longtext");
+			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "datetime(6)");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "tinyblob<255|blob<65535|mediumblob<16777215|longblob");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<65535|longtext");
+		}
+			break;
+		case "MckoiDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "N/A");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "varbinary");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "MimerSQLDialect": {
+			typeMappings.put(Type.BIGINT, "BIGINT");
+			typeMappings.put(Type.BINARY, "BINARY<2000|BLOB($1)");
+			typeMappings.put(Type.BIT, "ODBC.BIT");
+			typeMappings.put(Type.BLOB, "BLOB($l)");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "NCHAR(1)");
+			typeMappings.put(Type.CLOB, "NCLOB($l)");
+			typeMappings.put(Type.DATE, "DATE");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "DOUBLE PRECISION");
+			typeMappings.put(Type.FLOAT, "FLOAT");
+			typeMappings.put(Type.INTEGER, "INTEGER");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "BLOB($1)");
+			typeMappings.put(Type.LONGVARCHAR, "CLOB($1)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "NUMERIC(19, $l)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "SMALLINT");
+			typeMappings.put(Type.TIME, "TIME");
+			typeMappings.put(Type.TIMESTAMP, "TIMESTAMP");
+			typeMappings.put(Type.TINYINT, "ODBC.TINYINT");
+			typeMappings.put(Type.VARBINARY, "BINARY VARYING($l)<2000|BLOB($1)");
+			typeMappings.put(Type.VARCHAR, "NATIONAL CHARACTER VARYING($l)<2000|NCLOB($l)");
+		}
+			break;
+		case "MySQLDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "longblob");
+			typeMappings.put(Type.BOOLEAN, "bit");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "longtext");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "mediumblob<16777215|longblob");
+			typeMappings.put(Type.LONGVARCHAR, "longtext");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "longtext");
+			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "datetime");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "tinyblob<255|blob<65535|mediumblob<16777215|longblob");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<255|longtext");
+		}
+			break;
+		case "MySQL5Dialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "longblob");
+			typeMappings.put(Type.BOOLEAN, "bit");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "longtext");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "mediumblob<16777215|longblob");
+			typeMappings.put(Type.LONGVARCHAR, "longtext");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "longtext");
+			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "datetime");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "tinyblob<255|blob<65535|mediumblob<16777215|longblob");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<65535|longtext");
+		}
+			break;
+		case "MySQL55Dialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "longblob");
+			typeMappings.put(Type.BOOLEAN, "bit");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "longtext");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "mediumblob<16777215|longblob");
+			typeMappings.put(Type.LONGVARCHAR, "longtext");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "longtext");
+			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "datetime");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "tinyblob<255|blob<65535|mediumblob<16777215|longblob");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<65535|longtext");
+		}
+			break;
+		case "MySQL57Dialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "longblob");
+			typeMappings.put(Type.BOOLEAN, "bit");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "longtext");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "json");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "mediumblob<16777215|longblob");
+			typeMappings.put(Type.LONGVARCHAR, "longtext");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "longtext");
+			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "datetime(6)");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "tinyblob<255|blob<65535|mediumblob<16777215|longblob");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<65535|longtext");
+		}
+			break;
+		case "MySQL57InnoDBDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "longblob");
+			typeMappings.put(Type.BOOLEAN, "bit");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "longtext");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "json");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "mediumblob<16777215|longblob");
+			typeMappings.put(Type.LONGVARCHAR, "longtext");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "longtext");
+			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "datetime(6)");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "tinyblob<255|blob<65535|mediumblob<16777215|longblob");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<65535|longtext");
+			typeMappings.put(Type.ENGINE, "engine=innoDB");
+		}
+			break;
+		case "MySQL5InnoDBDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "longblob");
+			typeMappings.put(Type.BOOLEAN, "bit");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "longtext");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "mediumblob<16777215|longblob");
+			typeMappings.put(Type.LONGVARCHAR, "longtext");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "longtext");
+			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "datetime");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "tinyblob<255|blob<65535|mediumblob<16777215|longblob");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<65535|longtext");
+			typeMappings.put(Type.ENGINE, "engine=innoDB");
+		}
+			break;
+		case "MySQLInnoDBDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "longblob");
+			typeMappings.put(Type.BOOLEAN, "bit");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "longtext");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "mediumblob<16777215|longblob");
+			typeMappings.put(Type.LONGVARCHAR, "longtext");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "longtext");
+			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "datetime");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "tinyblob<255|blob<65535|mediumblob<16777215|longblob");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<255|longtext");
+			typeMappings.put(Type.ENGINE, "engine=innoDB");
+		}
+			break;
+		case "MySQLMyISAMDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "longblob");
+			typeMappings.put(Type.BOOLEAN, "bit");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "longtext");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "mediumblob<16777215|longblob");
+			typeMappings.put(Type.LONGVARCHAR, "longtext");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "longtext");
+			typeMappings.put(Type.NUMERIC, "decimal($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "datetime");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "tinyblob<255|blob<65535|mediumblob<16777215|longblob");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<255|longtext");
+			typeMappings.put(Type.ENGINE, "engine=MyISAM");
+		}
+			break;
+		case "OracleDialect": {
+			typeMappings.put(Type.BIGINT, "number(19,0)");
+			typeMappings.put(Type.BINARY, "N/A");
+			typeMappings.put(Type.BIT, "number(1,0)");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "number($p,$s)");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "number(10,0)");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "number($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "number(5,0)");
+			typeMappings.put(Type.TIME, "date");
+			typeMappings.put(Type.TIMESTAMP, "date");
+			typeMappings.put(Type.TINYINT, "number(3,0)");
+			typeMappings.put(Type.VARBINARY, "raw($l)<2000|long raw");
+			typeMappings.put(Type.VARCHAR, "varchar2($l)<4000|long");
+		}
+			break;
+		case "Oracle10gDialect": {
+			typeMappings.put(Type.BIGINT, "number(19,0)");
+			typeMappings.put(Type.BINARY, "raw($l)<2000|long raw");
+			typeMappings.put(Type.BIT, "number(1,0)");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "number(1,0)");
+			typeMappings.put(Type.CHAR, "char(1 char)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "number($p,$s)");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "number(10,0)");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar2($l)");
+			typeMappings.put(Type.LONGVARBINARY, "long raw");
+			typeMappings.put(Type.LONGVARCHAR, "long");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "number($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar2($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "number(5,0)");
+			typeMappings.put(Type.TIME, "date");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "number(3,0)");
+			typeMappings.put(Type.VARBINARY, "raw($l)<2000|long raw");
+			typeMappings.put(Type.VARCHAR, "varchar2($l char)<4000|long");
+		}
+			break;
+		case "Oracle12cDialect": {
+			typeMappings.put(Type.BIGINT, "number(19,0)");
+			typeMappings.put(Type.BINARY, "raw($l)<2000|long raw");
+			typeMappings.put(Type.BIT, "number(1,0)");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "number(1,0)");
+			typeMappings.put(Type.CHAR, "char(1 char)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "number($p,$s)");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "number(10,0)");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar2($l)");
+			typeMappings.put(Type.LONGVARBINARY, "long raw");
+			typeMappings.put(Type.LONGVARCHAR, "long");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "number($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar2($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "number(5,0)");
+			typeMappings.put(Type.TIME, "date");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "number(3,0)");
+			typeMappings.put(Type.VARBINARY, "raw($l)<2000|long raw");
+			typeMappings.put(Type.VARCHAR, "varchar2($l char)<4000|long");
+		}
+			break;
+		case "Oracle8iDialect": {
+			typeMappings.put(Type.BIGINT, "number(19,0)");
+			typeMappings.put(Type.BINARY, "raw($l)<2000|long raw");
+			typeMappings.put(Type.BIT, "number(1,0)");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "number(1,0)");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "number($p,$s)");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "number(10,0)");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "long raw");
+			typeMappings.put(Type.LONGVARCHAR, "long");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "number($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "number(5,0)");
+			typeMappings.put(Type.TIME, "date");
+			typeMappings.put(Type.TIMESTAMP, "date");
+			typeMappings.put(Type.TINYINT, "number(3,0)");
+			typeMappings.put(Type.VARBINARY, "raw($l)<2000|long raw");
+			typeMappings.put(Type.VARCHAR, "varchar2($l)<4000|long");
+		}
+			break;
+		case "Oracle9Dialect": {
+			typeMappings.put(Type.BIGINT, "number(19,0)");
+			typeMappings.put(Type.BINARY, "N/A");
+			typeMappings.put(Type.BIT, "number(1,0)");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1 char)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "number($p,$s)");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "number(10,0)");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "number($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "number(5,0)");
+			typeMappings.put(Type.TIME, "date");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "number(3,0)");
+			typeMappings.put(Type.VARBINARY, "raw($l)<2000|long raw");
+			typeMappings.put(Type.VARCHAR, "varchar2($l char)<4000|long");
+		}
+			break;
+		case "Oracle9iDialect": {
+			typeMappings.put(Type.BIGINT, "number(19,0)");
+			typeMappings.put(Type.BINARY, "raw($l)<2000|long raw");
+			typeMappings.put(Type.BIT, "number(1,0)");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "number(1,0)");
+			typeMappings.put(Type.CHAR, "char(1 char)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "number($p,$s)");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "number(10,0)");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar2($l)");
+			typeMappings.put(Type.LONGVARBINARY, "long raw");
+			typeMappings.put(Type.LONGVARCHAR, "long");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "number($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar2($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "number(5,0)");
+			typeMappings.put(Type.TIME, "date");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "number(3,0)");
+			typeMappings.put(Type.VARBINARY, "raw($l)<2000|long raw");
+			typeMappings.put(Type.VARCHAR, "varchar2($l char)<4000|long");
+		}
+			break;
+		case "PointbaseDialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "N/A");
+			typeMappings.put(Type.BIT, "smallint");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "blob($l)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "PostgresPlusDialect": {
+			typeMappings.put(Type.BIGINT, "int8");
+			typeMappings.put(Type.BINARY, "bytea");
+			typeMappings.put(Type.BIT, "bool");
+			typeMappings.put(Type.BLOB, "oid");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "float8");
+			typeMappings.put(Type.FLOAT, "float4");
+			typeMappings.put(Type.INTEGER, "int4");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bytea");
+			typeMappings.put(Type.LONGVARCHAR, "text");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "uuid");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "int2");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "int2");
+			typeMappings.put(Type.VARBINARY, "bytea");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "PostgreSQLDialect": {
+			typeMappings.put(Type.BIGINT, "int8");
+			typeMappings.put(Type.BINARY, "bytea");
+			typeMappings.put(Type.BIT, "bool");
+			typeMappings.put(Type.BLOB, "oid");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "float8");
+			typeMappings.put(Type.FLOAT, "float4");
+			typeMappings.put(Type.INTEGER, "int4");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bytea");
+			typeMappings.put(Type.LONGVARCHAR, "text");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "uuid");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "int2");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "int2");
+			typeMappings.put(Type.VARBINARY, "bytea");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "PostgreSQL81Dialect": {
+			typeMappings.put(Type.BIGINT, "int8");
+			typeMappings.put(Type.BINARY, "bytea");
+			typeMappings.put(Type.BIT, "bool");
+			typeMappings.put(Type.BLOB, "oid");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "float8");
+			typeMappings.put(Type.FLOAT, "float4");
+			typeMappings.put(Type.INTEGER, "int4");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bytea");
+			typeMappings.put(Type.LONGVARCHAR, "text");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "uuid");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "int2");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "int2");
+			typeMappings.put(Type.VARBINARY, "bytea");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "PostgreSQL82Dialect": {
+			typeMappings.put(Type.BIGINT, "int8");
+			typeMappings.put(Type.BINARY, "bytea");
+			typeMappings.put(Type.BIT, "bool");
+			typeMappings.put(Type.BLOB, "oid");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "float8");
+			typeMappings.put(Type.FLOAT, "float4");
+			typeMappings.put(Type.INTEGER, "int4");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bytea");
+			typeMappings.put(Type.LONGVARCHAR, "text");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "uuid");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "int2");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "int2");
+			typeMappings.put(Type.VARBINARY, "bytea");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "PostgreSQL9Dialect": {
+			typeMappings.put(Type.BIGINT, "int8");
+			typeMappings.put(Type.BINARY, "bytea");
+			typeMappings.put(Type.BIT, "bool");
+			typeMappings.put(Type.BLOB, "oid");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "float8");
+			typeMappings.put(Type.FLOAT, "float4");
+			typeMappings.put(Type.INTEGER, "int4");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bytea");
+			typeMappings.put(Type.LONGVARCHAR, "text");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "uuid");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "int2");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "int2");
+			typeMappings.put(Type.VARBINARY, "bytea");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "PostgreSQL91Dialect": {
+			typeMappings.put(Type.BIGINT, "int8");
+			typeMappings.put(Type.BINARY, "bytea");
+			typeMappings.put(Type.BIT, "bool");
+			typeMappings.put(Type.BLOB, "oid");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "float8");
+			typeMappings.put(Type.FLOAT, "float4");
+			typeMappings.put(Type.INTEGER, "int4");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bytea");
+			typeMappings.put(Type.LONGVARCHAR, "text");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "uuid");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "int2");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "int2");
+			typeMappings.put(Type.VARBINARY, "bytea");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "PostgreSQL92Dialect": {
+			typeMappings.put(Type.BIGINT, "int8");
+			typeMappings.put(Type.BINARY, "bytea");
+			typeMappings.put(Type.BIT, "bool");
+			typeMappings.put(Type.BLOB, "oid");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "float8");
+			typeMappings.put(Type.FLOAT, "float4");
+			typeMappings.put(Type.INTEGER, "int4");
+			typeMappings.put(Type.JAVA_OBJECT, "json");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bytea");
+			typeMappings.put(Type.LONGVARCHAR, "text");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "uuid");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "int2");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "int2");
+			typeMappings.put(Type.VARBINARY, "bytea");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "PostgreSQL93Dialect": {
+			typeMappings.put(Type.BIGINT, "int8");
+			typeMappings.put(Type.BINARY, "bytea");
+			typeMappings.put(Type.BIT, "bool");
+			typeMappings.put(Type.BLOB, "oid");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "float8");
+			typeMappings.put(Type.FLOAT, "float4");
+			typeMappings.put(Type.INTEGER, "int4");
+			typeMappings.put(Type.JAVA_OBJECT, "json");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bytea");
+			typeMappings.put(Type.LONGVARCHAR, "text");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "uuid");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "int2");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "int2");
+			typeMappings.put(Type.VARBINARY, "bytea");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "PostgreSQL94Dialect": {
+			typeMappings.put(Type.BIGINT, "int8");
+			typeMappings.put(Type.BINARY, "bytea");
+			typeMappings.put(Type.BIT, "bool");
+			typeMappings.put(Type.BLOB, "oid");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "float8");
+			typeMappings.put(Type.FLOAT, "float4");
+			typeMappings.put(Type.INTEGER, "int4");
+			typeMappings.put(Type.JAVA_OBJECT, "json");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bytea");
+			typeMappings.put(Type.LONGVARCHAR, "text");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "uuid");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "int2");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "int2");
+			typeMappings.put(Type.VARBINARY, "bytea");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "PostgreSQL95Dialect": {
+			typeMappings.put(Type.BIGINT, "int8");
+			typeMappings.put(Type.BINARY, "bytea");
+			typeMappings.put(Type.BIT, "bool");
+			typeMappings.put(Type.BLOB, "oid");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "float8");
+			typeMappings.put(Type.FLOAT, "float4");
+			typeMappings.put(Type.INTEGER, "int4");
+			typeMappings.put(Type.JAVA_OBJECT, "json");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bytea");
+			typeMappings.put(Type.LONGVARCHAR, "text");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p, $s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "uuid");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "int2");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "int2");
+			typeMappings.put(Type.VARBINARY, "bytea");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "ProgressDialect": {
+			typeMappings.put(Type.BIGINT, "numeric");
+			typeMappings.put(Type.BINARY, "N/A");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "blob");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "character(1)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "real");
+			typeMappings.put(Type.INTEGER, "integer");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "tinyint");
+			typeMappings.put(Type.VARBINARY, "varbinary($l)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "RDMSOS2200Dialect": {
+			typeMappings.put(Type.BIGINT, "NUMERIC(21,0)");
+			typeMappings.put(Type.BINARY, "N/A");
+			typeMappings.put(Type.BIT, "SMALLINT");
+			typeMappings.put(Type.BLOB, "BLOB($l)");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "CHARACTER(1)");
+			typeMappings.put(Type.CLOB, "clob");
+			typeMappings.put(Type.DATE, "DATE");
+			typeMappings.put(Type.DECIMAL, "NUMERIC(21,$l)");
+			typeMappings.put(Type.DOUBLE, "DOUBLE PRECISION");
+			typeMappings.put(Type.FLOAT, "FLOAT");
+			typeMappings.put(Type.INTEGER, "INTEGER");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "NUMERIC(21,$l)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "REAL");
+			typeMappings.put(Type.SMALLINT, "SMALLINT");
+			typeMappings.put(Type.TIME, "TIME");
+			typeMappings.put(Type.TIMESTAMP, "TIMESTAMP");
+			typeMappings.put(Type.TINYINT, "SMALLINT");
+			typeMappings.put(Type.VARBINARY, "bit varying($l)");
+			typeMappings.put(Type.VARCHAR, "CHARACTER($l)");
+		}
+			break;
+		case "SAPDBDialect": {
+			typeMappings.put(Type.BIGINT, "fixed(19,0)");
+			typeMappings.put(Type.BINARY, "N/A");
+			typeMappings.put(Type.BIT, "boolean");
+			typeMappings.put(Type.BLOB, "long byte");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "long varchar");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "int");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "fixed($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "timestamp");
+			typeMappings.put(Type.TINYINT, "fixed(3,0)");
+			typeMappings.put(Type.VARBINARY, "long byte");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "SQLServerDialect": {
+			typeMappings.put(Type.BIGINT, "numeric(19,0)");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "tinyint");
+			typeMappings.put(Type.BLOB, "image");
+			typeMappings.put(Type.BOOLEAN, "bit");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "datetime");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "int");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "image");
+			typeMappings.put(Type.LONGVARCHAR, "text");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "datetime");
+			typeMappings.put(Type.TIMESTAMP, "datetime");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varbinary($l)<8000|image");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "SQLServer2005Dialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "varbinary(MAX)");
+			typeMappings.put(Type.BOOLEAN, "bit");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "varchar(MAX)");
+			typeMappings.put(Type.DATE, "datetime");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "int");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "varbinary(MAX)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar(MAX)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nvarchar(MAX)");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "datetime");
+			typeMappings.put(Type.TIMESTAMP, "datetime");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varbinary($l)<8000|varbinary(MAX)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<8000|varchar(MAX)");
+		}
+			break;
+		case "SQLServer2008Dialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "varbinary(MAX)");
+			typeMappings.put(Type.BOOLEAN, "bit");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "varchar(MAX)");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "int");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "varbinary(MAX)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar(MAX)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nvarchar(MAX)");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)<4000|nvarchar(MAX)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "datetime2");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varbinary($l)<8000|varbinary(MAX)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<8000|varchar(MAX)");
+		}
+			break;
+		case "SQLServer2012Dialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "bit");
+			typeMappings.put(Type.BLOB, "varbinary(MAX)");
+			typeMappings.put(Type.BOOLEAN, "bit");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "varchar(MAX)");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "int");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "varbinary(MAX)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar(MAX)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nvarchar(MAX)");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)<4000|nvarchar(MAX)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "datetime2");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varbinary($l)<8000|varbinary(MAX)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)<8000|varchar(MAX)");
+		}
+			break;
+		case "SybaseDialect": {
+			typeMappings.put(Type.BIGINT, "numeric(19,0)");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "tinyint");
+			typeMappings.put(Type.BLOB, "image");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "datetime");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "int");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "datetime");
+			typeMappings.put(Type.TIMESTAMP, "datetime");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varbinary($l)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "Sybase11Dialect": {
+			typeMappings.put(Type.BIGINT, "numeric(19,0)");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "tinyint");
+			typeMappings.put(Type.BLOB, "image");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "datetime");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "int");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "datetime");
+			typeMappings.put(Type.TIMESTAMP, "datetime");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varbinary($l)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "SybaseAnywhereDialect": {
+			typeMappings.put(Type.BIGINT, "numeric(19,0)");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "tinyint");
+			typeMappings.put(Type.BLOB, "image");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "datetime");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "int");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "datetime");
+			typeMappings.put(Type.TIMESTAMP, "datetime");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varbinary($l)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "SybaseASE15Dialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "tinyint");
+			typeMappings.put(Type.BLOB, "image");
+			typeMappings.put(Type.BOOLEAN, "tinyint");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "numeric($p,$s)");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "int");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "image");
+			typeMappings.put(Type.LONGVARCHAR, "text");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "datetime");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varbinary($l)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "SybaseASE157Dialect": {
+			typeMappings.put(Type.BIGINT, "bigint");
+			typeMappings.put(Type.BINARY, "binary($l)");
+			typeMappings.put(Type.BIT, "tinyint");
+			typeMappings.put(Type.BLOB, "image");
+			typeMappings.put(Type.BOOLEAN, "tinyint");
+			typeMappings.put(Type.CHAR, "char(1)");
+			typeMappings.put(Type.CLOB, "text");
+			typeMappings.put(Type.DATE, "date");
+			typeMappings.put(Type.DECIMAL, "numeric($p,$s)");
+			typeMappings.put(Type.DOUBLE, "double precision");
+			typeMappings.put(Type.FLOAT, "float");
+			typeMappings.put(Type.INTEGER, "int");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "image");
+			typeMappings.put(Type.LONGVARCHAR, "text");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "numeric($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "smallint");
+			typeMappings.put(Type.TIME, "time");
+			typeMappings.put(Type.TIMESTAMP, "datetime");
+			typeMappings.put(Type.TINYINT, "smallint");
+			typeMappings.put(Type.VARBINARY, "varbinary($l)");
+			typeMappings.put(Type.VARCHAR, "varchar($l)");
+		}
+			break;
+		case "TeradataDialect": {
+			typeMappings.put(Type.BIGINT, "NUMERIC(18,0)");
+			typeMappings.put(Type.BINARY, "BYTEINT");
+			typeMappings.put(Type.BIT, "BYTEINT");
+			typeMappings.put(Type.BLOB, "BLOB");
+			typeMappings.put(Type.BOOLEAN, "BYTEINT");
+			typeMappings.put(Type.CHAR, "CHAR(1)");
+			typeMappings.put(Type.CLOB, "CLOB");
+			typeMappings.put(Type.DATE, "DATE");
+			typeMappings.put(Type.DECIMAL, "DECIMAL");
+			typeMappings.put(Type.DOUBLE, "DOUBLE PRECISION");
+			typeMappings.put(Type.FLOAT, "FLOAT");
+			typeMappings.put(Type.INTEGER, "INTEGER");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "LONG VARCHAR");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "NUMERIC($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "SMALLINT");
+			typeMappings.put(Type.TIME, "TIME");
+			typeMappings.put(Type.TIMESTAMP, "TIMESTAMP");
+			typeMappings.put(Type.TINYINT, "BYTEINT");
+			typeMappings.put(Type.VARBINARY, "VARBYTE($l)");
+			typeMappings.put(Type.VARCHAR, "VARCHAR($l)");
+		}
+			break;
+		case "Teradata14Dialect": {
+			typeMappings.put(Type.BIGINT, "BIGINT");
+			typeMappings.put(Type.BINARY, "VARBYTE(100)");
+			typeMappings.put(Type.BIT, "BYTEINT");
+			typeMappings.put(Type.BLOB, "BLOB");
+			typeMappings.put(Type.BOOLEAN, "BYTEINT");
+			typeMappings.put(Type.CHAR, "CHAR(1)");
+			typeMappings.put(Type.CLOB, "CLOB");
+			typeMappings.put(Type.DATE, "DATE");
+			typeMappings.put(Type.DECIMAL, "DECIMAL");
+			typeMappings.put(Type.DOUBLE, "DOUBLE PRECISION");
+			typeMappings.put(Type.FLOAT, "FLOAT");
+			typeMappings.put(Type.INTEGER, "INTEGER");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "VARBYTE(32000)");
+			typeMappings.put(Type.LONGVARCHAR, "VARCHAR(32000)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "NUMERIC($p,$s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "SMALLINT");
+			typeMappings.put(Type.TIME, "TIME");
+			typeMappings.put(Type.TIMESTAMP, "TIMESTAMP");
+			typeMappings.put(Type.TINYINT, "BYTEINT");
+			typeMappings.put(Type.VARBINARY, "VARBYTE($l)");
+			typeMappings.put(Type.VARCHAR, "VARCHAR($l)");
+		}
+			break;
+		case "TimesTenDialect": {
+			typeMappings.put(Type.BIGINT, "BIGINT");
+			typeMappings.put(Type.BINARY, "N/A");
+			typeMappings.put(Type.BIT, "TINYINT");
+			typeMappings.put(Type.BLOB, "VARBINARY(4000000)");
+			typeMappings.put(Type.BOOLEAN, "boolean");
+			typeMappings.put(Type.CHAR, "CHAR(1)");
+			typeMappings.put(Type.CLOB, "VARCHAR(4000000)");
+			typeMappings.put(Type.DATE, "DATE");
+			typeMappings.put(Type.DECIMAL, "N/A");
+			typeMappings.put(Type.DOUBLE, "DOUBLE");
+			typeMappings.put(Type.FLOAT, "FLOAT");
+			typeMappings.put(Type.INTEGER, "INTEGER");
+			typeMappings.put(Type.JAVA_OBJECT, "N/A");
+			typeMappings.put(Type.LONGNVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.LONGVARBINARY, "bit varying($l)");
+			typeMappings.put(Type.LONGVARCHAR, "varchar($l)");
+			typeMappings.put(Type.NCHAR, "nchar($l)");
+			typeMappings.put(Type.NCLOB, "nclob");
+			typeMappings.put(Type.NUMERIC, "DECIMAL($p, $s)");
+			typeMappings.put(Type.NVARCHAR, "nvarchar($l)");
+			typeMappings.put(Type.OTHER, "N/A");
+			typeMappings.put(Type.REAL, "real");
+			typeMappings.put(Type.SMALLINT, "SMALLINT");
+			typeMappings.put(Type.TIME, "TIME");
+			typeMappings.put(Type.TIMESTAMP, "TIMESTAMP");
+			typeMappings.put(Type.TINYINT, "TINYINT");
+			typeMappings.put(Type.VARBINARY, "VARBINARY($l)");
+			typeMappings.put(Type.VARCHAR, "VARCHAR($l)");
 		}
 			break;
 		default:
@@ -2550,19 +2527,22 @@ public enum Dialect {
 		case "SAPDBDialect":
 		case "SQLServerDialect":
 		case "Sybase11Dialect":
-		case "SybaseAnywhereDialect":
 		case "SybaseASE157Dialect":
 		case "SybaseASE15Dialect":
+		case "SybaseAnywhereDialect":
 		case "SybaseDialect":
 		case "Teradata14Dialect":
 		case "TeradataDialect":
 		case "TimesTenDialect":
 			paginSQLTemplate = NOT_SUPPORT;
 			break;
+		case "SQLServer2005Dialect":
+		case "SQLServer2008Dialect":
+			paginSQLTemplate = "WITH query AS (SELECT TMP_.*, ROW_NUMBER() OVER (ORDER BY CURRENT_TIMESTAMP) as ROW_NUM_ FROM ( select ($DISTINCT) TOP($TOTAL_ROWS) $BODY ) TMP_ ) SELECT $FIELDS_OR_ALIAS FROM query WHERE ROW_NUM_ >= $SKIP_ROWS_PLUS1 AND ROW_NUM_ < $TOTAL_ROWS_PLUS1";
+			break;
 		case "H2Dialect":
 		case "HANAColumnStoreDialect":
 		case "HANARowStoreDialect":
-		case "PostgresPlusDialect":
 		case "PostgreSQL81Dialect":
 		case "PostgreSQL82Dialect":
 		case "PostgreSQL91Dialect":
@@ -2572,12 +2552,13 @@ public enum Dialect {
 		case "PostgreSQL95Dialect":
 		case "PostgreSQL9Dialect":
 		case "PostgreSQLDialect":
+		case "PostgresPlusDialect":
 		case "SQLiteDialect":
 			paginSQLTemplate = "select $BODY limit $PAGESIZE offset $SKIP_ROWS";
 			break;
 		case "AccessDialect":
-		case "CobolDialect":
 		case "CUBRIDDialect":
+		case "CobolDialect":
 		case "DbfDialect":
 		case "ExcelDialect":
 		case "MariaDB53Dialect":
@@ -2595,6 +2576,10 @@ public enum Dialect {
 		case "XMLDialect":
 			paginSQLTemplate = "select $BODY limit $SKIP_ROWS, $PAGESIZE";
 			break;
+		case "Oracle12cDialect":
+		case "SQLServer2012Dialect":
+			paginSQLTemplate = "select $BODY offset $SKIP_ROWS rows fetch next $PAGESIZE rows only";
+			break;
 		case "Ingres10Dialect":
 		case "Ingres9Dialect":
 			paginSQLTemplate = "select $BODY offset $skip_rows fetch first $pagesize rows only";
@@ -2604,10 +2589,6 @@ public enum Dialect {
 		case "DerbyTenSevenDialect":
 		case "DerbyTenSixDialect":
 			paginSQLTemplate = "select $BODY offset $skip_rows rows fetch next $pagesize rows only";
-			break;
-		case "Oracle12cDialect":
-		case "SQLServer2012Dialect":
-			paginSQLTemplate = "select $BODY offset $SKIP_ROWS rows fetch next $PAGESIZE rows only";
 			break;
 		case "InterbaseDialect":
 			paginSQLTemplate = "select $BODY rows $SKIP_ROWS to $PAGESIZE";
@@ -2626,18 +2607,14 @@ public enum Dialect {
 		case "Oracle9iDialect":
 			paginSQLTemplate = "select * from ( select row_.*, rownum rownum_ from ( select $BODY ) row_ where rownum <= $TOTAL_ROWS) where rownum_ > $SKIP_ROWS";
 			break;
+		case "Informix10Dialect":
+			paginSQLTemplate = "select SKIP $skip_rows first $pagesize $BODY";
+			break;
 		case "FirebirdDialect":
 			paginSQLTemplate = "select first $PAGESIZE skip $SKIP_ROWS $BODY";
 			break;
 		case "HSQLDialect":
 			paginSQLTemplate = "select limit $SKIP_ROWS $PAGESIZE $BODY";
-			break;
-		case "Informix10Dialect":
-			paginSQLTemplate = "select SKIP $skip_rows first $pagesize $BODY";
-			break;
-		case "SQLServer2005Dialect":
-		case "SQLServer2008Dialect":
-			paginSQLTemplate = "WITH query AS (SELECT TMP_.*, ROW_NUMBER() OVER (ORDER BY CURRENT_TIMESTAMP) as ROW_NUM_ FROM ( select ($DISTINCT) TOP($TOTAL_ROWS) $BODY ) TMP_ ) SELECT $FIELDS_OR_ALIAS FROM query WHERE ROW_NUM_ >= $SKIP_ROWS_PLUS1 AND ROW_NUM_ < $TOTAL_ROWS_PLUS1";
 			break;
 		default:
 			paginSQLTemplate = NOT_SUPPORT;
@@ -2655,13 +2632,16 @@ public enum Dialect {
 		case "ProgressDialect":
 		case "SAPDBDialect":
 		case "Sybase11Dialect":
-		case "SybaseAnywhereDialect":
 		case "SybaseASE157Dialect":
 		case "SybaseASE15Dialect":
+		case "SybaseAnywhereDialect":
 		case "SybaseDialect":
 		case "Teradata14Dialect":
 		case "TeradataDialect":
 			paginFirstOnlyTemplate = NOT_SUPPORT;
+			break;
+		case "Oracle12cDialect":
+			paginFirstOnlyTemplate = "select $BODY fetch first $PAGESIZE rows only";
 			break;
 		case "DB2390Dialect":
 		case "DB2400Dialect":
@@ -2674,15 +2654,12 @@ public enum Dialect {
 		case "Ingres9Dialect":
 			paginFirstOnlyTemplate = "select $BODY fetch first $pagesize rows only";
 			break;
-		case "Oracle12cDialect":
-			paginFirstOnlyTemplate = "select $BODY fetch first $PAGESIZE rows only";
-			break;
 		case "RDMSOS2200Dialect":
 			paginFirstOnlyTemplate = "select $BODY fetch first $pagesize rows only ";
 			break;
 		case "AccessDialect":
-		case "CobolDialect":
 		case "CUBRIDDialect":
+		case "CobolDialect":
 		case "DbfDialect":
 		case "ExcelDialect":
 		case "H2Dialect":
@@ -2699,7 +2676,6 @@ public enum Dialect {
 		case "MySQLInnoDBDialect":
 		case "MySQLMyISAMDialect":
 		case "ParadoxDialect":
-		case "PostgresPlusDialect":
 		case "PostgreSQL81Dialect":
 		case "PostgreSQL82Dialect":
 		case "PostgreSQL91Dialect":
@@ -2709,6 +2685,7 @@ public enum Dialect {
 		case "PostgreSQL95Dialect":
 		case "PostgreSQL9Dialect":
 		case "PostgreSQLDialect":
+		case "PostgresPlusDialect":
 		case "SQLiteDialect":
 		case "TextDialect":
 		case "XMLDialect":
@@ -2720,15 +2697,15 @@ public enum Dialect {
 		case "InterbaseDialect":
 			paginFirstOnlyTemplate = "select $BODY rows $PAGESIZE";
 			break;
+		case "SQLServer2005Dialect":
+		case "SQLServer2008Dialect":
+			paginFirstOnlyTemplate = "select ($DISTINCT) TOP($PAGESIZE) $BODY";
+			break;
 		case "Cache71Dialect":
 			paginFirstOnlyTemplate = "select ($DISTINCT) top $PAGESIZE $BODY";
 			break;
 		case "SQLServerDialect":
 			paginFirstOnlyTemplate = "select ($DISTINCT) top $pagesize $BODY";
-			break;
-		case "SQLServer2005Dialect":
-		case "SQLServer2008Dialect":
-			paginFirstOnlyTemplate = "select ($DISTINCT) TOP($PAGESIZE) $BODY";
 			break;
 		case "DataDirectOracle9Dialect":
 		case "Oracle10gDialect":
@@ -2777,11 +2754,11 @@ public enum Dialect {
 					try {// NOSONAR
 						con.close();
 					} catch (SQLException e) {
-						return (Dialect) DialectException.throwEX(e, e.getMessage());
+						DialectException.throwEX(e, e.getMessage());
 					}
 				}
 			} catch (SQLException e) {
-				return (Dialect) DialectException.throwEX(e, e.getMessage());
+				DialectException.throwEX(e, e.getMessage());
 			}
 		}
 	}
@@ -2819,14 +2796,14 @@ public enum Dialect {
 	 *            minor version, Optional
 	 * @return dialect or null if not found
 	 */
-	public static Dialect guessDialect(String databaseName, Object... majorVersion_minorVersion) {// NOSONAR
+	public static Dialect guessDialect(String databaseName, Object... majorVersionMinorVersion) {// NOSONAR
 		int majorVersion = 0;
 		int minorVersion = 0;
-		for (int i = 0; i < majorVersion_minorVersion.length; i++) {
+		for (int i = 0; i < majorVersionMinorVersion.length; i++) {
 			if (i == 0)
-				majorVersion = (Integer) majorVersion_minorVersion[i];
+				majorVersion = (Integer) majorVersionMinorVersion[i];
 			if (i == 1)
-				minorVersion = (Integer) majorVersion_minorVersion[i];
+				minorVersion = (Integer) majorVersionMinorVersion[i];
 		}
 		if ("CUBRID".equalsIgnoreCase(databaseName))
 			return CUBRIDDialect;

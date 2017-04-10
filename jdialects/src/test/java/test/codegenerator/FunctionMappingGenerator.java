@@ -7,6 +7,7 @@
 package test.codegenerator;
 
 import static com.github.drinkjava2.jsqlbox.SqlHelper.empty;
+import static com.github.drinkjava2.jsqlbox.SqlHelper.q;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -37,12 +38,15 @@ import org.hibernate.service.spi.ServiceRegistryImplementor;
 import org.junit.Test;
 
 import com.github.drinkjava2.jbeanbox.springsrc.ReflectionUtils;
+import com.github.drinkjava2.jdialects.StrUtils;
 import com.github.drinkjava2.jsqlbox.Dao;
+import com.mysql.fabric.xmlrpc.base.Struct;
 
 import test.TestBase;
 
 /**
- * This is not a unit test class, it's a code generator tool to create source code in Dialect.java
+ * This is not a unit test class, it's a code generator tool to create source
+ * code in Dialect.java
  *
  * @author Yong Zhu
  *
@@ -50,12 +54,7 @@ import test.TestBase;
  * @since 1.0.0
  */
 @SuppressWarnings({ "unchecked" })
-public class FunctionCodeGenerator extends TestBase {
-
-	@Test
-	public void doBuild() {
-		transferFunctions();// Save registered functions into DB
-	}
+public class FunctionMappingGenerator extends TestBase {
 
 	private static Dialect buildDialectByName(Class<?> dialect) {
 		BootstrapServiceRegistry bootReg = new BootstrapServiceRegistryBuilder()
@@ -82,11 +81,14 @@ public class FunctionCodeGenerator extends TestBase {
 	@Test
 	public void transferFunctions() {
 		String createSQL = "create table tb_functions ("//
-				+ "fn_name varchar(200)  " + ", constraint const_fn_name primary key (fn_name))";
+				+ "fn_name varchar(200)  " //
+				+ ",percentage double" //
+				+ ", constraint const_fn_name primary key (fn_name)" //
+				+ ")";
 		Dao.executeQuiet("drop table tb_functions");
 		Dao.execute(createSQL);
 		exportDialectFunctions();
-		// Map<String, SQLFunction> sqlFunctions
+		countFunctionPercent();
 	}
 
 	public void exportDialectFunctions() {
@@ -139,6 +141,23 @@ public class FunctionCodeGenerator extends TestBase {
 				Dao.execute("update tb_functions set " + diaName + "=? where fn_name=?", empty(sqlName),
 						empty(fn_name));
 			}
+		}
+	}
+
+	public void countFunctionPercent() {
+		List<Map<String, Object>> l = Dao.queryForList("select * from tb_functions");
+		for (Map<String, Object> map : l) {
+			String fn_name = (String) map.get("fn_name");
+			int percentage = 0;
+			int total = map.size() - 2;
+			for (Entry<String, Object> entry : map.entrySet()) {
+				if (!"fn_name".equals(entry.getKey()) && !"percentage".equals(entry.getKey())
+						&& !StrUtils.isEmpty(entry.getValue())) {
+					percentage++;
+				}
+			}
+			Dao.execute("update tb_functions set percentage="
+					+ q(String.format("%.2f", percentage * 100.0 / total).toString()) + " where fn_name=" + q(fn_name));
 		}
 	}
 

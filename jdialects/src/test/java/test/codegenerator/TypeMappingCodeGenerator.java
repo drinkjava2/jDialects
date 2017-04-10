@@ -37,7 +37,8 @@ import com.github.drinkjava2.jsqlbox.Dao;
 import test.config.PrepareTestContext;
 
 /**
- * This is not a unit test class, it's a code generator tool to create source code in Dialect.java
+ * This is not a unit test class, it's a code generator tool to create source
+ * code in Dialect.java
  *
  * @author Yong Zhu
  *
@@ -70,7 +71,8 @@ public class TypeMappingCodeGenerator {
 	@Test
 	public void transferTypeNames() {
 		org.apache.log4j.Logger.getLogger("org.hibernate").setLevel(Level.OFF);
-		String createSQL = "create table tb_typeNames ("// Save TypeNames into DB
+		String createSQL = "create table tb_typeNames ("// Save TypeNames into
+														// DB
 				+ "line integer,"//
 				+ "dialect varchar(100),"//
 				+ "t_BIGINT varchar(300),"//
@@ -151,13 +153,13 @@ public class TypeMappingCodeGenerator {
 
 		// ============now start generate source code=======
 		StringBuilder sb = new StringBuilder();
-		sb.append("private void initializeTypeMappings() {// NOSONAR").append("\r\n");
-		sb.append("switch (this.toString()) { // NOSONAR").append("\r\n");
+		sb.append("private void initializeTypeMappings() {").append("\n");
+		sb.append("switch (this.toString()) { ").append("\n");
 
 		List<Map<String, Object>> lst = Dao.queryForList("select * from tb_typeNames");
 		for (Map<String, Object> map : lst) {
 			String dialect = (String) map.get("dialect");
-			sb.append("case \"").append(dialect).append("\": {//NOSONAR\r\n");
+			sb.append("case \"").append(dialect).append("\": {\n");
 
 			for (Entry<String, Object> entry : map.entrySet()) {
 				String key = entry.getKey();
@@ -165,38 +167,39 @@ public class TypeMappingCodeGenerator {
 				key = StrUtils.replace(key, "t_", "");
 				String value = "" + entry.getValue();
 				if (!"LINE".equals(key) && !"line".equals(key) && !"DIALECT".equals(key) && !"dialect".equals(key)) {
-					sb.append("typeMappings.put(Type." + key + ", \"" + value + "\");//NOSONAR\r\n");
+					sb.append("typeMappings.put(Type." + key + ", \"" + value + "\");\n");
 				}
 			}
 			if (StrUtils.containsIgnoreCase(dialect, "innoDB"))
-				sb.append("typeMappings.put(Type.ENGINE, \"engine=innoDB\");//NOSONAR\r\n");
+				sb.append("typeMappings.put(Type.ENGINE, \"engine=innoDB\");\n");
 			if (StrUtils.containsIgnoreCase(dialect, "MyISAM"))
-				sb.append("typeMappings.put(Type.ENGINE, \"engine=MyISAM\");//NOSONAR\r\n");
+				sb.append("typeMappings.put(Type.ENGINE, \"engine=MyISAM\");\n");
 
-			sb.append("}\r\n");
-			sb.append("break;\r\n");
+			sb.append("}\n");
+			sb.append("break;\n");
 
 		}
-		sb.append("default:\r\n");
-		sb.append("}\r\n");
-		sb.append("}\r\n");
+		sb.append("default:\n");
+		sb.append("}\n");
+		sb.append("}\n");
 		System.out.println(sb.toString());
 	}
 
 	private static String getTypeNameDefString(TypeNames t, int typeCode) {
-		String s = "N/A";
-		try {
-			s = t.get(typeCode);
-		} catch (Exception e) {
-		}
+		String s = "";
 		Map<Integer, Map<Long, String>> weighted = (Map<Integer, Map<Long, String>>) findFieldObject(t, "weighted");
 		Map<Long, String> map = weighted.get(typeCode);
 		if (map != null && map.size() > 0) {
 			for (Map.Entry<Long, String> entry : map.entrySet()) {
-				s += "|" + entry.getKey() + "<" + entry.getValue();
+				s += entry.getValue() + "<" + entry.getKey() + "|";
 			}
 		}
-		return s;
+		String defaultValue = "N/A";
+		try {
+			defaultValue = t.get(typeCode);
+		} catch (Exception e) {
+		}
+		return s + defaultValue;
 	}
 
 	private static Object findFieldObject(Object obj, String fieldname) {
