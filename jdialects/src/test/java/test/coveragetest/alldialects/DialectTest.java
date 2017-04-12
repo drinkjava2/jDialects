@@ -182,6 +182,19 @@ public class DialectTest {
 	// =======test DDL Type Mapping method=======
 	@Test
 	public void testDDLTypeMapping() { 
+		Dialect d = Dialect.PostgreSQL81Dialect;
+		String ddlSql = "create table ddl_test("//
+ 				+ "f1 " + d.BIGINT() //
+  				+ ",f3 " + d.BIT() //
+  				+ ",f4 " + d.BLOB() //
+  				+ ",f5 " + d.BOOLEAN() //
+  				+ ",f6 " + d.CHAR() //
+  				+ ")" + d.ENGINE();
+		System.out.println(ddlSql);
+	}
+	
+	@Test
+	public void testDDLTypeMapping2() { 
 		Dialect d = Dialect.MySQL5InnoDBDialect;
 		String ddl = "create table ddl_test("//
 				+ "f1 " + d.BIGINT() //
@@ -228,7 +241,7 @@ public class DialectTest {
 				+ ",f10 " + d.DOUBLE() //
 				+ ",f11 " + d.FLOAT() //
 				+ ",f12 " + d.INTEGER() //
-				+ ",f13 " + d.JAVA_OBJECT() //
+				//+ ",f13 " + d.JAVA_OBJECT() //
 				+ ",f14 " + d.LONGNVARCHAR(10) //
 				+ ",f15 " + d.LONGVARBINARY() //
 				+ ",f16 " + d.LONGVARCHAR() //
@@ -236,7 +249,7 @@ public class DialectTest {
 				+ ",f18 " + d.NCLOB() //
 				+ ",f19 " + d.NUMERIC(6, 4) //
 				+ ",f20 " + d.NVARCHAR(6) //
-				+ ",f21 " + d.OTHER() //
+				//+ ",f21 " + d.OTHER() //
 				+ ",f22 " + d.REAL() //
 				+ ",f23 " + d.SMALLINT() //
 				+ ",f24 " + d.TIME() //
