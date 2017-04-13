@@ -36,7 +36,6 @@ import org.junit.Test;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.StrUtils;
-import com.github.drinkjava2.jdialects.Type;
 import com.github.drinkjava2.jsqlbox.Dao;
 
 import test.config.PrepareTestContext;

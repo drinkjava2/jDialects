@@ -315,7 +315,7 @@ public class StrUtils {
 			return str;
 		}
 		int counter = 0;
-		String thesubstr = "";
+		String thesubstr;
 		while ((counter < str.length()) && (str.substring(counter).length() >= findtxt.length())) {
 			thesubstr = str.substring(counter, counter + findtxt.length());
 			if (thesubstr.equalsIgnoreCase(findtxt)) {

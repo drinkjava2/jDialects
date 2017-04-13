@@ -40,7 +40,6 @@ import org.junit.Test;
 import com.github.drinkjava2.jbeanbox.springsrc.ReflectionUtils;
 import com.github.drinkjava2.jdialects.StrUtils;
 import com.github.drinkjava2.jsqlbox.Dao;
-import com.mysql.fabric.xmlrpc.base.Struct;
 
 import test.TestBase;
 
@@ -62,7 +61,7 @@ public class FunctionMappingGenerator extends TestBase {
 		StandardServiceRegistry registry = new StandardServiceRegistryBuilder(bootReg).build();
 		DialectFactoryImpl dialectFactory = new DialectFactoryImpl();
 		dialectFactory.injectServices((ServiceRegistryImplementor) registry);
-		final Map<String, String> configValues = new HashMap<>();
+		final Map<String, String> configValues = new HashMap<String, String>();
 		configValues.put(Environment.DIALECT, dialect.getName());
 		return dialectFactory.buildDialect(configValues, null);
 	}

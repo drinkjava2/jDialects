@@ -91,7 +91,7 @@ public class PaginationCodeGenerator extends TestBase {
 		StandardServiceRegistry registry = new StandardServiceRegistryBuilder(bootReg).build();
 		DialectFactoryImpl dialectFactory = new DialectFactoryImpl();
 		dialectFactory.injectServices((ServiceRegistryImplementor) registry);
-		final Map<String, String> configValues = new HashMap<>();
+		final Map<String, String> configValues = new HashMap<String, String>();
 		configValues.put(Environment.DIALECT, dialect.getName());
 		return dialectFactory.buildDialect(configValues, null);
 	}
@@ -265,7 +265,7 @@ public class PaginationCodeGenerator extends TestBase {
 		sql = replaceDialectStr(dialectName, sql, " inner_query", " TMP_", "SQLServer2005", "SQLServer2008");
 		sql = replaceDialectStr(dialectName, sql, " ac1, bc2", " $FIELDS_OR_ALIAS", "SQLServer2005", "SQLServer2008");
 
-		Map<String, String> rep = new HashMap<>();
+		Map<String, String> rep = new HashMap<String, String>();
 		rep.put("3", SKIP_ROWS);
 		rep.put("9", PAGESIZE);
 		rep.put("12", TOTAL_ROWS);
@@ -290,7 +290,7 @@ public class PaginationCodeGenerator extends TestBase {
 		sql = replaceDialectStr(dialectName, sql, "  ", " ");
 
 		// Analyze limits string like: 2=3,1=9,
-		Map<String, String> mp = new HashMap<>();
+		Map<String, String> mp = new HashMap<String, String>();
 		if (!StringUtils.isEmpty(limits)) {
 			String[] lms = StringUtils.split(limits, ",");
 			for (String keyValue : lms) {

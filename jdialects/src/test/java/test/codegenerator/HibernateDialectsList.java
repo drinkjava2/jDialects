@@ -96,7 +96,7 @@ import dialects_collection.XMLDialect;
  */
 @SuppressWarnings("deprecation")
 public class HibernateDialectsList {
-	public static List<Class<? extends Dialect>> SUPPORTED_DIALECTS = new ArrayList<>();
+	public static List<Class<? extends Dialect>> SUPPORTED_DIALECTS = new ArrayList<Class<? extends Dialect>>();
 	static {
 		// above are found from internet
 		SUPPORTED_DIALECTS.add(SQLiteDialect.class);

@@ -63,7 +63,7 @@ public class TypeMappingCodeGenerator {
 		StandardServiceRegistry registry = new StandardServiceRegistryBuilder(bootReg).build();
 		DialectFactoryImpl dialectFactory = new DialectFactoryImpl();
 		dialectFactory.injectServices((ServiceRegistryImplementor) registry);
-		final Map<String, String> configValues = new HashMap<>();
+		final Map<String, String> configValues = new HashMap<String, String>();
 		configValues.put(Environment.DIALECT, dialect.getName());
 		return dialectFactory.buildDialect(configValues, null);
 	}
