@@ -4,7 +4,7 @@
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
  * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package test.coveragetest.alldialects;
+package test.coveragetest.jdialects;
 
 import static com.github.drinkjava2.jdialects.Dialect.DB2400Dialect;
 import static com.github.drinkjava2.jdialects.Dialect.DB2Dialect;
@@ -30,15 +30,16 @@ import static com.github.drinkjava2.jdialects.Dialect.SQLiteDialect;
 import static com.github.drinkjava2.jdialects.Dialect.SybaseASE15Dialect;
 import static com.github.drinkjava2.jdialects.Dialect.SybaseAnywhereDialect;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.StrUtils;
-import com.github.drinkjava2.jsqlbox.Dao;
-
-import test.config.PrepareTestContext;
+import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * This is unit test for jDialects.Dialect
@@ -132,11 +133,49 @@ public class DialectTest {
 	}
 
 	// =======test guess dialects=======
+
+	private HikariDataSource buildH2Datasource() {
+		HikariDataSource ds = new HikariDataSource();
+		ds.addDataSourceProperty("cachePrepStmts", true);
+		ds.addDataSourceProperty("prepStmtCacheSize", 250);
+		ds.addDataSourceProperty("prepStmtCacheSqlLimit", 2048);
+		ds.addDataSourceProperty("useServerPrepStmts", true);
+		ds.setMaximumPoolSize(3);
+		ds.setConnectionTimeout(5000);
+		ds.setJdbcUrl("jdbc:h2:mem:DBName;MODE=MYSQL;DB_CLOSE_DELAY=-1;TRACE_LEVEL_SYSTEM_OUT=0");
+		ds.setDriverClassName("org.h2.Driver");
+		ds.setUsername("sa");
+		ds.setPassword("");
+		return ds;
+	}
+
 	@Test
 	public void testGuessDialectsByDatasource() {
-		PrepareTestContext.prepareDatasource_setDefaultSqlBoxConetxt_recreateTables();
-		System.out.println(Dialect.guessDialect(Dao.getDefaultContext().getDataSource()));
-		PrepareTestContext.closeDatasource_closeDefaultSqlBoxConetxt();
+		HikariDataSource ds = buildH2Datasource();
+		String dialectName = Dialect.guessDialect(ds).toString();
+		Assert.assertEquals("H2Dialect", dialectName);
+		ds.close();
+	}
+
+	@Test
+	public void testGuessDialectsByConnection() {
+		HikariDataSource ds = buildH2Datasource();
+		String dialectName = null;
+		Connection con = null;
+		try {
+			con = ds.getConnection();
+			dialectName = Dialect.guessDialect(con).toString();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		Assert.assertEquals("H2Dialect", dialectName);
+		ds.close();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -180,20 +219,20 @@ public class DialectTest {
 
 	// =======test DDL Type Mapping method=======
 	@Test
-	public void testDDLTypeMapping() { 
+	public void testDDLTypeMapping() {
 		Dialect d = Dialect.PostgreSQL81Dialect;
 		String ddlSql = "create table ddl_test("//
- 				+ "f1 " + d.BIGINT() //
-  				+ ",f3 " + d.BIT() //
-  				+ ",f4 " + d.BLOB() //
-  				+ ",f5 " + d.BOOLEAN() //
-  				+ ",f6 " + d.CHAR() //
-  				+ ")" + d.ENGINE();
+				+ "f1 " + d.BIGINT() //
+				+ ",f3 " + d.BIT() //
+				+ ",f4 " + d.BLOB() //
+				+ ",f5 " + d.BOOLEAN() //
+				+ ",f6 " + d.CHAR() //
+				+ ")" + d.ENGINE();
 		System.out.println(ddlSql);
 	}
-	
+
 	@Test
-	public void testDDLTypeMapping2() { 
+	public void testDDLTypeMapping2() {
 		Dialect d = Dialect.MySQL5InnoDBDialect;
 		String ddl = "create table ddl_test("//
 				+ "f1 " + d.BIGINT() //
@@ -226,8 +265,8 @@ public class DialectTest {
 				+ ",f28 " + d.VARCHAR() //
 				+ ")" + d.ENGINE();
 		System.out.println(ddl);
-		  d = Dialect.Oracle10gDialect;
-		  ddl = "create table ddl_test("//
+		d = Dialect.Oracle10gDialect;
+		ddl = "create table ddl_test("//
 				+ "f1 " + d.BIGINT() //
 				+ ",f2 " + d.BINARY(5) //
 				+ ",f3 " + d.BIT() //
@@ -236,11 +275,11 @@ public class DialectTest {
 				+ ",f6 " + d.CHAR() //
 				+ ",f7 " + d.CLOB() //
 				+ ",f8 " + d.DATE() //
-				+ ",f9 " + d.DECIMAL(3,5) //
+				+ ",f9 " + d.DECIMAL(3, 5) //
 				+ ",f10 " + d.DOUBLE() //
 				+ ",f11 " + d.FLOAT() //
 				+ ",f12 " + d.INTEGER() //
-				//+ ",f13 " + d.JAVA_OBJECT() //
+				// + ",f13 " + d.JAVA_OBJECT() //
 				+ ",f14 " + d.LONGNVARCHAR(10) //
 				+ ",f15 " + d.LONGVARBINARY() //
 				+ ",f16 " + d.LONGVARCHAR() //
@@ -248,7 +287,7 @@ public class DialectTest {
 				+ ",f18 " + d.NCLOB() //
 				+ ",f19 " + d.NUMERIC(6, 4) //
 				+ ",f20 " + d.NVARCHAR(6) //
-				//+ ",f21 " + d.OTHER() //
+				// + ",f21 " + d.OTHER() //
 				+ ",f22 " + d.REAL() //
 				+ ",f23 " + d.SMALLINT() //
 				+ ",f24 " + d.TIME() //
