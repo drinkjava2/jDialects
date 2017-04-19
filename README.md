@@ -52,7 +52,8 @@ jDialects暂不支持跨数据库的SQL函数，主要是因为SQL函数在不�
 
 以上即为jDialects全部文档，如有不清楚处可以查看"Dialect.java"源码或单元测试示例。最后强调一下，jDialects只是个SQL文本变换工具，根据不同的方言对SQL进行不同的转换，它本身不是一个持久化工具。
 
-附录：以下为目前jDialects支持的75种数据库方言：
+### 附录
+以下为目前jDialects支持的75种数据库方言：  
 AccessDialect  
 Cache71Dialect  
 CobolDialect  
