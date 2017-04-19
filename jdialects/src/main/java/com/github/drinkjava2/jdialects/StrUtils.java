@@ -370,7 +370,7 @@ public class StrUtils {
 	 * Return all sub-Strings between 1 tags
 	 */
 	public static List<String> substringsBetween(String txt, String tag) {
-		List<String> l = new ArrayList<>();
+		List<String> l = new ArrayList<String>();
 		int index = -1;
 		while (true) {
 			int i = txt.indexOf(tag, index + 1);
@@ -468,5 +468,6 @@ public class StrUtils {
 			}
 		}
 		return count;
-	} 
+	}
+
 }
