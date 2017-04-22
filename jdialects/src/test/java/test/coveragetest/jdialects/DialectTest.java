@@ -227,13 +227,9 @@ public class DialectTest {
 				+ ",f4 " + d.BLOB() //
 				+ ",f5 " + d.BOOLEAN() //
 				+ ",f6 " + d.CHAR() //
-				+ ")" + d.ENGINE();
+				+ ")" + d.ENGINE(" DEFAULT CHARSET=utf8");
 		System.out.println(ddlSql);
-	}
-
-	@Test
-	public void testDDLTypeMapping2() {
-		Dialect d = Dialect.MySQL5InnoDBDialect;
+		d = Dialect.MySQL5InnoDBDialect;
 		String ddl = "create table ddl_test("//
 				+ "f1 " + d.BIGINT() //
 				+ ",f2 " + d.BINARY(5) //
@@ -263,7 +259,7 @@ public class DialectTest {
 				+ ",f26 " + d.TINYINT() //
 				+ ",f27 " + d.VARBINARY() //
 				+ ",f28 " + d.VARCHAR() //
-				+ ")" + d.ENGINE();
+				+ ")" + d.ENGINE(" DEFAULT CHARSET=utf8");
 		System.out.println(ddl);
 		d = Dialect.Oracle10gDialect;
 		ddl = "create table ddl_test("//
@@ -297,5 +293,33 @@ public class DialectTest {
 				+ ",f28 " + d.VARCHAR() //
 				+ ")" + d.ENGINE();
 		System.out.println(ddl);
+	}
+
+	@Test
+	public void dialectFamilyTest() {
+		Assert.assertTrue(Dialect.DB2400Dialect.isDB2Family());
+		Assert.assertFalse(Dialect.Oracle10gDialect.isDB2Family());
+
+		Assert.assertTrue(Dialect.DerbyTenFiveDialect.isDerbyFamily());
+		Assert.assertFalse(Dialect.Oracle10gDialect.isDerbyFamily());
+
+		Assert.assertTrue(Dialect.H2Dialect.isH2Family());
+		Assert.assertFalse(Dialect.Oracle10gDialect.isH2Family());
+
+		Assert.assertTrue(Dialect.MySQL5InnoDBDialect.isMySqlFamily());
+		Assert.assertFalse(Dialect.Oracle10gDialect.isMySqlFamily());
+
+		Assert.assertTrue(Dialect.Oracle8iDialect.isOracleFamily());
+		Assert.assertFalse(Dialect.SQLiteDialect.isOracleFamily());
+
+		Assert.assertTrue(Dialect.PostgresPlusDialect.isPostgresFamily());
+		Assert.assertFalse(Dialect.Oracle10gDialect.isPostgresFamily());
+
+		Assert.assertTrue(Dialect.SQLServer2005Dialect.isSQLServerFamily());
+		Assert.assertFalse(Dialect.Oracle10gDialect.isSQLServerFamily());
+
+		Assert.assertTrue(Dialect.SybaseAnywhereDialect.isSybaseFamily());
+		Assert.assertFalse(Dialect.Oracle10gDialect.isSybaseFamily());
+
 	}
 }

@@ -4,7 +4,7 @@
  
  <groupId>com.github.drinkjava2</groupId>
  <artifactId>jdialects</artifactId>
- <version>1.0.0</version>
+ <version>1.0.1-SNAPSHOT</version>
  <packaging>jar</packaging> 
  
  <name>jdialects</name>
@@ -188,10 +188,11 @@
                             <links>
                                 <link>http://docs.oracle.com/javase/${version.javadoc}/docs/api</link>
                             </links>
-							<!--additionalparam>-Xdoclint:none</additionalparam-->
+							<!-- close doc line check, for Java7 only, if run on Java8 will get a Javadoc-plugin error -->
 							<properties>
 								<javadoc.opts>-Xdoclint:none</javadoc.opts>
 							</properties>
+							<!-- close doc lint check for JAVA8 is additionalparam>-Xdoclint:none</additionalparam-->
                         </configuration>
                     </plugin>
                     <plugin>

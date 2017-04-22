@@ -66,7 +66,7 @@ import com.github.drinkjava2.hibernate.StringHelper;
  * </pre>
  * 
  * @author Yong Zhu
- * @version 1.0.0
+ * @version 1.0.1
  * @since JDK1.7
  * 
  */
@@ -100,8 +100,6 @@ public enum Dialect {
 
 	private String processType(Type type, int... lengths) {// NOSONAR
 		String value = this.typeMappings.get(type);
-		if (Type.ENGINE.equals(type))
-			return StrUtils.isEmpty(value) ? "" : value;
 
 		if (StrUtils.isEmpty(value) || "N/A".equals(value) || "n/a".equals(value))
 			DialectException.throwEX("Type \"" + type + "\" is not supported by dialect \"" + this + "\"");
@@ -113,7 +111,7 @@ public enum Dialect {
 			for (String mapping : mappings) {
 				if (mapping.contains("<")) {// varchar($l)<255
 					String[] limitType = StringHelper.split("<", mapping);
-					if (lengths.length > 0 && Integer.parseInt(limitType[1]) < lengths[0])
+					if (lengths.length > 0 && lengths[0] < Integer.parseInt(limitType[1]))
 						return putParamters(type, limitType[0], lengths);
 				} else {// varchar($l)
 					return putParamters(type, mapping, lengths);
@@ -173,8 +171,21 @@ public enum Dialect {
 	public String TINYINT(int... lengths) {return processType(Type.TINYINT, lengths);}//NOSONAR
 	public String VARBINARY(int... lengths) {return processType(Type.VARBINARY, lengths);}//NOSONAR
 	public String VARCHAR(int... lengths) {return processType(Type.VARCHAR, lengths);}//NOSONAR
-	public String ENGINE(int... lengths) {return processType(Type.ENGINE, lengths);}//NOSONAR
 	//@formatter:on 
+
+	/**
+	 * return dialect's engine, extraStrings will also be append only if engine
+	 * not empty
+	 */
+	public String ENGINE(String... extraStrings) {
+		String value = this.typeMappings.get(Type.ENGINE);
+		if (StrUtils.isEmpty(value))
+			return "";
+		StringBuilder sb = new StringBuilder();
+		for (String str : extraStrings)
+			sb.append(str);
+		return value + sb.toString();
+	}
 
 	// Initialize paginSQLTemplate
 	@SuppressWarnings("all")
@@ -3004,6 +3015,62 @@ public enum Dialect {
 		// or only insert the body without "select "
 		result = StrUtils.replace(result, "$BODY", body);
 		return result;
+	}
+
+	/**
+	 * @return true if is MySql family
+	 */
+	public boolean isMySqlFamily() {
+		return this.toString().startsWith("MySQL");
+	}
+
+	/**
+	 * @return true if is Oracle family
+	 */
+	public boolean isOracleFamily() {
+		return this.toString().startsWith("Oracle");
+	}
+
+	/**
+	 * @return true if is SQL Server family
+	 */
+	public boolean isSQLServerFamily() {
+		return this.toString().startsWith("SQLServer");
+	}
+
+	/**
+	 * @return true if is H2 family
+	 */
+	public boolean isH2Family() {
+		return H2Dialect.equals(this);
+	}
+
+	/**
+	 * @return true if is Postgres family
+	 */
+	public boolean isPostgresFamily() {
+		return this.toString().startsWith("Postgres");
+	}
+
+	/**
+	 * @return true if is Sybase family
+	 */
+	public boolean isSybaseFamily() {
+		return this.toString().startsWith("Sybase");
+	}
+
+	/**
+	 * @return true if is DB2 family
+	 */
+	public boolean isDB2Family() {
+		return this.toString().startsWith("DB2");
+	}
+
+	/**
+	 * @return true if is Derby family
+	 */
+	public boolean isDerbyFamily() {
+		return this.toString().startsWith("Derby");
 	}
 
 }

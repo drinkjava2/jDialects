@@ -14,7 +14,7 @@ jDialects起始是为了jSqlBox项目而开发的，但它本身是一个独立�
 	<dependency>  
 		<groupId>com.github.drinkjava2</groupId>  
 		<artifactId>jdialects</artifactId>  
-		<version>1.0.0</version>  
+		<version>1.0.1-SNAPSHOT</version>  
 	</dependency>
 ```	
 ### 在程序中使用   
