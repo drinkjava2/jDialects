@@ -15,10 +15,8 @@ import javax.sql.DataSource;
 /**
  * Guess Dialect Utils
  * 
- * @author Yong Zhu
- *
- * @version 1.0.0
- * @since 1.0.0
+ * @author Yong Zhu 
+ * @since 1.0.1
  */
 @SuppressWarnings("all")
 public class GuessDialectUtils {

@@ -9,12 +9,12 @@ jDialects起始是为了jSqlBox项目而开发的，但它本身是一个独立�
 本版本jDialects的主体部分是由代码生成工具从Hibernate5.2.9版本中自动抽取而生成，代码生成工具见jDiaGen项目(https://github.com/drinkjava2/jDiagen)。
   
 ### 如何引入项目?  
-下载 "jdialects-1.0.0.jar"并放入项目库目录，或在项目的pom.xml文件中加入：
+下载 "jdialects-1.0.1.jar"并放入项目库目录，或在项目的pom.xml文件中加入：
 ```
 	<dependency>  
 		<groupId>com.github.drinkjava2</groupId>  
 		<artifactId>jdialects</artifactId>  
-		<version>1.0.1-SNAPSHOT</version>  
+		<version>1.0.1</version>  
 	</dependency>
 ```	
 ### 在程序中使用   
@@ -72,7 +72,7 @@ jDialects起始是为了jSqlBox项目而开发的，但它本身是一个独立�
 				+ ")" + d.engine();
   
 3) 关于SQL函数  
-jDialects暂不支持跨数据库的SQL函数，主要是因为SQL函数在不同的数据库里往往有两种情况，一种是命名和参数完全相同，一种是变化非常大，很多是专有函数，无论前者还是后者，都不太适合用通用的SQL函数来代表。但是jDialects代码生成工具将75种方言的函数对比写在“DatabaseDialects.xls”这个文件中(位于项目的根目录)，如果需要作数据库移植时可以作为速查手册。
+jDialects暂不支持跨数据库的SQL函数，主要是因为SQL函数在不同的数据库里往往有两种情况，一种是命名和参数完全相同，一种是变化非常大，很多是专有函数，无论前者还是后者，都不太适合用通用的SQL函数来代表。但是jDialects代码生成工具将75种方言的函数对比（包括分页和类型定义)写在“DatabaseDialects.xls”这个文件中(位于项目的根目录)，如果需要作数据库移植时可以作为速查手册。
 
 以上即为jDialects全部文档，如有不清楚处可以查看项目源码及单元测试。最后强调一下，jDialects只是个SQL文本变换工具，根据不同的方言对SQL进行不同的转换，它本身不是一个完整的持久化工具。
 

@@ -24,9 +24,8 @@ import java.util.logging.Logger;
  * if found commons log, use it, if found Log4j use it..., by this way this
  * project has no dependency to any logger jar.
  * 
- * @author Yong Zhu
- * @version 1.0.0
- * @since 1.0.0
+ * @author Yong Zhu 
+ * @since 1.0.1
  */
 public class DialectLogger {
 	private Object commonLogger;

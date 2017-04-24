@@ -9,10 +9,8 @@ package com.github.drinkjava2.jdialects;
 /**
  * Type Mapping initialize
  * 
- * @author Yong Zhu
- *
- * @version 1.0.0
- * @since 1.0.0
+ * @author Yong Zhu 
+ * @since 1.0.1
  */
 @SuppressWarnings("all")
 public class InitTypeMapping {

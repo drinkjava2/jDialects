@@ -77,7 +77,7 @@ import com.github.drinkjava2.hibernate.StringHelper;
    create table BufferPool(f1 number(19,0), f2 number(1,0), f3 blob, f4 number(1,0), f5 number(10,0), f6 long, ACCESS_LOCK number(8,2))
    
    For above example, there is a log warning: "BufferPool" is reserved word of DB2 and "ACCESS_LOCK" is reserved word of Teradata. 
-   This reminder you change to some other names otherwise if run on DB2Dialect or TeradataDialect will get an DialectException.
+   This reminder you change to some other names otherwise if run on DB2Dialect or TeradataDialect will get a DialectException.
    
    If want bypass the reserved words checking (not recommended), can write ddl like below: 
 	   ddl= "create table BufferPool("//
@@ -93,8 +93,7 @@ import com.github.drinkjava2.hibernate.StringHelper;
  * </pre>
  * 
  * @author Yong Zhu
- * @version 1.0.1
- * @since JDK1.7+
+ * @since 1.0.0
  * 
  */
 public enum Dialect {

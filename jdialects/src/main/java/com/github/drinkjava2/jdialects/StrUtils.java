@@ -12,9 +12,7 @@ import java.util.List;
 /**
  * String Utility
  * 
- * @author Yong Zhu
- *
- * @version 1.0.0
+ * @author Yong Zhu 
  * @since 1.0.0
  */
 public class StrUtils {
