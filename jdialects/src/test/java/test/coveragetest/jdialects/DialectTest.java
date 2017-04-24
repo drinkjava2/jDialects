@@ -251,12 +251,12 @@ public class DialectTest {
 
 	// =======test DDL Type Mapping method=======
 	private static String ddlSQL(Dialect d) {
-		return "create table " + d.check("BufferPool") + "("//
-				+ d.BIGINT("f1") //
+		return "create table " + d.check("BufferPool") //
+				+ "(" + d.BIGINT("f1") //
 				+ ", " + d.BIT("f2") //
 				+ ", " + d.BLOB("f3") //
-				+ ", " + d.Boolean("f4") //
-				+ ", " + d.Integer("f5") //
+				+ ", " + d.BOOLEAN("f4") //
+				+ ", " + d.INTEGER("f5") //
 				+ ", " + d.VARCHAR("f6", 8000) //
 				+ ", " + d.NUMERIC("ACCESS_LOCK", 8, 2) //
 				+ ")" + d.engine(" DEFAULT CHARSET=utf8");
@@ -278,14 +278,14 @@ public class DialectTest {
 				+ ",f2 " + d.BINARY(5) //
 				+ ",f3 " + d.BIT() //
 				+ ",f4 " + d.BLOB() //
-				+ ",f5 " + d.Boolean() //
+				+ ",f5 " + d.BOOLEAN() //
 				+ ",f6 " + d.CHAR() //
 				+ ",f7 " + d.CLOB() //
-				+ ",f8 " + d.Date() //
+				+ ",f8 " + d.DATE() //
 				// + ",f9 " + d.DECIMAL(3,5) //
-				+ ",f10 " + d.Double() //
-				+ ",f11 " + d.Float() //
-				+ ",f12 " + d.Integer() //
+				+ ",f10 " + d.DOUBLE() //
+				+ ",f11 " + d.FLOAT() //
+				+ ",f12 " + d.INTEGER() //
 				// + ",f13 " + d.JAVA_OBJECT() //
 				+ ",f14 " + d.LONGNVARCHAR(10) //
 				+ ",f15 " + d.LONGVARBINARY() //
@@ -297,8 +297,8 @@ public class DialectTest {
 				// + ",f21 " + d.OTHER() //
 				+ ",f22 " + d.REAL() //
 				+ ",f23 " + d.SMALLINT() //
-				+ ",f24 " + d.Time() //
-				+ ",f25 " + d.TimeStamp() //
+				+ ",f24 " + d.TIME() //
+				+ ",f25 " + d.TIMESTAMP() //
 				+ ",f26 " + d.TINYINT() //
 				+ ",f27 " + d.VARBINARY() //
 				+ ",f28 " + d.VARCHAR(10) //
@@ -310,14 +310,14 @@ public class DialectTest {
 				+ ",f2 " + d.BINARY(5) //
 				+ ",f3 " + d.BIT() //
 				+ ",f4 " + d.BLOB() //
-				+ ",f5 " + d.Boolean() //
+				+ ",f5 " + d.BOOLEAN() //
 				+ ",f6 " + d.CHAR() //
 				+ ",f7 " + d.CLOB() //
-				+ ",f8 " + d.Date() //
+				+ ",f8 " + d.DATE() //
 				+ ",f9 " + d.DECIMAL(3, 5) //
-				+ ",f10 " + d.Double() //
-				+ ",f11 " + d.Float() //
-				+ ",f12 " + d.Integer() //
+				+ ",f10 " + d.DOUBLE() //
+				+ ",f11 " + d.FLOAT() //
+				+ ",f12 " + d.INTEGER() //
 				// + ",f13 " + d.JAVA_OBJECT() //
 				+ ",f14 " + d.LONGNVARCHAR(10) //
 				+ ",f15 " + d.LONGVARBINARY() //
@@ -329,8 +329,8 @@ public class DialectTest {
 				// + ",f21 " + d.OTHER() //
 				+ ",f22 " + d.REAL() //
 				+ ",f23 " + d.SMALLINT() //
-				+ ",f24 " + d.Time() //
-				+ ",f25 " + d.TimeStamp() //
+				+ ",f24 " + d.TIME() //
+				+ ",f25 " + d.TIMESTAMP() //
 				+ ",f26 " + d.TINYINT() //
 				+ ",f27 " + d.VARBINARY() //
 				+ ",f28 " + d.VARCHAR(10) //
@@ -346,14 +346,14 @@ public class DialectTest {
 				+ ", " + d.BINARY("f2", 5) //
 				+ ", " + d.BIT("f3") //
 				+ ", " + d.BLOB("f4") //
-				+ ", " + d.Boolean("f5") //
+				+ ", " + d.BOOLEAN("f5") //
 				+ ", " + d.CHAR("f6") //
 				+ ", " + d.CLOB("f7") //
-				+ ", " + d.Date("f8") //
+				+ ", " + d.DATE("f8") //
 				// + ", " + d.DECIMAL("f9",3,5) //
-				+ ", " + d.Double("f10") //
-				+ ", " + d.Float("f11") //
-				+ ", " + d.Integer("f12") //
+				+ ", " + d.DOUBLE("f10") //
+				+ ", " + d.FLOAT("f11") //
+				+ ", " + d.INTEGER("f12") //
 				// + ", " + d.JAVA_OBJECT("f13") //
 				+ ", " + d.LONGNVARCHAR("f14", 10) //
 				+ ", " + d.LONGVARBINARY("f15") //
@@ -365,8 +365,8 @@ public class DialectTest {
 				// + ", " + d.OTHER("f21") //
 				+ ", " + d.REAL("f22") //
 				+ ", " + d.SMALLINT("f23") //
-				+ ", " + d.Time("f24") //
-				+ ", " + d.TimeStamp("f25") //
+				+ ", " + d.TIME("f24") //
+				+ ", " + d.TIMESTAMP("f25") //
 				+ ", " + d.TINYINT("f26") //
 				+ ", " + d.VARBINARY("f27") //
 				+ ", " + d.VARCHAR("f28", 10) //

@@ -52,9 +52,9 @@ import com.github.drinkjava2.hibernate.StringHelper;
       
    2) Build cross-database DDL SQL: 
 	private static String ddlSQL(Dialect d) {
-		return "create table " + d.check("BufferPool") + "("//
-				+ d.BIGINT("f1") //
-				+ ", " + d.BIT("f2", 5) //
+		return "create table " + d.check("BufferPool")//
+		        + "("+ d.BIGINT("f1") //
+				+ ", " + d.BIT("f2") //
 				+ ", " + d.BLOB("f3") //
 				+ ", " + d.BOOLEAN("f4") //
 				+ ", " + d.INTEGER("f5") //
@@ -82,7 +82,7 @@ import com.github.drinkjava2.hibernate.StringHelper;
    If want bypass the reserved words checking (not recommended), can write ddl like below: 
 	   ddl= "create table BufferPool("//
 				+ "f1 "+d.BIGINT() //
-				+ ",f2 " + d.BIT(5) //
+				+ ",f2 " + d.BIT() //
 				+ ",f3 " + d.BLOB() //
 				+ ",f4 " + d.BOOLEAN() //
 				+ ",f5 " + d.INTEGER() //
@@ -246,17 +246,17 @@ public enum Dialect {
 	}
 
 	//@formatter:off shut off eclipse's formatter
-	public String Long() {return translateToDDLType(Type.BIGINT);}//NOSONAR	
-	public String Boolean() {return translateToDDLType(Type.BOOLEAN);}//NOSONAR 
- 	public String Double() {return translateToDDLType(Type.DOUBLE);}//NOSONAR
-	public String Float() {return translateToDDLType(Type.FLOAT);}//NOSONAR
-	public String Integer() {return translateToDDLType(Type.INTEGER);}//NOSONAR
-	public String Short() {return translateToDDLType(Type.SMALLINT);}//NOSONAR
-	public String BigDecimal(int precision, int scale) {return translateToDDLType(Type.NUMERIC, precision, scale);}//NOSONAR
-	public String String(int length) {return translateToDDLType(Type.VARCHAR, length);}//NOSONAR 
-	public String Date() {return translateToDDLType(Type.DATE);}//NOSONAR	
-	public String Time() {return translateToDDLType(Type.TIME);}//NOSONAR
-	public String TimeStamp() {return translateToDDLType(Type.TIMESTAMP);}//NOSONAR 
+	public String LONG() {return translateToDDLType(Type.BIGINT);}//NOSONAR	
+	public String BOOLEAN() {return translateToDDLType(Type.BOOLEAN);}//NOSONAR 
+ 	public String DOUBLE() {return translateToDDLType(Type.DOUBLE);}//NOSONAR
+	public String FLOAT() {return translateToDDLType(Type.FLOAT);}//NOSONAR
+	public String INTEGER() {return translateToDDLType(Type.INTEGER);}//NOSONAR
+	public String SHORT() {return translateToDDLType(Type.SMALLINT);}//NOSONAR
+	public String BIGDECIMAL(int precision, int scale) {return translateToDDLType(Type.NUMERIC, precision, scale);}//NOSONAR
+	public String STRING(int length) {return translateToDDLType(Type.VARCHAR, length);}//NOSONAR 
+	public String DATE() {return translateToDDLType(Type.DATE);}//NOSONAR	
+	public String TIME() {return translateToDDLType(Type.TIME);}//NOSONAR
+	public String TIMESTAMP() {return translateToDDLType(Type.TIMESTAMP);}//NOSONAR 
 	
 	public String BIGINT() {return translateToDDLType(Type.BIGINT);}//NOSONAR 
 	public String BINARY(int... lengths) {return translateToDDLType(Type.BINARY, lengths);}//NOSONAR
@@ -280,17 +280,17 @@ public enum Dialect {
 	public String VARBINARY(int... lengths) {return translateToDDLType(Type.VARBINARY, lengths);}//NOSONAR
 	public String VARCHAR(int length) {return translateToDDLType(Type.VARCHAR, length);}//NOSONAR 
 	
-	public String Long(String colName) {return translateToDDLType(colName,Type.BIGINT);}//NOSONAR	
-	public String Boolean(String colName) {return translateToDDLType(colName,Type.BOOLEAN);}//NOSONAR 
- 	public String Double(String colName) {return translateToDDLType(colName,Type.DOUBLE);}//NOSONAR
-	public String Float(String colName) {return translateToDDLType(colName,Type.FLOAT);}//NOSONAR
-	public String Integer(String colName) {return translateToDDLType(colName,Type.INTEGER);}//NOSONAR
-	public String Short(String colName) {return translateToDDLType(colName,Type.SMALLINT);}//NOSONAR
-	public String BigDecimal(String colName,int precision, int scale) {return translateToDDLType(colName,Type.NUMERIC, precision, scale);}//NOSONAR
-	public String String(String colName,int length) {return translateToDDLType(colName,Type.VARCHAR, length);}//NOSONAR 
-	public String Date(String colName) {return translateToDDLType(colName,Type.DATE);}//NOSONAR	
-	public String Time(String colName) {return translateToDDLType(colName,Type.TIME);}//NOSONAR
-	public String TimeStamp(String colName) {return translateToDDLType(colName,Type.TIMESTAMP);}//NOSONAR 
+	public String LONG(String colName) {return translateToDDLType(colName,Type.BIGINT);}//NOSONAR	
+	public String BOOLEAN(String colName) {return translateToDDLType(colName,Type.BOOLEAN);}//NOSONAR 
+ 	public String DOUBLE(String colName) {return translateToDDLType(colName,Type.DOUBLE);}//NOSONAR
+	public String FLOAT(String colName) {return translateToDDLType(colName,Type.FLOAT);}//NOSONAR
+	public String INTEGER(String colName) {return translateToDDLType(colName,Type.INTEGER);}//NOSONAR
+	public String SHORT(String colName) {return translateToDDLType(colName,Type.SMALLINT);}//NOSONAR
+	public String BIGDECIMAL(String colName,int precision, int scale) {return translateToDDLType(colName,Type.NUMERIC, precision, scale);}//NOSONAR
+	public String STRING(String colName,int length) {return translateToDDLType(colName,Type.VARCHAR, length);}//NOSONAR 
+	public String DATE(String colName) {return translateToDDLType(colName,Type.DATE);}//NOSONAR	
+	public String TIME(String colName) {return translateToDDLType(colName,Type.TIME);}//NOSONAR
+	public String TIMESTAMP(String colName) {return translateToDDLType(colName,Type.TIMESTAMP);}//NOSONAR 
 	
 	public String BIGINT(String colName) {return translateToDDLType(colName,Type.BIGINT);}//NOSONAR 
 	public String BINARY(String colName,int... lengths) {return translateToDDLType(colName,Type.BINARY, lengths);}//NOSONAR
