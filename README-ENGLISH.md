@@ -21,29 +21,59 @@ Download and put "jdialects-1.0.0.jar" in project class folder, or add below lin
 		<artifactId>jdialects</artifactId>  
 		<version>1.0.0</version>  
 	</dependency>  
+  
+###In source code:
+   1) Build pagination SQL    
+      Dialect dialect=Dialect.MySQL5Dialect;
+      //Dialect dialect=guessDialect(connection);  //or guess dialect by given connection
+      //Dialect dialect=guessDialect(dataSource);  //or guess dialect by given dataSource
+      String result=dialect.paginate(3, 10, "select * from users where id=?");
+      
+     in MySQL5Dialect,    result is: "select * from users  where id=? limit 20, 10"
+     in Oracle8iDialect,  result is: "select * from ( select row_.*, rownum rownum_ from ( select * from users  where id=? ) row_ ) where rownum_ <= 30 and rownum_ > 20"
+     in Oracle12cDialect, result is: "select * from users  where id=? offset 20 rows fetch next 10 rows only"
+     in Sybase11Dialect, throw a DialectExcepiton with message: "Sybase11Dialect" does not support physical pagination
+     ...
+      
+   2) Build cross-database DDL SQL: 
+	private static String ddlSQL(Dialect d) {
+		return "create table " + d.check("BufferPool") + "("//
+				+ d.BIGINT("f1") //
+				+ ", " + d.BIT("f2", 5) //
+				+ ", " + d.BLOB("f3") //
+				+ ", " + d.BOOLEAN("f4") //
+				+ ", " + d.INTEGER("f5") //
+				+ ", " + d.VARCHAR("f6", 8000) //
+				+ ", " + d.NUMERIC("ACCESS_LOCK", 8,2) // 
+				+ ")" + d.engine(" DEFAULT CHARSET=utf8");
+	}
+
+	public static void main(String[] args) {
+		System.out.println(ddlSQL(Dialect.MySQL57InnoDBDialect));
+		System.out.println(ddlSQL(Dialect.SQLServer2012Dialect));
+		System.out.println(ddlSQL(Dialect.Oracle10gDialect));
+		//System.out.println(ddlSQL(Dialect.DB2Dialect));
+		//System.out.println(ddlSQL(Dialect.TeradataDialect));	
+	} 
+	
+  Result is:
+   create table BufferPool(f1 bigint, f2 bit, f3 longblob, f4 bit, f5 integer, f6 varchar(8000), ACCESS_LOCK decimal(8,2))engine=innoDB DEFAULT CHARSET=utf8
+   create table BufferPool(f1 bigint, f2 bit, f3 varbinary(MAX), f4 bit, f5 int, f6 varchar(MAX), ACCESS_LOCK numeric(8,2))
+   create table BufferPool(f1 number(19,0), f2 number(1,0), f3 blob, f4 number(1,0), f5 number(10,0), f6 long, ACCESS_LOCK number(8,2))
    
-###In source code:  
-1) Build pagination SQL      
-		Dialect d=guessDialect(dataSource);  
-		String result=dialect.paginate(3, 10, "select * from users");  
-     
-   in MySQL5Dialect,    result is: "select * from users limit 20, 10"  
-   in Oracle8iDialect,  result is: "select * from ( select row_.*, rownum rownum_ from ( select * from users ) row_ ) where rownum_ <= 30 and rownum_ > 20"  
-   in Oracle12cDialect, result is: "select * from users offset 20 rows fetch next 10 rows only"  
-   in Sybase11Dialect, throw a DialectExcepiton with message: "Sybase11Dialect" does not support physical pagination  
-   ...  
-     
-2) Build cross-database DDL SQL:    	  
-		Dialect d=guessDialect(dataSource);  
-		ddlSql = "create table ddl_test("//  
-		"f1 " + d.BIGINT() //  
-		",f3 " + d.BIT() //  
-		",f4 " + d.BLOB() //  
-		",f5 " + d.BOOLEAN() //  
-		",f6 " + d.CHAR() //  
-		")" + d.ENGINE();  
-   if MySql5Dialect, ddlSql will be "create table ddl_test(f1 bigint,f3 bit,f4 longblob,f5 bit,f6 char(1))engine=innoDB"  
-   in SQLServer2012Dialect, will get "create table ddl_test(f1 int8,f3 bool,f4 oid,f5 boolean,f6 char(1))"   
+   For above example, there is a log warning: "BufferPool" is reserved word of DB2 and "ACCESS_LOCK" is reserved word of Teradata. 
+   This reminder you change to some other names otherwise if run on DB2Dialect or TeradataDialect will get an DialectException.
+   
+   If want bypass the reserved words checking (not recommended), can write ddl like below: 
+	   ddl= "create table BufferPool("//
+				+ "f1 "+d.BIGINT() //
+				+ ",f2 " + d.BIT(5) //
+				+ ",f3 " + d.BLOB() //
+				+ ",f4 " + d.BOOLEAN() //
+				+ ",f5 " + d.INTEGER() //
+				+ ",f6 " + d.VARCHAR(8000) //
+				+ ",ACCESS_LOCK " + d.NUMERIC(8,2) // 
+				+ ")" + d.engine();
 
 ###Below are all dialects in jDialects:
 AccessDialect  

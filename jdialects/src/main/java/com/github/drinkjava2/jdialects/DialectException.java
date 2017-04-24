@@ -30,6 +30,10 @@ public class DialectException extends RuntimeException {
 		return throwEX(null, errorMsg);
 	}
 
+	public static void eatException(Exception e) {
+		// do nothing here
+	}
+
 	public static void assureNotNull(Object obj, String... optionMessages) {
 		if (obj == null)
 			throw new NullPointerException(optionMessages.length == 0 ? "" : optionMessages[0]);

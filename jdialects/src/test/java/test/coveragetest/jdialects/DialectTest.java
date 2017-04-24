@@ -61,6 +61,7 @@ public class DialectTest {
 			System.out.println("=========" + dialect + "==========");
 			String result = "";
 			try {
+				System.out.println(dialect);
 				result = dialect.paginate(1, 10, sql1);
 				System.out.println(result);
 			} catch (DialectException e) {
@@ -218,31 +219,73 @@ public class DialectTest {
 	}
 
 	// =======test DDL Type Mapping method=======
+	@Test(expected = DialectException.class)
+	public void testDDLTypeMapping1() {
+		Dialect.MySQL55Dialect.VARCHAR("user", 1);
+	}
+
+	@Test(expected = DialectException.class)
+	public void testDDLTypeMapping2() {
+		Dialect.MySQL55Dialect.VARCHAR("CHARACTER_LENGTH", 1);
+	}
+
+	@Test // (expected = DialectException.class)
+	public void testDDLTypeMapping3() {
+		System.out.println(Dialect.SQLServer2005Dialect.VARCHAR("MASTER_SSL_VERIFY_SERVER_CERT", 1));
+	}
+
+	@Test(expected = DialectException.class)
+	public void testDDLTypeMapping4() {
+		Dialect.MySQL55Dialect.check("user");
+	}
+
+	@Test(expected = DialectException.class)
+	public void testDDLTypeMapping5() {
+		Dialect.MySQL55Dialect.check("CHARACTER_LENGTH");
+	}
+
 	@Test
-	public void testDDLTypeMapping() {
-		Dialect d = Dialect.PostgreSQL81Dialect;
-		String ddlSql = "create table ddl_test("//
-				+ "f1 " + d.BIGINT() //
-				+ ",f3 " + d.BIT() //
-				+ ",f4 " + d.BLOB() //
-				+ ",f5 " + d.BOOLEAN() //
-				+ ",f6 " + d.CHAR() //
-				+ ")" + d.ENGINE(" DEFAULT CHARSET=utf8");
-		System.out.println(ddlSql);
-		d = Dialect.MySQL5InnoDBDialect;
+	public void testDDLTypeMapping6() {
+		Dialect.SQLServer2005Dialect.check("MASTER_SSL_VERIFY_SERVER_CERT");
+	}
+
+	// =======test DDL Type Mapping method=======
+	private static String ddlSQL(Dialect d) {
+		return "create table " + d.check("BufferPool") + "("//
+				+ d.BIGINT("f1") //
+				+ ", " + d.BIT("f2") //
+				+ ", " + d.BLOB("f3") //
+				+ ", " + d.Boolean("f4") //
+				+ ", " + d.Integer("f5") //
+				+ ", " + d.VARCHAR("f6", 8000) //
+				+ ", " + d.NUMERIC("ACCESS_LOCK", 8, 2) //
+				+ ")" + d.engine(" DEFAULT CHARSET=utf8");
+	}
+
+	public static void main(String[] args) {
+		System.out.println(ddlSQL(Dialect.MySQL57InnoDBDialect));
+		System.out.println(ddlSQL(Dialect.SQLServer2012Dialect));
+		System.out.println(ddlSQL(Dialect.Oracle10gDialect));
+		// System.out.println(ddlSQL(Dialect.DB2Dialect));
+		// System.out.println(ddlSQL(Dialect.TeradataDialect));
+	}
+
+	@Test
+	public void testDDLTypeMapping7() {
+		Dialect d = Dialect.MySQL5InnoDBDialect;
 		String ddl = "create table ddl_test("//
 				+ "f1 " + d.BIGINT() //
 				+ ",f2 " + d.BINARY(5) //
 				+ ",f3 " + d.BIT() //
 				+ ",f4 " + d.BLOB() //
-				+ ",f5 " + d.BOOLEAN() //
+				+ ",f5 " + d.Boolean() //
 				+ ",f6 " + d.CHAR() //
 				+ ",f7 " + d.CLOB() //
-				+ ",f8 " + d.DATE() //
+				+ ",f8 " + d.Date() //
 				// + ",f9 " + d.DECIMAL(3,5) //
-				+ ",f10 " + d.DOUBLE() //
-				+ ",f11 " + d.FLOAT() //
-				+ ",f12 " + d.INTEGER() //
+				+ ",f10 " + d.Double() //
+				+ ",f11 " + d.Float() //
+				+ ",f12 " + d.Integer() //
 				// + ",f13 " + d.JAVA_OBJECT() //
 				+ ",f14 " + d.LONGNVARCHAR(10) //
 				+ ",f15 " + d.LONGVARBINARY() //
@@ -254,12 +297,12 @@ public class DialectTest {
 				// + ",f21 " + d.OTHER() //
 				+ ",f22 " + d.REAL() //
 				+ ",f23 " + d.SMALLINT() //
-				+ ",f24 " + d.TIME() //
-				+ ",f25 " + d.TIMESTAMP() //
+				+ ",f24 " + d.Time() //
+				+ ",f25 " + d.TimeStamp() //
 				+ ",f26 " + d.TINYINT() //
 				+ ",f27 " + d.VARBINARY() //
-				+ ",f28 " + d.VARCHAR() //
-				+ ")" + d.ENGINE(" DEFAULT CHARSET=utf8");
+				+ ",f28 " + d.VARCHAR(10) //
+				+ ")" + d.engine(" DEFAULT CHARSET=utf8");
 		System.out.println(ddl);
 		d = Dialect.Oracle10gDialect;
 		ddl = "create table ddl_test("//
@@ -267,14 +310,14 @@ public class DialectTest {
 				+ ",f2 " + d.BINARY(5) //
 				+ ",f3 " + d.BIT() //
 				+ ",f4 " + d.BLOB() //
-				+ ",f5 " + d.BOOLEAN() //
+				+ ",f5 " + d.Boolean() //
 				+ ",f6 " + d.CHAR() //
 				+ ",f7 " + d.CLOB() //
-				+ ",f8 " + d.DATE() //
+				+ ",f8 " + d.Date() //
 				+ ",f9 " + d.DECIMAL(3, 5) //
-				+ ",f10 " + d.DOUBLE() //
-				+ ",f11 " + d.FLOAT() //
-				+ ",f12 " + d.INTEGER() //
+				+ ",f10 " + d.Double() //
+				+ ",f11 " + d.Float() //
+				+ ",f12 " + d.Integer() //
 				// + ",f13 " + d.JAVA_OBJECT() //
 				+ ",f14 " + d.LONGNVARCHAR(10) //
 				+ ",f15 " + d.LONGVARBINARY() //
@@ -286,12 +329,49 @@ public class DialectTest {
 				// + ",f21 " + d.OTHER() //
 				+ ",f22 " + d.REAL() //
 				+ ",f23 " + d.SMALLINT() //
-				+ ",f24 " + d.TIME() //
-				+ ",f25 " + d.TIMESTAMP() //
+				+ ",f24 " + d.Time() //
+				+ ",f25 " + d.TimeStamp() //
 				+ ",f26 " + d.TINYINT() //
 				+ ",f27 " + d.VARBINARY() //
-				+ ",f28 " + d.VARCHAR() //
-				+ ")" + d.ENGINE();
+				+ ",f28 " + d.VARCHAR(10) //
+				+ ")" + d.engine();
+		System.out.println(ddl);
+	}
+
+	@Test
+	public void testDDLTypeMapping8() {
+		Dialect d = Dialect.MySQL5InnoDBDialect;
+		String ddl = "create table " + d.check("test") + "("//
+				+ d.BIGINT("f1") //
+				+ ", " + d.BINARY("f2", 5) //
+				+ ", " + d.BIT("f3") //
+				+ ", " + d.BLOB("f4") //
+				+ ", " + d.Boolean("f5") //
+				+ ", " + d.CHAR("f6") //
+				+ ", " + d.CLOB("f7") //
+				+ ", " + d.Date("f8") //
+				// + ", " + d.DECIMAL("f9",3,5) //
+				+ ", " + d.Double("f10") //
+				+ ", " + d.Float("f11") //
+				+ ", " + d.Integer("f12") //
+				// + ", " + d.JAVA_OBJECT("f13") //
+				+ ", " + d.LONGNVARCHAR("f14", 10) //
+				+ ", " + d.LONGVARBINARY("f15") //
+				+ ", " + d.LONGVARCHAR("f16") //
+				+ ", " + d.NCHAR("f17", 5) //
+				+ ", " + d.NCLOB("f18") //
+				+ ", " + d.NUMERIC("f19", 6, 4) //
+				+ ", " + d.NVARCHAR("f20", 6) //
+				// + ", " + d.OTHER("f21") //
+				+ ", " + d.REAL("f22") //
+				+ ", " + d.SMALLINT("f23") //
+				+ ", " + d.Time("f24") //
+				+ ", " + d.TimeStamp("f25") //
+				+ ", " + d.TINYINT("f26") //
+				+ ", " + d.VARBINARY("f27") //
+				+ ", " + d.VARCHAR("f28", 10) //
+				+ ", " + d.VARCHAR("f28", 30) //
+				+ ")" + d.engine();
 		System.out.println(ddl);
 	}
 
@@ -320,6 +400,5 @@ public class DialectTest {
 
 		Assert.assertTrue(Dialect.SybaseAnywhereDialect.isSybaseFamily());
 		Assert.assertFalse(Dialect.Oracle10gDialect.isSybaseFamily());
-
 	}
 }
