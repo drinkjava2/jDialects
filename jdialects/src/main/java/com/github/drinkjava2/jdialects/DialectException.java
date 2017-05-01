@@ -7,7 +7,9 @@
 package com.github.drinkjava2.jdialects;
 
 /**
- * @author Yong Zhu 
+ * DialectException for jDialects
+ * 
+ * @author Yong Zhu
  * @since 1.0.0
  */
 public class DialectException extends RuntimeException {

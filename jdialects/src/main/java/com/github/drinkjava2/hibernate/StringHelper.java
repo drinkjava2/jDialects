@@ -16,7 +16,7 @@ import java.util.StringTokenizer;
 
 /**
  * @author Hibernate
- * @author Hong Zhu(modify)
+ * @author Yong Zhu(modify)
  */
 @SuppressWarnings("all")
 public final class StringHelper {

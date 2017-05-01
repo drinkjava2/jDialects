@@ -15,7 +15,7 @@ import javax.sql.DataSource;
 /**
  * Guess Dialect Utils
  * 
- * @author Yong Zhu 
+ * @author Yong Zhu
  * @since 1.0.1
  */
 @SuppressWarnings("all")
@@ -25,7 +25,8 @@ public class GuessDialectUtils {
 	 * does not close connection
 	 * 
 	 * @param jdbcConnection
-	 * @return dialect or null if not found
+	 *            The connection
+	 * @return dialect or null if can not guess out which dialect
 	 */
 	public static Dialect guessDialect(Connection jdbcConnection) {
 		String databaseName;
@@ -43,16 +44,16 @@ public class GuessDialectUtils {
 	}
 
 	/**
-	 * Guess dialect based on given JDBC connection instance, Note: this method
-	 * does not close connection
+	 * Guess dialect based on given dataSource
 	 * 
-	 * @param jdbcConnection
-	 * @return dialect or null if not found
+	 * @param datasource
+	 *            The dataSource
+	 * @return dialect or null if can not guess out which dialect
 	 */
-	public static Dialect guessDialect(DataSource datasource) {
+	public static Dialect guessDialect(DataSource dataSource) {
 		Connection con = null;
 		try {
-			con = datasource.getConnection();
+			con = dataSource.getConnection();
 			return guessDialect(con);
 		} catch (SQLException e) {
 			return (Dialect) DialectException.throwEX(e, e.getMessage());
@@ -72,14 +73,14 @@ public class GuessDialectUtils {
 	}
 
 	/**
-	 * Guess Dialect by give databaseName, MajorVersion, majorVersion
+	 * Guess Dialect by give databaseName, MajorVersion, MinorVersion
 	 * 
 	 * @param databaseName
-	 *            database name
+	 *            The database name
 	 * @param majorVersion
-	 *            major version, Optional
+	 *            The major version, Optional
 	 * @param minorVersion
-	 *            minor version, Optional
+	 *            The minor version, Optional
 	 * @return dialect or null if not found
 	 */
 	public static Dialect guessDialect(String databaseName, Object... majorVersionMinorVersion) {// NOSONAR

@@ -7,9 +7,9 @@
 package com.github.drinkjava2.jdialects;
 
 /**
- * String Utility
+ * Type definitions
  * 
- * @author Yong Zhu 
+ * @author Yong Zhu
  * @since 1.0.0
  */
 public enum Type {
@@ -41,5 +41,5 @@ public enum Type {
 	, TINYINT//
 	, VARBINARY//
 	, ENGINE//
-	, VARCHAR;// 
+	, VARCHAR;//
 }

@@ -2,9 +2,9 @@
 ## jDialects
 开源协议: [LGPL 2.1](http://www.gnu.org/licenses/lgpl-2.1.html)  
 
-jDialects是一个收集了大多数数据库方言的Java小项目，通常可用来创建分页SQL和建表DDL语句，可根据不同的数据库方言生成不同的SQL。目前jDialects支持75种数据库方言，包括Hibernate中没有的SQLLite和Access等。jDialects需要Java7或以上版本支持。  
+jDialects是一个收集了大多数数据库方言的Java小项目，通常可用来创建分页SQL和建表DDL语句，可根据不同的数据库方言生成不同的SQL。目前jDialects支持75种数据库方言，包括Hibernate中没有的SQLite和Access等。jDialects需要Java7或以上版本支持。  
 
-jDialects起初是为了jSqlBox项目而开发的，但它本身是一个独立的项目(发布包只有90k大小且无其它第三方依赖)，只要用到了SQL，就可以利用它来创建对应数据库的分页SQL和DDL。如果你使用了纯JDBC、JdbcTemplate、DbUtils...等，只要出现原生SQL，并有跨数据库需求的场合(例如单元测试需要同时在H2内存数据库和实际数据库MySql上运行)，就可以利用这个工具来实现跨数据库的分页。  
+jDialects起初是为了jSqlBox项目而开发的，但它本身是一个独立的项目(发布包只有90k大小且无其它第三方依赖)，只要用到了SQL，就可以利用它来创建对应数据库的分页SQL和DDL。如果你使用了纯JDBC、JdbcTemplate、DbUtils...等，只要出现原生SQL，并有跨数据库需求的场合(例如单元测试需要同时在H2内存数据库和实际数据库Oracle上运行)，就可以利用这个工具来实现跨数据库的分页和建表。  
 
 jDialects项目的主体部分是由代码生成工具从Hibernate5.2.9版本中抽取而自动生成，这从一定程度上也保证了它的代码质量。代码生成工具见[jDiagen](https://github.com/drinkjava2/jDiagen)项目。    
   
@@ -17,6 +17,7 @@ jDialects项目的主体部分是由代码生成工具从Hibernate5.2.9版本中
 		<version>1.0.1</version>  
 	</dependency>
 ```	
+(目前正在开发1.0.2-SNAPSHOP版，主要对DLL这块功能进行完善)
 ### 在程序中使用   
 1) 创建跨数据库的分页：  
 ```
@@ -32,7 +33,7 @@ jDialects项目的主体部分是由代码生成工具从Hibernate5.2.9版本中
    ...
 ```   
      
-2) 创建跨数据库的DDL:  
+2) 创建跨数据库的DDL(目前功能比较简陋，正在改进中):  
 ```
 	private static String ddlSQL(Dialect d) {
 		return "create table " + d.check("BufferPool") + "("//

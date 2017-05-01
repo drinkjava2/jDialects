@@ -4,7 +4,7 @@
  
  <groupId>com.github.drinkjava2</groupId>
  <artifactId>jdialects</artifactId>
- <version>1.0.1</version>
+ <version>1.0.2-SNAPSHOT</version>
  <packaging>jar</packaging> 
  
  <name>jdialects</name>
@@ -67,11 +67,11 @@
 
  <dependencies>   
  
-    <!-- At runtime, jDialects has no 3rd party dependency  -->   
+    <!-- At runtime, jDialects has no any 3rd party dependency  -->   
 	
-    <!-- ================================================================================================== -->
-    <!-- Below dependencies are for unit test and code generate only, scope be set to "test"                --> 
-    <!-- ================================================================================================== --> 
+    <!-- ============================================================================= -->
+    <!-- Below dependencies are for unit test only, scope set to "test"                --> 
+    <!-- ============================================================================= --> 
 	 
     <dependency>
       <groupId>junit</groupId>
