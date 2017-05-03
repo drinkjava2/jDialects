@@ -401,4 +401,5 @@ public class DialectTest {
 		Assert.assertTrue(Dialect.SybaseAnywhereDialect.isSybaseFamily());
 		Assert.assertFalse(Dialect.Oracle10gDialect.isSybaseFamily());
 	}
+
 }

@@ -27,7 +27,6 @@ public class DialectConstraint {
 	private String column;// belong to which column
 	private String constraintName;
 	private String constraintType;
- 
 
 	public DialectConstraint() {
 		// Default constructor
@@ -63,35 +62,40 @@ public class DialectConstraint {
 		return operation;
 	}
 
-	public void setOperation(String operation) {
+	public DialectConstraint setOperation(String operation) {
 		this.operation = operation;
+		return this;
 	}
 
 	public String getTable() {
 		return table;
 	}
 
-	public void setTable(String table) {
+	public DialectConstraint setTable(String table) {
 		this.table = table;
+		return this;
 	}
 
 	public String getColumn() {
 		return column;
 	}
 
-	public void setColumn(String column) {
+	public DialectConstraint setColumn(String column) {
 		this.column = column;
+		return this;
 	}
 
-	public void setConstraintType(String constraintType) {
+	public DialectConstraint setConstraintType(String constraintType) {
 		this.constraintType = constraintType;
+		return this;
 	}
 
 	public String getConstraintName() {
 		return constraintName;
 	}
 
-	public void setConstraintName(String constraintName) {
+	public DialectConstraint setConstraintName(String constraintName) {
 		this.constraintName = constraintName;
+		return this;
 	}
 }

@@ -29,11 +29,11 @@ SQL=d.addColumn("colname", d.Type).notNull().autoINC().isPkey("").default().desc
  * @since 1.0.0
  */
 public class DialectColumn {
-	public static final String OPERATION_NO = "";
-	public static final String OPERATION_ADD = "";
-	public static final String OPERATION_MODIFY = "";
+	public static final String OPERATION_NO = "NO";
+	public static final String OPERATION_ADD = "ADD";
 
 	private String operation = OPERATION_NO;
+	private Dialect dialect;// In which dialect
 	private String tableName;// In which table
 	private String columnName;
 	private String columnType;
@@ -92,88 +92,121 @@ public class DialectColumn {
 	 */
 	@Override
 	public String toString() {
-		return "aa";
+		switch (operation) {
+		case OPERATION_NO:
+			return columnName + " " + columnType;
+		case OPERATION_ADD: {// NOSONAR
+			if (!DDLFeatures.isValidString(dialect.ddlFeatures.addColumnString))
+				return (String) DialectException.throwEX(dialect + " does not support add column.");
+			else
+				return new StringBuilder("alter table ").append(dialect.ddlFeatures.addColumnString).append(" ")
+						.append(columnName).append(" ").append(columnType)
+						.append(dialect.ddlFeatures.addColumnSuffixString).toString();
+		}
+		default:
+			return (String) DialectException.throwEX("Unknow operation type for DialectColumn");
+		}
 	}
 
 	// getter & setters
+
 	public String getTableName() {
 		return tableName;
+	}
+
+	public Dialect getDialect() {
+		return dialect;
+	}
+
+	public DialectColumn setDialect(Dialect dialect) {
+		this.dialect = dialect;
+		return this;
 	}
 
 	public String getOperation() {
 		return operation;
 	}
 
-	public void setOperation(String operation) {
+	public DialectColumn setOperation(String operation) {
 		this.operation = operation;
+		return this;
 	}
 
-	public void setTableName(String tableName) {
+	public DialectColumn setTableName(String tableName) {
 		this.tableName = tableName;
+		return this;
 	}
 
 	public String getColumnName() {
 		return columnName;
 	}
 
-	public void setColumnName(String columnName) {
+	public DialectColumn setColumnName(String columnName) {
 		this.columnName = columnName;
+		return this;
 	}
 
 	public String getColumnType() {
 		return columnType;
 	}
 
-	public void setColumnType(String columnType) {
+	public DialectColumn setColumnType(String columnType) {
 		this.columnType = columnType;
+		return this;
 	}
 
 	public Boolean getRequired() {
 		return required;
 	}
 
-	public void setRequired(Boolean required) {
+	public DialectColumn setRequired(Boolean required) {
 		this.required = required;
+		return this;
 	}
 
 	public Boolean getUnique() {
 		return unique;
 	}
 
-	public void setUnique(Boolean unique) {
+	public DialectColumn setUnique(Boolean unique) {
 		this.unique = unique;
+		return this;
 	}
 
 	public Boolean getAutoInc() {
 		return autoInc;
 	}
 
-	public void setAutoInc(Boolean autoInc) {
+	public DialectColumn setAutoInc(Boolean autoInc) {
 		this.autoInc = autoInc;
+		return this;
 	}
 
 	public Boolean getPkey() {
 		return pkey;
 	}
 
-	public void setPkey(Boolean pkey) {
+	public DialectColumn setPkey(Boolean pkey) {
 		this.pkey = pkey;
+		return this;
 	}
 
 	public List<DialectConstraint> getConstraints() {
 		return constraints;
 	}
 
-	public void setConstraints(List<DialectConstraint> constraints) {
+	public DialectColumn setConstraints(List<DialectConstraint> constraints) {
 		this.constraints = constraints;
+		return this;
 	}
 
 	public Object getDefaultValue() {
 		return defaultValue;
 	}
 
-	public void setDefaultValue(Object defaultValue) {
+	public DialectColumn setDefaultValue(Object defaultValue) {
 		this.defaultValue = defaultValue;
+		return this;
 	}
 
 }

@@ -12,10 +12,10 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import com.github.drinkjava2.hibernate.RowSelection;
-import com.github.drinkjava2.hibernate.SQLServer2005LimitHandler;
-import com.github.drinkjava2.hibernate.SQLServer2012LimitHandler;
 import com.github.drinkjava2.hibernate.StringHelper;
+import com.github.drinkjava2.hibernate.pagination.RowSelection;
+import com.github.drinkjava2.hibernate.pagination.SQLServer2005LimitHandler;
+import com.github.drinkjava2.hibernate.pagination.SQLServer2012LimitHandler;
 
 /**
  * jDialects is a small Java project collect all databases' dialect, most are
@@ -115,22 +115,16 @@ public enum Dialect {
 
 	private String sqlTemplate = null;
 	private String topLimitTemplate = null;
-	protected Map<Type, String> typeMappings = new EnumMap<>(Type.class);
-	
-	private String dropTableTemplate=null;
-	private String addColumnTemplate=null;
-	private String addPKeyTemplate=null;
-	private String addFKeyTemplate=null;
-	
-	
-	
-	
+	protected final Map<Type, String> typeMappings = new EnumMap<>(Type.class);
+
+	protected final DDLFeatures ddlFeatures = new DDLFeatures();// NOSONAR
 
 	static {
 		for (Dialect d : Dialect.values()) {
 			d.sqlTemplate = InitPaginationTemplate.initializePaginSQLTemplate(d);
 			d.topLimitTemplate = InitPaginationTemplate.initializeTopLimitSqlTemplate(d);
 			InitTypeMapping.initializeTypeMappings(d);
+			DDLFeatures.initDDLFeatures(d, d.ddlFeatures);
 		}
 	}
 
@@ -149,8 +143,7 @@ public enum Dialect {
 	 * Guess Dialect by given connection, note:this method does not close
 	 * connection
 	 * 
-	 * @param con
-	 *            The JDBC Connection
+	 * @param con The JDBC Connection
 	 * @return Dialect The Dialect intance, if can not guess out, return null
 	 */
 	public static Dialect guessDialect(Connection connection) {
@@ -393,12 +386,9 @@ public enum Dialect {
 	/**
 	 * Create a pagination SQL by given pageNumber, pageSize and SQL<br/>
 	 * 
-	 * @param pageNumber
-	 *            The page number, start from 1
-	 * @param pageSize
-	 *            The page item size
-	 * @param sql
-	 *            The original SQL
+	 * @param pageNumber The page number, start from 1
+	 * @param pageSize The page item size
+	 * @param sql The original SQL
 	 * @return The paginated SQL
 	 */
 
@@ -517,32 +507,54 @@ public enum Dialect {
 		return this.toString().startsWith("Derby");
 	}
 
-	public DialectColumn column(String colunmName, String columnType) {
-		return new DialectColumn(colunmName, columnType);
+	// ========= below are DDL operations improvement
+	
+	public String createTable(String tableName){
+		return DDLUtils.createTable(this,tableName);
+	}
+	
+	
+	/**
+	 * Create a column DDL fragment inside of a "create table someTable (xxxx)"
+	 * DDL
+	 */
+	public DialectColumn column(String columnName, String columnType) {
+		return DDLUtils.column(this, columnName, columnType);
 	}
 
-	public DialectColumn addColumn(String colunmName, String columnType) {
-		return new DialectColumn(colunmName, columnType);
+	/**
+	 * Create a "alter table add column xxx" DDL
+	 */
+	public DialectColumn addColumn(String tableName, String columnName, String columnType) {
+		return DDLUtils.addColumn(this, tableName, columnName, columnType);
 	}
 
-	public DialectColumn modifyColumn(String colunmName, String columnType) {
-		return new DialectColumn(colunmName, columnType);
+	/**
+	 * Create a "alter table drop column colunmName" DDL
+	 */
+	public void dropColumn(String tableName, String columnName) {
+		DDLUtils.dropColumn(this, tableName, columnName);
 	}
 
-	public DialectConstraint constraint() {
-		return new DialectConstraint();
+	/**
+	 * Create a constraint DDL fragment inside of a
+	 * "create table someTable (xxxx)" DDL
+	 */
+	public DialectConstraint constraint(String constraintName, String constraintType) {
+		return DDLUtils.constraint(this, constraintName, constraintType);
 	}
 
-	public DialectConstraint constraint(String name) {
-		return new DialectConstraint(name);
+	/**
+	 * Create a "alter table add constraint xxx" DDL
+	 */
+	public DialectConstraint addConstraint(String tableName, String constraintName, String constraintType) {
+		return DDLUtils.addConstraint(this, tableName, constraintName, constraintType);
 	}
 
-	public DialectConstraint addConstraint() {
-		return new DialectConstraint();
+	/**
+	 * Create a "alter table drop constraint xxx" DDL
+	 */
+	public void dropConstraint(String tableName, String constraintName) {
+		DDLUtils.dropConstraint(this, tableName, constraintName);
 	}
-
-	public DialectConstraint addConstraint(String name) {
-		return new DialectConstraint(name);
-	}
-
 }
