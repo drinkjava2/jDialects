@@ -42,6 +42,7 @@ public class TinySqlAndParameters {
 	}
 
 	public String getSql() {
+		System.out.println("SQL=" + sql);
 		return sql;
 	}
 
@@ -50,6 +51,9 @@ public class TinySqlAndParameters {
 	}
 
 	public Object[] getParameters() {
+		for (Object object : parameters)
+			System.out.print(object + ",");
+		System.out.println();
 		return parameters;
 	}
 

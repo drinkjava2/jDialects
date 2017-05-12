@@ -9,6 +9,9 @@ package test.functiontest;
 import static test.utils.tinyjdbc.TinyJdbc.para;
 import static test.utils.tinyjdbc.TinyJdbc.para0;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.sql.DataSource;
 
 import org.junit.Assert;
@@ -43,11 +46,15 @@ public class CreateAndDropTablesTest extends TestBase {
 				+ ", " + d.DATE("date_") //
 				+ ", " + d.TIME("time_") //
 				+ ", " + d.TIMESTAMP("timestamp_") //
+				+ ", " + d.STRING("null1_", 10) //
+				+ ", " + d.STRING("null2_", 10) //
+				+ ", " + d.INTEGER("null3_") //
 				+ ")" + d.engine();
 	}
 
 	@Test
 	public void testCreateAndDropTable1() {
+
 		DataSource ds = BeanBox.getBean(DataSourceBox.class);
 		Dialect d = Dialect.guessDialect(ds);
 
@@ -56,8 +63,8 @@ public class CreateAndDropTablesTest extends TestBase {
 
 		dao.execute(createTable1(ds));
 		Assert.assertEquals(0, (int) dao.queryForInteger("select count(*) from table1"));
-		dao.execute("insert into table1 (integer_,double_,float_,string_) values(?,?,?,?)", para0(1), para(1.1),
-				para(1.2), para("str"));
+		dao.execute("insert into table1 (integer_,null1_,null2_,null3_,double_,float_,string_) values(?,?,?,?,?,?,?)",
+				para0(1, null, null, null, 2, 3.3, "str"));
 		Assert.assertEquals(1, (int) dao.queryForInteger("select count(*) from table1"));
 
 		dao.execute(d.dropTable("table1"));
@@ -67,7 +74,7 @@ public class CreateAndDropTablesTest extends TestBase {
 		} catch (Exception e) {
 			error = e.getMessage();
 		}
-		Assert.assertNotNull(StrUtils.containsIgnoreCase(error, "table1"));
+		Assert.assertNotNull(StrUtils.containsIgnoreCase(error, "table"));
 	}
 
 }

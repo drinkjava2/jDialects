@@ -37,9 +37,9 @@ public class TinyJdbc {
 
 	DataSource dataSource;
 
-	private static ThreadLocal<ArrayList<String>> paraCache = new ThreadLocal<ArrayList<String>>() {
+	private static ThreadLocal<ArrayList<Object>> paraCache = new ThreadLocal<ArrayList<Object>>() {
 		@Override
-		protected ArrayList<String> initialValue() {
+		protected ArrayList<Object> initialValue() {
 			return new ArrayList<>();
 		}
 	};
@@ -69,7 +69,7 @@ public class TinyJdbc {
 	 */
 	public static String para(Object... parameters) {
 		for (Object o : parameters)
-			paraCache.get().add("" + o);
+			paraCache.get().add(o);
 		return "";
 	}
 
@@ -83,8 +83,8 @@ public class TinyJdbc {
 			String sql = sb.toString();
 			sp.setSql(sql);
 
-			ArrayList<String> list = paraCache.get();
-			sp.setParameters(list.toArray(new String[list.size()]));
+			ArrayList<Object> list = paraCache.get();
+			sp.setParameters(list.toArray(new Object[list.size()]));
 			return sp;
 		} finally {
 			paraCache.get().clear();
