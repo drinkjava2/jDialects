@@ -134,8 +134,7 @@ public class DialectTest {
 	}
 
 	// =======test guess dialects=======
-
-	private HikariDataSource buildH2Datasource() {
+	private static HikariDataSource buildH2Datasource() {
 		HikariDataSource ds = new HikariDataSource();
 		ds.addDataSourceProperty("cachePrepStmts", true);
 		ds.addDataSourceProperty("prepStmtCacheSize", 250);

@@ -19,7 +19,7 @@ import com.github.drinkjava2.jdialects.StrUtils;
  * @since 1.0.2
  *
  */
-public class DDLTest {
+public class DDLUtilsTest {
 
 	@Test
 	public void testCreateTable() {
@@ -28,6 +28,16 @@ public class DDLTest {
 			System.out.println(createtable);
 			Assert.assertTrue(StrUtils.containsIgnoreCase(createtable, "create"));
 			Assert.assertTrue(StrUtils.containsIgnoreCase(createtable, "testTable"));
+		}
+	}
+	
+	@Test
+	public void testDropTable() {
+		for (Dialect d : Dialect.values()) {
+			String dropTable = d.dropTable("testTable");
+			System.out.println(dropTable);
+			Assert.assertTrue(StrUtils.containsIgnoreCase(dropTable, "drop"));
+			Assert.assertTrue(StrUtils.containsIgnoreCase(dropTable, "testTable"));
 		}
 	}
 

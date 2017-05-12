@@ -513,6 +513,9 @@ public enum Dialect {
 		return DDLUtils.createTable(this,tableName);
 	}
 	
+	public String dropTable(String tableName){
+		return DDLUtils.dropTable(this,tableName);
+	}	
 	
 	/**
 	 * Create a column DDL fragment inside of a "create table someTable (xxxx)"

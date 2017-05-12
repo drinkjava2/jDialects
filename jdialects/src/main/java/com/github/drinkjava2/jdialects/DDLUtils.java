@@ -17,8 +17,12 @@ public class DDLUtils {
 		// hide constructor
 	}
 
-	public static String createTable(Dialect d, String tableName) {
-		return d.ddlFeatures.createTableString + " " + tableName + " ";
+	protected static String createTable(Dialect dialect, String tableName) {
+		return dialect.ddlFeatures.createTableString + " " + tableName + " ";
+	}
+
+	protected static String dropTable(Dialect dialect, String tableName) {
+		return dialect.ddlFeatures.dropTableString.replaceFirst("_TABLENAME", tableName);
 	}
 
 	protected static DialectColumn column(Dialect dialect, String columnName, String columnType) {
@@ -30,30 +34,29 @@ public class DDLUtils {
 				.setOperation("ADD");
 	}
 
-	protected static void dropColumn(Dialect dialect, String tableName, String columnName) {
-		return;
+	protected static String dropColumn(Dialect dialect, String tableName, String columnName) {
+		return new StringBuilder("alter table ").append(dialect.check(tableName)).append(" drop ").append(columnName)
+				.toString();
 	}
 
-	/**
-	 * Create a constraint DDL fragment inside of a
-	 * "create table someTable (xxxx)" DDL
-	 */
-	protected static DialectConstraint constraint(Dialect d, String constraintName, String constraintType) {
-		return new DialectConstraint(constraintName);
+	protected static DialectConstraint constraint(Dialect dialect, String constraintName, String constraintType) {
+		return new DialectConstraint(constraintName).setConstraintType(constraintType).setDialect(dialect);
 	}
 
-	/**
-	 * Create a single "alter table add constraint xxx" DDL
-	 */
-	protected static DialectConstraint addConstraint(Dialect d, String tableName, String constraintName,
+	protected static DialectConstraint addConstraint(Dialect dialect, String tableName, String constraintName,
 			String constraintType) {
-		return new DialectConstraint();
+		return new DialectConstraint(constraintName).setConstraintType(constraintType).setDialect(dialect)
+				.setTable(tableName);
 	}
 
 	/**
 	 * Create a "alter table drop constraint xxx" DDL
 	 */
-	protected static void dropConstraint(Dialect d, String tableName, String constraintName) {
-		return;
+	protected static String dropConstraint(Dialect dialect, String tableName, String constraintName) {
+		String dropForeignKeyString=dialect.ddlFeatures.dropForeignKeyString;
+		if(DDLFeatures.NOT_SUPPORT.equals(dropForeignKeyString))
+			return (String) DialectException.throwEX("Dialect \""+dialect+"\" does not support drop constraint.");
+		return new StringBuilder("alter table ").append(tableName) .append(dropForeignKeyString).append(constraintName)
+				.toString(); 
 	}
 }

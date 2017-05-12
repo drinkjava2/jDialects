@@ -15,13 +15,8 @@ package com.github.drinkjava2.jdialects;
  */
 public class DDLFeatures {
 
-	protected static boolean isValidString(String featureValue) {
-		if (StrUtils.isEmpty(featureValue) || NOT_SUPPORT.equals(featureValue))
-			return false;
-		return true;
-	}
-
-	private static final String NOT_SUPPORT = "NOT_SUPPORT";
+ 
+	protected static final String NOT_SUPPORT = "NOT_SUPPORT";
 	protected String addColumnString;
 	protected String addColumnSuffixString;
 	protected String addForeignKeyConstraintString;
@@ -53,6 +48,12 @@ public class DDLFeatures {
 	protected Boolean hasDataTypeInIdentityColumn;
 	protected Boolean supportsIdentityColumns;
 	protected Boolean supportsInsertSelectIdentity;
+	
+	protected static boolean isValidString(String featureValue) {
+		if (StrUtils.isEmpty(featureValue) || NOT_SUPPORT.equals(featureValue))
+			return false;
+		return true;
+	}
 
 	@SuppressWarnings("all")
 	protected static void initDDLFeatures(Dialect dia, DDLFeatures ddl) {

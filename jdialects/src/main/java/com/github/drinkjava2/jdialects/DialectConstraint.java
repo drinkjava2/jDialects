@@ -23,8 +23,9 @@ public class DialectConstraint {
 	public static final String CHECK = "CHECK";
 
 	private String operation = OPERATION_NO;
-	private String table;// belong to which table
-	private String column;// belong to which column
+	private Dialect dialect;// In which dialect
+	private String table;// In which table
+	private String column;// In which column
 	private String constraintName;
 	private String constraintType;
 
@@ -53,6 +54,14 @@ public class DialectConstraint {
 	}
 
 	// getter & setters
+	public Dialect getDialect() {
+		return dialect;
+	}
+
+	public DialectConstraint setDialect(Dialect dialect) {
+		this.dialect = dialect;
+		return this;
+	}
 
 	public String getConstraintType() {
 		return constraintType;

@@ -57,13 +57,13 @@
         <version.gpg-plugin>1.6</version.gpg-plugin>
     </properties>
 
-   <repositories>
-	 <!-- To download snapshot version jars from Maven site, it's necessary to add this repository  -->
+   <!-- To download SNAPSHOT jars by Maven, it's necessary to add this snapshots repository  -->
+   <!--repositories>	 
      <repository>
        <id>oss</id>
        <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
      </repository>
-   </repositories>
+   </repositories-->
 
  <dependencies>   
  
@@ -72,13 +72,21 @@
     <!-- ============================================================================= -->
     <!-- Below dependencies are for unit test only, scope set to "test"                --> 
     <!-- ============================================================================= --> 
-	 
+  	 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
+    
+    <!-- Use jBeanBox to manage DataSource setting -->
+    <dependency>
+    	<groupId>com.github.drinkjava2</groupId>
+    	<artifactId>jbeanbox</artifactId>
+    	<version>2.4.2</version>
+    	<scope>test</scope>
+	</dependency>  
     
     <!-- HikariCP is a dataSource pool quicker than c3p0 -->
    <dependency>
@@ -101,8 +109,24 @@
       <artifactId>h2</artifactId>
       <version>1.4.193</version>
       <scope>test</scope>
+    </dependency>  
+    
+    <!-- Mysql Database driver for unit test--> 
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>5.1.39</version>
+        <scope>test</scope>
     </dependency>
-
+    
+ 	<!-- MS-SQLServer JDBC driver, see http://stackoverflow.com/questions/6942407/setting-up-maven-dependency-for-sql-server -->  
+	<dependency>
+      <groupId>com.microsoft.sqlserver</groupId>
+      <artifactId>mssql-jdbc</artifactId>
+      <version>6.1.0.jre7</version>
+	  <scope>test</scope>
+    </dependency>
+          
 </dependencies> 
  
  <build>
