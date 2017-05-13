@@ -40,13 +40,12 @@ public class DialectColumn {
 	private Boolean required;
 	private Boolean unique;
 	private Boolean autoInc;
+	private String pkeyName;
 	private Boolean pkey;
-	private Object defaultValue;
-	private List<DialectConstraint> constraints = new ArrayList<>();
+	private Object defaultValue; 
 
-	public DialectColumn(String columnName, String columnType) {
+	public DialectColumn(String columnName) {
 		this.columnName = columnName;
-		this.columnType = columnType;
 	}
 
 	public DialectColumn required() {
@@ -56,6 +55,11 @@ public class DialectColumn {
 
 	public DialectColumn unique() {
 		this.unique = true;
+		return this;
+	}
+
+	public DialectColumn unique(Boolean unique) {
+		this.unique = unique;
 		return this;
 	}
 
@@ -70,15 +74,18 @@ public class DialectColumn {
 	}
 
 	public DialectColumn pkey() {
-		return pkey("");
+		this.pkey = true;
+		return this;
 	}
 
-	public DialectColumn pkey(String pkeyName) {
-		DialectConstraint cons = new DialectConstraint();
-		cons.setConstraintType(DialectConstraint.PKEY);
-		cons.setConstraintName(pkeyName);
-		constraints.add(cons);
+	public DialectColumn pkey(Boolean pkey) {
+		this.pkey = pkey;
+		return this;
+	}
+
+	public DialectColumn pkey(String pkeyName) { 
 		this.pkey = true;
+		this.pkeyName=pkeyName;
 		return this;
 	}
 
@@ -108,18 +115,21 @@ public class DialectColumn {
 		}
 	}
 
-	// getter & setters
-
-	public String getTableName() {
-		return tableName;
-	}
-
 	public Dialect getDialect() {
 		return dialect;
 	}
 
 	public DialectColumn setDialect(Dialect dialect) {
 		this.dialect = dialect;
+		return this;
+	}
+
+	public String getTableName() {
+		return tableName;
+	}
+
+	public DialectColumn setTableName(String tableName) {
+		this.tableName = tableName;
 		return this;
 	}
 
@@ -132,81 +142,38 @@ public class DialectColumn {
 		return this;
 	}
 
-	public DialectColumn setTableName(String tableName) {
-		this.tableName = tableName;
-		return this;
-	}
-
-	public String getColumnName() {
-		return columnName;
-	}
-
-	public DialectColumn setColumnName(String columnName) {
-		this.columnName = columnName;
-		return this;
-	}
-
-	public String getColumnType() {
-		return columnType;
-	}
-
-	public DialectColumn setColumnType(String columnType) {
-		this.columnType = columnType;
-		return this;
-	}
-
-	public Boolean getRequired() {
-		return required;
-	}
-
-	public DialectColumn setRequired(Boolean required) {
-		this.required = required;
-		return this;
-	}
-
-	public Boolean getUnique() {
-		return unique;
-	}
-
-	public DialectColumn setUnique(Boolean unique) {
-		this.unique = unique;
-		return this;
-	}
-
-	public Boolean getAutoInc() {
-		return autoInc;
-	}
-
-	public DialectColumn setAutoInc(Boolean autoInc) {
-		this.autoInc = autoInc;
-		return this;
-	}
-
-	public Boolean getPkey() {
-		return pkey;
-	}
-
-	public DialectColumn setPkey(Boolean pkey) {
-		this.pkey = pkey;
-		return this;
-	}
-
-	public List<DialectConstraint> getConstraints() {
-		return constraints;
-	}
-
-	public DialectColumn setConstraints(List<DialectConstraint> constraints) {
-		this.constraints = constraints;
-		return this;
-	}
-
-	public Object getDefaultValue() {
-		return defaultValue;
-	}
-
-	public DialectColumn setDefaultValue(Object defaultValue) {
-		this.defaultValue = defaultValue;
-		return this;
-	}
+	//@formatter:off shut off eclipse's formatter
+	public DialectColumn LONG() {this.columnType=dialect.LONG() ; return this;} 
+	public DialectColumn BOOLEAN() {this.columnType=dialect.BOOLEAN() ; return this;} 
+	public DialectColumn DOUBLE() {this.columnType=dialect.DOUBLE() ; return this;} 
+	public DialectColumn FLOAT() {this.columnType=dialect.FLOAT() ; return this;} 
+	public DialectColumn INTEGER() {this.columnType=dialect.INTEGER() ; return this;} 
+	public DialectColumn SHORT() {this.columnType=dialect.SHORT() ; return this;} 
+	public DialectColumn BIGDECIMAL(int precision, int scale) {this.columnType=dialect.BIGDECIMAL(precision,  scale) ; return this;} 
+	public DialectColumn STRING(int length) {this.columnType=dialect.STRING(length) ; return this;} 
+	public DialectColumn DATE() {this.columnType=dialect.DATE() ; return this;} 
+	public DialectColumn TIME() {this.columnType=dialect.TIME() ; return this;} 
+	public DialectColumn TIMESTAMP() {this.columnType=dialect.TIMESTAMP() ; return this;} 
+	public DialectColumn BIGINT() {this.columnType=dialect.BIGINT() ; return this;} 
+	public DialectColumn BINARY(int... lengths) {this.columnType=dialect.BINARY(lengths) ; return this;} 
+	public DialectColumn BIT() {this.columnType=dialect.BIT() ; return this;} 
+	public DialectColumn BLOB(int... lengths) {this.columnType=dialect.BLOB(lengths) ; return this;} 
+	public DialectColumn CHAR(int... lengths) {this.columnType=dialect.CHAR(lengths) ; return this;} 
+	public DialectColumn CLOB(int... lengths) {this.columnType=dialect.CLOB( lengths) ; return this;} 
+	public DialectColumn DECIMAL(int... lengths) {this.columnType=dialect.DECIMAL( lengths) ; return this;} 
+	public DialectColumn JAVA_OBJECT() {this.columnType=dialect.JAVA_OBJECT() ; return this;} 
+	public DialectColumn LONGNVARCHAR(int length) {this.columnType=dialect.LONGNVARCHAR( length) ; return this;} 
+	public DialectColumn LONGVARBINARY(int... lengths) {this.columnType=dialect.LONGVARBINARY( lengths) ; return this;} 
+	public DialectColumn LONGVARCHAR(int... lengths) {this.columnType=dialect.LONGVARCHAR( lengths) ; return this;} 
+	public DialectColumn NCHAR(int length) {this.columnType=dialect.NCHAR(length) ; return this;} 
+	public DialectColumn NCLOB() {this.columnType=dialect.NCLOB() ; return this;} 
+	public DialectColumn NUMERIC(int... lengths) {this.columnType=dialect.NUMERIC( lengths) ; return this;} 
+	public DialectColumn NVARCHAR(int length) {this.columnType=dialect.NVARCHAR( length) ; return this;} 
+	public DialectColumn OTHER(int... lengths) {this.columnType=dialect.OTHER( lengths) ; return this;} 
+	public DialectColumn REAL() {this.columnType=dialect.REAL() ; return this;} 
+	public DialectColumn SMALLINT() {this.columnType=dialect.SMALLINT() ; return this;} 
+	public DialectColumn TINYINT() {this.columnType=dialect.TINYINT() ; return this;} 
+	public DialectColumn VARBINARY(int... lengths) {this.columnType=dialect.VARBINARY( lengths) ; return this;} 
+	public DialectColumn VARCHAR(int length) {this.columnType=dialect.VARCHAR(length) ; return this;} 
 
 }

@@ -507,55 +507,64 @@ public enum Dialect {
 		return this.toString().startsWith("Derby");
 	}
 
-	// ========= below are DDL operations improvement
-	
-	public String createTable(String tableName){
-		return DDLUtils.createTable(this,tableName);
-	}
-	
-	public String dropTable(String tableName){
-		return DDLUtils.dropTable(this,tableName);
-	}	
-	
+	// ===============================================
+	// ===== below are new DDL methods =====
+	// ===============================================
+
 	/**
-	 * Create a column DDL fragment inside of a "create table someTable (xxxx)"
-	 * DDL
+	 * Build a "create table xxxx " DDL String based on this dialect
 	 */
-	public DialectColumn column(String columnName, String columnType) {
-		return DDLUtils.column(this, columnName, columnType);
+	public String createTable(String tableName) {
+		return DDLUtils.createTable(this, tableName);
 	}
 
 	/**
-	 * Create a "alter table add column xxx" DDL
+	 * Build a "drop table xxxx " DDL String based on this dialect
 	 */
-	public DialectColumn addColumn(String tableName, String columnName, String columnType) {
-		return DDLUtils.addColumn(this, tableName, columnName, columnType);
+	public String dropTable(String tableName) {
+		return DDLUtils.dropTable(this, tableName);
 	}
 
 	/**
-	 * Create a "alter table drop column colunmName" DDL
+	 * Create a column DDL fragment inside of a "create table xxx" DDL, an
+	 * example: "column1 varchar(10) not null"
+	 */
+	public DialectColumn column(String columnName) {
+		return DDLUtils.column(this, columnName);
+	}
+
+	/**
+	 * Create a "alter table add column columnName columnType " like DDL
+	 */
+	public DialectColumn addColumn(String tableName, String columnName) {
+		return DDLUtils.addColumn(this, tableName, columnName);
+	}
+
+	/**
+	 * Create a "alter table drop column colunmName" like DDL
 	 */
 	public void dropColumn(String tableName, String columnName) {
 		DDLUtils.dropColumn(this, tableName, columnName);
 	}
 
 	/**
-	 * Create a constraint DDL fragment inside of a
-	 * "create table someTable (xxxx)" DDL
+	 * Create a constraint DDL fragment inside of a create table someTable
+	 * (xxxx)" DDL, An example:
+	 * "constraint cons1 foreign key (xxx) references ..."
 	 */
 	public DialectConstraint constraint(String constraintName, String constraintType) {
 		return DDLUtils.constraint(this, constraintName, constraintType);
 	}
 
 	/**
-	 * Create a "alter table add constraint xxx" DDL
+	 * Create a "alter table add constraint constraintName..." like DDL
 	 */
 	public DialectConstraint addConstraint(String tableName, String constraintName, String constraintType) {
 		return DDLUtils.addConstraint(this, tableName, constraintName, constraintType);
 	}
 
 	/**
-	 * Create a "alter table drop constraint xxx" DDL
+	 * Create a "alter table drop constraint constraintName" like DDL
 	 */
 	public void dropConstraint(String tableName, String constraintName) {
 		DDLUtils.dropConstraint(this, tableName, constraintName);

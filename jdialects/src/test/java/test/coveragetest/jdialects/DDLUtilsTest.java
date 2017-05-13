@@ -44,7 +44,7 @@ public class DDLUtilsTest {
 	@Test
 	public void testColumn() {
 		for (Dialect d : Dialect.values()) {
-			String columnDDL = d.column("testColumn", d.INTEGER()).toString();
+			String columnDDL = d.column("testColumn").toString();
 			System.out.println(columnDDL);
 		}
 	}
@@ -54,7 +54,7 @@ public class DDLUtilsTest {
 		for (Dialect d : Dialect.values()) {
 			String columnDDL = null;
 			try {
-				columnDDL = d.addColumn("testTable", "testColumn", d.INTEGER()).toString();
+				columnDDL = d.addColumn("testTable", "testColumn").toString();
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
 			}

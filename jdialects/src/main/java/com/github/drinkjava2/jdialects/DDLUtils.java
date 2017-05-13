@@ -18,19 +18,19 @@ public class DDLUtils {
 	}
 
 	protected static String createTable(Dialect dialect, String tableName) {
-		return dialect.ddlFeatures.createTableString + " " + tableName + " ";
+		return dialect.ddlFeatures.createTableString + " " + dialect.check(tableName) + " ";
 	}
 
 	protected static String dropTable(Dialect dialect, String tableName) {
 		return dialect.ddlFeatures.dropTableString.replaceFirst("_TABLENAME", tableName);
 	}
 
-	protected static DialectColumn column(Dialect dialect, String columnName, String columnType) {
-		return new DialectColumn(columnName, columnType).setDialect(dialect);
+	protected static DialectColumn column(Dialect dialect, String columnName ) {
+		return new DialectColumn(columnName).setDialect(dialect);
 	}
 
-	protected static DialectColumn addColumn(Dialect dialect, String tableName, String columnName, String columnType) {
-		return new DialectColumn(columnName, columnType).setDialect(dialect).setTableName(tableName)
+	protected static DialectColumn addColumn(Dialect dialect, String tableName, String columnName) {
+		return new DialectColumn(columnName).setDialect(dialect).setTableName(tableName)
 				.setOperation("ADD");
 	}
 
