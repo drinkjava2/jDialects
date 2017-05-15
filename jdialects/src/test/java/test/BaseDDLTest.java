@@ -4,7 +4,7 @@
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
  * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package test.functiontest;
+package test;
 
 import javax.sql.DataSource;
 
@@ -26,10 +26,10 @@ import test.utils.tinyjdbc.TinyJdbc;
  *
  */
 public class BaseDDLTest {
-	DataSource ds = null;
-	Dialect dialect = null;
-	TinyJdbc dao = null;
-	static final String testTable = "DDLTestTable";
+	protected DataSource ds = null;
+	protected Dialect dialect = null;
+	protected TinyJdbc dao = null;
+	protected static final String testTable = "DDLTestTable";
 
 	@Before
 	public void initDao() {

@@ -40,6 +40,6 @@ public enum Type {
 	, TIMESTAMP//
 	, TINYINT//
 	, VARBINARY//
-	, ENGINE//
+	//, ENGINE//
 	, VARCHAR;//
 }

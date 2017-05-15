@@ -37,7 +37,13 @@ public class DialectException extends RuntimeException {
 
 	public static void assureNotNull(Object obj, String... optionMessages) {
 		if (obj == null)
-			throw new NullPointerException(optionMessages.length == 0 ? "" : optionMessages[0]);
+			throw new DialectException(
+					optionMessages.length == 0 ? "Assert error, Object parameter can not be null" : optionMessages[0]);
 	}
 
+	public static void assureNotEmpty(String str, String... optionMessages) {
+		if (str == null || str.length() == 0)
+			throw new DialectException(
+					optionMessages.length == 0 ? "Assert error, String parameter can not be empty" : optionMessages[0]);
+	}
 }

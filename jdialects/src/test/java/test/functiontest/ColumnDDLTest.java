@@ -6,13 +6,14 @@
  */
 package test.functiontest;
 
-import static test.utils.tinyjdbc.TinyJdbc.para0;
+import static test.utils.tinyjdbc.TinyJdbc.para_;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.github.drinkjava2.jdialects.Dialect;
-import com.github.drinkjava2.jdialects.DialectConstraint;
+import com.github.drinkjava2.jdialects.Table;
+
+import test.BaseDDLTest;
 
 /**
  * Test build and drop database tables
@@ -21,29 +22,29 @@ import com.github.drinkjava2.jdialects.DialectConstraint;
  * @version 1.0.2
  */
 public class ColumnDDLTest extends BaseDDLTest {
-	private static String createTable2(Dialect d) {
-		return d.createTable(testTable) + "(" //
-				+ d.column("boolean_col").BOOLEAN() //
-				+ ", " + d.column("double_col").DOUBLE() //
-				+ ", " + d.column("float_col").FLOAT() //
-				+ ", " + d.column("integer_col").INTEGER().pkey().unique().autoInc().required().defaultValue(1) //
-				+ ", " + d.column("long_col").LONG() //
-				+ ", " + d.column("short_col").SHORT() //
-				+ ", " + d.column("bigdecimal_col").BIGDECIMAL(10, 2) //
-				+ ", " + d.column("string_col").STRING(20) //
-				+ ", " + d.column("date_col").DATE()//
-				+ ", " + d.column("time_col").TIME()//
-				+ ", " + d.column("timestamp_col").TIMESTAMP() //
-				+ ", " + d.constraint("cons1", DialectConstraint.FKEY) //
-				+ ")" + d.engine();
+	private static Table tableModel() {
+		Table t = new Table(testTable);
+		t.addColumn("b1").BOOLEAN();
+		t.addColumn("d2").DOUBLE();
+		t.addColumn("f3").FLOAT();
+		t.addColumn("i4").INTEGER().pkey().unique().autoInc().notNull().defaultValue(1);
+		t.addColumn("l5").LONG();
+		t.addColumn("s6").SHORT();
+		t.addColumn("b7").BIGDECIMAL(10, 2);
+		t.addColumn("s8").STRING(20);
+		t.addColumn("d9").DATE();
+		t.addColumn("t10").TIME();
+		t.addColumn("t11").TIMESTAMP();
+		t.addColumn("v12").VARCHAR(300);
+		return t;
 	}
 
 	@Test
 	public void testCreateAndDropTable() {
-		dao.execute(createTable2(dialect));
+		String ddl = tableModel().toCreateTableSQLs(dialect);
+		dao.execute(ddl);
 		Assert.assertEquals(0, (int) dao.queryForInteger("select count(*) from ", testTable));
-		dao.execute("insert into ", testTable, " (integer_col,double_col,float_col,string_col) values(?,?,?,?)",
-				para0(1, 2.1, 3.3, "str"));
+		dao.execute("insert into ", testTable, "(i4,d2,f3,s8) values(?,?,?,?)", para_(1, 2.1, 3.3, "str"));
 		Assert.assertEquals(1, (int) dao.queryForInteger("select count(*) from ", testTable));
 	}
 }

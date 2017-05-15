@@ -1255,8 +1255,7 @@ public class InitTypeMapping {
 			d.typeMappings.put(Type.TIMESTAMP, "datetime(6)");
 			d.typeMappings.put(Type.TINYINT, "tinyint");
 			d.typeMappings.put(Type.VARBINARY, "tinyblob<255|blob<65535|mediumblob<16777215|longblob");
-			d.typeMappings.put(Type.VARCHAR, "varchar($l)<65535|longtext");
-			d.typeMappings.put(Type.ENGINE, "engine=innoDB");
+			d.typeMappings.put(Type.VARCHAR, "varchar($l)<65535|longtext"); 
 		}
 			break;
 		case MySQL5InnoDBDialect: {
@@ -1287,8 +1286,7 @@ public class InitTypeMapping {
 			d.typeMappings.put(Type.TIMESTAMP, "datetime");
 			d.typeMappings.put(Type.TINYINT, "tinyint");
 			d.typeMappings.put(Type.VARBINARY, "tinyblob<255|blob<65535|mediumblob<16777215|longblob");
-			d.typeMappings.put(Type.VARCHAR, "varchar($l)<65535|longtext");
-			d.typeMappings.put(Type.ENGINE, "engine=innoDB");
+			d.typeMappings.put(Type.VARCHAR, "varchar($l)<65535|longtext"); 
 		}
 			break;
 		case MySQLInnoDBDialect: {
@@ -1319,8 +1317,7 @@ public class InitTypeMapping {
 			d.typeMappings.put(Type.TIMESTAMP, "datetime");
 			d.typeMappings.put(Type.TINYINT, "tinyint");
 			d.typeMappings.put(Type.VARBINARY, "tinyblob<255|blob<65535|mediumblob<16777215|longblob");
-			d.typeMappings.put(Type.VARCHAR, "varchar($l)<255|longtext");
-			d.typeMappings.put(Type.ENGINE, "engine=innoDB");
+			d.typeMappings.put(Type.VARCHAR, "varchar($l)<255|longtext"); 
 		}
 			break;
 		case MySQLMyISAMDialect: {
@@ -1351,8 +1348,7 @@ public class InitTypeMapping {
 			d.typeMappings.put(Type.TIMESTAMP, "datetime");
 			d.typeMappings.put(Type.TINYINT, "tinyint");
 			d.typeMappings.put(Type.VARBINARY, "tinyblob<255|blob<65535|mediumblob<16777215|longblob");
-			d.typeMappings.put(Type.VARCHAR, "varchar($l)<255|longtext");
-			d.typeMappings.put(Type.ENGINE, "engine=MyISAM");
+			d.typeMappings.put(Type.VARCHAR, "varchar($l)<255|longtext"); 
 		}
 			break;
 		case OracleDialect: {

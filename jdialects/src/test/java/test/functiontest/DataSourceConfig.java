@@ -17,7 +17,7 @@ import com.zaxxer.hikari.HikariDataSource;
  *
  */
 public class DataSourceConfig {
-	public static class DataSourceBox extends H2DataSourceBox {
+	public static class DataSourceBox extends MsSqlServerDataSourceBox {
 	}
 
 	// H2Database memory database connection URL

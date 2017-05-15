@@ -15,7 +15,6 @@ package com.github.drinkjava2.jdialects;
  */
 public class DDLFeatures {
 
- 
 	protected static final String NOT_SUPPORT = "NOT_SUPPORT";
 	protected String addColumnString;
 	protected String addColumnSuffixString;
@@ -26,6 +25,7 @@ public class DDLFeatures {
 	protected String createSchemaCommand;
 	protected String createSequenceStrings;
 	protected String createTableString;
+	protected String tableTypeString = "";
 	protected String currentSchemaCommand;
 	protected String dropCatalogCommand;
 	protected String dropForeignKeyString;
@@ -48,7 +48,7 @@ public class DDLFeatures {
 	protected Boolean hasDataTypeInIdentityColumn;
 	protected Boolean supportsIdentityColumns;
 	protected Boolean supportsInsertSelectIdentity;
-	
+
 	protected static boolean isValidString(String featureValue) {
 		if (StrUtils.isEmpty(featureValue) || NOT_SUPPORT.equals(featureValue))
 			return false;
@@ -90,6 +90,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case AccessDialect: {
@@ -124,6 +125,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case ExcelDialect: {
@@ -158,6 +160,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case TextDialect: {
@@ -192,6 +195,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case ParadoxDialect: {
@@ -226,6 +230,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case CobolDialect: {
@@ -260,6 +265,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case XMLDialect: {
@@ -294,6 +300,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case DbfDialect: {
@@ -328,6 +335,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case Cache71Dialect: {
@@ -362,6 +370,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case CUBRIDDialect: {
@@ -396,6 +405,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case DataDirectOracle9Dialect: {
@@ -430,6 +440,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case DB2Dialect: {
@@ -464,6 +475,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case DB2390Dialect: {
@@ -498,6 +510,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case DB2400Dialect: {
@@ -532,6 +545,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case DerbyDialect: {
@@ -566,6 +580,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case DerbyTenFiveDialect: {
@@ -600,6 +615,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case DerbyTenSevenDialect: {
@@ -634,6 +650,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case DerbyTenSixDialect: {
@@ -668,6 +685,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case FirebirdDialect: {
@@ -702,6 +720,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case FrontBaseDialect: {
@@ -736,6 +755,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case H2Dialect: {
@@ -770,6 +790,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case HANAColumnStoreDialect: {
@@ -804,6 +825,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case HANARowStoreDialect: {
@@ -838,6 +860,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case HSQLDialect: {
@@ -872,6 +895,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case InformixDialect: {
@@ -906,6 +930,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case Informix10Dialect: {
@@ -940,6 +965,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case IngresDialect: {
@@ -974,6 +1000,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case Ingres10Dialect: {
@@ -1008,6 +1035,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case Ingres9Dialect: {
@@ -1042,6 +1070,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case InterbaseDialect: {
@@ -1076,6 +1105,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case JDataStoreDialect: {
@@ -1110,6 +1140,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case MariaDBDialect: {
@@ -1144,6 +1175,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = " engine=InnoDB";
 		}
 			break;
 		case MariaDB53Dialect: {
@@ -1178,6 +1210,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = " engine=InnoDB";
 		}
 			break;
 		case MckoiDialect: {
@@ -1212,6 +1245,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case MimerSQLDialect: {
@@ -1246,6 +1280,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case MySQLDialect: {
@@ -1280,6 +1315,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = " type=MyISAM";
 		}
 			break;
 		case MySQL5Dialect: {
@@ -1314,6 +1350,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = " engine=MyISAM";
 		}
 			break;
 		case MySQL55Dialect: {
@@ -1348,6 +1385,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = " engine=InnoDB";
 		}
 			break;
 		case MySQL57Dialect: {
@@ -1382,6 +1420,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = " engine=InnoDB";
 		}
 			break;
 		case MySQL57InnoDBDialect: {
@@ -1416,6 +1455,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = " engine=InnoDB";
 		}
 			break;
 		case MySQL5InnoDBDialect: {
@@ -1450,6 +1490,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = " engine=InnoDB";
 		}
 			break;
 		case MySQLInnoDBDialect: {
@@ -1484,6 +1525,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = " type=InnoDB";
 		}
 			break;
 		case MySQLMyISAMDialect: {
@@ -1518,6 +1560,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = " type=MyISAM";
 		}
 			break;
 		case OracleDialect: {
@@ -1552,6 +1595,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case Oracle10gDialect: {
@@ -1586,6 +1630,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case Oracle12cDialect: {
@@ -1620,6 +1665,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case Oracle8iDialect: {
@@ -1654,6 +1700,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case Oracle9Dialect: {
@@ -1688,6 +1735,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case Oracle9iDialect: {
@@ -1722,6 +1770,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case PointbaseDialect: {
@@ -1756,6 +1805,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case PostgresPlusDialect: {
@@ -1790,6 +1840,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case PostgreSQLDialect: {
@@ -1824,6 +1875,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case PostgreSQL81Dialect: {
@@ -1858,6 +1910,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case PostgreSQL82Dialect: {
@@ -1892,6 +1945,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case PostgreSQL9Dialect: {
@@ -1926,6 +1980,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case PostgreSQL91Dialect: {
@@ -1960,6 +2015,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case PostgreSQL92Dialect: {
@@ -1994,6 +2050,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case PostgreSQL93Dialect: {
@@ -2028,6 +2085,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case PostgreSQL94Dialect: {
@@ -2062,6 +2120,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case PostgreSQL95Dialect: {
@@ -2096,6 +2155,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case ProgressDialect: {
@@ -2130,6 +2190,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case RDMSOS2200Dialect: {
@@ -2164,6 +2225,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case SAPDBDialect: {
@@ -2198,6 +2260,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case SQLServerDialect: {
@@ -2232,6 +2295,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case SQLServer2005Dialect: {
@@ -2266,6 +2330,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case SQLServer2008Dialect: {
@@ -2300,6 +2365,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case SQLServer2012Dialect: {
@@ -2334,6 +2400,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case SybaseDialect: {
@@ -2368,6 +2435,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case Sybase11Dialect: {
@@ -2402,6 +2470,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case SybaseAnywhereDialect: {
@@ -2436,6 +2505,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case SybaseASE15Dialect: {
@@ -2470,6 +2540,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case SybaseASE157Dialect: {
@@ -2504,6 +2575,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = " lock datarows";
 		}
 			break;
 		case TeradataDialect: {
@@ -2538,6 +2610,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case Teradata14Dialect: {
@@ -2572,6 +2645,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
+			ddl.tableTypeString = "";
 		}
 			break;
 		case TimesTenDialect: {
@@ -2606,6 +2680,7 @@ public class DDLFeatures {
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = true;
+			ddl.tableTypeString = "";
 		}
 			break;
 		default:

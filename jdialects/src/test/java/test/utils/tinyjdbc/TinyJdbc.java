@@ -27,7 +27,8 @@ import javax.sql.DataSource;
 import com.github.drinkjava2.jdialects.DialectException;
 
 /**
- * A very tiny pure JDBC tool to access database, only used for unit test
+ * A tiny pure JDBC tool to access database, no transaction control, only used
+ * for unit test
  * 
  *
  * @author Yong Zhu
@@ -57,9 +58,10 @@ public class TinyJdbc {
 	}
 
 	/**
-	 * Return a empty string and cache parameters in thread local for SQL use
+	 * Clear cache first, then return a empty string and cache parameters in
+	 * thread local for SQL use
 	 */
-	public static String para0(Object... parameters) {
+	public static String para_(Object... parameters) {
 		paraCache.get().clear();
 		return para(parameters);
 	}
@@ -213,6 +215,11 @@ public class TinyJdbc {
 			DialectException.eatException(e);
 			return false;
 		}
+	}
+
+	public void executeManySqls(String... sqls) {// NOSONAR
+		for (String str : sqls)
+			execute(str);
 	}
 
 	public boolean execute(String... sqls) {// NOSONAR

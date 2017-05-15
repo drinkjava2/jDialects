@@ -401,4 +401,23 @@ public class DialectTest {
 		Assert.assertFalse(Dialect.Oracle10gDialect.isSybaseFamily());
 	}
 
+	@Test
+	public void testCreateTable() {
+		for (Dialect d : Dialect.values()) {
+			String createtable = d.createTable("testTable");
+			System.out.println(createtable);
+			Assert.assertTrue(StrUtils.containsIgnoreCase(createtable, "create"));
+			Assert.assertTrue(StrUtils.containsIgnoreCase(createtable, "testTable"));
+		}
+	}
+
+	@Test
+	public void testDropTable() {
+		for (Dialect d : Dialect.values()) {
+			String dropTable = d.dropTable("testTable");
+			System.out.println(dropTable);
+			Assert.assertTrue(StrUtils.containsIgnoreCase(dropTable, "drop"));
+			Assert.assertTrue(StrUtils.containsIgnoreCase(dropTable, "testTable"));
+		}
+	}
 }
