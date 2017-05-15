@@ -9,6 +9,8 @@ package com.github.drinkjava2.jdialects;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.github.drinkjava2.hibernate.DDLFormatter;
+
 /**
  * The platform-independent table model
  * 
@@ -39,33 +41,45 @@ public class Table {
 		return columns.get(columnName.toUpperCase());
 	}
 
-	public String toCreateTableSQLs(Dialect d) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(d.ddlFeatures.createTableString).append(" ").append(tableName).append(" (");
-		String pkeys = "";
-		for (Column c : columns.values()) {
-			// pkey
-			if (c.getPkey()) {
-				c.setNotNull(true);// pkey column should not null
-				if (StrUtils.isEmpty(pkeys))
-					pkeys = c.getColumnName();
-				else
-					pkeys += "," + c.getColumnName();
-			}
+	public String toCreateTableDDL(Dialect d, boolean formatDDL) {
+		if (formatDDL)
+			return DDLFormatter.format(toCreateTableDDL(d));
+		return toCreateTableDDL(d);
+	}
 
-			// column defination
+	public String toCreateTableDDL(Dialect d, Boolean... format) {
+		StringBuilder sb = new StringBuilder();
+		boolean hasPkey = false;
+		String pkeys = "";
+		for (Column col : columns.values()) {
+			// check if have PKEY
+			if (col.getPkey()) {
+				hasPkey = true;
+				if (StrUtils.isEmpty(pkeys))
+					pkeys = col.getColumnName();
+				else
+					pkeys += "," + col.getColumnName();
+			}
+		}
+		// create table
+		sb.append(hasPkey ? d.ddlFeatures.createTableString : d.ddlFeatures.createMultisetTableString).append(" ")
+				.append(d.check(tableName)).append(" (");
+
+		for (Column c : columns.values()) {
+			// column definition
 			sb.append(c.getColumnName()).append(" ").append(d.translateToDDLType(c.getColumnType(), c.getLengths()));
-			if(c.getNotNull())sb.append("");
+			if (c.getNotNull() || c.getPkey())
+				sb.append(" NOT NULL");// ??
 			sb.append(",");
 
 		}
-		// pkey
+		// PKEY
 		if (!StrUtils.isEmpty(pkeys)) {
 			sb.append(" primary key (").append(pkeys).append("),");
 		}
 		sb.setLength(sb.length() - 1);
-		sb.append(")"); 
-		// engine, for MySql
+		sb.append(")");
+		// type or engine for MariaDB & MySql
 		sb.append(d.engine());
 		return sb.toString();
 	}

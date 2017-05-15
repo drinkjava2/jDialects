@@ -42,7 +42,7 @@ public class BaseDDLTest {
 
 	@After
 	public void closeDataSource() {
-		dao.execute(dialect.dropTable(testTable));
+		dao.executeQuiet(dialect.dropTable(testTable));
 		assertTableNotExist(testTable);
 		BeanBox.defaultContext.close();// close dataSource
 	}
