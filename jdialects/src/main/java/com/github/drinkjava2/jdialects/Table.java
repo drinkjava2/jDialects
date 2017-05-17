@@ -22,7 +22,7 @@ public class Table {
 	/** The table name. */
 	private String tableName;
 
-	/** The columns in this table, key is upper case of column name */
+	/** Columns in this table, key is upper case of column name */
 	private Map<String, Column> columns = new LinkedHashMap<>();
 
 	public Table(String tableName) {
@@ -47,7 +47,7 @@ public class Table {
 		return toCreateTableDDL(d);
 	}
 
-	public String toCreateTableDDL(Dialect d, Boolean... format) {
+	public String toCreateTableDDL(Dialect d) {
 		StringBuilder sb = new StringBuilder();
 		boolean hasPkey = false;
 		String pkeys = "";
