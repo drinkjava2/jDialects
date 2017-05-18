@@ -48,6 +48,7 @@ public class Table {
 	}
 
 	public String toCreateTableDDL(Dialect d) {
+		DDLFeatures ddl = d.ddlFeatures;
 		StringBuilder sb = new StringBuilder();
 		boolean hasPkey = false;
 		String pkeys = "";
@@ -68,10 +69,13 @@ public class Table {
 		for (Column c : columns.values()) {
 			// column definition
 			sb.append(c.getColumnName()).append(" ").append(d.translateToDDLType(c.getColumnType(), c.getLengths()));
-			if (c.getNotNull() || c.getPkey())
-				sb.append(" NOT NULL");// ??
-			sb.append(",");
 
+			if (c.getNotNull() || c.getPkey()) // Not null
+				sb.append(" NOT NULL");//
+			else
+				sb.append(ddl.nullColumnString);// Null String
+
+			sb.append(",");
 		}
 		// PKEY
 		if (!StrUtils.isEmpty(pkeys)) {

@@ -114,4 +114,32 @@ public class TableTest {
 			System.out.println(ddl);
 		}
 	}
+
+	private static Table allowNullModel() {// Allow Null
+		Table t = new Table("testTable");
+		t.addColumn("b1").BOOLEAN();
+		t.addColumn("d2").DOUBLE();
+		t.addColumn("f3").FLOAT(5);
+		t.addColumn("i4").INTEGER();
+		t.addColumn("l5").LONG();
+		t.addColumn("s6").SHORT();
+		t.addColumn("b7").BIGDECIMAL(10, 2);
+		t.addColumn("s8").STRING(20);
+		t.addColumn("d9").DATE();
+		t.addColumn("t10").TIME();
+		t.addColumn("t11").TIMESTAMP();
+		t.addColumn("v12").VARCHAR(300);
+		return t;
+	}
+
+	@Test
+	public void testAllowNull() {
+		Dialect[] diaList = Dialect.values();
+		for (Dialect dialect : diaList) {
+			System.out.println("======" + dialect + "=====");
+			String ddl = allowNullModel().toCreateTableDDL(dialect,true);
+			System.out.println(ddl);
+		}
+	}
+
 }
