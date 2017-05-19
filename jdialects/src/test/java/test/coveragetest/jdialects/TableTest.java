@@ -6,8 +6,6 @@
  */
 package test.coveragetest.jdialects;
 
-import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.Dialect;
@@ -20,7 +18,13 @@ import com.github.drinkjava2.jdialects.Table;
  * @since 1.0.2
  */
 public class TableTest {
-	private static Table testCreateSQLModel() {// First CONIFG
+	private static void printDDLs(String[] ddl) {
+		for (String str : ddl) {
+			System.out.println(str);
+		}
+	}
+
+	private static Table testCreateSQLModel() {// first
 		Table t = new Table("testTable");
 		t.addColumn("b1").BOOLEAN();
 		t.addColumn("d2").DOUBLE();
@@ -41,9 +45,9 @@ public class TableTest {
 	public void testCreateSQL() {
 		Dialect[] diaList = Dialect.values();
 		for (Dialect dialect : diaList) {
-			System.out.println("***" + dialect + "***");
-			String ddl = testCreateSQLModel().toCreateTableDDL(dialect, true);
-			System.out.println(ddl);
+			System.out.println("======" + dialect + "=====");
+			String[] ddl = testCreateSQLModel().toCreateTableDDL(dialect, true);
+			printDDLs(ddl);
 		}
 	}
 
@@ -56,9 +60,8 @@ public class TableTest {
 
 	@Test
 	public void testNoPkey() {
-		String ddl = testNoPkeyModel().toCreateTableDDL(Dialect.Teradata14Dialect);
-		System.out.println(ddl);
-		Assert.assertTrue(StringUtils.contains(ddl, "create multiset table"));
+		String[] ddl = testNoPkeyModel().toCreateTableDDL(Dialect.Teradata14Dialect);
+		printDDLs(ddl);
 	}
 
 	private static Table testCompoundPkeyModel() {// Compound PKEY
@@ -83,8 +86,8 @@ public class TableTest {
 		Dialect[] diaList = Dialect.values();
 		for (Dialect dialect : diaList) {
 			System.out.println("======" + dialect + "=====");
-			String ddl = testCompoundPkeyModel().toCreateTableDDL(dialect);
-			System.out.println(ddl);
+			String[] ddl = testCompoundPkeyModel().toCreateTableDDL(dialect);
+			printDDLs(ddl);
 		}
 	}
 
@@ -110,8 +113,8 @@ public class TableTest {
 		Dialect[] diaList = Dialect.values();
 		for (Dialect dialect : diaList) {
 			System.out.println("======" + dialect + "=====");
-			String ddl = testNotNullModel().toCreateTableDDL(dialect);
-			System.out.println(ddl);
+			String[] ddl = testNotNullModel().toCreateTableDDL(dialect);
+			printDDLs(ddl);
 		}
 	}
 
@@ -137,8 +140,27 @@ public class TableTest {
 		Dialect[] diaList = Dialect.values();
 		for (Dialect dialect : diaList) {
 			System.out.println("======" + dialect + "=====");
-			String ddl = allowNullModel().toCreateTableDDL(dialect,true);
-			System.out.println(ddl);
+			String[] ddl = allowNullModel().toCreateTableDDL(dialect, true);
+			printDDLs(ddl);
+		}
+	}
+
+	private static Table uniqueModel() {// Allow Null
+		Table t = new Table("testTable");
+		t.addColumn("s1").STRING(20).unique().notNull();
+		t.addColumn("s2").STRING(20).unique();
+		t.addColumn("s3").STRING(20).unique("uname1").notNull();
+		t.addColumn("s4").STRING(20).unique("uname2");
+		return t;
+	}
+
+	@Test
+	public void testUnique() {
+		Dialect[] diaList = Dialect.values();
+		for (Dialect dialect : diaList) {
+			System.out.println("======" + dialect + "=====");
+			String[] ddl = uniqueModel().toCreateTableDDL(dialect, true);
+			printDDLs(ddl);
 		}
 	}
 

@@ -41,8 +41,8 @@ public class ColumnDDLTest extends BaseDDLTest {
 
 	@Test
 	public void testCreateAndDropTable() {
-		String ddl = tableModel().toCreateTableDDL(dialect);
-		dao.execute(ddl);
+		String[] ddl = tableModel().toCreateTableDDL(dialect);
+		dao.executeManySqls(ddl);
 		Assert.assertEquals(0, (int) dao.queryForInteger("select count(*) from ", testTable));
 		dao.execute("insert into ", testTable, "(i4,d2,f3,s8) values(?,?,?,?)", para_(1, 2.1, 3.3, "str"));
 		Assert.assertEquals(1, (int) dao.queryForInteger("select count(*) from ", testTable));

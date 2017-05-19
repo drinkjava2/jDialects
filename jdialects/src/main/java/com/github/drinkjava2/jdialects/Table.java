@@ -6,7 +6,9 @@
  */
 package com.github.drinkjava2.jdialects;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.github.drinkjava2.hibernate.DDLFormatter;
@@ -41,17 +43,32 @@ public class Table {
 		return columns.get(columnName.toUpperCase());
 	}
 
-	public String toCreateTableDDL(Dialect d, boolean formatDDL) {
-		if (formatDDL)
-			return DDLFormatter.format(toCreateTableDDL(d));
-		return toCreateTableDDL(d);
+	public String[] toCreateTableDDL(Dialect dialect, boolean formatDDL) {
+		if (formatDDL) {
+			String[] ddls = toCreateTableDDL(dialect);
+			for (int i = 0; i < ddls.length; i++) {
+				ddls[i] = DDLFormatter.format(ddls[i]);
+			}
+			return ddls;
+		}
+		return toCreateTableDDL(dialect);
 	}
 
-	public String toCreateTableDDL(Dialect d) {
-		DDLFeatures ddl = d.ddlFeatures;
-		StringBuilder sb = new StringBuilder();
+	public String[] toCreateTableDDL(Dialect dialect) {
+		DDLFeatures ddl = dialect.ddlFeatures;
+
+		StringBuilder createDDL = new StringBuilder();
 		boolean hasPkey = false;
 		String pkeys = "";
+
+		// Reserved words check
+		dialect.check(tableName);
+		for (Column col : columns.values()) {
+			dialect.check(col.getColumnName());
+			dialect.check(col.getPkeyName());
+			dialect.check(col.getUniqueConstraintName());
+		}
+
 		for (Column col : columns.values()) {
 			// check if have PKEY
 			if (col.getPkey()) {
@@ -63,29 +80,43 @@ public class Table {
 			}
 		}
 		// create table
-		sb.append(hasPkey ? d.ddlFeatures.createTableString : d.ddlFeatures.createMultisetTableString).append(" ")
-				.append(d.check(tableName)).append(" (");
+		createDDL
+				.append(hasPkey ? dialect.ddlFeatures.createTableString : dialect.ddlFeatures.createMultisetTableString)
+				.append(" ").append(tableName).append(" (");
 
 		for (Column c : columns.values()) {
 			// column definition
-			sb.append(c.getColumnName()).append(" ").append(d.translateToDDLType(c.getColumnType(), c.getLengths()));
+			createDDL.append(c.getColumnName()).append(" ")
+					.append(dialect.translateToDDLType(c.getColumnType(), c.getLengths()));
 
 			if (c.getNotNull() || c.getPkey()) // Not null
-				sb.append(" NOT NULL");//
+				createDDL.append(" NOT NULL");//
 			else
-				sb.append(ddl.nullColumnString);// Null String
+				createDDL.append(ddl.nullColumnString);// Null String
 
-			sb.append(",");
+			createDDL.append(",");
 		}
 		// PKEY
 		if (!StrUtils.isEmpty(pkeys)) {
-			sb.append(" primary key (").append(pkeys).append("),");
+			createDDL.append(" primary key (").append(pkeys).append("),");
 		}
-		sb.setLength(sb.length() - 1);
-		sb.append(")");
+		createDDL.setLength(createDDL.length() - 1);
+		createDDL.append(")");
 		// type or engine for MariaDB & MySql
-		sb.append(d.engine());
-		return sb.toString();
+		createDDL.append(dialect.engine());
+		createDDL.append(";");
+
+		List<String> resultList = new ArrayList<>();
+		resultList.add(createDDL.toString());
+
+		// add unique constraint
+		for (Column column : columns.values()) {
+			String uniqueDDL = DDLUtils.getAddUniqueConstraint(dialect, tableName, column);
+			if (!StrUtils.isEmpty(uniqueDDL))
+				resultList.add(uniqueDDL);
+		}
+
+		return resultList.toArray(new String[resultList.size()]);
 	}
 
 }

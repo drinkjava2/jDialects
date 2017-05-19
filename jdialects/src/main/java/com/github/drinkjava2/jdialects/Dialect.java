@@ -387,6 +387,13 @@ public enum Dialect {
 	public boolean isMySqlFamily() {
 		return this.toString().startsWith("MySQL");
 	}
+	
+	/**
+	 * @return true if is Infomix family
+	 */
+	public boolean isInfomixFamily() {
+		return this.toString().startsWith("Infomix");
+	}
 
 	/**
 	 * @return true if is Oracle family

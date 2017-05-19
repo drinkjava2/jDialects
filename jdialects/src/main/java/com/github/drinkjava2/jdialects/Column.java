@@ -20,6 +20,8 @@ public class Column {
 	private Boolean pkey = false;
 	private Boolean notNull = false;
 	private Boolean unique = false;
+	private String uniqueConstraintName;
+
 	private Boolean autoInc = false;
 	private String pkeyName;
 	private Object defaultValue;
@@ -44,8 +46,9 @@ public class Column {
 		return this;
 	}
 
-	public Column unique(Boolean unique) {
-		this.unique = unique;
+	public Column unique(String uniqueConstraintName) {
+		this.unique = true;
+		this.uniqueConstraintName = uniqueConstraintName;
 		return this;
 	}
 
@@ -66,11 +69,6 @@ public class Column {
 
 	public Column pkey() {
 		this.pkey = true;
-		return this;
-	}
-
-	public Column pkey(Boolean pkey) {
-		this.pkey = pkey;
 		return this;
 	}
 
@@ -114,7 +112,8 @@ public class Column {
 	public Column VARBINARY(Integer... lengths) {this.columnType=Type.VARBINARY;this.lengths=lengths;return this;} 
 	public Column VARCHAR(Integer length) {this.columnType=Type.VARCHAR;this.lengths=new Integer[]{length};return this;}
 
-	//getter & setters==============
+
+	//getter & setters============== 
 	public String getColumnName() {
 		return columnName;
 	}
@@ -137,7 +136,7 @@ public class Column {
 
 	public void setPkey(Boolean pkey) {
 		this.pkey = pkey;
-	} 
+	}
 
 	public Boolean getNotNull() {
 		return notNull;
@@ -153,6 +152,14 @@ public class Column {
 
 	public void setUnique(Boolean unique) {
 		this.unique = unique;
+	}
+
+	public String getUniqueConstraintName() {
+		return uniqueConstraintName;
+	}
+
+	public void setUniqueConstraintName(String uniqueConstraintName) {
+		this.uniqueConstraintName = uniqueConstraintName;
 	}
 
 	public Boolean getAutoInc() {
@@ -179,6 +186,14 @@ public class Column {
 		this.defaultValue = defaultValue;
 	}
 
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
 	public Integer[] getLengths() {
 		return lengths;
 	}
@@ -186,13 +201,6 @@ public class Column {
 	public void setLengths(Integer[] lengths) {
 		this.lengths = lengths;
 	}
-
-	public String getComment() {
-		return comment;
-	}
-
-	public void setComment(String comment) {
-		this.comment = comment;
-	}  
+ 
 	
 }
