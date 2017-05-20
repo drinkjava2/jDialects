@@ -20,15 +20,24 @@ import com.github.drinkjava2.hibernate.DDLFormatter;
  * @since 1.0.2
  */
 public class Table {
+	private static DialectLogger logger = DialectLogger.getLog(Table.class);
 
 	/** The table name. */
 	private String tableName;
+
+	/** check constraint for table */
+	private String check;
 
 	/** Columns in this table, key is upper case of column name */
 	private Map<String, Column> columns = new LinkedHashMap<>();
 
 	public Table(String tableName) {
 		this.tableName = tableName;
+	}
+
+	public Table check(String check) {
+		this.check = check;
+		return this;
 	}
 
 	public Column addColumn(String columnName) {
@@ -55,7 +64,7 @@ public class Table {
 	}
 
 	public String[] toCreateTableDDL(Dialect dialect) {
-		DDLFeatures ddl = dialect.ddlFeatures;
+		DDLFeatures ddlFeatures = dialect.ddlFeatures;
 
 		StringBuilder createDDL = new StringBuilder();
 		boolean hasPkey = false;
@@ -86,13 +95,25 @@ public class Table {
 
 		for (Column c : columns.values()) {
 			// column definition
-			createDDL.append(c.getColumnName()).append(" ")
-					.append(dialect.translateToDDLType(c.getColumnType(), c.getLengths()));
+			createDDL.append(c.getColumnName()).append(" ");
+			
+			
+			createDDL.append(dialect.translateToDDLType(c.getColumnType(), c.getLengths()));
 
-			if (c.getNotNull() || c.getPkey()) // Not null
-				createDDL.append(" NOT NULL");//
+			// Not null
+			if (c.getNotNull() || c.getPkey())
+				createDDL.append(" not null");
 			else
-				createDDL.append(ddl.nullColumnString);// Null String
+				createDDL.append(ddlFeatures.nullColumnString);
+
+			// Check
+			if (!StrUtils.isEmpty(c.getCheck())) {
+				if (ddlFeatures.supportsColumnCheck)
+					createDDL.append(" check (").append(c.getCheck()).append(")");
+				else
+					logger.warn("Ignore unsupported check setting for dialect \"" + dialect + "\" on column \""
+							+ c.getColumnName() + "\" in table \"" + tableName + "\" with value: " + c.getCheck());
+			}
 
 			createDDL.append(",");
 		}
@@ -100,8 +121,19 @@ public class Table {
 		if (!StrUtils.isEmpty(pkeys)) {
 			createDDL.append(" primary key (").append(pkeys).append("),");
 		}
+
+		// Table Check
+		if (!StrUtils.isEmpty(check)) {
+			if (ddlFeatures.supportsTableCheck)
+				createDDL.append(" check (").append(check).append("),");
+			else
+				logger.warn("Ignore unsupported table check setting for dialect \"" + dialect + "\" on table \""
+						+ tableName + "\" with value: " + check);
+		}
+
 		createDDL.setLength(createDDL.length() - 1);
 		createDDL.append(")");
+
 		// type or engine for MariaDB & MySql
 		createDDL.append(dialect.engine());
 		createDDL.append(";");
@@ -119,4 +151,28 @@ public class Table {
 		return resultList.toArray(new String[resultList.size()]);
 	}
 
+	// getter & setter=========================
+	public String getTableName() {
+		return tableName;
+	}
+
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
+	}
+
+	public String getCheck() {
+		return check;
+	}
+
+	public void setCheck(String check) {
+		this.check = check;
+	}
+
+	public Map<String, Column> getColumns() {
+		return columns;
+	}
+
+	public void setColumns(Map<String, Column> columns) {
+		this.columns = columns;
+	}
 }

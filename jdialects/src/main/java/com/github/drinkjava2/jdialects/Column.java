@@ -21,7 +21,7 @@ public class Column {
 	private Boolean notNull = false;
 	private Boolean unique = false;
 	private String uniqueConstraintName;
-
+	private String check;
 	private Boolean autoInc = false;
 	private String pkeyName;
 	private Object defaultValue;
@@ -43,6 +43,11 @@ public class Column {
 
 	public Column unique() {
 		this.unique = true;
+		return this;
+	}
+
+	public Column check(String check) {
+		this.check = check;
 		return this;
 	}
 
@@ -200,6 +205,14 @@ public class Column {
 
 	public void setLengths(Integer[] lengths) {
 		this.lengths = lengths;
+	}
+
+	public String getCheck() {
+		return check;
+	}
+
+	public void setCheck(String check) {
+		this.check = check;
 	}
  
 	

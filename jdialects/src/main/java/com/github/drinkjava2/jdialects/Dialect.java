@@ -42,7 +42,7 @@ public enum Dialect {
 	private static final String TOTAL_ROWS_PLUS1 = "$TOTAL_ROWS_PLUS1";
 	private static final String DISTINCT_TAG = "($DISTINCT)";
 	public static final String NOT_SUPPORT = "NOT_SUPPORT";
-	DialectLogger logger = DialectLogger.getLog(Dialect.class);
+	private static DialectLogger logger = DialectLogger.getLog(Dialect.class);
 
 	private String sqlTemplate = null;
 	private String topLimitTemplate = null;

@@ -24,13 +24,13 @@ public class TableTest {
 		}
 	}
 
-	private static Table testCreateSQLModel() {// first
+	private static Table aNormalModel() {// A normal setting
 		Table t = new Table("testTable");
 		t.addColumn("b1").BOOLEAN();
 		t.addColumn("d2").DOUBLE();
 		t.addColumn("f3").FLOAT(5);
-		t.addColumn("i4").INTEGER().pkey().unique().autoInc().notNull().defaultValue(1);
-		t.addColumn("l5").LONG().pkey();
+		t.addColumn("i4").INTEGER().pkey();
+		t.addColumn("l5").LONG();
 		t.addColumn("s6").SHORT();
 		t.addColumn("b7").BIGDECIMAL(10, 2);
 		t.addColumn("s8").STRING(20);
@@ -42,11 +42,11 @@ public class TableTest {
 	}
 
 	@Test
-	public void testCreateSQL() {
+	public void testANormalModel() {
 		Dialect[] diaList = Dialect.values();
 		for (Dialect dialect : diaList) {
 			System.out.println("======" + dialect + "=====");
-			String[] ddl = testCreateSQLModel().toCreateTableDDL(dialect, true);
+			String[] ddl = aNormalModel().toCreateTableDDL(dialect, true);
 			printDDLs(ddl);
 		}
 	}
@@ -66,18 +66,9 @@ public class TableTest {
 
 	private static Table testCompoundPkeyModel() {// Compound PKEY
 		Table t = new Table("testTable");
-		t.addColumn("b1").BOOLEAN();
-		t.addColumn("d2").DOUBLE();
-		t.addColumn("f3").FLOAT(5);
 		t.addColumn("i4").INTEGER().pkey().unique().autoInc().notNull().defaultValue(1);
 		t.addColumn("l5").LONG().pkey();
 		t.addColumn("s6").SHORT();
-		t.addColumn("b7").BIGDECIMAL(10, 2);
-		t.addColumn("s8").STRING(20);
-		t.addColumn("d9").DATE();
-		t.addColumn("t10").TIME();
-		t.addColumn("t11").TIMESTAMP();
-		t.addColumn("v12").VARCHAR(300);
 		return t;
 	}
 
@@ -145,7 +136,7 @@ public class TableTest {
 		}
 	}
 
-	private static Table uniqueModel() {// Allow Null
+	private static Table uniqueModel() {// unique
 		Table t = new Table("testTable");
 		t.addColumn("s1").STRING(20).unique().notNull();
 		t.addColumn("s2").STRING(20).unique();
@@ -160,6 +151,43 @@ public class TableTest {
 		for (Dialect dialect : diaList) {
 			System.out.println("======" + dialect + "=====");
 			String[] ddl = uniqueModel().toCreateTableDDL(dialect, true);
+			printDDLs(ddl);
+		}
+	}
+
+	private static Table checkModel() {// check
+		Table t = new Table("testTable");
+		t.addColumn("s1").STRING(20).unique().notNull().check("s1>5");
+		t.addColumn("s2").STRING(20).unique().check("s2>5");
+		t.addColumn("s3").STRING(20).unique("uname1").notNull().check("s3>5");
+		t.addColumn("s4").STRING(20).unique("uname2").check("s4>5");
+		return t;
+	}
+
+	@Test
+	public void testCheck() {
+		Dialect[] diaList = Dialect.values();
+		for (Dialect dialect : diaList) {
+			System.out.println("======" + dialect + "=====");
+			String[] ddl = checkModel().toCreateTableDDL(dialect, true);
+			printDDLs(ddl);
+		}
+	}
+
+	private static Table tableCheckModel() {// table check
+		Table t = new Table("testTable");
+		t.check("s2>10");
+		t.addColumn("s1").STRING(20).unique().notNull().check("s1>5");
+		t.addColumn("s2").STRING(20);
+		return t;
+	}
+
+	@Test
+	public void testTableCheck() {
+		Dialect[] diaList = Dialect.values();
+		for (Dialect dialect : diaList) {
+			System.out.println("======" + dialect + "=====");
+			String[] ddl = tableCheckModel().toCreateTableDDL(dialect, true);
 			printDDLs(ddl);
 		}
 	}
