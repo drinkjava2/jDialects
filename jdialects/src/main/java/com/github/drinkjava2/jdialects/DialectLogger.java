@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  * if found commons log, use it, if found Log4j use it..., by this way this
  * project has no dependency to any logger jar.
  * 
- * @author Yong Zhu 
+ * @author Yong Zhu
  * @since 1.0.1
  */
 public class DialectLogger {
@@ -24,6 +24,8 @@ public class DialectLogger {
 	private Method commonLoggerWarnMethod;
 	private Method commonLoggerErrorMethod;
 	private Logger jdkLogger;
+
+	private static boolean enableLog = true;
 
 	public DialectLogger(Class<?> targetClass) {
 		if (targetClass == null)
@@ -47,7 +49,13 @@ public class DialectLogger {
 		return new DialectLogger(targetClass);
 	}
 
+	public static void setEnableLog(boolean enablelog) {
+		enableLog = enablelog;
+	}
+
 	public void info(String msg) {
+		if (!enableLog)
+			return;
 		if (jdkLogger != null) {
 			jdkLogger.log(Level.INFO, msg);
 			return;
@@ -61,6 +69,8 @@ public class DialectLogger {
 	}
 
 	public void warn(String msg) {
+		if (!enableLog)
+			return;
 		if (jdkLogger != null) {
 			jdkLogger.log(Level.WARNING, msg);
 			return;
@@ -74,6 +84,8 @@ public class DialectLogger {
 	}
 
 	public void error(String msg) {
+		if (!enableLog)
+			return;
 		if (jdkLogger != null) {
 			jdkLogger.log(Level.SEVERE, msg);
 			return;

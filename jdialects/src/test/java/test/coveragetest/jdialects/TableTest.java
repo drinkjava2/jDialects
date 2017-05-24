@@ -9,6 +9,7 @@ package test.coveragetest.jdialects;
 import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.DialectLogger;
 import com.github.drinkjava2.jdialects.Table;
 
 /**
@@ -198,22 +199,29 @@ public class TableTest {
 	public void testIdentity2() {
 		printDialectsDDLs(Dialect.SybaseASE15Dialect, IdentityModel());
 		printDialectsDDLs(Dialect.MySQL55Dialect, IdentityModel());
-		printDialectsDDLs(Dialect.InformixDialect, IdentityModel()); 
+		printDialectsDDLs(Dialect.InformixDialect, IdentityModel());
 	}
-	
 
 	private static Table CommentModel() {// Identity
-		Table t = new Table("testTable");
+		Table t = new Table("testTable").comment("table_comment");
 		t.addColumn("s1").INTEGER().unique().notNull().identity().pkey();
-		t.addColumn("s2").LONG().comment("AAAAAAA BBBBB");
-		t.addColumn("s3").BIGINT().comment("CCCCC");
+		t.addColumn("s2").LONG().comment("column_comment1");
+		t.addColumn("s3").BIGINT().comment("column_comment2");
 		return t;
 	}
 
- 
 	@Test
-	public void testComment() {
+	public void testComment() { 
 		printAllDialectsDDLs(CommentModel());
+	}
+
+	@Test
+	public void testComment2() { 
+		printDialectsDDLs(Dialect.Ingres10Dialect, CommentModel());
+		printDialectsDDLs(Dialect.DB2Dialect, CommentModel());
+		printDialectsDDLs(Dialect.MariaDBDialect, CommentModel());
+		printDialectsDDLs(Dialect.SQLServer2012Dialect, CommentModel());
+		printDialectsDDLs(Dialect.MySQL55Dialect, CommentModel());
 	}
 
 }

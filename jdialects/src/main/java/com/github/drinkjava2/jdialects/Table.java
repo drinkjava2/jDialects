@@ -7,7 +7,6 @@
 package com.github.drinkjava2.jdialects;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,13 +20,16 @@ import com.github.drinkjava2.hibernate.DDLFormatter;
  * @since 1.0.2
  */
 public class Table {
-	private static DialectLogger logger = DialectLogger.getLog(Table.class);
+	public static DialectLogger logger = DialectLogger.getLog(Table.class);
 
 	/** The table name. */
 	private String tableName;
 
 	/** check constraint for table */
 	private String check;
+
+	/** comment for table */
+	private String comment;
 
 	/** Columns in this table, key is upper case of column name */
 	private Map<String, Column> columns = new LinkedHashMap<>();
@@ -38,6 +40,11 @@ public class Table {
 
 	public Table check(String check) {
 		this.check = check;
+		return this;
+	}
+
+	public Table comment(String comment) {
+		this.comment = comment;
 		return this;
 	}
 
@@ -172,31 +179,54 @@ public class Table {
 		List<String> resultList = new ArrayList<>();
 		resultList.add(buf.toString());
 
-		// add unique constraint
+		// unique constraint
 		for (Column column : columns.values()) {
-			String uniqueDDL = DDLUtils.getAddUniqueConstraint(dialect, tableName, column);
+			String uniqueDDL = getAddUniqueConstraint(dialect, tableName, column);
 			if (!StrUtils.isEmpty(uniqueDDL))
 				resultList.add(uniqueDDL);
 		}
 
-		// add comment on
+		// table comment on
+		if (this.getComment() != null) {
+			if (features.supportsCommentOn)
+				resultList.add("comment on table " + this.getTableName() + " is '" + this.getComment() + "'");
+			else
+				logger.warn("Ignore unsupported table comment setting for dialect \"" + dialect + "\" on table \""
+						+ tableName + "\" with value: " + this.getComment());
+		}
+
+		// column comment on
 		for (Column c : columns.values()) {
-			if (features.supportsCommentOn && c.getComment() != null && StrUtils.isEmpty(features.columnComment)) {
-				buf.append("comment on column ").append(tableName).append('.').append(c.getColumnName()).append(" is '")
-						.append(c.getComment()).append("';");
-			}
+			if (features.supportsCommentOn && c.getComment() != null && StrUtils.isEmpty(features.columnComment))
+				resultList.add(
+						"comment on column " + tableName + '.' + c.getColumnName() + " is '" + c.getComment() + "';");
 		}
 
 		return resultList.toArray(new String[resultList.size()]);
 	}
 
-//	protected void applyTableCommentOn(DDLFeatures features, Table table) {
-//		if (features.supportsCommentOn) {
-//			if (table.getComment() != null) {
-//				sqlStrings.add("comment on table " + tableName + " is '" + table.getComment() + "'");
-//			}
-//			 
-//	}
+	private static String getAddUniqueConstraint(Dialect dialect, String tableName, Column column) {
+		if (!column.getUnique())
+			return null;
+		String UniqueConstraintName = column.getUniqueConstraintName();
+		if (StrUtils.isEmpty(UniqueConstraintName))
+			UniqueConstraintName = "UK_" + RandomStrUtils.getRandomString(20);
+		StringBuilder sb = new StringBuilder("alter table ").append(tableName);
+
+		if (dialect.isInfomixFamily()) {
+			return sb.append(" add constraint unique (").append(column.getColumnName()).append(") constraint ")
+					.append(UniqueConstraintName).append(";").toString();
+		}
+
+		if (dialect.isDerbyFamily() || dialect.isDB2Family()) {
+			if (!column.getNotNull()) {
+				return new StringBuilder("create unique index ").append(UniqueConstraintName).append(" on ")
+						.append(tableName).append("(").append(column.getColumnName()).append(");").toString();
+			}
+		}
+		return sb.append(" add constraint ").append(UniqueConstraintName).append(" unique (")
+				.append(column.getColumnName()).append(");").toString();
+	}
 
 	// getter & setter=========================
 	public String getTableName() {
@@ -213,6 +243,14 @@ public class Table {
 
 	public void setCheck(String check) {
 		this.check = check;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 
 	public Map<String, Column> getColumns() {
