@@ -7,6 +7,7 @@
 package com.github.drinkjava2.jdialects;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,9 +65,9 @@ public class Table {
 	}
 
 	public String[] toCreateTableDDL(Dialect dialect) {
-		DDLFeatures ddlFeatures = dialect.ddlFeatures;
+		DDLFeatures features = dialect.ddlFeatures;
 
-		StringBuilder createDDL = new StringBuilder();
+		StringBuilder buf = new StringBuilder();
 		boolean hasPkey = false;
 		String pkeys = "";
 
@@ -89,57 +90,87 @@ public class Table {
 			}
 		}
 		// create table
-		createDDL
-				.append(hasPkey ? dialect.ddlFeatures.createTableString : dialect.ddlFeatures.createMultisetTableString)
+		buf.append(hasPkey ? dialect.ddlFeatures.createTableString : dialect.ddlFeatures.createMultisetTableString)
 				.append(" ").append(tableName).append(" (");
 
 		for (Column c : columns.values()) {
 			// column definition
-			createDDL.append(c.getColumnName()).append(" ");
-			
-			
-			createDDL.append(dialect.translateToDDLType(c.getColumnType(), c.getLengths()));
+			buf.append(c.getColumnName()).append(" ");
 
-			// Not null
-			if (c.getNotNull() || c.getPkey())
-				createDDL.append(" not null");
-			else
-				createDDL.append(ddlFeatures.nullColumnString);
+			// Identity
+			if (c.getIdentity()) {
+				if (!features.supportsIdentityColumns) {
+					DialectException.throwEX("Unsupported identity setting for dialect \"" + dialect + "\" on column \""
+							+ c.getColumnName() + "\" in table \"" + tableName);
+				}
+
+				if (features.hasDataTypeInIdentityColumn)
+					buf.append(dialect.translateToDDLType(c.getColumnType(), c.getLengths()));
+				buf.append(' ');
+				if (Type.BIGINT.equals(c.getColumnType()))
+					buf.append(features.identityColumnStringBigINT);
+				else
+					buf.append(features.identityColumnString);
+
+			} else {
+				buf.append(dialect.translateToDDLType(c.getColumnType(), c.getLengths()));
+
+				// Default
+				String defaultValue = c.getDefaultValue();
+				if (defaultValue != null) {
+					buf.append(" default ").append(defaultValue);
+				}
+
+				// Not null
+				if (c.getNotNull())
+					buf.append(" not null");
+				else
+					buf.append(features.nullColumnString);
+			}
 
 			// Check
 			if (!StrUtils.isEmpty(c.getCheck())) {
-				if (ddlFeatures.supportsColumnCheck)
-					createDDL.append(" check (").append(c.getCheck()).append(")");
+				if (features.supportsColumnCheck)
+					buf.append(" check (").append(c.getCheck()).append(")");
 				else
 					logger.warn("Ignore unsupported check setting for dialect \"" + dialect + "\" on column \""
 							+ c.getColumnName() + "\" in table \"" + tableName + "\" with value: " + c.getCheck());
 			}
 
-			createDDL.append(",");
+			// Comments
+			if (c.getComment() != null) {
+				if (StrUtils.isEmpty(features.columnComment) && !features.supportsCommentOn)
+					logger.warn("Ignore unsupported comment setting for dialect \"" + dialect + "\" on column \""
+							+ c.getColumnName() + "\" in table \"" + tableName + "\" with value: " + c.getComment());
+				else
+					buf.append(StrUtils.replace(features.columnComment, "_COMMENT", c.getComment()));
+			}
+
+			buf.append(",");
 		}
 		// PKEY
 		if (!StrUtils.isEmpty(pkeys)) {
-			createDDL.append(" primary key (").append(pkeys).append("),");
+			buf.append(" primary key (").append(pkeys).append("),");
 		}
 
 		// Table Check
 		if (!StrUtils.isEmpty(check)) {
-			if (ddlFeatures.supportsTableCheck)
-				createDDL.append(" check (").append(check).append("),");
+			if (features.supportsTableCheck)
+				buf.append(" check (").append(check).append("),");
 			else
 				logger.warn("Ignore unsupported table check setting for dialect \"" + dialect + "\" on table \""
 						+ tableName + "\" with value: " + check);
 		}
 
-		createDDL.setLength(createDDL.length() - 1);
-		createDDL.append(")");
+		buf.setLength(buf.length() - 1);
+		buf.append(")");
 
 		// type or engine for MariaDB & MySql
-		createDDL.append(dialect.engine());
-		createDDL.append(";");
+		buf.append(dialect.engine());
+		buf.append(";");
 
 		List<String> resultList = new ArrayList<>();
-		resultList.add(createDDL.toString());
+		resultList.add(buf.toString());
 
 		// add unique constraint
 		for (Column column : columns.values()) {
@@ -148,8 +179,24 @@ public class Table {
 				resultList.add(uniqueDDL);
 		}
 
+		// add comment on
+		for (Column c : columns.values()) {
+			if (features.supportsCommentOn && c.getComment() != null && StrUtils.isEmpty(features.columnComment)) {
+				buf.append("comment on column ").append(tableName).append('.').append(c.getColumnName()).append(" is '")
+						.append(c.getComment()).append("';");
+			}
+		}
+
 		return resultList.toArray(new String[resultList.size()]);
 	}
+
+//	protected void applyTableCommentOn(DDLFeatures features, Table table) {
+//		if (features.supportsCommentOn) {
+//			if (table.getComment() != null) {
+//				sqlStrings.add("comment on table " + tableName + " is '" + table.getComment() + "'");
+//			}
+//			 
+//	}
 
 	// getter & setter=========================
 	public String getTableName() {

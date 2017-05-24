@@ -20,6 +20,7 @@ public class DDLFeatures {
 	protected String addColumnSuffixString;
 	protected String addForeignKeyConstraintString;
 	protected String addPrimaryKeyConstraintString;
+	protected String columnComment;
 	protected String createCatalogCommand;
 	protected String createPooledSequenceStrings;
 	protected String createSchemaCommand;
@@ -67,6 +68,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = NOT_SUPPORT;
 			ddl.addPrimaryKeyConstraintString = NOT_SUPPORT;
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -106,6 +108,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -145,6 +148,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -184,6 +188,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -223,6 +228,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -262,6 +268,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -301,6 +308,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -340,6 +348,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -379,6 +388,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " ADD CONSTRAINT _FKEYNAME FOREIGN KEY _FKEYNAME (_FK1, _FK2) REFERENCES _REFTABLE (_REF1, _REF2) ";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -418,6 +428,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create serial _SEQNAME start with 11 increment by 33";
@@ -457,6 +468,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -496,6 +508,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -535,6 +548,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -574,6 +588,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -613,6 +628,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -652,6 +668,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -691,6 +708,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -730,6 +748,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -769,6 +788,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -808,6 +828,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -847,6 +868,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -886,6 +908,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = ")";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE on update cascade";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create column table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -925,6 +948,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = ")";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE on update cascade";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -964,6 +988,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -1003,6 +1028,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint  foreign key (_FK1, _FK2) references _REFTABLE constraint _FKEYNAME";
 			ddl.addPrimaryKeyConstraintString = " add constraint primary key constraint _PKEYNAME ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -1042,6 +1068,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint  foreign key (_FK1, _FK2) references _REFTABLE constraint _FKEYNAME";
 			ddl.addPrimaryKeyConstraintString = " add constraint primary key constraint _PKEYNAME ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -1081,6 +1108,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -1120,6 +1148,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -1159,6 +1188,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -1198,6 +1228,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -1237,6 +1268,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -1276,6 +1308,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = " comment '_COMMENT'";
 			ddl.createCatalogCommand = "create database _CATALOGNAME";
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -1315,6 +1348,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = " comment '_COMMENT'";
 			ddl.createCatalogCommand = "create database _CATALOGNAME";
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -1354,6 +1388,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -1393,6 +1428,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -1432,6 +1468,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = " comment '_COMMENT'";
 			ddl.createCatalogCommand = "create database _CATALOGNAME";
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -1471,6 +1508,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = " comment '_COMMENT'";
 			ddl.createCatalogCommand = "create database _CATALOGNAME";
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -1510,6 +1548,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = " comment '_COMMENT'";
 			ddl.createCatalogCommand = "create database _CATALOGNAME";
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -1549,6 +1588,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = " comment '_COMMENT'";
 			ddl.createCatalogCommand = "create database _CATALOGNAME";
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -1588,6 +1628,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = " comment '_COMMENT'";
 			ddl.createCatalogCommand = "create database _CATALOGNAME";
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -1627,6 +1668,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = " comment '_COMMENT'";
 			ddl.createCatalogCommand = "create database _CATALOGNAME";
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -1666,6 +1708,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = " comment '_COMMENT'";
 			ddl.createCatalogCommand = "create database _CATALOGNAME";
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -1705,6 +1748,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = " comment '_COMMENT'";
 			ddl.createCatalogCommand = "create database _CATALOGNAME";
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -1744,6 +1788,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -1783,6 +1828,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -1822,6 +1868,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -1861,6 +1908,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -1900,6 +1948,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -1939,6 +1988,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -1978,6 +2028,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -2017,6 +2068,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start 11 increment 33";
@@ -2056,6 +2108,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start 11 increment 33";
@@ -2095,6 +2148,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start 11 increment 33";
@@ -2134,6 +2188,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start 11 increment 33";
@@ -2173,6 +2228,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start 11 increment 33";
@@ -2212,6 +2268,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start 11 increment 33";
@@ -2251,6 +2308,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start 11 increment 33";
@@ -2290,6 +2348,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start 11 increment 33";
@@ -2329,6 +2388,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start 11 increment 33";
@@ -2368,6 +2428,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start 11 increment 33";
@@ -2407,6 +2468,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -2446,6 +2508,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -2485,6 +2548,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " foreign key _FKEYNAME (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -2524,6 +2588,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -2563,6 +2628,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -2602,6 +2668,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -2641,6 +2708,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = "create sequence _SEQNAME start with 11 increment by 33";
@@ -2680,6 +2748,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -2719,6 +2788,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -2758,6 +2828,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -2797,6 +2868,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -2836,6 +2908,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -2875,6 +2948,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create multiset table ";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -2914,6 +2988,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create multiset table ";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
@@ -2953,6 +3028,7 @@ public class DDLFeatures {
 			ddl.addColumnSuffixString = "";
 			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
+			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;

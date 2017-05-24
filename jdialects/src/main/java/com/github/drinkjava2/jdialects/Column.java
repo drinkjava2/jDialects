@@ -23,8 +23,9 @@ public class Column {
 	private String uniqueConstraintName;
 	private String check;
 	private Boolean autoInc = false;
+	private Boolean identity = false;
 	private String pkeyName;
-	private Object defaultValue;
+	private String defaultValue;
 
 	/** comment of this column */
 	private String comment;
@@ -62,7 +63,12 @@ public class Column {
 		return this;
 	}
 
-	public Column defaultValue(Object value) {
+	public Column identity() {
+		this.identity = true;
+		return this;
+	}
+
+	public Column defaultValue(String value) {
 		this.defaultValue = value;
 		return this;
 	}
@@ -175,6 +181,14 @@ public class Column {
 		this.autoInc = autoInc;
 	}
 
+	public Boolean getIdentity() {
+		return identity;
+	}
+
+	public void setIdentity(Boolean identity) {
+		this.identity = identity;
+	}
+
 	public String getPkeyName() {
 		return pkeyName;
 	}
@@ -182,12 +196,12 @@ public class Column {
 	public void setPkeyName(String pkeyName) {
 		this.pkeyName = pkeyName;
 	}
-
-	public Object getDefaultValue() {
+ 
+	public String getDefaultValue() {
 		return defaultValue;
 	}
 
-	public void setDefaultValue(Object defaultValue) {
+	public void setDefaultValue(String defaultValue) {
 		this.defaultValue = defaultValue;
 	}
 

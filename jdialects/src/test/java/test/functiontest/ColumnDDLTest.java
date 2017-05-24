@@ -27,7 +27,7 @@ public class ColumnDDLTest extends BaseDDLTest {
 		t.addColumn("b1").BOOLEAN();
 		t.addColumn("d2").DOUBLE();
 		t.addColumn("f3").FLOAT();
-		t.addColumn("i4").INTEGER().pkey().unique().autoInc().notNull().defaultValue(1);
+		t.addColumn("i4").INTEGER().pkey().unique().autoInc().notNull().defaultValue("1");
 		t.addColumn("l5").LONG();
 		t.addColumn("s6").SHORT();
 		t.addColumn("b7").BIGDECIMAL(10, 2);
