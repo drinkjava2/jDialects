@@ -211,17 +211,31 @@ public class TableTest {
 	}
 
 	@Test
-	public void testComment() { 
+	public void testComment() {
 		printAllDialectsDDLs(CommentModel());
 	}
 
 	@Test
-	public void testComment2() { 
+	public void testComment2() {
 		printDialectsDDLs(Dialect.Ingres10Dialect, CommentModel());
 		printDialectsDDLs(Dialect.DB2Dialect, CommentModel());
 		printDialectsDDLs(Dialect.MariaDBDialect, CommentModel());
 		printDialectsDDLs(Dialect.SQLServer2012Dialect, CommentModel());
 		printDialectsDDLs(Dialect.MySQL55Dialect, CommentModel());
+	}
+
+	private static Table SequenceModel() {// Sequence
+		Table t = new Table("testTable");
+		t.addColumn("i1").INTEGER().pkey().sequence("seq1", 1, 1);
+		t.addColumn("i2").INTEGER().sequence("seq1", 1, 5);
+		t.addColumn("i3").INTEGER().identityOrSequence("seq2", 1, 1);
+		t.addColumn("i4").INTEGER().identityOrSequence("seq2", 1, 6);
+		return t;
+	}
+
+	@Test
+	public void testSequence() {
+		printAllDialectsDDLs(SequenceModel());
 	}
 
 }

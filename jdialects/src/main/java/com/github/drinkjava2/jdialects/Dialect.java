@@ -48,7 +48,7 @@ public enum Dialect {
 	private String topLimitTemplate = null;
 	protected final Map<Type, String> typeMappings = new EnumMap<>(Type.class);
 
-	protected final DDLFeatures ddlFeatures = new DDLFeatures();// NOSONAR
+	public final DDLFeatures ddlFeatures = new DDLFeatures();// NOSONAR
 
 	static {
 		for (Dialect d : Dialect.values()) {

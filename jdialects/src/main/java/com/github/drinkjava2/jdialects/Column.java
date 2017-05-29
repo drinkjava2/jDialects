@@ -26,6 +26,10 @@ public class Column {
 	private Boolean identity = false;
 	private String pkeyName;
 	private String defaultValue;
+	private String sequenceName;
+	private Integer sequenceStart = 1;
+	private Integer sequenceIncrement = 1;
+	private Boolean identityOrSequence = false;
 
 	/** comment of this column */
 	private String comment;
@@ -86,6 +90,32 @@ public class Column {
 	public Column pkey(String pkeyName) {
 		this.pkey = true;
 		this.pkeyName = pkeyName;
+		return this;
+	}
+
+	/**
+	 * Define sequence column. Important note: value need use
+	 * dialect.getNextSequenceValue("sequenceName") to obtain
+	 */
+	public Column sequence(String sequenceName, Integer sequenceStart, Integer sequenceIncrement) {
+		this.sequenceName = sequenceName;
+		this.sequenceStart = sequenceStart;
+		this.sequenceIncrement = sequenceIncrement;
+		this.identityOrSequence = false;
+		return this;
+	}
+
+	/**
+	 * Define sequence column. Important note: value need use
+	 * dialect.getIdentityOrNextSequenceValue("sequenceName") to obtain, if
+	 * return null mean it's a identity column, otherwise will get a sequence
+	 * value
+	 */
+	public Column identityOrSequence(String sequenceName, Integer sequenceStart, Integer sequenceIncrement) {
+		this.sequenceName = sequenceName;
+		this.sequenceStart = sequenceStart;
+		this.sequenceIncrement = sequenceIncrement;
+		this.identityOrSequence = true;
 		return this;
 	}
 
@@ -228,6 +258,37 @@ public class Column {
 	public void setCheck(String check) {
 		this.check = check;
 	}
- 
-	
+
+	public String getSequenceName() {
+		return sequenceName;
+	}
+
+	public void setSequenceName(String sequenceName) {
+		this.sequenceName = sequenceName;
+	}
+
+	public Integer getSequenceStart() {
+		return sequenceStart;
+	}
+
+	public void setSequenceStart(Integer sequenceStart) {
+		this.sequenceStart = sequenceStart;
+	}
+
+	public Integer getSequenceIncrement() {
+		return sequenceIncrement;
+	}
+
+	public void setSequenceIncrement(Integer sequenceIncrement) {
+		this.sequenceIncrement = sequenceIncrement;
+	}
+
+	public Boolean getIdentityOrSequence() {
+		return identityOrSequence;
+	}
+
+	public void setIdentityOrSequence(Boolean identityOrSequence) {
+		this.identityOrSequence = identityOrSequence;
+	}
+  
 }

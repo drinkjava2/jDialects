@@ -84,10 +84,11 @@ public class Table {
 			dialect.check(col.getColumnName());
 			dialect.check(col.getPkeyName());
 			dialect.check(col.getUniqueConstraintName());
+			dialect.check(col.getSequenceName());
 		}
 
+		// check and cache prime keys
 		for (Column col : columns.values()) {
-			// check if have PKEY
 			if (col.getPkey()) {
 				hasPkey = true;
 				if (StrUtils.isEmpty(pkeys))
@@ -96,21 +97,56 @@ public class Table {
 					pkeys += "," + col.getColumnName();
 			}
 		}
+
+		List<String> resultList = new ArrayList<>();
+
+		// create sequences if sequenceName not empty
+		for (Column col : columns.values())
+			if (!StrUtils.isEmpty(col.getSequenceName())) {
+				if (col.getIdentity())
+					DialectException.throwEX("Can not set sequence and identity at same time on column \""
+							+ col.getColumnName() + "\" in table \"" + tableName + "\"");
+
+				if (!(col.getIdentityOrSequence() && features.supportsIdentityColumns)) {
+					if (!(features.supportsPooledSequences || features.supportsSequences))
+						DialectException.throwEX("Unsupported sequence setting of dialect \"" + dialect
+								+ "\" on column \"" + col.getColumnName() + "\" in table \"" + tableName + "\"");
+					if (features.supportsPooledSequences) {
+						// create sequence _SEQ start with 11 increment by 33
+						String pooledSequence = StrUtils.replace(features.createPooledSequenceStrings, "_SEQ",
+								col.getSequenceName());
+						pooledSequence = StrUtils.replace(pooledSequence, "11", "" + col.getSequenceStart());
+						pooledSequence = StrUtils.replace(pooledSequence, "33", "" + col.getSequenceIncrement());
+						resultList.add(pooledSequence);
+					} else {
+						if (col.getSequenceStart() >= 2 || col.getSequenceIncrement() >= 2)
+							DialectException.throwEX("Unsupported sequence start and increment setting of dialect \""
+									+ dialect + "\" on column \"" + col.getColumnName() + "\" in table \"" + tableName
+									+ "\", this dialect only support basic sequence setting.");
+						// "create sequence _SEQ"
+						String pooledSequence = StrUtils.replace(features.createSequenceStrings, "_SEQ",
+								col.getSequenceName());
+						resultList.add(pooledSequence);
+					}
+				}
+			}
+
 		// create table
 		buf.append(hasPkey ? dialect.ddlFeatures.createTableString : dialect.ddlFeatures.createMultisetTableString)
 				.append(" ").append(tableName).append(" (");
 
-		for (Column c : columns.values()) {
+		for (
+
+		Column c : columns.values()) {
 			// column definition
 			buf.append(c.getColumnName()).append(" ");
 
 			// Identity
-			if (c.getIdentity()) {
-				if (!features.supportsIdentityColumns) {
-					DialectException.throwEX("Unsupported identity setting for dialect \"" + dialect + "\" on column \""
-							+ c.getColumnName() + "\" in table \"" + tableName);
-				}
+			if (c.getIdentity() && !features.supportsIdentityColumns)
+				DialectException.throwEX("Unsupported identity setting for dialect \"" + dialect + "\" on column \""
+						+ c.getColumnName() + "\" in table \"" + tableName + "\"");
 
+			if (c.getIdentity() || (c.getIdentityOrSequence() && features.supportsIdentityColumns)) {
 				if (features.hasDataTypeInIdentityColumn)
 					buf.append(dialect.translateToDDLType(c.getColumnType(), c.getLengths()));
 				buf.append(' ');
@@ -118,6 +154,8 @@ public class Table {
 					buf.append(features.identityColumnStringBigINT);
 				else
 					buf.append(features.identityColumnString);
+
+			} else if (c.getIdentity() && c.getIdentityOrSequence()) {
 
 			} else {
 				buf.append(dialect.translateToDDLType(c.getColumnType(), c.getLengths()));
@@ -174,9 +212,8 @@ public class Table {
 
 		// type or engine for MariaDB & MySql
 		buf.append(dialect.engine());
-		buf.append(";");
+		buf.append("");
 
-		List<String> resultList = new ArrayList<>();
 		resultList.add(buf.toString());
 
 		// unique constraint
@@ -199,10 +236,12 @@ public class Table {
 		for (Column c : columns.values()) {
 			if (features.supportsCommentOn && c.getComment() != null && StrUtils.isEmpty(features.columnComment))
 				resultList.add(
-						"comment on column " + tableName + '.' + c.getColumnName() + " is '" + c.getComment() + "';");
+						"comment on column " + tableName + '.' + c.getColumnName() + " is '" + c.getComment() + "'");
 		}
-
-		return resultList.toArray(new String[resultList.size()]);
+		String[] resultArray = new String[resultList.size()];
+		for (int i = 0; i < resultArray.length; i++)
+			resultArray[i] = resultList.get(i) + ";";
+		return resultArray;
 	}
 
 	private static String getAddUniqueConstraint(Dialect dialect, String tableName, Column column) {
@@ -215,17 +254,17 @@ public class Table {
 
 		if (dialect.isInfomixFamily()) {
 			return sb.append(" add constraint unique (").append(column.getColumnName()).append(") constraint ")
-					.append(UniqueConstraintName).append(";").toString();
+					.append(UniqueConstraintName).toString();
 		}
 
 		if (dialect.isDerbyFamily() || dialect.isDB2Family()) {
 			if (!column.getNotNull()) {
 				return new StringBuilder("create unique index ").append(UniqueConstraintName).append(" on ")
-						.append(tableName).append("(").append(column.getColumnName()).append(");").toString();
+						.append(tableName).append("(").append(column.getColumnName()).append(")").toString();
 			}
 		}
 		return sb.append(" add constraint ").append(UniqueConstraintName).append(" unique (")
-				.append(column.getColumnName()).append(");").toString();
+				.append(column.getColumnName()).append(")").toString();
 	}
 
 	// getter & setter=========================
