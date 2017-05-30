@@ -115,7 +115,7 @@ public class DDLFeatures {
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
-			ddl.createPooledSequenceStrings = "create sequence _SEQ start with 11 increment by 33";
+			ddl.createPooledSequenceStrings = NOT_SUPPORT;
 			ddl.createSchemaCommand = "create schema _SCHEMANAME";
 			ddl.createSequenceStrings = "create sequence _SEQ";
 			ddl.createTableString = "create table";
@@ -143,8 +143,8 @@ public class DDLFeatures {
 			ddl.supportsIfExistsBeforeConstraintName = false;
 			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
-			ddl.supportsPooledSequences = true;
-			ddl.supportsSequences = true;
+			ddl.supportsPooledSequences = false;
+			ddl.supportsSequences = false;
 			ddl.supportsTableCheck = false;
 			ddl.tableTypeString = "";
 		}
@@ -157,7 +157,7 @@ public class DDLFeatures {
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
-			ddl.createPooledSequenceStrings = "create sequence _SEQ start with 11 increment by 33";
+			ddl.createPooledSequenceStrings = NOT_SUPPORT;
 			ddl.createSchemaCommand = "create schema _SCHEMANAME";
 			ddl.createSequenceStrings = "create sequence _SEQ";
 			ddl.createTableString = "create table";
@@ -185,8 +185,8 @@ public class DDLFeatures {
 			ddl.supportsIfExistsBeforeConstraintName = false;
 			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
-			ddl.supportsPooledSequences = true;
-			ddl.supportsSequences = true;
+			ddl.supportsPooledSequences = false;
+			ddl.supportsSequences = false;
 			ddl.supportsTableCheck = false;
 			ddl.tableTypeString = "";
 		}
@@ -199,7 +199,7 @@ public class DDLFeatures {
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
-			ddl.createPooledSequenceStrings = "create sequence _SEQ start with 11 increment by 33";
+			ddl.createPooledSequenceStrings = NOT_SUPPORT;
 			ddl.createSchemaCommand = "create schema _SCHEMANAME";
 			ddl.createSequenceStrings = "create sequence _SEQ";
 			ddl.createTableString = "create table";
@@ -227,8 +227,8 @@ public class DDLFeatures {
 			ddl.supportsIfExistsBeforeConstraintName = false;
 			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
-			ddl.supportsPooledSequences = true;
-			ddl.supportsSequences = true;
+			ddl.supportsPooledSequences = false;
+			ddl.supportsSequences = false;
 			ddl.supportsTableCheck = false;
 			ddl.tableTypeString = "";
 		}
@@ -241,7 +241,7 @@ public class DDLFeatures {
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
-			ddl.createPooledSequenceStrings = "create sequence _SEQ start with 11 increment by 33";
+			ddl.createPooledSequenceStrings = NOT_SUPPORT;
 			ddl.createSchemaCommand = "create schema _SCHEMANAME";
 			ddl.createSequenceStrings = "create sequence _SEQ";
 			ddl.createTableString = "create table";
@@ -269,8 +269,8 @@ public class DDLFeatures {
 			ddl.supportsIfExistsBeforeConstraintName = false;
 			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
-			ddl.supportsPooledSequences = true;
-			ddl.supportsSequences = true;
+			ddl.supportsPooledSequences = false;
+			ddl.supportsSequences = false;
 			ddl.supportsTableCheck = false;
 			ddl.tableTypeString = "";
 		}
@@ -283,7 +283,7 @@ public class DDLFeatures {
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
-			ddl.createPooledSequenceStrings = "create sequence _SEQ start with 11 increment by 33";
+			ddl.createPooledSequenceStrings = NOT_SUPPORT;
 			ddl.createSchemaCommand = "create schema _SCHEMANAME";
 			ddl.createSequenceStrings = "create sequence _SEQ";
 			ddl.createTableString = "create table";
@@ -311,8 +311,8 @@ public class DDLFeatures {
 			ddl.supportsIfExistsBeforeConstraintName = false;
 			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
-			ddl.supportsPooledSequences = true;
-			ddl.supportsSequences = true;
+			ddl.supportsPooledSequences = false;
+			ddl.supportsSequences = false;
 			ddl.supportsTableCheck = false;
 			ddl.tableTypeString = "";
 		}
@@ -325,7 +325,7 @@ public class DDLFeatures {
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
-			ddl.createPooledSequenceStrings = "create sequence _SEQ start with 11 increment by 33";
+			ddl.createPooledSequenceStrings = NOT_SUPPORT;
 			ddl.createSchemaCommand = "create schema _SCHEMANAME";
 			ddl.createSequenceStrings = "create sequence _SEQ";
 			ddl.createTableString = "create table";
@@ -353,8 +353,8 @@ public class DDLFeatures {
 			ddl.supportsIfExistsBeforeConstraintName = false;
 			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
-			ddl.supportsPooledSequences = true;
-			ddl.supportsSequences = true;
+			ddl.supportsPooledSequences = false;
+			ddl.supportsSequences = false;
 			ddl.supportsTableCheck = false;
 			ddl.tableTypeString = "";
 		}
@@ -367,7 +367,7 @@ public class DDLFeatures {
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
 			ddl.createMultisetTableString = "create table";
-			ddl.createPooledSequenceStrings = "create sequence _SEQ start with 11 increment by 33";
+			ddl.createPooledSequenceStrings = NOT_SUPPORT;
 			ddl.createSchemaCommand = "create schema _SCHEMANAME";
 			ddl.createSequenceStrings = "create sequence _SEQ";
 			ddl.createTableString = "create table";
@@ -395,8 +395,8 @@ public class DDLFeatures {
 			ddl.supportsIfExistsBeforeConstraintName = false;
 			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
-			ddl.supportsPooledSequences = true;
-			ddl.supportsSequences = true;
+			ddl.supportsPooledSequences = false;
+			ddl.supportsSequences = false;
 			ddl.supportsTableCheck = false;
 			ddl.tableTypeString = "";
 		}
@@ -2637,7 +2637,7 @@ public class DDLFeatures {
 			ddl.createMultisetTableString = "create table";
 			ddl.createPooledSequenceStrings = NOT_SUPPORT;
 			ddl.createSchemaCommand = "create schema _SCHEMANAME";
-			ddl.createSequenceStrings = "";
+			ddl.createSequenceStrings = NOT_SUPPORT;
 			ddl.createTableString = "create table";
 			ddl.currentSchemaCommand = NOT_SUPPORT;
 			ddl.dropCatalogCommand = NOT_SUPPORT;
@@ -2664,7 +2664,7 @@ public class DDLFeatures {
 			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
-			ddl.supportsSequences = true;
+			ddl.supportsSequences = false;
 			ddl.supportsTableCheck = true;
 			ddl.tableTypeString = "";
 		}

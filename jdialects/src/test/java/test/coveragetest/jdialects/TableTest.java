@@ -9,7 +9,6 @@ package test.coveragetest.jdialects;
 import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.Dialect;
-import com.github.drinkjava2.jdialects.DialectLogger;
 import com.github.drinkjava2.jdialects.Table;
 
 /**
@@ -31,6 +30,7 @@ public class TableTest {
 			String[] ddl = t.toCreateTableDDL(d, true);
 			printDDLs(ddl);
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.out.println("Exception found: " + e.getMessage());
 		}
 	}
@@ -43,6 +43,7 @@ public class TableTest {
 				String[] ddl = t.toCreateTableDDL(dialect, true);
 				printDDLs(ddl);
 			} catch (Exception e) {
+				e.printStackTrace();
 				System.out.println("Exception found: " + e.getMessage());
 			}
 		}
@@ -226,16 +227,28 @@ public class TableTest {
 
 	private static Table SequenceModel() {// Sequence
 		Table t = new Table("testTable");
+		t.addColumn("i1").INTEGER().pkey().sequence("seq1");
 		t.addColumn("i1").INTEGER().pkey().sequence("seq1", 1, 1);
-		t.addColumn("i2").INTEGER().sequence("seq1", 1, 5);
-		t.addColumn("i3").INTEGER().identityOrSequence("seq2", 1, 1);
-		t.addColumn("i4").INTEGER().identityOrSequence("seq2", 1, 6);
+		t.addColumn("i2").INTEGER().sequence("seq2", 1, 5);
+		t.addColumn("i3").INTEGER().identityOrSequence("seq3", 1, 1);
+		t.addColumn("i4").INTEGER().identityOrSequence("seq4", 1, 6);
 		return t;
 	}
 
 	@Test
 	public void testSequence() {
 		printAllDialectsDDLs(SequenceModel());
+	}
+
+	private static Table SequenceModel2() {// Sequence
+		Table t = new Table("testTable");
+		t.addColumn("i3").INTEGER().pkey().identityOrSequence("seq3", 1, 1);
+		return t;
+	}
+
+	@Test
+	public void testSequence2() {
+		printAllDialectsDDLs(SequenceModel2());
 	}
 
 }

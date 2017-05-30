@@ -103,14 +103,24 @@ public class Table {
 		// create sequences if sequenceName not empty
 		for (Column col : columns.values())
 			if (!StrUtils.isEmpty(col.getSequenceName())) {
+
 				if (col.getIdentity())
 					DialectException.throwEX("Can not set sequence and identity at same time on column \""
 							+ col.getColumnName() + "\" in table \"" + tableName + "\"");
 
+				if (!(features.supportsPooledSequences || features.supportsSequences)) {
+					if (col.getIdentityOrSequence()) {
+						if (!features.supportsIdentityColumns)
+							DialectException.throwEX("Dialect \"" + dialect
+									+ "\" does not support sequence or identity setting, on column \""
+									+ col.getColumnName() + "\" in table \"" + tableName + "\"");
+					} else
+						DialectException
+								.throwEX("Dialect \"" + dialect + "\" does not support sequence setting, on column \""
+										+ col.getColumnName() + "\" in table \"" + tableName + "\"");
+				}
+
 				if (!(col.getIdentityOrSequence() && features.supportsIdentityColumns)) {
-					if (!(features.supportsPooledSequences || features.supportsSequences))
-						DialectException.throwEX("Unsupported sequence setting of dialect \"" + dialect
-								+ "\" on column \"" + col.getColumnName() + "\" in table \"" + tableName + "\"");
 					if (features.supportsPooledSequences) {
 						// create sequence _SEQ start with 11 increment by 33
 						String pooledSequence = StrUtils.replace(features.createPooledSequenceStrings, "_SEQ",
@@ -128,6 +138,7 @@ public class Table {
 								col.getSequenceName());
 						resultList.add(pooledSequence);
 					}
+
 				}
 			}
 

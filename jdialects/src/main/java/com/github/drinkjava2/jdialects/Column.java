@@ -101,7 +101,17 @@ public class Column {
 		this.sequenceName = sequenceName;
 		this.sequenceStart = sequenceStart;
 		this.sequenceIncrement = sequenceIncrement;
-		this.identityOrSequence = false;
+		return this;
+	}
+
+	/**
+	 * Define sequence column. Important note: value need use
+	 * dialect.getNextSequenceValue("sequenceName") to obtain
+	 */
+	public Column sequence(String sequenceName) {
+		this.sequenceName = sequenceName;
+		this.sequenceStart = 1;
+		this.sequenceIncrement = 1;
 		return this;
 	}
 
