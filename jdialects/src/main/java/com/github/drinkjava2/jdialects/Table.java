@@ -31,7 +31,7 @@ public class Table {
 	/** comment for table */
 	private String comment;
 
-	/** Columns in this table, key is upper case of column name */
+	/** Columns in this table, key is lower case of column name */
 	private Map<String, Column> columns = new LinkedHashMap<>();
 
 	public Table(String tableName) {
@@ -48,10 +48,16 @@ public class Table {
 		return this;
 	}
 
-	public Column addColumn(String columnName) {
-		DialectException.assureNotEmpty(columnName);
+	public Table addColumn(Column column) {
+		DialectException.assureNotNull(column);
+		DialectException.assureNotEmpty(column.getColumnName(), "Column name can not be empty");
+		columns.put(column.getColumnName().toLowerCase(), column);
+		return this;
+	}
+
+	public Column column(String columnName) {
 		Column column = new Column(columnName);
-		columns.put(columnName.toUpperCase(), column);
+		addColumn(column);
 		return column;
 	}
 
@@ -60,18 +66,18 @@ public class Table {
 		return columns.get(columnName.toUpperCase());
 	}
 
-	public String[] toCreateTableDDL(Dialect dialect, boolean formatDDL) {
-		if (formatDDL) {
-			String[] ddls = toCreateTableDDL(dialect);
+	public String[] toCreateDDL(Dialect dialect, boolean formatOutputDDL) {
+		if (formatOutputDDL) {
+			String[] ddls = toCreateDDL(dialect);
 			for (int i = 0; i < ddls.length; i++) {
 				ddls[i] = DDLFormatter.format(ddls[i]);
 			}
 			return ddls;
 		}
-		return toCreateTableDDL(dialect);
+		return toCreateDDL(dialect);
 	}
 
-	public String[] toCreateTableDDL(Dialect dialect) {
+	public String[] toCreateDDL(Dialect dialect) {
 		DDLFeatures features = dialect.ddlFeatures;
 
 		StringBuilder buf = new StringBuilder();

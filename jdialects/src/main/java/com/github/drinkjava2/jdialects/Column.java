@@ -26,6 +26,7 @@ public class Column {
 	private Boolean identity = false;
 	private String pkeyName;
 	private String defaultValue;
+
 	private String sequenceName;
 	private Integer sequenceStart = 1;
 	private Integer sequenceIncrement = 1;

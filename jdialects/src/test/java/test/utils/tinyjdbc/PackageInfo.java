@@ -16,9 +16,7 @@
 package test.utils.tinyjdbc;
 
 /**
- * A tiny pure JDBC tool to access database, usually there is no need to use TinyJdbc in project.<br/>
- * The only reason put this tool here is JDBCTemplate does not support ":" character to run some special SQL in MySql.
- * 
+ * A tiny pure JDBC tool used only for unit test, usually there is no need to use TinyJdbc in project.<br/>
  *
  * @author Yong Zhu
  *

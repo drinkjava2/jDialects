@@ -24,24 +24,24 @@ import test.BaseDDLTest;
 public class ColumnDDLTest extends BaseDDLTest {
 	private static Table tableModel() {
 		Table t = new Table(testTable);
-		t.addColumn("b1").BOOLEAN();
-		t.addColumn("d2").DOUBLE();
-		t.addColumn("f3").FLOAT();
-		t.addColumn("i4").INTEGER().pkey().unique().autoInc().notNull().defaultValue("1");
-		t.addColumn("l5").LONG();
-		t.addColumn("s6").SHORT();
-		t.addColumn("b7").BIGDECIMAL(10, 2);
-		t.addColumn("s8").STRING(20);
-		t.addColumn("d9").DATE();
-		t.addColumn("t10").TIME();
-		t.addColumn("t11").TIMESTAMP();
-		t.addColumn("v12").VARCHAR(300);
+		t.column("b1").BOOLEAN();
+		t.column("d2").DOUBLE();
+		t.column("f3").FLOAT();
+		t.column("i4").INTEGER().pkey().unique().autoInc().notNull().defaultValue("1");
+		t.column("l5").LONG();
+		t.column("s6").SHORT();
+		t.column("b7").BIGDECIMAL(10, 2);
+		t.column("s8").STRING(20);
+		t.column("d9").DATE();
+		t.column("t10").TIME();
+		t.column("t11").TIMESTAMP();
+		t.column("v12").VARCHAR(300);
 		return t;
 	}
 
 	@Test
 	public void testCreateAndDropTable() {
-		String[] ddl = tableModel().toCreateTableDDL(dialect);
+		String[] ddl = tableModel().toCreateDDL(dialect);
 		dao.executeManySqls(ddl);
 		Assert.assertEquals(0, (int) dao.queryForInteger("select count(*) from ", testTable));
 		dao.execute("insert into ", testTable, "(i4,d2,f3,s8) values(?,?,?,?)", para_(1, 2.1, 3.3, "str"));

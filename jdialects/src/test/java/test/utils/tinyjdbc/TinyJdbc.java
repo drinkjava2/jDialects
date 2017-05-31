@@ -27,8 +27,7 @@ import javax.sql.DataSource;
 import com.github.drinkjava2.jdialects.DialectException;
 
 /**
- * A tiny pure JDBC tool to access database, no transaction control, only used
- * for unit test
+ * A tiny pure JDBC tool to access database, only used for unit test
  * 
  *
  * @author Yong Zhu

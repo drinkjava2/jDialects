@@ -8,6 +8,7 @@ package test.coveragetest.jdialects;
 
 import org.junit.Test;
 
+import com.github.drinkjava2.jdialects.Database;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.Table;
 
@@ -27,7 +28,7 @@ public class TableTest {
 	private static void printDialectsDDLs(Dialect d, Table t) {
 		System.out.println("======" + d + "=====");
 		try {
-			String[] ddl = t.toCreateTableDDL(d, true);
+			String[] ddl = t.toCreateDDL(d, true);
 			printDDLs(ddl);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -40,7 +41,7 @@ public class TableTest {
 		for (Dialect dialect : diaList) {
 			System.out.println("======" + dialect + "=====");
 			try {
-				String[] ddl = t.toCreateTableDDL(dialect, true);
+				String[] ddl = t.toCreateDDL(dialect, true);
 				printDDLs(ddl);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -51,18 +52,18 @@ public class TableTest {
 
 	private static Table aNormalModel() {// A normal setting
 		Table t = new Table("testTable");
-		t.addColumn("b1").BOOLEAN();
-		t.addColumn("d2").DOUBLE();
-		t.addColumn("f3").FLOAT(5);
-		t.addColumn("i4").INTEGER().pkey();
-		t.addColumn("l5").LONG();
-		t.addColumn("s6").SHORT();
-		t.addColumn("b7").BIGDECIMAL(10, 2);
-		t.addColumn("s8").STRING(20);
-		t.addColumn("d9").DATE();
-		t.addColumn("t10").TIME();
-		t.addColumn("t11").TIMESTAMP();
-		t.addColumn("v12").VARCHAR(300);
+		t.column("b1").BOOLEAN();
+		t.column("d2").DOUBLE();
+		t.column("f3").FLOAT(5);
+		t.column("i4").INTEGER().pkey();
+		t.column("l5").LONG();
+		t.column("s6").SHORT();
+		t.column("b7").BIGDECIMAL(10, 2);
+		t.column("s8").STRING(20);
+		t.column("d9").DATE();
+		t.column("t10").TIME();
+		t.column("t11").TIMESTAMP();
+		t.column("v12").VARCHAR(300);
 		return t;
 	}
 
@@ -73,22 +74,22 @@ public class TableTest {
 
 	private static Table testNoPkeyModel() {// NO Prime Key
 		Table t = new Table("testTable");
-		t.addColumn("i4").INTEGER();
-		t.addColumn("l5").LONG();
+		t.column("i4").INTEGER();
+		t.column("l5").LONG();
 		return t;
 	}
 
 	@Test
 	public void testNoPkey() {
-		String[] ddl = testNoPkeyModel().toCreateTableDDL(Dialect.Teradata14Dialect);
+		String[] ddl = testNoPkeyModel().toCreateDDL(Dialect.Teradata14Dialect);
 		printDDLs(ddl);
 	}
 
 	private static Table testCompoundPkeyModel() {// Compound PKEY
 		Table t = new Table("testTable");
-		t.addColumn("i4").INTEGER().pkey().unique().autoInc().notNull().defaultValue("1");
-		t.addColumn("l5").LONG().pkey();
-		t.addColumn("s6").SHORT();
+		t.column("i4").INTEGER().pkey().unique().autoInc().notNull().defaultValue("1");
+		t.column("l5").LONG().pkey();
+		t.column("s6").SHORT();
 		return t;
 	}
 
@@ -99,18 +100,18 @@ public class TableTest {
 
 	private static Table testNotNullModel() {// Not Null
 		Table t = new Table("testTable");
-		t.addColumn("b1").BOOLEAN().notNull();
-		t.addColumn("d2").DOUBLE().notNull();
-		t.addColumn("f3").FLOAT(5).notNull();
-		t.addColumn("i4").INTEGER().notNull();
-		t.addColumn("l5").LONG().notNull();
-		t.addColumn("s6").SHORT().notNull();
-		t.addColumn("b7").BIGDECIMAL(10, 2).notNull();
-		t.addColumn("s8").STRING(20).notNull();
-		t.addColumn("d9").DATE().notNull();
-		t.addColumn("t10").TIME().notNull();
-		t.addColumn("t11").TIMESTAMP().notNull();
-		t.addColumn("v12").VARCHAR(300).notNull();
+		t.column("b1").BOOLEAN().notNull();
+		t.column("d2").DOUBLE().notNull();
+		t.column("f3").FLOAT(5).notNull();
+		t.column("i4").INTEGER().notNull();
+		t.column("l5").LONG().notNull();
+		t.column("s6").SHORT().notNull();
+		t.column("b7").BIGDECIMAL(10, 2).notNull();
+		t.column("s8").STRING(20).notNull();
+		t.column("d9").DATE().notNull();
+		t.column("t10").TIME().notNull();
+		t.column("t11").TIMESTAMP().notNull();
+		t.column("v12").VARCHAR(300).notNull();
 		return t;
 	}
 
@@ -121,18 +122,18 @@ public class TableTest {
 
 	private static Table allowNullModel() {// Allow Null
 		Table t = new Table("testTable");
-		t.addColumn("b1").BOOLEAN();
-		t.addColumn("d2").DOUBLE();
-		t.addColumn("f3").FLOAT(5);
-		t.addColumn("i4").INTEGER();
-		t.addColumn("l5").LONG();
-		t.addColumn("s6").SHORT();
-		t.addColumn("b7").BIGDECIMAL(10, 2);
-		t.addColumn("s8").STRING(20);
-		t.addColumn("d9").DATE();
-		t.addColumn("t10").TIME();
-		t.addColumn("t11").TIMESTAMP();
-		t.addColumn("v12").VARCHAR(300);
+		t.column("b1").BOOLEAN();
+		t.column("d2").DOUBLE();
+		t.column("f3").FLOAT(5);
+		t.column("i4").INTEGER();
+		t.column("l5").LONG();
+		t.column("s6").SHORT();
+		t.column("b7").BIGDECIMAL(10, 2);
+		t.column("s8").STRING(20);
+		t.column("d9").DATE();
+		t.column("t10").TIME();
+		t.column("t11").TIMESTAMP();
+		t.column("v12").VARCHAR(300);
 		return t;
 	}
 
@@ -143,10 +144,10 @@ public class TableTest {
 
 	private static Table uniqueModel() {// unique
 		Table t = new Table("testTable");
-		t.addColumn("s1").STRING(20).unique().notNull();
-		t.addColumn("s2").STRING(20).unique();
-		t.addColumn("s3").STRING(20).unique("uname1").notNull();
-		t.addColumn("s4").STRING(20).unique("uname2");
+		t.column("s1").STRING(20).unique().notNull();
+		t.column("s2").STRING(20).unique();
+		t.column("s3").STRING(20).unique("uname1").notNull();
+		t.column("s4").STRING(20).unique("uname2");
 		return t;
 	}
 
@@ -157,10 +158,10 @@ public class TableTest {
 
 	private static Table checkModel() {// check
 		Table t = new Table("testTable");
-		t.addColumn("s1").STRING(20).unique().notNull().check("s1>5");
-		t.addColumn("s2").STRING(20).unique().check("s2>5");
-		t.addColumn("s3").STRING(20).unique("uname1").notNull().check("s3>5");
-		t.addColumn("s4").STRING(20).unique("uname2").check("s4>5");
+		t.column("s1").STRING(20).unique().notNull().check("s1>5");
+		t.column("s2").STRING(20).unique().check("s2>5");
+		t.column("s3").STRING(20).unique("uname1").notNull().check("s3>5");
+		t.column("s4").STRING(20).unique("uname2").check("s4>5");
 		return t;
 	}
 
@@ -172,8 +173,8 @@ public class TableTest {
 	private static Table tableCheckModel() {// table check
 		Table t = new Table("testTable");
 		t.check("s2>10");
-		t.addColumn("s1").STRING(20).unique().notNull();
-		t.addColumn("s2").STRING(20);
+		t.column("s1").STRING(20).unique().notNull();
+		t.column("s2").STRING(20);
 		return t;
 	}
 
@@ -185,9 +186,9 @@ public class TableTest {
 	private static Table IdentityModel() {// Identity
 		Table t = new Table("testTable");
 		t.check("s2>10");
-		t.addColumn("s1").INTEGER().unique().notNull().identity().pkey();
-		t.addColumn("s2").LONG().check("s2>10");
-		t.addColumn("s3").BIGINT();
+		t.column("s1").INTEGER().unique().notNull().identity().pkey();
+		t.column("s2").LONG().check("s2>10");
+		t.column("s3").BIGINT();
 		return t;
 	}
 
@@ -205,9 +206,9 @@ public class TableTest {
 
 	private static Table CommentModel() {// Identity
 		Table t = new Table("testTable").comment("table_comment");
-		t.addColumn("s1").INTEGER().unique().notNull().identity().pkey();
-		t.addColumn("s2").LONG().comment("column_comment1");
-		t.addColumn("s3").BIGINT().comment("column_comment2");
+		t.column("s1").INTEGER().unique().notNull().identity().pkey();
+		t.column("s2").LONG().comment("column_comment1");
+		t.column("s3").BIGINT().comment("column_comment2");
 		return t;
 	}
 
@@ -227,11 +228,11 @@ public class TableTest {
 
 	private static Table SequenceModel() {// Sequence
 		Table t = new Table("testTable");
-		t.addColumn("i1").INTEGER().pkey().sequence("seq1");
-		t.addColumn("i1").INTEGER().pkey().sequence("seq1", 1, 1);
-		t.addColumn("i2").INTEGER().sequence("seq2", 1, 5);
-		t.addColumn("i3").INTEGER().identityOrSequence("seq3", 1, 1);
-		t.addColumn("i4").INTEGER().identityOrSequence("seq4", 1, 6);
+		t.column("i1").INTEGER().pkey().sequence("seq1");
+		t.column("i1").INTEGER().pkey().sequence("seq1", 1, 1);
+		t.column("i2").INTEGER().sequence("seq2", 1, 5);
+		t.column("i3").INTEGER().identityOrSequence("seq3", 1, 1);
+		t.column("i4").INTEGER().identityOrSequence("seq4", 1, 6);
 		return t;
 	}
 
@@ -242,12 +243,13 @@ public class TableTest {
 
 	private static Table SequenceModel2() {// Sequence
 		Table t = new Table("testTable");
-		t.addColumn("i3").INTEGER().pkey().identityOrSequence("seq3", 1, 1);
+		t.column("i3").INTEGER().pkey().identityOrSequence("seq3", 1, 1);
 		return t;
 	}
 
 	@Test
 	public void testSequence2() {
+		Database d;
 		printAllDialectsDDLs(SequenceModel2());
 	}
 
