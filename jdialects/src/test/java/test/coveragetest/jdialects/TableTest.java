@@ -8,9 +8,10 @@ package test.coveragetest.jdialects;
 
 import org.junit.Test;
 
-import com.github.drinkjava2.jdialects.Database;
 import com.github.drinkjava2.jdialects.Dialect;
-import com.github.drinkjava2.jdialects.Table;
+import com.github.drinkjava2.jdialects.model.Column;
+import com.github.drinkjava2.jdialects.model.Database;
+import com.github.drinkjava2.jdialects.model.Table;
 
 /**
  * This is unit test for Table
@@ -87,7 +88,7 @@ public class TableTest {
 
 	private static Table testCompoundPkeyModel() {// Compound PKEY
 		Table t = new Table("testTable");
-		t.column("i4").INTEGER().pkey().unique().autoInc().notNull().defaultValue("1");
+		t.column("i4").INTEGER().pkey().unique().notNull().defaultValue("1");
 		t.column("l5").LONG().pkey();
 		t.column("s6").SHORT();
 		return t;

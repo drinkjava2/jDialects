@@ -11,7 +11,7 @@ import static test.utils.tinyjdbc.TinyJdbc.para_;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.github.drinkjava2.jdialects.Table;
+import com.github.drinkjava2.jdialects.model.Table;
 
 import test.BaseDDLTest;
 
@@ -27,7 +27,7 @@ public class ColumnDDLTest extends BaseDDLTest {
 		t.column("b1").BOOLEAN();
 		t.column("d2").DOUBLE();
 		t.column("f3").FLOAT();
-		t.column("i4").INTEGER().pkey().unique().autoInc().notNull().defaultValue("1");
+		t.column("i4").INTEGER().pkey().unique().notNull().defaultValue("1");
 		t.column("l5").LONG();
 		t.column("s6").SHORT();
 		t.column("b7").BIGDECIMAL(10, 2);

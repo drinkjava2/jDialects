@@ -4,10 +4,12 @@
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
  * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package com.github.drinkjava2.jdialects;
+package com.github.drinkjava2.jdialects.model;
+
+import com.github.drinkjava2.jdialects.Type;
 
 /**
- * The platform-independent Column in a table
+ * The platform-independent Column model
  * 
  * </pre>
  * 
@@ -22,7 +24,6 @@ public class Column {
 	private Boolean unique = false;
 	private String uniqueConstraintName;
 	private String check;
-	private Boolean autoInc = false;
 	private Boolean identity = false;
 	private String pkeyName;
 	private String defaultValue;
@@ -60,11 +61,6 @@ public class Column {
 	public Column unique(String uniqueConstraintName) {
 		this.unique = true;
 		this.uniqueConstraintName = uniqueConstraintName;
-		return this;
-	}
-
-	public Column autoInc() {
-		this.autoInc = true;
 		return this;
 	}
 
@@ -213,15 +209,7 @@ public class Column {
 	public void setUniqueConstraintName(String uniqueConstraintName) {
 		this.uniqueConstraintName = uniqueConstraintName;
 	}
-
-	public Boolean getAutoInc() {
-		return autoInc;
-	}
-
-	public void setAutoInc(Boolean autoInc) {
-		this.autoInc = autoInc;
-	}
-
+  
 	public Boolean getIdentity() {
 		return identity;
 	}
