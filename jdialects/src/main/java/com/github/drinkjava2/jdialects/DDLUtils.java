@@ -7,8 +7,10 @@
 package com.github.drinkjava2.jdialects;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.github.drinkjava2.hibernate.DDLFormatter;
 import com.github.drinkjava2.jdialects.model.Column;
@@ -33,6 +35,7 @@ public class DDLUtils {
 			// create sequence _SEQ start with 11 increment by 33
 			String pooledSequence = StrUtils.replace(features.createPooledSequenceStrings, "_SEQ",
 					seq.getSequenceName());
+			// 11 and 33 is fixed template value
 			pooledSequence = StrUtils.replace(pooledSequence, "11", "" + seq.getInitialValue());
 			pooledSequence = StrUtils.replace(pooledSequence, "33", "" + seq.getAllocationSize());
 			resultList.add(pooledSequence);
@@ -62,20 +65,113 @@ public class DDLUtils {
 	}
 
 	/**
-	 * Transfer table to ddl by given dialect and do not format it
-	 */
-	public static String[] toCreateDDLwithoutFormat(Dialect dialect, Table... tables) {
-		List<String> resultList = new ArrayList<>();
-		for (Table table : tables) {
-			resultList = transferTableToDDL(dialect, table, resultList);
-		}
-		return resultList.toArray(new String[resultList.size()]);
-	}
-
-	/**
 	 * Transfer table to DDL by given dialect and without format it
 	 */
-	private static List<String> transferTableToDDL(Dialect dialect, Table t, List<String> resultList) {
+	public static String[] toCreateDDLwithoutFormat(Dialect dialect, Table... tables) {
+		List<Object> resultList = new ArrayList<>();
+		for (Table table : tables) {
+			resultList = transferTableToList(dialect, table, resultList);
+			// now we get a mixed DDL and TableGenerator list
+		}
+		List<String> stringList = new ArrayList<>();
+
+		List<TableGenerator> tbGeneratorList = new ArrayList<>();
+		for (Object ddl : resultList) {
+			/*
+			 * if is String, put into String list, if is is TableGenerator, put
+			 * into tbGeneratorList, because the TableGenertors can be joined if
+			 * they are share same table, so do this join job at the end
+			 */
+			if (!StrUtils.isEmpty(ddl)) {
+				if (ddl instanceof String)
+					stringList.add((String) ddl);
+				else if (ddl instanceof TableGenerator)
+					tbGeneratorList.add((TableGenerator) ddl);
+			}
+		}
+
+		buildTableGeneratorDDL(dialect, stringList, tbGeneratorList);
+		return stringList.toArray(new String[stringList.size()]);
+	}
+
+	private static void buildTableGeneratorDDL(Dialect dialect, List<String> stringList,
+			List<TableGenerator> tbGeneratorList) {
+		for (TableGenerator tg : tbGeneratorList) {
+			//@formatter:off
+			DialectException.assureNotEmpty(tg.getName(), "TableGenerator name can not be empty"); 
+			DialectException.assureNotEmpty(tg.getTableName(), "TableGenerator tableName can not be empty of \""+tg.getName()+"\"");
+			DialectException.assureNotEmpty(tg.getPkColumnName(), "TableGenerator pkColumnName can not be empty of \""+tg.getName()+"\"");
+			DialectException.assureNotEmpty(tg.getPkColumnValue(), "TableGenerator pkColumnValue can not be empty of \""+tg.getName()+"\"");
+			DialectException.assureNotEmpty(tg.getValueColumnName(), "TableGenerator valueColumnName can not be empty of \""+tg.getName()+"\""); 
+			//@formatter:on
+		}
+
+		for (TableGenerator tg : tbGeneratorList) {
+			for (TableGenerator tg2 : tbGeneratorList) {
+				if (tg != tg2) {
+					if (tg.getName().equalsIgnoreCase(tg2.getName()))
+						DialectException.throwEX("Dulplicated tableGenerator name \"" + tg.getName() + "\" found.");
+					if (tg.getTableName().equalsIgnoreCase(tg2.getTableName())
+							&& tg.getPkColumnName().equalsIgnoreCase(tg2.getPkColumnName())
+							&& tg.getPkColumnValue().equalsIgnoreCase(tg2.getPkColumnValue())
+							&& tg.getValueColumnName().equalsIgnoreCase(tg2.getValueColumnName())) {
+						DialectException.throwEX("Dulplicated tableGenerator setting \"" + tg.getName() + "\" and \""
+								+ tg2.getName() + "\" found.");
+					}
+				}
+			}
+		}
+
+		for (TableGenerator tg : tbGeneratorList) {
+			for (TableGenerator tg2 : tbGeneratorList) {
+				if (tg != tg2) {
+					if (tg.getName().equalsIgnoreCase(tg2.getName()))
+						DialectException.throwEX("Dulplicated tableGenerator name \"" + tg.getName() + "\" found.");
+					if (tg.getTableName().equalsIgnoreCase(tg2.getTableName())
+							&& tg.getPkColumnName().equalsIgnoreCase(tg2.getPkColumnName())
+							&& tg.getPkColumnValue().equalsIgnoreCase(tg2.getPkColumnValue())
+							&& tg.getValueColumnName().equalsIgnoreCase(tg2.getValueColumnName())) {
+						DialectException.throwEX("Dulplicated tableGenerator setting \"" + tg.getName() + "\" and \""
+								+ tg2.getName() + "\" found.");
+					}
+				}
+			}
+		}
+		Set<String> tableExisted = new HashSet<>();
+		Set<String> columnExisted = new HashSet<>();
+		for (TableGenerator tg : tbGeneratorList) {
+			String tableName = tg.getTableName().toLowerCase();
+			String tableAndPKColumn = tg.getTableName().toLowerCase() + "..blabla.." + tg.getPkColumnName();
+			String tableAndValColumn = tg.getTableName().toLowerCase() + "..blabla.." + tg.getValueColumnName();
+			if (!tableExisted.contains(tableName)) {
+				String s = dialect.ddlFeatures.createTableString + " " + tableName + " (";
+				s += tg.getPkColumnName() + " " + dialect.translateToDDLType(Type.VARCHAR, 100) + ",";
+				s += tg.getValueColumnName() + " " + dialect.translateToDDLType(Type.BIGINT) + " )";
+				stringList.add(s);
+				tableExisted.add(tableName);
+				columnExisted.add(tableAndPKColumn);
+				columnExisted.add(tableAndValColumn);
+			} else {
+				if (!columnExisted.contains(tableAndPKColumn)) {
+					stringList.add("alter table " + tableName + " " + dialect.ddlFeatures.addColumnString + " "
+							+ tg.getPkColumnName() + dialect.ddlFeatures.addColumnSuffixString);
+					columnExisted.add(tableAndPKColumn);
+				}
+				if (!columnExisted.contains(tableAndValColumn)) {
+					stringList.add("alter table " + tableName + " " + dialect.ddlFeatures.addColumnString + " "
+							+ tg.getValueColumnName() + dialect.ddlFeatures.addColumnSuffixString);
+					columnExisted.add(tableAndValColumn);
+				}
+			}
+		}
+	}
+	
+	private static void buildSequence(){}//TODO
+
+	/**
+	 * Transfer table to a mixed DDL String or TableGenerator Object list
+	 */
+	private static List<Object> transferTableToList(Dialect dialect, Table t, List<Object> resultList) {
 		DDLFeatures features = dialect.ddlFeatures;
 
 		StringBuilder buf = new StringBuilder();
@@ -90,6 +186,26 @@ public class DDLUtils {
 			dialect.checkReservedWords(col.getColumnName());
 			dialect.checkReservedWords(col.getPkeyName());
 			dialect.checkReservedWords(col.getUniqueConstraintName());
+		}
+
+		for (Column col : columns.values()) {
+			if (col != null && col.getAutoGenerator()) {
+				if (features.supportsIdentityColumns) { 
+				} else if (features.supportsSequences || features.supportsPooledSequences) {
+					if (!t.getSequences().containsKey(tableName.toLowerCase() + "_autosequence")) {
+						Sequence autoSeq = new Sequence(tableName.toLowerCase() + "_autosequence",
+								tableName.toLowerCase() + "_autosequence", 1, 1);
+						t.addSequence(autoSeq);
+					}
+				} else {
+					if (!t.getTableGenerators().containsKey(tableName.toLowerCase() + "_autotablegen")) {
+						TableGenerator tableGen = new TableGenerator(tableName.toLowerCase() + "_autotablegen",
+								tableName.toLowerCase() + "_autotablegen", "pkcol", "valCol", "pkval", 1, 1);
+						t.addTableGenerator(tableGen);
+					}
+				}
+				System.out.println("identity2=" + col.getIdentity());
+			}
 		}
 
 		// sequence
@@ -119,11 +235,8 @@ public class DDLUtils {
 		}
 
 		// tableGenerator
-		for (TableGenerator tg : t.getTableGenerators().values()) {
-			dialect.checkReservedWords(tg.getTableName());
-			
-
-		}
+		for (TableGenerator tg : t.getTableGenerators().values())
+			resultList.add(tg);
 
 		// check and cache prime keys
 		for (Column col : columns.values()) {
@@ -144,12 +257,12 @@ public class DDLUtils {
 			// column definition
 			buf.append(c.getColumnName()).append(" ");
 
-			// Identity
+			// Identity or autoGenerator+supportIdentity
 			if (c.getIdentity() && !features.supportsIdentityColumns)
 				DialectException.throwEX("Unsupported identity setting for dialect \"" + dialect + "\" on column \""
 						+ c.getColumnName() + "\" at table \"" + tableName + "\"");
 
-			if (c.getIdentity()) {
+			if (c.getIdentity() || (c.getAutoGenerator() && features.supportsIdentityColumns)) {
 				if (features.hasDataTypeInIdentityColumn)
 					buf.append(dialect.translateToDDLType(c.getColumnType(), c.getLengths()));
 				buf.append(' ');
@@ -213,13 +326,12 @@ public class DDLUtils {
 
 		// type or engine for MariaDB & MySql
 		buf.append(dialect.engine());
-		buf.append("");
 
 		resultList.add(buf.toString());
 
 		// unique constraint
 		for (Column column : columns.values()) {
-			String uniqueDDL = getAddUniqueConstraint(dialect, tableName, column);
+			String uniqueDDL = buildUniqueConstraint(dialect, tableName, column);
 			if (!StrUtils.isEmpty(uniqueDDL))
 				resultList.add(uniqueDDL);
 		}
@@ -242,7 +354,7 @@ public class DDLUtils {
 		return resultList;
 	}
 
-	private static String getAddUniqueConstraint(Dialect dialect, String tableName, Column column) {
+	private static String buildUniqueConstraint(Dialect dialect, String tableName, Column column) {
 		if (!column.getUnique())
 			return null;
 		String UniqueConstraintName = column.getUniqueConstraintName();
@@ -264,4 +376,5 @@ public class DDLUtils {
 		return sb.append(" add constraint ").append(UniqueConstraintName).append(" unique (")
 				.append(column.getColumnName()).append(")").toString();
 	}
+
 }

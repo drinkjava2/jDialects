@@ -28,9 +28,14 @@ public class Column {
 	private String pkeyName;
 	private String defaultValue;
 
-	private String sequenceGenerator;
+	/** Reserved for ORM tools(like jSqlBox) use */
+	private String sequence;
+
+	/** Reserved for ORM tools(like jSqlBox) use */
 	private String tableGenerator;
-	private Boolean autoGenerator;
+
+	/** Reserved for ORM tools(like jSqlBox) use */
+	private Boolean autoGenerator = false;
 
 	/** comment of this column */
 	private String comment;
@@ -89,16 +94,22 @@ public class Column {
 		return this;
 	}
 
-	public Column bindSequence(String sequenceGenerator) {
-		this.sequenceGenerator = sequenceGenerator;
+	/** (Designed for ORM tool use only), bind column to a sequence */
+	public Column sequence(String sequence) {
+		this.sequence = sequence;
 		return this;
 	}
 
-	public Column bindTableGenerator(String tableGenerator) {
+	/** (Designed for ORM tool use only), bind column to a tableGenerator */
+	public Column tableGenerator(String tableGenerator) {
 		this.tableGenerator = tableGenerator;
 		return this;
 	}
 
+	/**
+	 * (Designed for ORM tool use only), bind column to Auto Id generator, can
+	 * be one of Identity/Sequence/TableGenerator
+	 */
 	public Column autoGenerator() {
 		this.autoGenerator = true;
 		return this;
@@ -234,14 +245,14 @@ public class Column {
 
 	public void setCheck(String check) {
 		this.check = check;
-	} 
- 
-	public String getSequenceGenerator() {
-		return sequenceGenerator;
 	}
 
-	public void setSequenceGenerator(String sequenceGenerator) {
-		this.sequenceGenerator = sequenceGenerator;
+	public String getSequence() {
+		return sequence;
+	}
+
+	public void setSequence(String sequence) {
+		this.sequence = sequence;
 	}
 
 	public String getTableGenerator() {
@@ -259,5 +270,5 @@ public class Column {
 	public void setAutoGenerator(Boolean autoGenerator) {
 		this.autoGenerator = autoGenerator;
 	}
-  
+ 
 }

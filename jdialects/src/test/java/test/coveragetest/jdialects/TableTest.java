@@ -155,7 +155,7 @@ public class TableTest {
 		printAllDialectsDDLs(uniqueModel());
 	}
 
-	private static Table checkModel() {// check
+	private static Table checkModel() {// column check
 		Table t = new Table("testTable");
 		t.column("s1").STRING(20).unique().notNull().check("s1>5");
 		t.column("s2").STRING(20).unique().check("s2>5");
@@ -203,7 +203,7 @@ public class TableTest {
 		printOneDialectsDDLs(Dialect.InformixDialect, IdentityModel());
 	}
 
-	private static Table CommentModel() {// Identity
+	private static Table CommentModel() {// Comment
 		Table t = new Table("testTable").comment("table_comment");
 		t.column("s1").INTEGER().unique().notNull().identity().pkey();
 		t.column("s2").LONG().comment("column_comment1");
@@ -229,8 +229,8 @@ public class TableTest {
 		Table t = new Table("testTable");
 		t.addSequence("seq1", "seq_1", 1, 1);
 		t.addSequence("seq2", "seq_2", 1, 1);
-		t.column("i1").INTEGER().pkey().bindSequence("seq1");
-		t.column("i2").INTEGER().pkey().bindSequence("seq2");
+		t.column("i1").INTEGER().pkey().sequence("seq1");
+		t.column("i2").INTEGER().pkey().sequence("seq2");
 		return t;
 	}
 
@@ -239,16 +239,40 @@ public class TableTest {
 		printAllDialectsDDLs(SequenceModel());
 	}
 
-	private static Table tableGeneratorModel() {// Sequence
+	private static Table tableGeneratorModel() {// tableGenerator
 		Table t = new Table("testTable");
-		t.addTableGenerator("tbgen1", "tb1", "pkColumnName", "valueColumnName", "pkColumnValue", 1, 10);
-		t.column("i1").INTEGER().pkey().bindTableGenerator("tbgen1");
-		t.column("i2").INTEGER().pkey();
+		t.addTableGenerator("tbgen1", "tb1", "pkcol", "valcol", "pkval", 1, 10);
+		t.addTableGenerator("tbgen2", "tb1", "pkcol2", "valcol", "pkval", 1, 10);
+		t.column("i1").INTEGER().pkey().tableGenerator("tbgen1");
+		t.column("i2").INTEGER().pkey().tableGenerator("tbgen2");
+		return t;
+	}
+
+	private static Table tableGeneratorModel2() {// tableGenerator
+		Table t = new Table("testTable2");
+		t.addTableGenerator("tbgen3", "tb1", "pkcol3", "valcol", "pkval", 1, 10);
+		t.addTableGenerator("tbgen4", "tb1", "pkcol3", "valcol", "pkval2", 1, 10);
+		t.addTableGenerator("tbgen5", "tb1", "pkcol4", "valcol", "pkval3", 1, 10);
+		t.addTableGenerator("tbgen6", "tb1", "pkcol4", "valcol", "pkval4", 1, 10);
+		t.column("i1").INTEGER().pkey().tableGenerator("tbgen1");
+		t.column("i2").INTEGER().pkey().tableGenerator("tbgen2");
 		return t;
 	}
 
 	@Test
 	public void testTableGeneratorModel() {
-		printAllDialectsDDLs(tableGeneratorModel());
+		printAllDialectsDDLs(tableGeneratorModel(), tableGeneratorModel2());
+	}
+
+	private static Table autoGeneratorModel() {// tableGenerator
+		Table t = new Table("testTable3");
+		t.column("i1").INTEGER().pkey().autoGenerator();
+		t.column("i2").INTEGER();
+		return t;
+	}
+
+	@Test
+	public void testAutoGeneratorModel() {
+		printAllDialectsDDLs(autoGeneratorModel());
 	}
 }

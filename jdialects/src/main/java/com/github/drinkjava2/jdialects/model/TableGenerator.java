@@ -12,13 +12,18 @@ package com.github.drinkjava2.jdialects.model;
  * @author Yong Zhu
  * @since 1.0.2
  */
-public class TableGenerator extends Table {
+public class TableGenerator {
 
 	/**
 	 * A unique generator name that can be referenced by one or more classes to
 	 * be the generator for id values.
 	 */
 	private String name;
+
+	/**
+	 * Table name in database
+	 */
+	private String tableName;
 
 	/**
 	 * Name of the primary key column in the table.
@@ -70,6 +75,14 @@ public class TableGenerator extends Table {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getTableName() {
+		return tableName;
+	}
+
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
 	}
 
 	public String getPkColumnName() {

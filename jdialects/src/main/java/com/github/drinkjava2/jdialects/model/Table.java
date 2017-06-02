@@ -37,12 +37,6 @@ public class Table {
 	/** tableGenerators */
 	private Map<String, TableGenerator> tableGenerators = new LinkedHashMap<>();
 
-	/**
-	 * (Optional) Map to which Java Entity class? this is designed for ORM
-	 * tools(like jSqlBox) use, if you don't use ORM tool then just ignore this
-	 */
-	private Class<?> mapToEntityClass;
-
 	public Table() {
 		super();
 	}
@@ -51,10 +45,19 @@ public class Table {
 		this.tableName = tableName;
 	}
 
-	public void addTableGenerator(TableGenerator tg) {
-		DialectException.assureNotNull(tg);
-		DialectException.assureNotEmpty(tg.getTableName(), "TableGenerator name can not be empty");
-		tableGenerators.put(tg.getTableName().toLowerCase(), tg);
+	public void addTableGenerator(TableGenerator tableGenerator) {
+		//@formatter:off
+		DialectException.assureNotNull(tableGenerator);
+		DialectException.assureNotEmpty(tableGenerator.getName(), "TableGenerator name can not be empty");  
+		if (  tableGenerators.get(tableGenerator.getName().toLowerCase()) != null ) {
+			DialectException.throwEX("Dulplicated TableGenerator name \"" + tableGenerator.getName() + "\" found in table \""
+					+ this.getTableName() + "\"");
+		} 
+		tableGenerators.put(tableGenerator.getName().toLowerCase(), tableGenerator);
+	}
+
+	public void addDefaultTableGenerator() {
+		addTableGenerator(new TableGenerator("jdialets_gen", "jdialets_gen", "pk_col", "value_col", "next_val", 1, 1));
 	}
 
 	public void addTableGenerator(String name, String tableName, String pkColumnName, String valueColumnName,
@@ -65,7 +68,6 @@ public class Table {
 
 	public void addSequence(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
 		this.addSequence(new Sequence(name, sequenceName, initialValue, allocationSize));
-
 	}
 
 	public void addSequence(Sequence sequence) {
@@ -83,12 +85,7 @@ public class Table {
 		this.comment = comment;
 		return this;
 	}
-
-	public Table mapToEntityClass(Class<?> mapToEntityClass) {
-		this.mapToEntityClass = mapToEntityClass;
-		return this;
-	}
-
+  
 	public void addColumn(Column column) {
 		DialectException.assureNotNull(column);
 		DialectException.assureNotEmpty(column.getColumnName(), "Column tableName can not be empty");
@@ -159,13 +156,6 @@ public class Table {
 	public void setTableGenerators(Map<String, TableGenerator> tableGenerators) {
 		this.tableGenerators = tableGenerators;
 	}
-
-	public Class<?> getMapToEntityClass() {
-		return mapToEntityClass;
-	}
-
-	public void setMapToEntityClass(Class<?> mapToEntityClass) {
-		this.mapToEntityClass = mapToEntityClass;
-	}
+ 
 
 }
