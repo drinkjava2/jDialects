@@ -235,22 +235,22 @@ public class DialectTest {
 
 	@Test(expected = DialectException.class)
 	public void testDDLTypeMapping4() {
-		Dialect.MySQL55Dialect.check("user");
+		Dialect.MySQL55Dialect.checkReservedWords("user");
 	}
 
 	@Test(expected = DialectException.class)
 	public void testDDLTypeMapping5() {
-		Dialect.MySQL55Dialect.check("CHARACTER_LENGTH");
+		Dialect.MySQL55Dialect.checkReservedWords("CHARACTER_LENGTH");
 	}
 
 	@Test
 	public void testDDLTypeMapping6() {
-		Dialect.SQLServer2005Dialect.check("MASTER_SSL_VERIFY_SERVER_CERT");
+		Dialect.SQLServer2005Dialect.checkReservedWords("MASTER_SSL_VERIFY_SERVER_CERT");
 	}
 
 	// =======test DDL Type Mapping method=======
 	private static String ddlSQL(Dialect d) {
-		return "create table " + d.check("BufferPool") //
+		return "create table " + d.checkReservedWords("BufferPool") //
 				+ "(" + d.BIGINT("f1") //
 				+ ", " + d.BIT("f2") //
 				+ ", " + d.BLOB("f3") //
@@ -340,7 +340,7 @@ public class DialectTest {
 	@Test
 	public void testDDLTypeMapping8() {
 		Dialect d = Dialect.MySQL5InnoDBDialect;
-		String ddl = "create table " + d.check("test") + "("//
+		String ddl = "create table " + d.checkReservedWords("test") + "("//
 				+ d.BIGINT("f1") //
 				+ ", " + d.BINARY("f2", 5) //
 				+ ", " + d.BIT("f3") //

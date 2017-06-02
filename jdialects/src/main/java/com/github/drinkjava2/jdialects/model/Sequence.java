@@ -7,8 +7,8 @@
 package com.github.drinkjava2.jdialects.model;
 
 /**
- * The platform-independent Sequence model, similar like JPA but use increment
- * instead of allocationSize
+ * The platform-independent Sequence model, similar like JPA but use
+ * allocationSize instead of allocationSize
  * 
  * </pre>
  * 
@@ -18,24 +18,48 @@ package com.github.drinkjava2.jdialects.model;
 public class Sequence {
 
 	/**
-	 * The name of the database sequence object from which to obtain primary key
-	 * values.
+	 * A unique generator name that can be referenced by one or more classes to
+	 * be the generator for primary key values.
+	 */
+	private String name;
+
+	/**
+	 * The name of the sequence in database
 	 */
 	private String sequenceName;
 
 	/**
-	 * (Optional) The value from which the sequence object is to start
-	 * generating.
+	 * The value from which the sequence is to start generating.
 	 */
-	private Integer initialValue = 1;
+	private Integer initialValue = 0;
 
 	/**
-	 * (Optional) The increment when allocating sequence numbers from the
-	 * sequence, this is different with allocationSize.
+	 * The amount to allocationSize by when allocating sequence numbers from the
+	 * sequence, in Oracle this is identical to "INCREMENT BY", for JPA and ORM
+	 * tools this usually value is 50
 	 */
-	private Integer increment = 1;
+	private Integer allocationSize = 1;
+
+	public Sequence() {
+		// default constructor
+	}
+
+	public Sequence(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
+		this.name = name;
+		this.sequenceName = sequenceName;
+		this.initialValue = initialValue;
+		this.allocationSize = allocationSize;
+	}
 
 	// getter & setter==============
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public String getSequenceName() {
 		return sequenceName;
 	}
@@ -52,11 +76,12 @@ public class Sequence {
 		this.initialValue = initialValue;
 	}
 
-	public Integer getIncrement() {
-		return increment;
+	public Integer getAllocationSize() {
+		return allocationSize;
 	}
 
-	public void setIncrement(Integer increment) {
-		this.increment = increment;
+	public void setAllocationSize(Integer allocationSize) {
+		this.allocationSize = allocationSize;
 	}
+
 }

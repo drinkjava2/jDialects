@@ -15,65 +15,61 @@ package com.github.drinkjava2.jdialects.model;
 public class TableGenerator extends Table {
 
 	/**
-	 * (Required) A unique generator name that can be referenced by one or more
-	 * classes to be the generator for id values.
+	 * A unique generator name that can be referenced by one or more classes to
+	 * be the generator for id values.
 	 */
 	private String name;
 
 	/**
-	 * (Optional) Name of table that stores the generated id values.
-	 * <p>
-	 * Defaults to a name chosen by persistence provider.
+	 * Name of the primary key column in the table.
 	 */
-	private String table = "";
-
 	private String pkColumnName = "";
 
 	/**
-	 * (Optional) Name of the column that stores the last value generated.
-	 * <p>
-	 * Defaults to a provider-chosen name.
+	 * Name of the column that stores the last value generated.
 	 */
 	private String valueColumnName = "";
 
 	/**
-	 * (Optional) The primary key value in the generator table that
-	 * distinguishes this set of generated values from others that may be stored
-	 * in the table.
-	 * <p>
-	 * Defaults to a provider-chosen value to store in the primary key column of
-	 * the generator table
+	 * The primary key value in the generator table that distinguishes this set
+	 * of generated values from others that may be stored in the table.
 	 */
 	private String pkColumnValue = "";
 
 	/**
-	 * (Optional) The initial value to be used when allocating id numbers from
-	 * the generator.
+	 * The initial value to be used when allocating id numbers from the
+	 * generator.
 	 */
 	private Integer initialValue = 0;
 
 	/**
-	 * (Optional) The amount to increment by when allocating id numbers from the
-	 * generator.
+	 * The amount to increment by when allocating id numbers from the generator.
 	 */
 	private Integer allocationSize = 50;
 
-	// getter && setter=====================
+	public TableGenerator() {
+		super();
+		// default constructor
+	}
 
+	public TableGenerator(String name, String tableName, String pkColumnName, String valueColumnName,
+			String pkColumnValue, Integer initialValue, Integer allocationSize) {
+		this.name = name;
+		this.setTableName(tableName);
+		this.pkColumnName = pkColumnName;
+		this.valueColumnName = valueColumnName;
+		this.pkColumnValue = pkColumnValue;
+		this.initialValue = initialValue;
+		this.allocationSize = allocationSize;
+	}
+
+	// getter && setter=====================
 	public String getName() {
 		return name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getTable() {
-		return table;
-	}
-
-	public void setTable(String table) {
-		this.table = table;
 	}
 
 	public String getPkColumnName() {

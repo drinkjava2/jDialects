@@ -16,6 +16,7 @@ import com.github.drinkjava2.hibernate.StringHelper;
 import com.github.drinkjava2.hibernate.pagination.RowSelection;
 import com.github.drinkjava2.hibernate.pagination.SQLServer2005LimitHandler;
 import com.github.drinkjava2.hibernate.pagination.SQLServer2012LimitHandler;
+import com.github.drinkjava2.jdialects.model.Table;
 
 /**
  * jDialects is a small Java project collect all databases' dialect, most are
@@ -30,9 +31,12 @@ import com.github.drinkjava2.hibernate.pagination.SQLServer2012LimitHandler;
 public enum Dialect {
 	SQLiteDialect, AccessDialect, ExcelDialect, TextDialect, ParadoxDialect, CobolDialect, XMLDialect, DbfDialect, // NOSONAR
 	// below are from Hibernate
-	@Deprecated DerbyDialect, // NOSONAR Use other Derby version instead
-	@Deprecated OracleDialect, // NOSONAR use Oracle8iDialect instead
-	@Deprecated Oracle9Dialect, // NOSONAR Use Oracle9i instead
+	@Deprecated
+	DerbyDialect, // NOSONAR Use other Derby version instead
+	@Deprecated
+	OracleDialect, // NOSONAR use Oracle8iDialect instead
+	@Deprecated
+	Oracle9Dialect, // NOSONAR Use Oracle9i instead
 	Cache71Dialect, CUBRIDDialect, DerbyTenFiveDialect, DataDirectOracle9Dialect, DB2Dialect, DB2390Dialect, DB2400Dialect, DerbyTenSevenDialect, DerbyTenSixDialect, FirebirdDialect, FrontBaseDialect, H2Dialect, HANAColumnStoreDialect, HANARowStoreDialect, HSQLDialect, InformixDialect, Informix10Dialect, IngresDialect, Ingres10Dialect, Ingres9Dialect, InterbaseDialect, JDataStoreDialect, MariaDBDialect, MariaDB53Dialect, MckoiDialect, MimerSQLDialect, MySQLDialect, MySQL5Dialect, MySQL55Dialect, MySQL57Dialect, MySQL57InnoDBDialect, MySQL5InnoDBDialect, MySQLInnoDBDialect, MySQLMyISAMDialect, Oracle8iDialect, Oracle9iDialect, Oracle10gDialect, Oracle12cDialect, PointbaseDialect, PostgresPlusDialect, PostgreSQLDialect, PostgreSQL81Dialect, PostgreSQL82Dialect, PostgreSQL9Dialect, PostgreSQL91Dialect, PostgreSQL92Dialect, PostgreSQL93Dialect, PostgreSQL94Dialect, PostgreSQL95Dialect, ProgressDialect, RDMSOS2200Dialect, SAPDBDialect, SQLServerDialect, SQLServer2005Dialect, SQLServer2008Dialect, SQLServer2012Dialect, SybaseDialect, Sybase11Dialect, SybaseAnywhereDialect, SybaseASE15Dialect, SybaseASE157Dialect, TeradataDialect, Teradata14Dialect, TimesTenDialect;// NOSONAR
 
 	private static final String SKIP_ROWS = "$SKIP_ROWS";
@@ -74,7 +78,8 @@ public enum Dialect {
 	 * Guess Dialect by given connection, note:this method does not close
 	 * connection
 	 * 
-	 * @param con The JDBC Connection
+	 * @param con
+	 *            The JDBC Connection
 	 * @return Dialect The Dialect intance, if can not guess out, return null
 	 */
 	public static Dialect guessDialect(Connection connection) {
@@ -113,7 +118,7 @@ public enum Dialect {
 	 * throw exception. if is other database's reserved word, log output a
 	 * warning. Otherwise return word itself.
 	 */
-	public String check(String word) {
+	public String checkReservedWords(String word) {
 		checkIfReservedWord(this, word);
 		return word;
 	}
@@ -249,7 +254,7 @@ public enum Dialect {
  	//@formatter:on 
 
 	/**
-	 * return dialect's engine 
+	 * return dialect's engine
 	 */
 	public String engine(String... extraStrings) {
 		String value = this.ddlFeatures.tableTypeString;
@@ -316,9 +321,12 @@ public enum Dialect {
 	/**
 	 * Create a pagination SQL by given pageNumber, pageSize and SQL<br/>
 	 * 
-	 * @param pageNumber The page number, start from 1
-	 * @param pageSize The page item size
-	 * @param sql The original SQL
+	 * @param pageNumber
+	 *            The page number, start from 1
+	 * @param pageSize
+	 *            The page item size
+	 * @param sql
+	 *            The original SQL
 	 * @return The paginated SQL
 	 */
 
@@ -387,7 +395,7 @@ public enum Dialect {
 	public boolean isMySqlFamily() {
 		return this.toString().startsWith("MySQL");
 	}
-	
+
 	/**
 	 * @return true if is Infomix family
 	 */
@@ -448,11 +456,19 @@ public enum Dialect {
 	// Below are new DDL methods
 	// ===============================================
 
+	public String[] toCreateDDL(Table... tables) {
+		return DDLUtils.toCreateDDL(this, tables);
+	}
+
+	public String[] toCreateDDLwithoutFormat(Table... tables) {
+		return DDLUtils.toCreateDDLwithoutFormat(this, tables);
+	}
+
 	/**
 	 * Build a "create table xxxx " DDL String based on this dialect
 	 */
 	public String createTable(String tableName) {
-		return ddlFeatures.createTableString + " " + check(tableName) + " ";
+		return ddlFeatures.createTableString + " " + checkReservedWords(tableName) + " ";
 	}
 
 	/**

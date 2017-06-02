@@ -9,9 +9,7 @@ package com.github.drinkjava2.jdialects.model;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.DialectException;
-import com.github.drinkjava2.jdialects.DDLUtils;
 
 /**
  * The platform-independent table model
@@ -19,9 +17,9 @@ import com.github.drinkjava2.jdialects.DDLUtils;
  * @author Yong Zhu
  * @since 1.0.2
  */
-public class Table extends Database {
+public class Table {
 
-	/** The table name. */
+	/** The table tableName in database */
 	private String tableName;
 
 	/** check constraint for table */
@@ -30,14 +28,50 @@ public class Table extends Database {
 	/** comment for table */
 	private String comment;
 
-	/** Columns in this table, key is lower case of column name */
+	/** Columns in this table, key is lower case of column tableName */
 	private Map<String, Column> columns = new LinkedHashMap<>();
 
+	/** sequences */
+	private Map<String, Sequence> sequences = new LinkedHashMap<>();
+
+	/** tableGenerators */
+	private Map<String, TableGenerator> tableGenerators = new LinkedHashMap<>();
+
+	/**
+	 * (Optional) Map to which Java Entity class? this is designed for ORM
+	 * tools(like jSqlBox) use, if you don't use ORM tool then just ignore this
+	 */
+	private Class<?> mapToEntityClass;
+
 	public Table() {
+		super();
 	}
 
 	public Table(String tableName) {
 		this.tableName = tableName;
+	}
+
+	public void addTableGenerator(TableGenerator tg) {
+		DialectException.assureNotNull(tg);
+		DialectException.assureNotEmpty(tg.getTableName(), "TableGenerator name can not be empty");
+		tableGenerators.put(tg.getTableName().toLowerCase(), tg);
+	}
+
+	public void addTableGenerator(String name, String tableName, String pkColumnName, String valueColumnName,
+			String pkColumnValue, Integer initialValue, Integer allocationSize) {
+		addTableGenerator(new TableGenerator(name, tableName, pkColumnName, valueColumnName, pkColumnValue,
+				initialValue, allocationSize));
+	}
+
+	public void addSequence(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
+		this.addSequence(new Sequence(name, sequenceName, initialValue, allocationSize));
+
+	}
+
+	public void addSequence(Sequence sequence) {
+		DialectException.assureNotNull(sequence);
+		DialectException.assureNotEmpty(sequence.getSequenceName(), "Sequence name can not be empty");
+		sequences.put(sequence.getSequenceName().toLowerCase(), sequence);
 	}
 
 	public Table check(String check) {
@@ -50,11 +84,19 @@ public class Table extends Database {
 		return this;
 	}
 
-	public Table addColumn(Column column) {
-		DialectException.assureNotNull(column);
-		DialectException.assureNotEmpty(column.getColumnName(), "Column name can not be empty");
-		columns.put(column.getColumnName().toLowerCase(), column);
+	public Table mapToEntityClass(Class<?> mapToEntityClass) {
+		this.mapToEntityClass = mapToEntityClass;
 		return this;
+	}
+
+	public void addColumn(Column column) {
+		DialectException.assureNotNull(column);
+		DialectException.assureNotEmpty(column.getColumnName(), "Column tableName can not be empty");
+		if (!(columns.get(column.getColumnName().toLowerCase()) == null)) {
+			DialectException.throwEX("Dulplicated column name \"" + column.getColumnName() + "\" found in table \""
+					+ this.getTableName() + "\"");
+		}
+		columns.put(column.getColumnName().toLowerCase(), column);
 	}
 
 	public Column column(String columnName) {
@@ -68,15 +110,8 @@ public class Table extends Database {
 		return columns.get(columnName.toUpperCase());
 	}
 
-	public String[] toCreateDDL(Dialect dialect, boolean formatOutputDDL) {
-		return DDLUtils.toCreateDDL(dialect, this, formatOutputDDL);
-	}
-
-	public String[] toCreateDDL(Dialect dialect) {
-		return DDLUtils.toCreateDDL(dialect, this);
-	}
-
 	// getter & setter=========================
+
 	public String getTableName() {
 		return tableName;
 	}
@@ -108,4 +143,29 @@ public class Table extends Database {
 	public void setColumns(Map<String, Column> columns) {
 		this.columns = columns;
 	}
+
+	public Map<String, Sequence> getSequences() {
+		return sequences;
+	}
+
+	public void setSequences(Map<String, Sequence> sequences) {
+		this.sequences = sequences;
+	}
+
+	public Map<String, TableGenerator> getTableGenerators() {
+		return tableGenerators;
+	}
+
+	public void setTableGenerators(Map<String, TableGenerator> tableGenerators) {
+		this.tableGenerators = tableGenerators;
+	}
+
+	public Class<?> getMapToEntityClass() {
+		return mapToEntityClass;
+	}
+
+	public void setMapToEntityClass(Class<?> mapToEntityClass) {
+		this.mapToEntityClass = mapToEntityClass;
+	}
+
 }

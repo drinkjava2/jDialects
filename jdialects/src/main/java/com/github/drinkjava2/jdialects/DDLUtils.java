@@ -12,7 +12,9 @@ import java.util.Map;
 
 import com.github.drinkjava2.hibernate.DDLFormatter;
 import com.github.drinkjava2.jdialects.model.Column;
+import com.github.drinkjava2.jdialects.model.Sequence;
 import com.github.drinkjava2.jdialects.model.Table;
+import com.github.drinkjava2.jdialects.model.TableGenerator;
 
 /**
  * public static methods platform-independent model to DDL String
@@ -23,25 +25,57 @@ import com.github.drinkjava2.jdialects.model.Table;
 public class DDLUtils {
 	public static DialectLogger logger = DialectLogger.getLog(DDLUtils.class);
 
+	public static String[] toCreateDDLWithoutFormat(Dialect dialect, Sequence seq) {
+		DDLFeatures features = dialect.ddlFeatures;
+		List<String> resultList = new ArrayList<>();
+
+		if (features.supportsPooledSequences) {
+			// create sequence _SEQ start with 11 increment by 33
+			String pooledSequence = StrUtils.replace(features.createPooledSequenceStrings, "_SEQ",
+					seq.getSequenceName());
+			pooledSequence = StrUtils.replace(pooledSequence, "11", "" + seq.getInitialValue());
+			pooledSequence = StrUtils.replace(pooledSequence, "33", "" + seq.getAllocationSize());
+			resultList.add(pooledSequence);
+		} else {
+			if (seq.getInitialValue() >= 2 || seq.getAllocationSize() >= 2)
+				DialectException.throwEX("Unsupported sequence start and increment setting of dialect \"" + dialect
+						+ "\" on seq \"" + seq.getSequenceName() + "\"");
+			// "create sequence _SEQ"
+			String pooledSequence = StrUtils.replace(features.createSequenceStrings, "_SEQ", seq.getSequenceName());
+			resultList.add(pooledSequence);
+		}
+		String[] resultArray = new String[resultList.size()];
+		for (int i = 0; i < resultArray.length; i++)
+			resultArray[i] = resultList.get(i) + ";";
+		return resultArray;
+	}
+
 	/**
-	 * Transfer table to ddl by given dialect and format it if formatOutputDDL
-	 * set to true
+	 * Transfer table to formatted DDL according given dialect
 	 */
-	public static String[] toCreateDDL(Dialect dialect, Table t, boolean formatOutputDDL) {
-		if (formatOutputDDL) {
-			String[] ddls = toCreateDDL(dialect, t);
-			for (int i = 0; i < ddls.length; i++) {
-				ddls[i] = DDLFormatter.format(ddls[i]);
-			}
-			return ddls;
-		} else
-			return toCreateDDL(dialect, t);
+	public static String[] toCreateDDL(Dialect dialect, Table... tables) {
+		String[] ddls = toCreateDDLwithoutFormat(dialect, tables);
+		for (int i = 0; i < ddls.length; i++) {
+			ddls[i] = DDLFormatter.format(ddls[i]) + ";";
+		}
+		return ddls;
 	}
 
 	/**
 	 * Transfer table to ddl by given dialect and do not format it
 	 */
-	public static String[] toCreateDDL(Dialect dialect, Table t) {
+	public static String[] toCreateDDLwithoutFormat(Dialect dialect, Table... tables) {
+		List<String> resultList = new ArrayList<>();
+		for (Table table : tables) {
+			resultList = transferTableToDDL(dialect, table, resultList);
+		}
+		return resultList.toArray(new String[resultList.size()]);
+	}
+
+	/**
+	 * Transfer table to DDL by given dialect and without format it
+	 */
+	private static List<String> transferTableToDDL(Dialect dialect, Table t, List<String> resultList) {
 		DDLFeatures features = dialect.ddlFeatures;
 
 		StringBuilder buf = new StringBuilder();
@@ -51,12 +85,44 @@ public class DDLUtils {
 		Map<String, Column> columns = t.getColumns();
 
 		// Reserved words check
-		dialect.check(tableName);
+		dialect.checkReservedWords(tableName);
 		for (Column col : columns.values()) {
-			dialect.check(col.getColumnName());
-			dialect.check(col.getPkeyName());
-			dialect.check(col.getUniqueConstraintName());
-			dialect.check(col.getSequenceName());
+			dialect.checkReservedWords(col.getColumnName());
+			dialect.checkReservedWords(col.getPkeyName());
+			dialect.checkReservedWords(col.getUniqueConstraintName());
+		}
+
+		// sequence
+		for (Sequence seq : t.getSequences().values()) {
+			dialect.checkReservedWords(seq.getSequenceName());
+			if (!(features.supportsPooledSequences || features.supportsSequences)) {
+				DialectException.throwEX("Dialect \"" + dialect + "\" does not support sequence setting on sequence \""
+						+ seq.getName() + "\" at table \"" + tableName + "\"");
+			}
+			if (features.supportsPooledSequences) {
+				// create sequence _SEQ start with 11 increment by 33
+				String pooledSequence = StrUtils.replace(features.createPooledSequenceStrings, "_SEQ",
+						seq.getSequenceName());
+				pooledSequence = StrUtils.replace(pooledSequence, "11", "" + seq.getInitialValue());
+				pooledSequence = StrUtils.replace(pooledSequence, "33", "" + seq.getAllocationSize());
+				resultList.add(pooledSequence);
+			} else {
+				if (seq.getInitialValue() >= 2 || seq.getAllocationSize() >= 2)
+					DialectException.throwEX("Dialect \"" + dialect
+							+ "\" does not support initialValue and allocationSize setting on sequence \""
+							+ seq.getName() + "\" at table \"" + tableName
+							+ "\", try set initialValue and allocationSize to 1 to fix");
+				// "create sequence _SEQ"
+				String simepleSeq = StrUtils.replace(features.createSequenceStrings, "_SEQ", seq.getSequenceName());
+				resultList.add(simepleSeq);
+			}
+		}
+
+		// tableGenerator
+		for (TableGenerator tg : t.getTableGenerators().values()) {
+			dialect.checkReservedWords(tg.getTableName());
+			
+
 		}
 
 		// check and cache prime keys
@@ -70,66 +136,20 @@ public class DDLUtils {
 			}
 		}
 
-		List<String> resultList = new ArrayList<>();
-
-		// create sequences if sequenceName not empty
-		for (Column col : columns.values())
-			if (!StrUtils.isEmpty(col.getSequenceName())) {
-
-				if (col.getIdentity())
-					DialectException.throwEX("Can not set sequence and identity at same time on column \""
-							+ col.getColumnName() + "\" in table \"" + tableName + "\"");
-
-				if (!(features.supportsPooledSequences || features.supportsSequences)) {
-					if (col.getIdentityOrSequence()) {
-						if (!features.supportsIdentityColumns)
-							DialectException.throwEX("Dialect \"" + dialect
-									+ "\" does not support sequence or identity setting, on column \""
-									+ col.getColumnName() + "\" in table \"" + tableName + "\"");
-					} else
-						DialectException
-								.throwEX("Dialect \"" + dialect + "\" does not support sequence setting, on column \""
-										+ col.getColumnName() + "\" in table \"" + tableName + "\"");
-				}
-
-				if (!(col.getIdentityOrSequence() && features.supportsIdentityColumns)) {
-					if (features.supportsPooledSequences) {
-						// create sequence _SEQ start with 11 increment by 33
-						String pooledSequence = StrUtils.replace(features.createPooledSequenceStrings, "_SEQ",
-								col.getSequenceName());
-						pooledSequence = StrUtils.replace(pooledSequence, "11", "" + col.getSequenceStart());
-						pooledSequence = StrUtils.replace(pooledSequence, "33", "" + col.getSequenceIncrement());
-						resultList.add(pooledSequence);
-					} else {
-						if (col.getSequenceStart() >= 2 || col.getSequenceIncrement() >= 2)
-							DialectException.throwEX("Unsupported sequence start and increment setting of dialect \""
-									+ dialect + "\" on column \"" + col.getColumnName() + "\" in table \"" + tableName
-									+ "\", this dialect only support basic sequence setting.");
-						// "create sequence _SEQ"
-						String pooledSequence = StrUtils.replace(features.createSequenceStrings, "_SEQ",
-								col.getSequenceName());
-						resultList.add(pooledSequence);
-					}
-
-				}
-			}
-
 		// create table
 		buf.append(hasPkey ? dialect.ddlFeatures.createTableString : dialect.ddlFeatures.createMultisetTableString)
 				.append(" ").append(tableName).append(" (");
 
-		for (
-
-		Column c : columns.values()) {
+		for (Column c : columns.values()) {
 			// column definition
 			buf.append(c.getColumnName()).append(" ");
 
 			// Identity
 			if (c.getIdentity() && !features.supportsIdentityColumns)
 				DialectException.throwEX("Unsupported identity setting for dialect \"" + dialect + "\" on column \""
-						+ c.getColumnName() + "\" in table \"" + tableName + "\"");
+						+ c.getColumnName() + "\" at table \"" + tableName + "\"");
 
-			if (c.getIdentity() || (c.getIdentityOrSequence() && features.supportsIdentityColumns)) {
+			if (c.getIdentity()) {
 				if (features.hasDataTypeInIdentityColumn)
 					buf.append(dialect.translateToDDLType(c.getColumnType(), c.getLengths()));
 				buf.append(' ');
@@ -137,8 +157,6 @@ public class DDLUtils {
 					buf.append(features.identityColumnStringBigINT);
 				else
 					buf.append(features.identityColumnString);
-
-			} else if (c.getIdentity() && c.getIdentityOrSequence()) {
 
 			} else {
 				buf.append(dialect.translateToDDLType(c.getColumnType(), c.getLengths()));
@@ -162,14 +180,14 @@ public class DDLUtils {
 					buf.append(" check (").append(c.getCheck()).append(")");
 				else
 					logger.warn("Ignore unsupported check setting for dialect \"" + dialect + "\" on column \""
-							+ c.getColumnName() + "\" in table \"" + tableName + "\" with value: " + c.getCheck());
+							+ c.getColumnName() + "\" at table \"" + tableName + "\" with value: " + c.getCheck());
 			}
 
 			// Comments
 			if (c.getComment() != null) {
 				if (StrUtils.isEmpty(features.columnComment) && !features.supportsCommentOn)
 					logger.warn("Ignore unsupported comment setting for dialect \"" + dialect + "\" on column \""
-							+ c.getColumnName() + "\" in table \"" + tableName + "\" with value: " + c.getComment());
+							+ c.getColumnName() + "\" at table \"" + tableName + "\" with value: " + c.getComment());
 				else
 					buf.append(StrUtils.replace(features.columnComment, "_COMMENT", c.getComment()));
 			}
@@ -221,10 +239,7 @@ public class DDLUtils {
 				resultList.add(
 						"comment on column " + tableName + '.' + c.getColumnName() + " is '" + c.getComment() + "'");
 		}
-		String[] resultArray = new String[resultList.size()];
-		for (int i = 0; i < resultArray.length; i++)
-			resultArray[i] = resultList.get(i) + ";";
-		return resultArray;
+		return resultList;
 	}
 
 	private static String getAddUniqueConstraint(Dialect dialect, String tableName, Column column) {

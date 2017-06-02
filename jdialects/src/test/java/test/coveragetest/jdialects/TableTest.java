@@ -9,8 +9,6 @@ package test.coveragetest.jdialects;
 import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.Dialect;
-import com.github.drinkjava2.jdialects.model.Column;
-import com.github.drinkjava2.jdialects.model.Database;
 import com.github.drinkjava2.jdialects.model.Table;
 
 /**
@@ -26,10 +24,10 @@ public class TableTest {
 		}
 	}
 
-	private static void printDialectsDDLs(Dialect d, Table t) {
-		System.out.println("======" + d + "=====");
+	private static void printOneDialectsDDLs(Dialect dialect, Table... tables) {
+		System.out.println("======" + dialect + "=====");
 		try {
-			String[] ddl = t.toCreateDDL(d, true);
+			String[] ddl = dialect.toCreateDDL(tables);
 			printDDLs(ddl);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -37,12 +35,12 @@ public class TableTest {
 		}
 	}
 
-	private static void printAllDialectsDDLs(Table t) {
+	private static void printAllDialectsDDLs(Table... tables) {
 		Dialect[] diaList = Dialect.values();
 		for (Dialect dialect : diaList) {
 			System.out.println("======" + dialect + "=====");
 			try {
-				String[] ddl = t.toCreateDDL(dialect, true);
+				String[] ddl = dialect.toCreateDDL(tables);
 				printDDLs(ddl);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -82,7 +80,7 @@ public class TableTest {
 
 	@Test
 	public void testNoPkey() {
-		String[] ddl = testNoPkeyModel().toCreateDDL(Dialect.Teradata14Dialect);
+		String[] ddl = Dialect.Teradata14Dialect.toCreateDDL(testNoPkeyModel());
 		printDDLs(ddl);
 	}
 
@@ -200,9 +198,9 @@ public class TableTest {
 
 	@Test
 	public void testIdentity2() {
-		printDialectsDDLs(Dialect.SybaseASE15Dialect, IdentityModel());
-		printDialectsDDLs(Dialect.MySQL55Dialect, IdentityModel());
-		printDialectsDDLs(Dialect.InformixDialect, IdentityModel());
+		printOneDialectsDDLs(Dialect.SybaseASE15Dialect, IdentityModel());
+		printOneDialectsDDLs(Dialect.MySQL55Dialect, IdentityModel());
+		printOneDialectsDDLs(Dialect.InformixDialect, IdentityModel());
 	}
 
 	private static Table CommentModel() {// Identity
@@ -220,20 +218,19 @@ public class TableTest {
 
 	@Test
 	public void testComment2() {
-		printDialectsDDLs(Dialect.Ingres10Dialect, CommentModel());
-		printDialectsDDLs(Dialect.DB2Dialect, CommentModel());
-		printDialectsDDLs(Dialect.MariaDBDialect, CommentModel());
-		printDialectsDDLs(Dialect.SQLServer2012Dialect, CommentModel());
-		printDialectsDDLs(Dialect.MySQL55Dialect, CommentModel());
+		printOneDialectsDDLs(Dialect.Ingres10Dialect, CommentModel());
+		printOneDialectsDDLs(Dialect.DB2Dialect, CommentModel());
+		printOneDialectsDDLs(Dialect.MariaDBDialect, CommentModel());
+		printOneDialectsDDLs(Dialect.SQLServer2012Dialect, CommentModel());
+		printOneDialectsDDLs(Dialect.MySQL55Dialect, CommentModel());
 	}
 
 	private static Table SequenceModel() {// Sequence
 		Table t = new Table("testTable");
-		t.column("i1").INTEGER().pkey().sequence("seq1");
-		t.column("i1").INTEGER().pkey().sequence("seq1", 1, 1);
-		t.column("i2").INTEGER().sequence("seq2", 1, 5);
-		t.column("i3").INTEGER().identityOrSequence("seq3", 1, 1);
-		t.column("i4").INTEGER().identityOrSequence("seq4", 1, 6);
+		t.addSequence("seq1", "seq_1", 1, 1);
+		t.addSequence("seq2", "seq_2", 1, 1);
+		t.column("i1").INTEGER().pkey().bindSequence("seq1");
+		t.column("i2").INTEGER().pkey().bindSequence("seq2");
 		return t;
 	}
 
@@ -242,16 +239,16 @@ public class TableTest {
 		printAllDialectsDDLs(SequenceModel());
 	}
 
-	private static Table SequenceModel2() {// Sequence
+	private static Table tableGeneratorModel() {// Sequence
 		Table t = new Table("testTable");
-		t.column("i3").INTEGER().pkey().identityOrSequence("seq3", 1, 1);
+		t.addTableGenerator("tbgen1", "tb1", "pkColumnName", "valueColumnName", "pkColumnValue", 1, 10);
+		t.column("i1").INTEGER().pkey().bindTableGenerator("tbgen1");
+		t.column("i2").INTEGER().pkey();
 		return t;
 	}
 
 	@Test
-	public void testSequence2() {
-		Database d;
-		printAllDialectsDDLs(SequenceModel2());
+	public void testTableGeneratorModel() {
+		printAllDialectsDDLs(tableGeneratorModel());
 	}
-
 }
