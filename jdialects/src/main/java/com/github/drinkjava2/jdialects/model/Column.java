@@ -28,13 +28,16 @@ public class Column {
 	private String pkeyName;
 	private String defaultValue;
 
-	/** Reserved for ORM tools(like jSqlBox) use */
+	/** bind column to a sequence */
 	private String sequence;
 
-	/** Reserved for ORM tools(like jSqlBox) use */
+	/** bind column to a tableGenerator */
 	private String tableGenerator;
 
-	/** Reserved for ORM tools(like jSqlBox) use */
+	/**
+	 * bind column to Auto Id generator, can be Sequence or TableGenerator,
+	 * determined by jDialects
+	 */
 	private Boolean autoGenerator = false;
 
 	/** comment of this column */
@@ -94,21 +97,21 @@ public class Column {
 		return this;
 	}
 
-	/** (Designed for ORM tool use only), bind column to a sequence */
+	/** bind column to a sequence */
 	public Column sequence(String sequence) {
 		this.sequence = sequence;
 		return this;
 	}
 
-	/** (Designed for ORM tool use only), bind column to a tableGenerator */
+	/** bind column to a tableGenerator */
 	public Column tableGenerator(String tableGenerator) {
 		this.tableGenerator = tableGenerator;
 		return this;
 	}
 
 	/**
-	 * (Designed for ORM tool use only), bind column to Auto Id generator, can
-	 * be one of Identity/Sequence/TableGenerator
+	 * bind column to Auto Id generator, can be Sequence or TableGenerator,
+	 * determined by jDialects
 	 */
 	public Column autoGenerator() {
 		this.autoGenerator = true;

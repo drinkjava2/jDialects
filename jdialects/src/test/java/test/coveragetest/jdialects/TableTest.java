@@ -264,15 +264,39 @@ public class TableTest {
 		printAllDialectsDDLs(tableGeneratorModel(), tableGeneratorModel2());
 	}
 
-	private static Table autoGeneratorModel() {// tableGenerator
-		Table t = new Table("testTable3");
+	private static Table autoGeneratorModel() {// autoGenerator
+		Table t = new Table("testTable1");
 		t.column("i1").INTEGER().pkey().autoGenerator();
-		t.column("i2").INTEGER();
+		t.column("i2").INTEGER().autoGenerator();
+		return t;
+	}
+
+	private static Table autoGeneratorModel2() {// autoGenerator
+		Table t = new Table("testTable2");
+		t.addTableGenerator("tbgen7", "tb1", "pkcol4", "valcol", "pkval5", 1, 10);
+		t.column("i1").INTEGER().pkey().autoGenerator();
+		t.column("i2").INTEGER().autoGenerator();
+		t.column("i3").INTEGER().autoGenerator();
 		return t;
 	}
 
 	@Test
 	public void testAutoGeneratorModel() {
-		printAllDialectsDDLs(autoGeneratorModel());
+		printAllDialectsDDLs(autoGeneratorModel(), autoGeneratorModel2(), tableGeneratorModel2());
 	}
+
+	@Test
+	public void testFKEY() {// FKEY
+		Table master = new Table("master");
+		master.column("id").INTEGER().pkey();
+		master.column("name").STRING(20);
+		master.column("address").INTEGER().pkey();
+
+		Table child = new Table("child");
+		child.column("id").INTEGER().pkey();
+		child.column("name").VARCHAR(20);
+		child.column("address").VARCHAR(20);
+		printAllDialectsDDLs(master, child);
+	}
+
 }
