@@ -6,6 +6,7 @@
  */
 package com.github.drinkjava2.jdialects;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -468,4 +469,54 @@ public class StrUtils {
 		return count;
 	}
 
+	private static final SecureRandom random = new SecureRandom();
+	private static final char[] ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz".toCharArray();
+
+	public static String getRandomString(int length) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < length; i++) {
+			sb.append(ALPHABET[random.nextInt(32)]);
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * Compare 2 array
+	 * 
+	 * @return true if each item equal
+	 */
+	public static boolean arraysEqual(Object[] array1, Object[] array2) {
+		if (array1 == null || array1.length == 0 || array2 == null || array2.length == 0)
+			DialectException.throwEX("StrUtils arraysEqual() method can not compare empty arrays");
+		for (int i = 0; i < array1.length; i++)
+			if (!array1[i].equals(array2[i]))
+				return false;
+		return true;
+	}
+
+	/**
+	 * Change a Object array to obj1,obj2... String
+	 */
+	public static String arrayToString(Object... array) {
+		if (array == null || array.length == 0)
+			DialectException.throwEX("StrUtils arrayToString() method can not accept empty arrays");
+		StringBuilder sb = new StringBuilder();
+		for (Object object : array)
+			sb.append("" + object + ",");
+		sb.setLength(sb.length() - 1);
+		return sb.toString();
+	}
+
+	/**
+	 * Change a Object List to obj1,obj2... String
+	 */
+	public static String listToString(List<?> lst) {
+		if (lst == null || lst.size() == 0)
+			DialectException.throwEX("StrUtils listToString() method can not accept empty list");
+		StringBuilder sb = new StringBuilder();
+		for (Object object : lst)
+			sb.append("" + object + ",");
+		sb.setLength(sb.length() - 1);
+		return sb.toString();
+	}
 }

@@ -6,6 +6,8 @@
  */
 package com.github.drinkjava2.jdialects.model;
 
+import com.github.drinkjava2.jdialects.DialectException;
+import com.github.drinkjava2.jdialects.StrUtils;
 import com.github.drinkjava2.jdialects.Type;
 
 /**
@@ -22,9 +24,9 @@ public class Column {
 	private Boolean pkey = false;
 	private Boolean notNull = false;
 	private Boolean unique = false;
+	private Boolean identity = false;
 	private String uniqueConstraintName;
 	private String check;
-	private Boolean identity = false;
 	private String pkeyName;
 	private String defaultValue;
 
@@ -46,7 +48,15 @@ public class Column {
 	/** precision, scale, length all share use lengths array */
 	private Integer[] lengths = new Integer[] {};
 
+	/** Foreign key reference table */
+	private String fkeyReferenceTable;
+
+	/** Foreign key reference columns */
+	private String[] fkeyReferenceColumns;
+
 	public Column(String columnName) {
+		if (StrUtils.isEmpty(columnName))
+			DialectException.throwEX("columnName is not allowed empty");
 		this.columnName = columnName;
 	}
 
@@ -94,6 +104,12 @@ public class Column {
 	public Column pkey(String pkeyName) {
 		this.pkey = true;
 		this.pkeyName = pkeyName;
+		return this;
+	}
+
+	public Column fkey(String fkeyReferenceTable, String... fkeyReferenceColumns) {
+		this.fkeyReferenceTable = fkeyReferenceTable;
+		this.fkeyReferenceColumns = fkeyReferenceColumns;
 		return this;
 	}
 
@@ -272,6 +288,22 @@ public class Column {
 
 	public void setAutoGenerator(Boolean autoGenerator) {
 		this.autoGenerator = autoGenerator;
+	} 
+
+	public String getFkeyReferenceTable() {
+		return fkeyReferenceTable;
+	}
+
+	public void setFkeyReferenceTable(String fkeyReferenceTable) {
+		this.fkeyReferenceTable = fkeyReferenceTable;
+	}
+
+	public String[] getFkeyReferenceColumns() {
+		return fkeyReferenceColumns;
+	}
+
+	public void setFkeyReferenceColumns(String[] fkeyReferenceColumns) {
+		this.fkeyReferenceColumns = fkeyReferenceColumns;
 	}
  
 }

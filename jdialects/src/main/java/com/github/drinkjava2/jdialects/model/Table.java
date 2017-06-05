@@ -86,7 +86,7 @@ public class Table {
 		return this;
 	}
   
-	public void addColumn(Column column) {
+	public Table append(Column column) {
 		DialectException.assureNotNull(column);
 		DialectException.assureNotEmpty(column.getColumnName(), "Column tableName can not be empty");
 		if (!(columns.get(column.getColumnName().toLowerCase()) == null)) {
@@ -94,11 +94,12 @@ public class Table {
 					+ this.getTableName() + "\"");
 		}
 		columns.put(column.getColumnName().toLowerCase(), column);
+		return this;
 	}
 
 	public Column column(String columnName) {
 		Column column = new Column(columnName);
-		addColumn(column);
+		append(column);
 		return column;
 	}
 

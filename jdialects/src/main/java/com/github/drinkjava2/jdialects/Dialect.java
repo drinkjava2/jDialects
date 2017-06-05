@@ -124,6 +124,22 @@ public enum Dialect {
 	}
 
 	/**
+	 * Check if a word is current dialect or ANSI-SQL's reserved word, if yes
+	 * throw exception. if is other database's reserved word, log output a
+	 * warning. Otherwise return word itself.
+	 */
+	public String checkNotEmptyReservedWords(String word, String... errorMSG) {
+		if (StrUtils.isEmpty(word)) {
+			if (errorMSG.length == 0)
+				DialectException.throwEX("Empty value error");
+			else
+				DialectException.throwEX(errorMSG[0]);
+		}
+		checkIfReservedWord(this, word);
+		return word;
+	}
+
+	/**
 	 * Transfer jdialect.Type to a real dialect's ddl type, if colName is
 	 * current dialect or ANSI-SQL's reserved word of any database, throw a
 	 * DialectException

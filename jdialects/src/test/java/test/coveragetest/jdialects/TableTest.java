@@ -9,6 +9,7 @@ package test.coveragetest.jdialects;
 import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.model.Column;
 import com.github.drinkjava2.jdialects.model.Table;
 
 /**
@@ -49,7 +50,8 @@ public class TableTest {
 		}
 	}
 
-	private static Table aNormalModel() {// A normal setting
+	@Test
+	public void testANormalModel() {// A normal setting
 		Table t = new Table("testTable");
 		t.column("b1").BOOLEAN();
 		t.column("d2").DOUBLE();
@@ -63,38 +65,23 @@ public class TableTest {
 		t.column("t10").TIME();
 		t.column("t11").TIMESTAMP();
 		t.column("v12").VARCHAR(300);
-		return t;
+		printAllDialectsDDLs(t);
 	}
 
 	@Test
-	public void testANormalModel() {
-		printAllDialectsDDLs(aNormalModel());
-	}
-
-	private static Table testNoPkeyModel() {// NO Prime Key
-		Table t = new Table("testTable");
-		t.column("i4").INTEGER();
-		t.column("l5").LONG();
-		return t;
+	public void testNoPkey() {// Test no Prime Key
+		// append() is a linked method
+		Table table = new Table("tb").append(new Column("field1").INTEGER()).append(new Column("field2").LONG());
+		printAllDialectsDDLs(table);
 	}
 
 	@Test
-	public void testNoPkey() {
-		String[] ddl = Dialect.Teradata14Dialect.toCreateDDL(testNoPkeyModel());
-		printDDLs(ddl);
-	}
-
-	private static Table testCompoundPkeyModel() {// Compound PKEY
+	public void testCompondPkey() {// Compound PKEY
 		Table t = new Table("testTable");
 		t.column("i4").INTEGER().pkey().unique().notNull().defaultValue("1");
 		t.column("l5").LONG().pkey();
 		t.column("s6").SHORT();
-		return t;
-	}
-
-	@Test
-	public void testCompondPkey() {
-		printAllDialectsDDLs(testCompoundPkeyModel());
+		printAllDialectsDDLs(t);
 	}
 
 	private static Table testNotNullModel() {// Not Null
@@ -287,16 +274,17 @@ public class TableTest {
 
 	@Test
 	public void testFKEY() {// FKEY
-		Table master = new Table("master");
-		master.column("id").INTEGER().pkey();
-		master.column("name").STRING(20);
-		master.column("address").INTEGER().pkey();
+		Table t = new Table("master");
+		t.column("id").INTEGER().pkey();
+		t.column("name").STRING(20);
+		t.column("address").INTEGER().pkey();
 
-		Table child = new Table("child");
-		child.column("id").INTEGER().pkey();
-		child.column("name").VARCHAR(20);
-		child.column("address").VARCHAR(20);
-		printAllDialectsDDLs(master, child);
+		Table t2 = new Table("child");
+		t2.column("id").INTEGER().pkey();
+		t2.column("address2").VARCHAR(20).fkey("master", "name", "address"); 
+		t2.column("masterid3").VARCHAR(20).fkey("master", "id");
+		t2.column("aaaaa").VARCHAR(20).fkey("master", "name", "address");
+		printAllDialectsDDLs(t, t2);
 	}
 
 }

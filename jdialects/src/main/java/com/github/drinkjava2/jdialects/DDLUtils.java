@@ -14,6 +14,7 @@ import java.util.Set;
 
 import com.github.drinkjava2.hibernate.DDLFormatter;
 import com.github.drinkjava2.jdialects.model.Column;
+import com.github.drinkjava2.jdialects.model.FKeyConstraint;
 import com.github.drinkjava2.jdialects.model.GlobalIdGenerator;
 import com.github.drinkjava2.jdialects.model.Sequence;
 import com.github.drinkjava2.jdialects.model.Table;
@@ -53,6 +54,7 @@ public class DDLUtils {
 		List<TableGenerator> tbGeneratorList = new ArrayList<>();
 		List<Sequence> sequenceList = new ArrayList<>();
 		List<GlobalIdGenerator> globalIdGeneratorList = new ArrayList<>();
+		List<FKeyConstraint> fKeyConstraintList = new ArrayList<>();
 
 		for (Object ddl : objectResultList) {
 			if (!StrUtils.isEmpty(ddl)) {
@@ -64,12 +66,16 @@ public class DDLUtils {
 					sequenceList.add((Sequence) ddl);
 				else if (ddl instanceof GlobalIdGenerator)
 					globalIdGeneratorList.add((GlobalIdGenerator) ddl);
+				else if (ddl instanceof FKeyConstraint)
+					fKeyConstraintList.add((FKeyConstraint) ddl);
 			}
 		}
 
 		buildSequenceDDL(dialect, stringResultList, sequenceList);
 		buildTableGeneratorDDL(dialect, stringResultList, tbGeneratorList);
 		buildGolbalIDGeneratorDDL(dialect, stringResultList, globalIdGeneratorList);
+		buildFKeyConstraintDDL(dialect, stringResultList, fKeyConstraintList);
+
 		return stringResultList.toArray(new String[stringResultList.size()]);
 	}
 
@@ -86,17 +92,16 @@ public class DDLUtils {
 		Map<String, Column> columns = t.getColumns();
 
 		// Reserved words check
-		dialect.checkReservedWords(tableName);
+		dialect.checkNotEmptyReservedWords(tableName, "Table name can not be empty");
 		for (Column col : columns.values()) {
-			dialect.checkReservedWords(col.getColumnName());
+			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
 			dialect.checkReservedWords(col.getPkeyName());
 			dialect.checkReservedWords(col.getUniqueConstraintName());
 		}
 
-		// autoGenerator
 		for (Column col : columns.values()) {
-			if (col != null && col.getAutoGenerator()) {
-				// Like Hibernate, only use sequence or table for "Auto" type
+			// autoGenerator, only support sequence or table for "Auto" type
+			if (col.getAutoGenerator()) {
 				if (features.supportsSequences || features.supportsPooledSequences) {
 					objectResultList.add(new Sequence(GlobalIdGenerator.JDIALECTS_IDGEN_TABLE,
 							GlobalIdGenerator.JDIALECTS_IDGEN_TABLE, 1, 1));
@@ -104,6 +109,11 @@ public class DDLUtils {
 					objectResultList.add(new GlobalIdGenerator());
 				}
 			}
+
+			// foreign keys
+			if (!StrUtils.isEmpty(col.getFkeyReferenceTable()))
+				objectResultList.add(new FKeyConstraint(tableName, col.getColumnName(), col.getFkeyReferenceTable(),
+						col.getFkeyReferenceColumns()));
 		}
 
 		// sequence
@@ -130,6 +140,10 @@ public class DDLUtils {
 				.append(" ").append(tableName).append(" (");
 
 		for (Column c : columns.values()) {
+			if (c.getColumnType() == null)
+				DialectException
+						.throwEX("Type not set on column \"" + c.getColumnName() + "\" at table \"" + tableName + "\"");
+
 			// column definition
 			buf.append(c.getColumnName()).append(" ");
 
@@ -348,13 +362,74 @@ public class DDLUtils {
 			}
 	}
 
+	/**
+	 * TrueFKeyConstraint is the true FKEY constraint support columnNames
+	 */
+	private static class TrueFKeyConstraint extends FKeyConstraint {
+		protected List<String> columnNames = new ArrayList<>();
+
+		public TrueFKeyConstraint(String tableName, String columnName, String fkeyReferenceTable,
+				String[] fkeyReferenceColumns) {
+			super(tableName, columnName, fkeyReferenceTable, fkeyReferenceColumns);
+		}
+	}
+
+	private static void buildFKeyConstraintDDL(Dialect dialect, List<String> stringList,
+			List<FKeyConstraint> fKeyConstraintList) {
+		for (FKeyConstraint kfc : fKeyConstraintList) {
+			dialect.checkNotEmptyReservedWords(kfc.getFkeyReferenceTable(), "FkeyReferenceTable can not be empty");
+			for (String refColName : kfc.getFkeyReferenceColumns())
+				dialect.checkNotEmptyReservedWords(refColName, "FkeyReferenceColumn name can not be empty");
+		}
+		/*
+		 * join table col1 refTable ref1 ref2 + table col2 refTable ref1 ref2
+		 * into one
+		 */
+		List<TrueFKeyConstraint> trueList = new ArrayList<>();
+		for (int i = 0; i < fKeyConstraintList.size(); i++) {
+			FKeyConstraint fk = fKeyConstraintList.get(i);
+			TrueFKeyConstraint temp = new TrueFKeyConstraint(fk.getTableName(), fk.getColumnName(),
+					fk.getFkeyReferenceTable(), fk.getFkeyReferenceColumns());
+			temp.columnNames.add(fk.getColumnName());
+			if (i == 0) {
+				trueList.add(temp);
+			} else {
+				TrueFKeyConstraint found = null;
+				for (TrueFKeyConstraint old : trueList) {
+					if (fk.getTableName().equals(old.getTableName())
+							&& fk.getFkeyReferenceTable().equals(old.getFkeyReferenceTable())
+							&& StrUtils.arraysEqual(fk.getFkeyReferenceColumns(), old.getFkeyReferenceColumns())) {
+						found = old;
+					}
+				}
+				if (found == null)
+					trueList.add(temp);
+				else
+					found.columnNames.add(fk.getColumnName());
+			}
+		}
+
+		for (TrueFKeyConstraint t : trueList) {
+			/*
+			 * ADD CONSTRAINT _FKEYNAME FOREIGN KEY _FKEYNAME (_FK1, _FK2)
+			 * REFERENCES _REFTABLE (_REF1, _REF2)
+			 */
+			String s = dialect.ddlFeatures.addForeignKeyConstraintString;
+			s = StrUtils.replace(s, "_FK1, _FK2", StrUtils.listToString(t.columnNames));
+			s = StrUtils.replace(s, "_REFTABLE", t.getFkeyReferenceTable());
+			s = StrUtils.replace(s, "_FKEYNAME",
+					"fk_" + StrUtils.replace(StrUtils.listToString(t.columnNames), ",", "_"));
+			stringList.add("alter table " + s);
+		}
+	}
+
 	private static void addUniqueConstraintDDL(List<Object> objectList, Dialect dialect, String tableName,
 			Column column) {
 		if (!column.getUnique())
 			return;
 		String UniqueConstraintName = column.getUniqueConstraintName();
 		if (StrUtils.isEmpty(UniqueConstraintName))
-			UniqueConstraintName = "uk_" + RandomStrUtils.getRandomString(20);
+			UniqueConstraintName = "unique_" + tableName.toLowerCase() + "_" + column.getColumnName().toLowerCase();
 		StringBuilder sb = new StringBuilder("alter table ").append(tableName);
 
 		if (dialect.isInfomixFamily()) {
