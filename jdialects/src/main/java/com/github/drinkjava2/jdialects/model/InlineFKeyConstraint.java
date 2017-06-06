@@ -6,49 +6,47 @@
  */
 package com.github.drinkjava2.jdialects.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * The platform-independent Foreign Key Constraint model
+ * An "in-line" style Foreign key constraint, some time it's more convenient
+ * than use t.fkey() method
  * 
  * <pre>
  * Usage:
- * Table t=new Table('Customer');
- *    ...
- *  t.fkey("column1").reference("refTable", "refColumn1")
- *  
- *  or compound foreign key: *  
- *  t.fkey("column1","column2").reference("refTable", "refColumn1", "refColumn2");
+ * For simple Foreign Key:
+ *     column("column1").fkey("refTable","refColumn1");
+ * 
+ * For Compound Foreign Key:
+ *     column("column1").fkey("refTable","refColumn1", "refColumn2"...);
+ *     column("column2").fkey("refTable","refColumn1", "refColumn2"...);
+ *     
+ * Note: the order is important
  * 
  * </pre>
  * 
  * @author Yong Zhu
  * @since 1.0.2
  */
-public class FKeyConstraint {
-
+public class InlineFKeyConstraint {
 	private String tableName;
-	private List<String> columnNames = new ArrayList<>();
+	private String columnName;
 	private String refTableName;
 	private String[] refColumnNames;
 
-	public FKeyConstraint() {
+	public String getFkeyReferenceTable() {
+		return refTableName;
 	}
 
-	public FKeyConstraint(InlineFKeyConstraint inline) {
-		this.setTableName(inline.getTableName());
-		this.setRefColumnNames(inline.getRefColumnNames());
-		this.setRefTableName(inline.getRefTableName());
+	public InlineFKeyConstraint() {// default constructor
 	}
 
-	public FKeyConstraint ref(String refTableName, String... refColumnNames) {
+	public InlineFKeyConstraint(String tableName, String columnName, String refTableName, String... refColumnNames) {
+		this.tableName = tableName;
+		this.columnName = columnName;
 		this.refTableName = refTableName;
 		this.refColumnNames = refColumnNames;
-		return this;
 	}
+	// getter & setter=================
 
-	// getter & setter=====
 	public String getTableName() {
 		return tableName;
 	}
@@ -57,12 +55,12 @@ public class FKeyConstraint {
 		this.tableName = tableName;
 	}
 
-	public List<String> getColumnNames() {
-		return columnNames;
+	public String getColumnName() {
+		return columnName;
 	}
 
-	public void setColumnNames(List<String> columnNames) {
-		this.columnNames = columnNames;
+	public void setColumnName(String columnName) {
+		this.columnName = columnName;
 	}
 
 	public String getRefTableName() {

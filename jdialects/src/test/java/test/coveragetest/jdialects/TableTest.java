@@ -274,17 +274,28 @@ public class TableTest {
 
 	@Test
 	public void testFKEY() {// FKEY
-		Table t = new Table("master");
-		t.column("id").INTEGER().pkey();
-		t.column("name").STRING(20);
-		t.column("address").INTEGER().pkey();
+		Table t1 = new Table("master1");
+		t1.column("id").INTEGER().pkey();
 
-		Table t2 = new Table("child");
-		t2.column("id").INTEGER().pkey();
-		t2.column("address2").VARCHAR(20).fkey("master", "name", "address"); 
-		t2.column("masterid3").VARCHAR(20).fkey("master", "id");
-		t2.column("aaaaa").VARCHAR(20).fkey("master", "name", "address");
-		printAllDialectsDDLs(t, t2);
+		Table t2 = new Table("master2");
+		t2.column("name").VARCHAR(20).pkey();
+		t2.column("address").VARCHAR(20).pkey();
+
+		Table t3 = new Table("child");
+		t3.column("id").INTEGER().pkey();
+		t3.column("masterid1").INTEGER().fkey("master1", "id");
+		t3.column("myname").VARCHAR(20).fkey("master2", "name", "address");
+		t3.column("myaddress").VARCHAR(20).fkey("master2", "name", "address");
+
+		Table t4 = new Table("child2");
+		t4.column("id").INTEGER().pkey();
+		t4.column("masterid1").INTEGER();
+		t4.column("myname").VARCHAR(20);
+		t4.column("myaddress").VARCHAR(20);
+		t4.fkey("f1").ref("master1", "id");
+		t4.fkey("f2","f3").ref("master2", "name", "address");
+		printAllDialectsDDLs(t1, t2, t3);
+		printOneDialectsDDLs(Dialect.MySQL5InnoDBDialect, t1, t2, t3, t4);
 	}
 
 }

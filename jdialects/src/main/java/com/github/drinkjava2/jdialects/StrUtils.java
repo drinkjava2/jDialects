@@ -497,7 +497,7 @@ public class StrUtils {
 	/**
 	 * Change a Object array to obj1,obj2... String
 	 */
-	public static String arrayToString(Object... array) {
+	public static String arrayToString(Object[] array) {
 		if (array == null || array.length == 0)
 			DialectException.throwEX("StrUtils arrayToString() method can not accept empty arrays");
 		StringBuilder sb = new StringBuilder();

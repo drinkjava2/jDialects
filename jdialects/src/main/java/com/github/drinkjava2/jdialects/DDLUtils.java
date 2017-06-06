@@ -16,6 +16,7 @@ import com.github.drinkjava2.hibernate.DDLFormatter;
 import com.github.drinkjava2.jdialects.model.Column;
 import com.github.drinkjava2.jdialects.model.FKeyConstraint;
 import com.github.drinkjava2.jdialects.model.GlobalIdGenerator;
+import com.github.drinkjava2.jdialects.model.InlineFKeyConstraint;
 import com.github.drinkjava2.jdialects.model.Sequence;
 import com.github.drinkjava2.jdialects.model.Table;
 import com.github.drinkjava2.jdialects.model.TableGenerator;
@@ -54,27 +55,31 @@ public class DDLUtils {
 		List<TableGenerator> tbGeneratorList = new ArrayList<>();
 		List<Sequence> sequenceList = new ArrayList<>();
 		List<GlobalIdGenerator> globalIdGeneratorList = new ArrayList<>();
+		List<InlineFKeyConstraint> inlinefKeyConstraintList = new ArrayList<>();
 		List<FKeyConstraint> fKeyConstraintList = new ArrayList<>();
 
-		for (Object ddl : objectResultList) {
-			if (!StrUtils.isEmpty(ddl)) {
-				if (ddl instanceof String)
-					stringResultList.add((String) ddl);
-				else if (ddl instanceof TableGenerator)
-					tbGeneratorList.add((TableGenerator) ddl);
-				else if (ddl instanceof Sequence)
-					sequenceList.add((Sequence) ddl);
-				else if (ddl instanceof GlobalIdGenerator)
-					globalIdGeneratorList.add((GlobalIdGenerator) ddl);
-				else if (ddl instanceof FKeyConstraint)
-					fKeyConstraintList.add((FKeyConstraint) ddl);
+		for (Object strOrObj : objectResultList) {
+			if (!StrUtils.isEmpty(strOrObj)) {
+				if (strOrObj instanceof String)
+					stringResultList.add((String) strOrObj);
+				else if (strOrObj instanceof TableGenerator)
+					tbGeneratorList.add((TableGenerator) strOrObj);
+				else if (strOrObj instanceof Sequence)
+					sequenceList.add((Sequence) strOrObj);
+				else if (strOrObj instanceof GlobalIdGenerator)
+					globalIdGeneratorList.add((GlobalIdGenerator) strOrObj);
+				else if (strOrObj instanceof InlineFKeyConstraint)
+					inlinefKeyConstraintList.add((InlineFKeyConstraint) strOrObj);
+				else if (strOrObj instanceof FKeyConstraint)
+					fKeyConstraintList.add((FKeyConstraint) strOrObj);
 			}
 		}
 
 		buildSequenceDDL(dialect, stringResultList, sequenceList);
 		buildTableGeneratorDDL(dialect, stringResultList, tbGeneratorList);
 		buildGolbalIDGeneratorDDL(dialect, stringResultList, globalIdGeneratorList);
-		buildFKeyConstraintDDL(dialect, stringResultList, fKeyConstraintList);
+		buildFKeyConstraintDDL(dialect, stringResultList, inlinefKeyConstraintList);
+		outputFKeyConstraintDDL(dialect, stringResultList, fKeyConstraintList);
 
 		return stringResultList.toArray(new String[stringResultList.size()]);
 	}
@@ -112,8 +117,8 @@ public class DDLUtils {
 
 			// foreign keys
 			if (!StrUtils.isEmpty(col.getFkeyReferenceTable()))
-				objectResultList.add(new FKeyConstraint(tableName, col.getColumnName(), col.getFkeyReferenceTable(),
-						col.getFkeyReferenceColumns()));
+				objectResultList.add(new InlineFKeyConstraint(tableName, col.getColumnName(),
+						col.getFkeyReferenceTable(), col.getFkeyReferenceColumns()));
 		}
 
 		// sequence
@@ -121,8 +126,12 @@ public class DDLUtils {
 			objectResultList.add(seq);
 
 		// tableGenerator
-		for (TableGenerator tg : t.getTableGenerators().values())
-			objectResultList.add(tg);
+		for (TableGenerator tableGenerator : t.getTableGenerators().values())
+			objectResultList.add(tableGenerator);
+
+		// Foreign key
+		for (FKeyConstraint fkey : t.getFkeyConstraints())
+			objectResultList.add(fkey);
 
 		// check and cache prime keys
 		for (Column col : columns.values()) {
@@ -362,64 +371,61 @@ public class DDLUtils {
 			}
 	}
 
-	/**
-	 * TrueFKeyConstraint is the true FKEY constraint support columnNames
-	 */
-	private static class TrueFKeyConstraint extends FKeyConstraint {
-		protected List<String> columnNames = new ArrayList<>();
-
-		public TrueFKeyConstraint(String tableName, String columnName, String fkeyReferenceTable,
-				String[] fkeyReferenceColumns) {
-			super(tableName, columnName, fkeyReferenceTable, fkeyReferenceColumns);
-		}
-	}
-
 	private static void buildFKeyConstraintDDL(Dialect dialect, List<String> stringList,
-			List<FKeyConstraint> fKeyConstraintList) {
-		for (FKeyConstraint kfc : fKeyConstraintList) {
+			List<InlineFKeyConstraint> fKeyConstraintList) {
+		for (InlineFKeyConstraint kfc : fKeyConstraintList) {
 			dialect.checkNotEmptyReservedWords(kfc.getFkeyReferenceTable(), "FkeyReferenceTable can not be empty");
-			for (String refColName : kfc.getFkeyReferenceColumns())
+			for (String refColName : kfc.getRefColumnNames())
 				dialect.checkNotEmptyReservedWords(refColName, "FkeyReferenceColumn name can not be empty");
 		}
 		/*
 		 * join table col1 refTable ref1 ref2 + table col2 refTable ref1 ref2
 		 * into one
 		 */
-		List<TrueFKeyConstraint> trueList = new ArrayList<>();
+		List<FKeyConstraint> trueList = new ArrayList<>();
 		for (int i = 0; i < fKeyConstraintList.size(); i++) {
-			FKeyConstraint fk = fKeyConstraintList.get(i);
-			TrueFKeyConstraint temp = new TrueFKeyConstraint(fk.getTableName(), fk.getColumnName(),
-					fk.getFkeyReferenceTable(), fk.getFkeyReferenceColumns());
-			temp.columnNames.add(fk.getColumnName());
+			InlineFKeyConstraint fk = fKeyConstraintList.get(i);
+			FKeyConstraint temp = new FKeyConstraint(fk);
+			temp.getColumnNames().add(fk.getColumnName());
 			if (i == 0) {
 				trueList.add(temp);
 			} else {
-				TrueFKeyConstraint found = null;
-				for (TrueFKeyConstraint old : trueList) {
+				FKeyConstraint found = null;
+				for (FKeyConstraint old : trueList) {
 					if (fk.getTableName().equals(old.getTableName())
-							&& fk.getFkeyReferenceTable().equals(old.getFkeyReferenceTable())
-							&& StrUtils.arraysEqual(fk.getFkeyReferenceColumns(), old.getFkeyReferenceColumns())) {
+							&& fk.getFkeyReferenceTable().equals(old.getRefTableName())
+							&& StrUtils.arraysEqual(fk.getRefColumnNames(), old.getRefColumnNames())) {
 						found = old;
 					}
 				}
 				if (found == null)
 					trueList.add(temp);
 				else
-					found.columnNames.add(fk.getColumnName());
+					found.getColumnNames().add(fk.getColumnName());
 			}
 		}
 
-		for (TrueFKeyConstraint t : trueList) {
+		outputFKeyConstraintDDL(dialect, stringList, trueList);
+	}
+
+	private static void outputFKeyConstraintDDL(Dialect dialect, List<String> stringList,
+			List<FKeyConstraint> trueList) {
+		if (DDLFeatures.NOT_SUPPORT.equals(dialect.ddlFeatures.addForeignKeyConstraintString)) {
+			logger.warn("Dialect \"" + dialect + "\" does not support foreign key setting, settings be ignored");
+			return;
+		}
+		for (FKeyConstraint t : trueList) {
 			/*
 			 * ADD CONSTRAINT _FKEYNAME FOREIGN KEY _FKEYNAME (_FK1, _FK2)
 			 * REFERENCES _REFTABLE (_REF1, _REF2)
 			 */
 			String s = dialect.ddlFeatures.addForeignKeyConstraintString;
-			s = StrUtils.replace(s, "_FK1, _FK2", StrUtils.listToString(t.columnNames));
-			s = StrUtils.replace(s, "_REFTABLE", t.getFkeyReferenceTable());
-			s = StrUtils.replace(s, "_FKEYNAME",
-					"fk_" + StrUtils.replace(StrUtils.listToString(t.columnNames), ",", "_"));
-			stringList.add("alter table " + s);
+			s = StrUtils.replace(s, "_FK1, _FK2", StrUtils.listToString(t.getColumnNames()));
+			s = StrUtils.replace(s, "_REF1, _REF2", StrUtils.arrayToString(t.getRefColumnNames()));
+			s = StrUtils.replace(s, "_REFTABLE", t.getRefTableName());
+			s = StrUtils.replace(s, "_FKEYNAME", "fk_" + t.getTableName().toLowerCase() + "_"
+					+ StrUtils.replace(StrUtils.listToString(t.getColumnNames()), ",", "_"));
+			stringList.add("alter table " + t.getTableName() + " " + s);
 		}
 	}
 

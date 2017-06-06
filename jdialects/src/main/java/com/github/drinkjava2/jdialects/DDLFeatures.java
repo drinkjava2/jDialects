@@ -152,7 +152,7 @@ public class DDLFeatures {
 		case ExcelDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = NOT_SUPPORT;
 			ddl.addPrimaryKeyConstraintString = " primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -194,7 +194,7 @@ public class DDLFeatures {
 		case TextDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = NOT_SUPPORT;
 			ddl.addPrimaryKeyConstraintString = " primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -320,7 +320,7 @@ public class DDLFeatures {
 		case XMLDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = NOT_SUPPORT;
 			ddl.addPrimaryKeyConstraintString = " primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;

@@ -6,7 +6,9 @@
  */
 package com.github.drinkjava2.jdialects.model;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.github.drinkjava2.jdialects.DialectException;
@@ -36,6 +38,8 @@ public class Table {
 
 	/** tableGenerators */
 	private Map<String, TableGenerator> tableGenerators = new LinkedHashMap<>();
+
+	private List<FKeyConstraint> fkeyConstraints = new ArrayList<>();
 
 	public Table() {
 		super();
@@ -107,6 +111,15 @@ public class Table {
 		DialectException.assureNotEmpty(columnName);
 		return columns.get(columnName.toUpperCase());
 	}
+	
+	public FKeyConstraint fkey(String... columnNames) {
+		FKeyConstraint fkey=new FKeyConstraint();
+		for (String colName : columnNames) 
+			fkey.getColumnNames().add(colName);  
+		fkey.setTableName(this.tableName);
+		this.fkeyConstraints.add(fkey);
+		return fkey;
+	}
 
 	// getter & setter=========================
 
@@ -156,6 +169,14 @@ public class Table {
 
 	public void setTableGenerators(Map<String, TableGenerator> tableGenerators) {
 		this.tableGenerators = tableGenerators;
+	}
+
+	public List<FKeyConstraint> getFkeyConstraints() {
+		return fkeyConstraints;
+	}
+
+	public void setFkeyConstraints(List<FKeyConstraint> fkeyConstraints) {
+		this.fkeyConstraints = fkeyConstraints;
 	}
  
 
