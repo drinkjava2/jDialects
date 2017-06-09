@@ -293,7 +293,7 @@ public class TableTest {
 		t4.column("myname").VARCHAR(20);
 		t4.column("myaddress").VARCHAR(20);
 		t4.fkey("f1").ref("master1", "id");
-		t4.fkey("f2","f3").ref("master2", "name", "address");
+		t4.fkey("f2", "f3").ref("master2", "name", "address");
 		printAllDialectsDDLs(t1, t2, t3);
 		printOneDialectsDDLs(Dialect.MySQL5InnoDBDialect, t1, t2, t3, t4);
 	}

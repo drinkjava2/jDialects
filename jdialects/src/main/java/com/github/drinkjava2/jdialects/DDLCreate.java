@@ -15,23 +15,24 @@ import java.util.Set;
 import com.github.drinkjava2.hibernate.DDLFormatter;
 import com.github.drinkjava2.jdialects.model.Column;
 import com.github.drinkjava2.jdialects.model.FKeyConstraint;
-import com.github.drinkjava2.jdialects.model.GlobalIdGenerator;
+import com.github.drinkjava2.jdialects.model.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.model.InlineFKeyConstraint;
 import com.github.drinkjava2.jdialects.model.Sequence;
 import com.github.drinkjava2.jdialects.model.Table;
 import com.github.drinkjava2.jdialects.model.TableGenerator;
 
 /**
- * public static methods platform-independent model to DDL String
+ * DDL utilities used to transfer platform-independent model to drop or create
+ * DDL String array
  * 
  * @author Yong Zhu
  * @since 1.0.2
  */
-public class DDLUtils {
-	private static DialectLogger logger = DialectLogger.getLog(DDLUtils.class);
+public class DDLCreate {
+	private static DialectLogger logger = DialectLogger.getLog(DDLCreate.class);
 
 	/**
-	 * Transfer table to formatted DDL according given dialect
+	 * Transfer tables to formatted DDL according given dialect
 	 */
 	public static String[] toCreateDDL(Dialect dialect, Table... tables) {
 		String[] ddls = toCreateDDLwithoutFormat(dialect, tables);
@@ -42,7 +43,7 @@ public class DDLUtils {
 	}
 
 	/**
-	 * Transfer table to DDL by given dialect and without format it
+	 * Transfer tables to DDL by given dialect and without format it
 	 */
 	public static String[] toCreateDDLwithoutFormat(Dialect dialect, Table... tables) {
 		// resultList store mixed DDL String + TableGenerator + Sequence
@@ -54,7 +55,7 @@ public class DDLUtils {
 		List<String> stringResultList = new ArrayList<>();
 		List<TableGenerator> tbGeneratorList = new ArrayList<>();
 		List<Sequence> sequenceList = new ArrayList<>();
-		List<GlobalIdGenerator> globalIdGeneratorList = new ArrayList<>();
+		List<AutoIdGenerator> globalIdGeneratorList = new ArrayList<>();
 		List<InlineFKeyConstraint> inlinefKeyConstraintList = new ArrayList<>();
 		List<FKeyConstraint> fKeyConstraintList = new ArrayList<>();
 
@@ -66,8 +67,8 @@ public class DDLUtils {
 					tbGeneratorList.add((TableGenerator) strOrObj);
 				else if (strOrObj instanceof Sequence)
 					sequenceList.add((Sequence) strOrObj);
-				else if (strOrObj instanceof GlobalIdGenerator)
-					globalIdGeneratorList.add((GlobalIdGenerator) strOrObj);
+				else if (strOrObj instanceof AutoIdGenerator)
+					globalIdGeneratorList.add((AutoIdGenerator) strOrObj);
 				else if (strOrObj instanceof InlineFKeyConstraint)
 					inlinefKeyConstraintList.add((InlineFKeyConstraint) strOrObj);
 				else if (strOrObj instanceof FKeyConstraint)
@@ -108,10 +109,10 @@ public class DDLUtils {
 			// autoGenerator, only support sequence or table for "Auto" type
 			if (col.getAutoGenerator()) {
 				if (features.supportsSequences || features.supportsPooledSequences) {
-					objectResultList.add(new Sequence(GlobalIdGenerator.JDIALECTS_IDGEN_TABLE,
-							GlobalIdGenerator.JDIALECTS_IDGEN_TABLE, 1, 1));
-				} else {// GlobalIdGenerator
-					objectResultList.add(new GlobalIdGenerator());
+					objectResultList.add(new Sequence(AutoIdGenerator.JDIALECTS_IDGEN_TABLE,
+							AutoIdGenerator.JDIALECTS_IDGEN_TABLE, 1, 1));
+				} else {// AutoIdGenerator
+					objectResultList.add(new AutoIdGenerator());
 				}
 			}
 
@@ -304,11 +305,11 @@ public class DDLUtils {
 	}
 
 	private static void buildGolbalIDGeneratorDDL(Dialect dialect, List<String> stringList,
-			List<GlobalIdGenerator> globalIdGeneratorList) {
+			List<AutoIdGenerator> globalIdGeneratorList) {
 		if (globalIdGeneratorList != null && globalIdGeneratorList.size() > 0) {
-			stringList.add(dialect.ddlFeatures.createTableString + " " + GlobalIdGenerator.JDIALECTS_IDGEN_TABLE + " ("
-					+ GlobalIdGenerator.JDIALECTS_IDGEN_COLUMN + " " + dialect.translateToDDLType(Type.BIGINT) + " )");
-			stringList.add("insert into " + GlobalIdGenerator.JDIALECTS_IDGEN_TABLE + " values ( 1 )");
+			stringList.add(dialect.ddlFeatures.createTableString + " " + AutoIdGenerator.JDIALECTS_IDGEN_TABLE + " ("
+					+ AutoIdGenerator.JDIALECTS_IDGEN_COLUMN + " " + dialect.translateToDDLType(Type.BIGINT) + " )");
+			stringList.add("insert into " + AutoIdGenerator.JDIALECTS_IDGEN_TABLE + " values ( 1 )");
 		}
 	}
 

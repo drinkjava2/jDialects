@@ -127,7 +127,8 @@ public class Column {
 
 	/**
 	 * bind column to Auto Id generator, can be Sequence or TableGenerator,
-	 * determined by jDialects
+	 * determined by jDialects, to get next auto generated ID value, need run 
+	 * dialect.nextAutoIDSql()
 	 */
 	public Column autoGenerator() {
 		this.autoGenerator = true;
