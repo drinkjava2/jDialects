@@ -476,14 +476,14 @@ public enum Dialect {
 	 * Transfer tables to formatted create DDL
 	 */
 	public String[] toCreateDDL(Table... tables) {
-		return DDLCreate.toCreateDDL(this, tables);
+		return DDLCreateUtils.toCreateDDL(this, tables);
 	}
 
 	/**
 	 * Transfer tables to create DDL and without format it
 	 */
 	public String[] toCreateDDLwithoutFormat(Table... tables) {
-		return DDLCreate.toCreateDDLwithoutFormat(this, tables);
+		return DDLCreateUtils.toCreateDDLwithoutFormat(this, tables);
 	}
 
 	/**
@@ -504,7 +504,18 @@ public enum Dialect {
 	 * Transfer tables to drop and create DDL String array
 	 */
 	public String[] toDropAndCreateDDL(Table... tables) {
-		return DDLDropUtils.toDropAndCreateDDL(this, tables);
+		String[] drop = DDLDropUtils.toDropDDL(this, tables);
+		String[] create = DDLCreateUtils.toCreateDDL(this, tables);
+		return StrUtils.joinStringArray(drop, create);
+	}
+
+	/**
+	 * Transfer tables to drop and create DDL String array and without format it
+	 */
+	public String[] toDropAndCreateDDLwithoutFormat(Table... tables) {
+		String[] drop = DDLDropUtils.toDropDDLwithoutFormat(this, tables);
+		String[] create = DDLCreateUtils.toCreateDDLwithoutFormat(this, tables);
+		return StrUtils.joinStringArray(drop, create);
 	}
 
 	/**
@@ -525,7 +536,7 @@ public enum Dialect {
 	 * Return a SQL String array, run it will get the next Auto-Generated ID
 	 * from sequence or "jdialects_autoid" table. Note: need run inside of a
 	 * transaction, because if from jdialects_autoid table, need run 2 SQLs, one
-	 * is for get the MaxID+1, one is for update MaxID
+	 * is for get the MaxID+1, one is for update MaxID=MaxID+1
 	 */
 	public String nextAutoID() {
 		return "";

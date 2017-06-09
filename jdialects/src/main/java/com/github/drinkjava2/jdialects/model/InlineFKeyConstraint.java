@@ -8,7 +8,7 @@ package com.github.drinkjava2.jdialects.model;
 
 /**
  * An "in-line" style Foreign key constraint, some time it's more convenient
- * than use t.fkey() method
+ * than normal "FKeyConstraint"
  * 
  * <pre>
  * Usage:

@@ -28,8 +28,8 @@ import com.github.drinkjava2.jdialects.model.TableGenerator;
  * @author Yong Zhu
  * @since 1.0.2
  */
-public class DDLCreate {
-	private static DialectLogger logger = DialectLogger.getLog(DDLCreate.class);
+public class DDLCreateUtils {
+	private static DialectLogger logger = DialectLogger.getLog(DDLCreateUtils.class);
 
 	/**
 	 * Transfer tables to formatted DDL according given dialect
@@ -107,7 +107,7 @@ public class DDLCreate {
 
 		for (Column col : columns.values()) {
 			// autoGenerator, only support sequence or table for "Auto" type
-			if (col.getAutoGenerator()) {
+			if (col.getAutoGenerator()) {// if support sequence
 				if (features.supportsSequences || features.supportsPooledSequences) {
 					objectResultList.add(new Sequence(AutoIdGenerator.JDIALECTS_IDGEN_TABLE,
 							AutoIdGenerator.JDIALECTS_IDGEN_TABLE, 1, 1));
@@ -360,12 +360,14 @@ public class DDLCreate {
 				} else {
 					if (!columnExisted.contains(tableAndPKColumn)) {
 						stringList.add("alter table " + tableName + " " + dialect.ddlFeatures.addColumnString + " "
-								+ tg.getPkColumnName() + dialect.ddlFeatures.addColumnSuffixString);
+								+ tg.getPkColumnName() + dialect.translateToDDLType(Type.VARCHAR, 100) + " "
+								+ dialect.ddlFeatures.addColumnSuffixString);
 						columnExisted.add(tableAndPKColumn);
 					}
 					if (!columnExisted.contains(tableAndValColumn)) {
 						stringList.add("alter table " + tableName + " " + dialect.ddlFeatures.addColumnString + " "
-								+ tg.getValueColumnName() + dialect.ddlFeatures.addColumnSuffixString);
+								+ tg.getValueColumnName() + dialect.translateToDDLType(Type.VARCHAR, 100) + " "
+								+ dialect.ddlFeatures.addColumnSuffixString);
 						columnExisted.add(tableAndValColumn);
 					}
 				}

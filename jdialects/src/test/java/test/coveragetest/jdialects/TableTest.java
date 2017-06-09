@@ -28,7 +28,7 @@ public class TableTest {
 	private static void printOneDialectsDDLs(Dialect dialect, Table... tables) {
 		System.out.println("======" + dialect + "=====");
 		try {
-			String[] ddl = dialect.toCreateDDL(tables);
+			String[] ddl = dialect.toDropAndCreateDDL(tables);
 			printDDLs(ddl);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -41,7 +41,7 @@ public class TableTest {
 		for (Dialect dialect : diaList) {
 			System.out.println("======" + dialect + "=====");
 			try {
-				String[] ddl = dialect.toCreateDDL(tables);
+				String[] ddl = dialect.toDropAndCreateDDL(tables);
 				printDDLs(ddl);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -294,7 +294,7 @@ public class TableTest {
 		t4.column("myaddress").VARCHAR(20);
 		t4.fkey("f1").ref("master1", "id");
 		t4.fkey("f2", "f3").ref("master2", "name", "address");
-		printAllDialectsDDLs(t1, t2, t3);
+		//printAllDialectsDDLs(t1, t2, t3);
 		printOneDialectsDDLs(Dialect.MySQL5InnoDBDialect, t1, t2, t3, t4);
 	}
 
