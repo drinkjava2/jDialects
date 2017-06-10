@@ -6,11 +6,15 @@
  */
 package test.coveragetest.jdialects;
 
+import org.junit.Assert;
 import org.junit.Test;
 
+import com.github.drinkjava2.hibernate.DDLFormatter;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.model.Column;
 import com.github.drinkjava2.jdialects.model.Table;
+
+import test.BaseDDLTest;
 
 /**
  * This is unit test for Table
@@ -18,18 +22,46 @@ import com.github.drinkjava2.jdialects.model.Table;
  * @author Yong Z.
  * @since 1.0.2
  */
-public class TableTest {
+public class TableTest extends BaseDDLTest {
 	private static void printDDLs(String[] ddl) {
 		for (String str : ddl) {
 			System.out.println(str);
 		}
 	}
 
+	private void testOnRealDatabase(Table... tables) {
+		System.out.println("======Test on real Database of dialect: " + guessedDialect + "=====");
+
+		Assert.assertTrue(dao.getTableCount() == 0);// Assure database is empty
+
+		String[] ddls = guessedDialect.toCreateDDL(tables);
+		dao.executeManySqls(ddls);
+		int tableCount = dao.getTableCount();
+		System.out.println("Existed tables count=" + tableCount);
+		//Assert.assertTrue(dao.getTableCount() == 0); // created
+
+		ddls = guessedDialect.toDropDDL(tables);
+		dao.executeManySqls(ddls);
+		//Assert.assertTrue(dao.getTableCount() == 0); // deleted
+
+		ddls = guessedDialect.toCreateDDL(tables);
+		dao.executeManySqls(ddls);
+		//Assert.assertTrue(dao.getTableCount() > 0); // created
+
+		ddls = guessedDialect.toDropAndCreateDDL(tables);
+		dao.executeManySqls(ddls);
+		//Assert.assertTrue(dao.getTableCount() > 0);// create and deleted
+
+		ddls = guessedDialect.toDropDDL(tables);
+		dao.executeManySqls(ddls);
+		//Assert.assertTrue(dao.getTableCount() == 0); // deleted
+	}
+
 	private static void printOneDialectsDDLs(Dialect dialect, Table... tables) {
 		System.out.println("======" + dialect + "=====");
 		try {
-			String[] ddl = dialect.toDropAndCreateDDL(tables);
-			printDDLs(ddl);
+			String[] ddls = dialect.toDropAndCreateDDL(tables);
+			printDDLs(DDLFormatter.format(ddls));
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("Exception found: " + e.getMessage());
@@ -41,8 +73,8 @@ public class TableTest {
 		for (Dialect dialect : diaList) {
 			System.out.println("======" + dialect + "=====");
 			try {
-				String[] ddl = dialect.toDropAndCreateDDL(tables);
-				printDDLs(ddl);
+				String[] ddls = dialect.toDropAndCreateDDL(tables);
+				printDDLs(DDLFormatter.format(ddls));
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.out.println("Exception found: " + e.getMessage());
@@ -236,7 +268,7 @@ public class TableTest {
 	}
 
 	private static Table tableGeneratorModel2() {// tableGenerator
-		Table t = new Table("testTable2");
+		Table t = new Table("testTableGeneratorModel2");
 		t.addTableGenerator("tbgen3", "tb1", "pkcol3", "valcol", "pkval", 1, 10);
 		t.addTableGenerator("tbgen4", "tb1", "pkcol3", "valcol", "pkval2", 1, 10);
 		t.addTableGenerator("tbgen5", "tb1", "pkcol4", "valcol", "pkval3", 1, 10);
@@ -269,7 +301,11 @@ public class TableTest {
 
 	@Test
 	public void testAutoGeneratorModel() {
-		printAllDialectsDDLs(autoGeneratorModel(), autoGeneratorModel2(), tableGeneratorModel2());
+		// printAllDialectsDDLs(autoGeneratorModel(), autoGeneratorModel2(),
+		// tableGeneratorModel2());
+		printOneDialectsDDLs(Dialect.MySQL5Dialect, autoGeneratorModel(), autoGeneratorModel2(),
+				tableGeneratorModel2());
+		testOnRealDatabase(autoGeneratorModel(), autoGeneratorModel2(), tableGeneratorModel2());
 	}
 
 	@Test
@@ -289,13 +325,14 @@ public class TableTest {
 
 		Table t4 = new Table("child2");
 		t4.column("id").INTEGER().pkey();
-		t4.column("masterid1").INTEGER();
-		t4.column("myname").VARCHAR(20);
-		t4.column("myaddress").VARCHAR(20);
-		t4.fkey("f1").ref("master1", "id");
-		t4.fkey("f2", "f3").ref("master2", "name", "address");
-		//printAllDialectsDDLs(t1, t2, t3);
+		t4.column("masterid2").INTEGER();
+		t4.column("myname2").VARCHAR(20);
+		t4.column("myaddress2").VARCHAR(20);
+		t4.fkey("masterid2").ref("master1", "id");
+		t4.fkey("myname2", "myaddress2").ref("master2", "name", "address");
+		// printAllDialectsDDLs(t1, t2, t3);
 		printOneDialectsDDLs(Dialect.MySQL5InnoDBDialect, t1, t2, t3, t4);
+		testOnRealDatabase(t1, t2, t3, t4);
 	}
 
 }

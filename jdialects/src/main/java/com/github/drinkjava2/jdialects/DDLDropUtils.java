@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.github.drinkjava2.hibernate.DDLFormatter;
 import com.github.drinkjava2.jdialects.model.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.model.Column;
 import com.github.drinkjava2.jdialects.model.FKeyConstraint;
@@ -29,23 +28,11 @@ import com.github.drinkjava2.jdialects.model.TableGenerator;
  * @since 1.0.2
  */
 public class DDLDropUtils {
-	private static DialectLogger logger = DialectLogger.getLog(DDLDropUtils.class);
-
-	/**
-	 * Transfer tables to drop DDL
-	 */
-	public static String[] toDropDDL(Dialect dialect, Table... tables) {
-		String[] ddls = toDropDDLwithoutFormat(dialect, tables);
-		for (int i = 0; i < ddls.length; i++) {
-			ddls[i] = DDLFormatter.format(ddls[i]) + ";";
-		}
-		return ddls;
-	}
 
 	/**
 	 * Transfer tables to drop DDL and without format it
 	 */
-	public static String[] toDropDDLwithoutFormat(Dialect dialect, Table... tables) {
+	public static String[] toDropDDL(Dialect dialect, Table... tables) {
 		// resultList store mixed drop DDL + drop Ojbects
 		List<Object> objectResultList = new ArrayList<>();
 
@@ -75,17 +62,12 @@ public class DDLDropUtils {
 					fKeyConstraintList.add((FKeyConstraint) strOrObj);
 			}
 		}
-		List<String> dropDDLList = new ArrayList<>();
-		buildDropSequenceDDL(dialect, dropDDLList, sequenceList);
+
+		buildDropSequenceDDL(dialect, stringResultList, sequenceList);
 		buildDropTableGeneratorDDL(dialect, stringResultList, tbGeneratorList);
-		// buildGolbalIDGeneratorDDL(dialect, stringResultList,
-		// globalIdGeneratorList);
-		// buildFKeyConstraintDDL(dialect, stringResultList,
-		// inlinefKeyConstraintList);
-		// outputFKeyConstraintDDL(dialect, stringResultList,
-		// fKeyConstraintList);
-		for (String dropStr : dropDDLList)
-			stringResultList.add(0, dropStr);
+		buildDropGolbalIDGeneratorDDL(dialect, stringResultList, globalIdGeneratorList);
+		buildDropFKeyConstraintDDL(dialect, stringResultList, inlinefKeyConstraintList);
+		outputDropFKeyConstraintDDL(dialect, stringResultList, fKeyConstraintList);
 
 		return stringResultList.toArray(new String[stringResultList.size()]);
 	}
@@ -138,11 +120,12 @@ public class DDLDropUtils {
 			objectResultList.add(fkey);
 
 		// drop table
-		buf.append(StrUtils.replace(dialect.ddlFeatures.dropTableString, "_TABLENAME", tableName));
+		buf.append(dialect.dropTableDDL(tableName));
 		objectResultList.add(buf.toString());
 	}
 
-	private static void buildDropSequenceDDL(Dialect dialect, List<String> resultStrList, List<Sequence> sequenceList) {
+	private static void buildDropSequenceDDL(Dialect dialect, List<String> stringResultList,
+			List<Sequence> sequenceList) {
 		DDLFeatures features = dialect.ddlFeatures;
 		for (Sequence seq : sequenceList) {
 			DialectException.assureNotEmpty(seq.getName(), "Sequence name can not be empty");
@@ -175,8 +158,8 @@ public class DDLDropUtils {
 					}
 					if (!DDLFeatures.NOT_SUPPORT.equals(features.dropSequenceStrings)
 							&& !StrUtils.isEmpty(features.dropSequenceStrings)) {
-						resultStrList
-								.add(StrUtils.replace(features.dropSequenceStrings, "_SEQNAME", seq.getSequenceName()));
+						stringResultList.add(0,
+								StrUtils.replace(features.dropSequenceStrings, "_SEQNAME", seq.getSequenceName()));
 					} else
 						DialectException.throwEX("Dialect \"" + dialect
 								+ "\" does not support drop sequence ddl, on sequence \"" + seq.getName() + "\"");
@@ -187,7 +170,7 @@ public class DDLDropUtils {
 
 	}
 
-	private static void buildDropTableGeneratorDDL(Dialect dialect, List<String> stringDropDDLList,
+	private static void buildDropTableGeneratorDDL(Dialect dialect, List<String> stringResultList,
 			List<TableGenerator> tbGeneratorList) {
 		for (TableGenerator tg : tbGeneratorList) {
 			//@formatter:off
@@ -201,12 +184,70 @@ public class DDLDropUtils {
 
 		Set<String> tableExisted = new HashSet<>();
 		for (TableGenerator tg : tbGeneratorList) {
-			String tableName = tg.getTableName().toLowerCase(); 
-			if (!tableExisted.contains(tableName)) { 
-				stringDropDDLList.add(StrUtils.replace(dialect.ddlFeatures.dropTableString, "_TABLENAME", tableName));
+			String tableName = tg.getTableName().toLowerCase();
+			if (!tableExisted.contains(tableName)) {
+				stringResultList.add(0, dialect.dropTableDDL(tableName));
 				tableExisted.add(tableName);
 			}
 		}
 	}
 
+	private static void buildDropGolbalIDGeneratorDDL(Dialect dialect, List<String> stringResultList,
+			List<AutoIdGenerator> globalIdGeneratorList) {
+		if (globalIdGeneratorList != null && globalIdGeneratorList.size() > 0)
+			stringResultList.add(0, dialect.dropTableDDL(AutoIdGenerator.JDIALECTS_IDGEN_TABLE));
+	}
+
+	private static void buildDropFKeyConstraintDDL(Dialect dialect, List<String> stringResultList,
+			List<InlineFKeyConstraint> fKeyConstraintList) {
+		for (InlineFKeyConstraint kfc : fKeyConstraintList) {
+			dialect.checkNotEmptyReservedWords(kfc.getFkeyReferenceTable(), "FkeyReferenceTable can not be empty");
+			for (String refColName : kfc.getRefColumnNames())
+				dialect.checkNotEmptyReservedWords(refColName, "FkeyReferenceColumn name can not be empty");
+		}
+		/*
+		 * join table col1 refTable ref1 ref2 + table col2 refTable ref1 ref2
+		 * into one
+		 */
+		List<FKeyConstraint> trueList = new ArrayList<>();
+		for (int i = 0; i < fKeyConstraintList.size(); i++) {
+			InlineFKeyConstraint fk = fKeyConstraintList.get(i);
+			FKeyConstraint temp = new FKeyConstraint(fk);
+			temp.getColumnNames().add(fk.getColumnName());
+			if (i == 0) {
+				trueList.add(temp);
+			} else {
+				FKeyConstraint found = null;
+				for (FKeyConstraint old : trueList) {
+					if (fk.getTableName().equals(old.getTableName())
+							&& fk.getFkeyReferenceTable().equals(old.getRefTableName())
+							&& StrUtils.arraysEqual(fk.getRefColumnNames(), old.getRefColumnNames())) {
+						found = old;
+					}
+				}
+				if (found == null)
+					trueList.add(temp);
+				else
+					found.getColumnNames().add(fk.getColumnName());
+			}
+		}
+
+		outputDropFKeyConstraintDDL(dialect, stringResultList, trueList);
+	}
+
+	private static void outputDropFKeyConstraintDDL(Dialect dialect, List<String> stringResultList,
+			List<FKeyConstraint> trueList) {
+		if (DDLFeatures.NOT_SUPPORT.equals(dialect.ddlFeatures.addForeignKeyConstraintString))
+			return;
+		for (FKeyConstraint t : trueList) {
+			String dropStr = dialect.ddlFeatures.dropForeignKeyString;
+			String fkname = "fk_" + t.getTableName().toLowerCase() + "_"
+					+ StrUtils.replace(StrUtils.listToString(t.getColumnNames()), ",", "_");
+
+			if (DDLFeatures.NOT_SUPPORT.equals(dropStr))
+				DialectException.throwEX("Dialect \"" + dialect
+						+ "\" does not support drop foreign key, for setting: \"" + "fk_" + fkname + "\"");
+			stringResultList.add(0, "alter table " + t.getTableName() + " " + dropStr + " " + fkname);
+		}
+	}
 }

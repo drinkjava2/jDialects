@@ -9,7 +9,6 @@ package test;
 import javax.sql.DataSource;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 
 import com.github.drinkjava2.jbeanbox.BeanBox;
@@ -27,34 +26,19 @@ import test.utils.tinyjdbc.TinyJdbc;
  */
 public class BaseDDLTest {
 	protected DataSource ds = null;
-	protected Dialect dialect = null;
+	protected Dialect guessedDialect = null;
 	protected TinyJdbc dao = null;
-	protected static final String testTable = "DDLTestTable";
 
 	@Before
 	public void initDao() {
 		ds = BeanBox.getBean(DataSourceBox.class);
-		dialect = Dialect.guessDialect(ds);
+		guessedDialect = Dialect.guessDialect(ds);
 		dao = new TinyJdbc(ds);
-		dao.executeQuiet(dialect.dropTable(testTable));
-		assertTableNotExist(testTable);
 	}
 
 	@After
 	public void closeDataSource() {
-		dao.executeQuiet(dialect.dropTable(testTable));
-		assertTableNotExist(testTable);
 		BeanBox.defaultContext.close();// close dataSource
-	}
-
-	protected void assertTableNotExist(String table) {
-		boolean hasException = false;
-		try {
-			dao.queryForInteger("select count(*) from " + table);
-		} catch (Exception e) {
-			hasException = true;
-		}
-		Assert.assertTrue(hasException);
 	}
 
 }

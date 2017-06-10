@@ -42,7 +42,6 @@ public class TinySqlAndParameters {
 	}
 
 	public String getSql() {
-		System.out.println("SQL=" + sql);
 		return sql;
 	}
 

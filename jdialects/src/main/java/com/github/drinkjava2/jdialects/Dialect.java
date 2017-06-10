@@ -32,11 +32,11 @@ public enum Dialect {
 	SQLiteDialect, AccessDialect, ExcelDialect, TextDialect, ParadoxDialect, CobolDialect, XMLDialect, DbfDialect, // NOSONAR
 	// below are from Hibernate
 	@Deprecated
-	DerbyDialect, // NOSONAR Use other Derby version instead
+	DerbyDialect, // Use other Derby version instead
 	@Deprecated
-	OracleDialect, // NOSONAR use Oracle8iDialect instead
+	OracleDialect, // Use Oracle8iDialect instead
 	@Deprecated
-	Oracle9Dialect, // NOSONAR Use Oracle9i instead
+	Oracle9Dialect, // Use Oracle9i instead
 	Cache71Dialect, CUBRIDDialect, DerbyTenFiveDialect, DataDirectOracle9Dialect, DB2Dialect, DB2390Dialect, DB2400Dialect, DerbyTenSevenDialect, DerbyTenSixDialect, FirebirdDialect, FrontBaseDialect, H2Dialect, HANAColumnStoreDialect, HANARowStoreDialect, HSQLDialect, InformixDialect, Informix10Dialect, IngresDialect, Ingres10Dialect, Ingres9Dialect, InterbaseDialect, JDataStoreDialect, MariaDBDialect, MariaDB53Dialect, MckoiDialect, MimerSQLDialect, MySQLDialect, MySQL5Dialect, MySQL55Dialect, MySQL57Dialect, MySQL57InnoDBDialect, MySQL5InnoDBDialect, MySQLInnoDBDialect, MySQLMyISAMDialect, Oracle8iDialect, Oracle9iDialect, Oracle10gDialect, Oracle12cDialect, PointbaseDialect, PostgresPlusDialect, PostgreSQLDialect, PostgreSQL81Dialect, PostgreSQL82Dialect, PostgreSQL9Dialect, PostgreSQL91Dialect, PostgreSQL92Dialect, PostgreSQL93Dialect, PostgreSQL94Dialect, PostgreSQL95Dialect, ProgressDialect, RDMSOS2200Dialect, SAPDBDialect, SQLServerDialect, SQLServer2005Dialect, SQLServer2008Dialect, SQLServer2012Dialect, SybaseDialect, Sybase11Dialect, SybaseAnywhereDialect, SybaseASE15Dialect, SybaseASE157Dialect, TeradataDialect, Teradata14Dialect, TimesTenDialect;// NOSONAR
 
 	private static final String SKIP_ROWS = "$SKIP_ROWS";
@@ -140,16 +140,6 @@ public enum Dialect {
 	}
 
 	/**
-	 * Transfer jdialect.Type to a real dialect's ddl type, if colName is
-	 * current dialect or ANSI-SQL's reserved word of any database, throw a
-	 * DialectException
-	 */
-	private String translateToDDLType(String colName, Type type, Integer... lengths) {
-		checkIfReservedWord(this, colName);
-		return colName + " " + translateToDDLType(type, lengths);
-	}
-
-	/**
 	 * Transfer jdialect.Type to a real dialect's ddl type, lengths is optional
 	 * for some types
 	 */
@@ -198,76 +188,6 @@ public enum Dialect {
 			newValue = StrUtils.replace(newValue, "$s", String.valueOf(lengths[i]));
 		return newValue;
 	}
-
-	//@formatter:off shut off eclipse's formatter
-	public String LONG() {return translateToDDLType(Type.BIGINT);}//NOSONAR	
-	public String BOOLEAN() {return translateToDDLType(Type.BOOLEAN);}//NOSONAR 
- 	public String DOUBLE() {return translateToDDLType(Type.DOUBLE);}//NOSONAR
-	public String FLOAT(Integer... lengths) {return translateToDDLType(Type.FLOAT, lengths);}//NOSONAR
-	public String INTEGER() {return translateToDDLType(Type.INTEGER);}//NOSONAR
-	public String SHORT() {return translateToDDLType(Type.SMALLINT);}//NOSONAR
-	public String BIGDECIMAL(Integer precision, Integer scale) {return translateToDDLType(Type.NUMERIC, precision, scale);}//NOSONAR
-	public String STRING(Integer length) {return translateToDDLType(Type.VARCHAR, length);}//NOSONAR 
-	public String DATE() {return translateToDDLType(Type.DATE);}//NOSONAR	
-	public String TIME() {return translateToDDLType(Type.TIME);}//NOSONAR
-	public String TIMESTAMP() {return translateToDDLType(Type.TIMESTAMP);}//NOSONAR 
-	
-	public String BIGINT() {return translateToDDLType(Type.BIGINT);}//NOSONAR 
-	public String BINARY(Integer... lengths) {return translateToDDLType(Type.BINARY, lengths);}//NOSONAR
-	public String BIT() {return translateToDDLType(Type.BIT);}//NOSONAR
-	public String BLOB(Integer... lengths) {return translateToDDLType(Type.BLOB, lengths);}//NOSONAR 
-	public String CHAR(Integer... lengths) {return translateToDDLType(Type.CHAR, lengths);}//NOSONAR
-	public String CLOB(Integer... lengths) {return translateToDDLType(Type.CLOB, lengths);}//NOSONAR 
-	public String DECIMAL(Integer... lengths) {return translateToDDLType(Type.DECIMAL, lengths);}//NOSONAR   
-	public String JAVA_OBJECT() {return translateToDDLType(Type.JAVA_OBJECT);}//NOSONAR
-	public String LONGNVARCHAR(Integer length) {return translateToDDLType(Type.LONGNVARCHAR, length);}//NOSONAR
-	public String LONGVARBINARY(Integer... lengths) {return translateToDDLType(Type.LONGVARBINARY, lengths);}//NOSONAR
-	public String LONGVARCHAR(Integer... lengths) {return translateToDDLType(Type.LONGVARCHAR, lengths);}//NOSONAR
-	public String NCHAR(Integer length) {return translateToDDLType(Type.NCHAR, length);}//NOSONAR
-	public String NCLOB() {return translateToDDLType(Type.NCLOB);}//NOSONAR
-	public String NUMERIC(Integer... lengths) {return translateToDDLType(Type.NUMERIC, lengths);}//NOSONAR
-	public String NVARCHAR(Integer length) {return translateToDDLType(Type.NVARCHAR, length);}//NOSONAR
-	public String OTHER(Integer... lengths) {return translateToDDLType(Type.OTHER, lengths);}//NOSONAR
-	public String REAL() {return translateToDDLType(Type.REAL);}//NOSONAR
-	public String SMALLINT() {return translateToDDLType(Type.SMALLINT);}//NOSONAR
-	public String TINYINT() {return translateToDDLType(Type.TINYINT);}//NOSONAR
-	public String VARBINARY(Integer... lengths) {return translateToDDLType(Type.VARBINARY, lengths);}//NOSONAR
-	public String VARCHAR(Integer length) {return translateToDDLType(Type.VARCHAR, length);}//NOSONAR 
-	
-	public String LONG(String colName) {return translateToDDLType(colName,Type.BIGINT);}//NOSONAR	
-	public String BOOLEAN(String colName) {return translateToDDLType(colName,Type.BOOLEAN);}//NOSONAR 
- 	public String DOUBLE(String colName) {return translateToDDLType(colName,Type.DOUBLE);}//NOSONAR
-	public String FLOAT(String colName,Integer... lengths) {return translateToDDLType(colName,Type.FLOAT,lengths);}//NOSONAR
-	public String INTEGER(String colName) {return translateToDDLType(colName,Type.INTEGER);}//NOSONAR
-	public String SHORT(String colName) {return translateToDDLType(colName,Type.SMALLINT);}//NOSONAR
-	public String BIGDECIMAL(String colName,Integer precision, Integer scale) {return translateToDDLType(colName,Type.NUMERIC, precision, scale);}//NOSONAR
-	public String STRING(String colName,Integer length) {return translateToDDLType(colName,Type.VARCHAR, length);}//NOSONAR 
-	public String DATE(String colName) {return translateToDDLType(colName,Type.DATE);}//NOSONAR	
-	public String TIME(String colName) {return translateToDDLType(colName,Type.TIME);}//NOSONAR
-	public String TIMESTAMP(String colName) {return translateToDDLType(colName,Type.TIMESTAMP);}//NOSONAR 
-	
-	public String BIGINT(String colName) {return translateToDDLType(colName,Type.BIGINT);}//NOSONAR 
-	public String BINARY(String colName,Integer... lengths) {return translateToDDLType(colName,Type.BINARY, lengths);}//NOSONAR
-	public String BIT(String colName) {return translateToDDLType(colName,Type.BIT);}//NOSONAR
-	public String BLOB(String colName,Integer... lengths) {return translateToDDLType(colName,Type.BLOB, lengths);}//NOSONAR 
-	public String CHAR(String colName,Integer... lengths) {return translateToDDLType(colName,Type.CHAR, lengths);}//NOSONAR
-	public String CLOB(String colName,Integer... lengths) {return translateToDDLType(colName,Type.CLOB, lengths);}//NOSONAR 
-	public String DECIMAL(String colName,Integer... lengths) {return translateToDDLType(colName,Type.DECIMAL, lengths);}//NOSONAR   
-	public String JAVA_OBJECT(String colName) {return translateToDDLType(colName,Type.JAVA_OBJECT);}//NOSONAR
-	public String LONGNVARCHAR(String colName,Integer length) {return translateToDDLType(colName,Type.LONGNVARCHAR, length);}//NOSONAR
-	public String LONGVARBINARY(String colName,Integer... lengths) {return translateToDDLType(colName,Type.LONGVARBINARY, lengths);}//NOSONAR
-	public String LONGVARCHAR(String colName,Integer... lengths) {return translateToDDLType(colName,Type.LONGVARCHAR, lengths);}//NOSONAR
-	public String NCHAR(String colName,Integer length) {return translateToDDLType(colName,Type.NCHAR, length);}//NOSONAR
-	public String NCLOB(String colName) {return translateToDDLType(colName,Type.NCLOB);}//NOSONAR
-	public String NUMERIC(String colName,Integer... lengths) {return translateToDDLType(colName,Type.NUMERIC, lengths);}//NOSONAR
-	public String NVARCHAR(String colName,Integer length) {return translateToDDLType(colName,Type.NVARCHAR, length);}//NOSONAR
-	public String OTHER(String colName,Integer... lengths) {return translateToDDLType(colName,Type.OTHER, lengths);}//NOSONAR
-	public String REAL(String colName) {return translateToDDLType(colName,Type.REAL);}//NOSONAR
-	public String SMALLINT(String colName) {return translateToDDLType(colName,Type.SMALLINT);}//NOSONAR
-	public String TINYINT(String colName) {return translateToDDLType(colName,Type.TINYINT);}//NOSONAR
-	public String VARBINARY(String colName,Integer... lengths) {return translateToDDLType(colName,Type.VARBINARY, lengths);}//NOSONAR
-	public String VARCHAR(String colName,Integer length) {return translateToDDLType(colName,Type.VARCHAR, length);}//NOSONAR
- 	//@formatter:on 
 
 	/**
 	 * return dialect's engine
@@ -480,24 +400,10 @@ public enum Dialect {
 	}
 
 	/**
-	 * Transfer tables to create DDL and without format it
-	 */
-	public String[] toCreateDDLwithoutFormat(Table... tables) {
-		return DDLCreateUtils.toCreateDDLwithoutFormat(this, tables);
-	}
-
-	/**
 	 * Transfer tables to formatted drop DDL
 	 */
 	public String[] toDropDDL(Table... tables) {
 		return DDLDropUtils.toDropDDL(this, tables);
-	}
-
-	/**
-	 * Transfer tables to drop DDL and without format it
-	 */
-	public String[] toDropDDLwithoutFormat(Table... tables) {
-		return DDLDropUtils.toDropDDLwithoutFormat(this, tables);
 	}
 
 	/**
@@ -510,26 +416,33 @@ public enum Dialect {
 	}
 
 	/**
-	 * Transfer tables to drop and create DDL String array and without format it
+	 * Build a "drop table xxxx " like DDL String according this dialect
 	 */
-	public String[] toDropAndCreateDDLwithoutFormat(Table... tables) {
-		String[] drop = DDLDropUtils.toDropDDLwithoutFormat(this, tables);
-		String[] create = DDLCreateUtils.toCreateDDLwithoutFormat(this, tables);
-		return StrUtils.joinStringArray(drop, create);
-	}
-
-	/**
-	 * Build a "create table xxxx " DDL String based on this dialect
-	 */
-	public String createTable(String tableName) {
-		return ddlFeatures.createTableString + " " + checkReservedWords(tableName) + " ";
-	}
-
-	/**
-	 * Build a "drop table xxxx " DDL String based on this dialect
-	 */
-	public String dropTable(String tableName) {
+	public String dropTableDDL(String tableName) {
 		return ddlFeatures.dropTableString.replaceFirst("_TABLENAME", tableName);
+	}
+
+	/**
+	 * Build a "drop sequence xxxx " like DDL String according this dialect
+	 */
+	public String dropSequenceDDL(String sequenceName) {
+		if (DDLFeatures.isValidDDLTemplate(ddlFeatures.dropSequenceStrings))
+			return StrUtils.replace(ddlFeatures.dropSequenceStrings, "_SEQNAME", sequenceName);
+		else
+			return (String) DialectException.throwEX("Dialect \"" + this
+					+ "\" does not support drop sequence ddl, on sequence \"" + sequenceName + "\"");
+	}
+
+	/**
+	 * Build a "alter table tableName drop foreign key fkeyName " like DDL
+	 * String according this dialect
+	 */
+	public String dropFKeyDDL(String tableName, String fkeyName) {
+		if (DDLFeatures.isValidDDLTemplate(ddlFeatures.dropForeignKeyString))
+			return "alter table " + tableName + " " + ddlFeatures.dropForeignKeyString + " " + fkeyName;
+		else
+			return (String) DialectException.throwEX(
+					"Dialect \"" + this + "\" does not support drop foreign key, on foreign key \"" + fkeyName + "\"");
 	}
 
 	/**
@@ -538,8 +451,8 @@ public enum Dialect {
 	 * transaction, because if from jdialects_autoid table, need run 2 SQLs, one
 	 * is for get the MaxID+1, one is for update MaxID=MaxID+1
 	 */
-	public String nextAutoID() {
-		return "";
+	public String[] nextAutoID() {
+		return null;
 
 	}
 }

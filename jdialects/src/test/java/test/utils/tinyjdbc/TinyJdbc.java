@@ -16,6 +16,7 @@
 package test.utils.tinyjdbc;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -221,8 +222,16 @@ public class TinyJdbc {
 			execute(str);
 	}
 
+	public void executeQuietManySqls(String... sqls) {// NOSONAR
+		for (String str : sqls)
+			executeQuiet(str);
+	}
+
 	public boolean execute(String... sqls) {// NOSONAR
 		TinySqlAndParameters pairs = prepareSQLandParameters(sqls);
+
+		System.out.println("TinyJdbc execute sql=" + pairs.getSql());
+
 		Connection con = null;
 		PreparedStatement pst = null;
 		try {
@@ -250,4 +259,30 @@ public class TinyJdbc {
 		return false;
 	}
 
+	public int getTableCount() {
+		Connection con = null;
+		PreparedStatement pst = null;
+		try {
+			con = getConnection();
+			DatabaseMetaData metaData = con.getMetaData();
+			int tableCount = 0;
+			ResultSet rs = metaData.getTables(con.getCatalog(), "test", null, new String[] { "TABLE" });
+			while (rs.next()) {
+				tableCount++;
+				System.out.println(rs.getString("TABLE_NAME"));
+			}
+			return tableCount;
+		} catch (SQLException e) {
+			TinyJdbcException.throwEX(e, e.getMessage());
+			try {
+				if (con != null)
+					con.rollback();
+			} catch (SQLException e1) {
+				TinyJdbcException.throwEX(e1, e1.getMessage());
+			}
+		} finally {
+			closeResources(null, con, pst);
+		}
+		return 0;
+	}
 }

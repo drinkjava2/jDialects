@@ -6,6 +6,8 @@
  */
 package com.github.drinkjava2.hibernate;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
@@ -27,6 +29,14 @@ public class DDLFormatter {
 
 	public static String format(String sql) {
 		return INSTANCE.formatDDL(sql);
+	};
+
+	public static String[] format(String[] sql) {
+		List<String> l = new ArrayList<>();
+		for (String string : sql) {
+			l.add(format(string));
+		}
+		return l.toArray(new String[l.size()]);
 	};
 
 	private String formatDDL(String sql) {

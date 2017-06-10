@@ -12,10 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.github.drinkjava2.hibernate.DDLFormatter;
+import com.github.drinkjava2.jdialects.model.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.model.Column;
 import com.github.drinkjava2.jdialects.model.FKeyConstraint;
-import com.github.drinkjava2.jdialects.model.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.model.InlineFKeyConstraint;
 import com.github.drinkjava2.jdialects.model.Sequence;
 import com.github.drinkjava2.jdialects.model.Table;
@@ -32,20 +31,9 @@ public class DDLCreateUtils {
 	private static DialectLogger logger = DialectLogger.getLog(DDLCreateUtils.class);
 
 	/**
-	 * Transfer tables to formatted DDL according given dialect
-	 */
-	public static String[] toCreateDDL(Dialect dialect, Table... tables) {
-		String[] ddls = toCreateDDLwithoutFormat(dialect, tables);
-		for (int i = 0; i < ddls.length; i++) {
-			ddls[i] = DDLFormatter.format(ddls[i]) + ";";
-		}
-		return ddls;
-	}
-
-	/**
 	 * Transfer tables to DDL by given dialect and without format it
 	 */
-	public static String[] toCreateDDLwithoutFormat(Dialect dialect, Table... tables) {
+	public static String[] toCreateDDL(Dialect dialect, Table... tables) {
 		// resultList store mixed DDL String + TableGenerator + Sequence
 		List<Object> objectResultList = new ArrayList<>();
 
@@ -360,13 +348,13 @@ public class DDLCreateUtils {
 				} else {
 					if (!columnExisted.contains(tableAndPKColumn)) {
 						stringList.add("alter table " + tableName + " " + dialect.ddlFeatures.addColumnString + " "
-								+ tg.getPkColumnName() + dialect.translateToDDLType(Type.VARCHAR, 100) + " "
+								+ tg.getPkColumnName() + " " + dialect.translateToDDLType(Type.VARCHAR, 100) + " "
 								+ dialect.ddlFeatures.addColumnSuffixString);
 						columnExisted.add(tableAndPKColumn);
 					}
 					if (!columnExisted.contains(tableAndValColumn)) {
 						stringList.add("alter table " + tableName + " " + dialect.ddlFeatures.addColumnString + " "
-								+ tg.getValueColumnName() + dialect.translateToDDLType(Type.VARCHAR, 100) + " "
+								+ tg.getValueColumnName() + " " + dialect.translateToDDLType(Type.VARCHAR, 100) + " "
 								+ dialect.ddlFeatures.addColumnSuffixString);
 						columnExisted.add(tableAndValColumn);
 					}

@@ -56,7 +56,7 @@ public class DDLFeatures {
 	protected Boolean supportsTableCheck;
 	protected String tableTypeString;
 
-	protected static boolean isValidString(String featureValue) {
+	public static boolean isValidDDLTemplate(String featureValue) {
 		if (StrUtils.isEmpty(featureValue) || NOT_SUPPORT.equals(featureValue))
 			return false;
 		return true;
