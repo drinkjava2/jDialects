@@ -24,8 +24,11 @@ public class Column {
 	private Boolean pkey = false;
 	private Boolean notNull = false;
 	private Boolean unique = false;
-	private Boolean identity = false;
 	private String uniqueConstraintName;
+	private Boolean index = false;
+	private String indexName;
+	private Boolean identity = false;
+
 	private String check;
 	private String pkeyName;
 	private String defaultValue;
@@ -81,6 +84,17 @@ public class Column {
 		return this;
 	}
 
+	public Column index(String indexName) {
+		this.index = true;
+		this.indexName = indexName;
+		return this;
+	}
+
+	public Column index() {
+		this.index = true;
+		return this;
+	}
+
 	public Column identity() {
 		this.identity = true;
 		return this;
@@ -127,7 +141,7 @@ public class Column {
 
 	/**
 	 * bind column to Auto Id generator, can be Sequence or TableGenerator,
-	 * determined by jDialects, to get next auto generated ID value, need run 
+	 * determined by jDialects, to get next auto generated ID value, need run
 	 * dialect.nextAutoIDSql()
 	 */
 	public Column autoGenerator() {
@@ -305,6 +319,22 @@ public class Column {
 
 	public void setFkeyReferenceColumns(String[] fkeyReferenceColumns) {
 		this.fkeyReferenceColumns = fkeyReferenceColumns;
+	}
+
+	public Boolean getIndex() {
+		return index;
+	}
+
+	public void setIndex(Boolean index) {
+		this.index = index;
+	}
+
+	public String getIndexName() {
+		return indexName;
+	}
+
+	public void setIndexName(String indexName) {
+		this.indexName = indexName;
 	}
  
 }

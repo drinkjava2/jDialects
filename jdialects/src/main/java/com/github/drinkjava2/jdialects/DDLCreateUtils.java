@@ -235,6 +235,20 @@ public class DDLCreateUtils {
 				objectResultList.add(
 						"comment on column " + tableName + '.' + c.getColumnName() + " is '" + c.getComment() + "'");
 		}
+
+		// index
+		for (Column c : columns.values()) {
+			if (c.getIndex() && !c.getUnique()) {
+				String indexName = c.getIndexName();
+				if (StrUtils.isEmpty(indexName))
+					indexName = "IDX_" + tableName + "_" + c.getColumnName();
+				if (Dialect.Teradata14Dialect.equals(dialect))
+					objectResultList.add("create index " + indexName + " (" + c.getColumnName() + ") on " + tableName);
+				else
+					objectResultList
+							.add("create index " + indexName + " on " + tableName + " (" + c.getColumnName() + ")");
+			}
+		}
 	}
 
 	private static void buildSequenceDDL(Dialect dialect, List<String> stringList, List<Sequence> sequenceList) {

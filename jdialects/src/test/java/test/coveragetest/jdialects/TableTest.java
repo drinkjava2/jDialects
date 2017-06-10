@@ -6,7 +6,6 @@
  */
 package test.coveragetest.jdialects;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.github.drinkjava2.hibernate.DDLFormatter;
@@ -29,32 +28,20 @@ public class TableTest extends BaseDDLTest {
 		}
 	}
 
-	private void testOnRealDatabase(Table... tables) {
+	private void testOnCurrentRealDatabase(Table... tables) {
 		System.out.println("======Test on real Database of dialect: " + guessedDialect + "=====");
 
-		Assert.assertTrue(dao.getTableCount() == 0);// Assure database is empty
-
-		String[] ddls = guessedDialect.toCreateDDL(tables);
-		dao.executeManySqls(ddls);
-		int tableCount = dao.getTableCount();
-		System.out.println("Existed tables count=" + tableCount);
-		//Assert.assertTrue(dao.getTableCount() == 0); // created
-
-		ddls = guessedDialect.toDropDDL(tables);
-		dao.executeManySqls(ddls);
-		//Assert.assertTrue(dao.getTableCount() == 0); // deleted
+		String[] ddls = guessedDialect.toDropDDL(tables);
+		dao.executeQuietManySqls(ddls);
 
 		ddls = guessedDialect.toCreateDDL(tables);
 		dao.executeManySqls(ddls);
-		//Assert.assertTrue(dao.getTableCount() > 0); // created
 
 		ddls = guessedDialect.toDropAndCreateDDL(tables);
 		dao.executeManySqls(ddls);
-		//Assert.assertTrue(dao.getTableCount() > 0);// create and deleted
 
 		ddls = guessedDialect.toDropDDL(tables);
 		dao.executeManySqls(ddls);
-		//Assert.assertTrue(dao.getTableCount() == 0); // deleted
 	}
 
 	private static void printOneDialectsDDLs(Dialect dialect, Table... tables) {
@@ -98,6 +85,7 @@ public class TableTest extends BaseDDLTest {
 		t.column("t11").TIMESTAMP();
 		t.column("v12").VARCHAR(300);
 		printAllDialectsDDLs(t);
+		testOnCurrentRealDatabase(t);
 	}
 
 	@Test
@@ -105,6 +93,7 @@ public class TableTest extends BaseDDLTest {
 		// append() is a linked method
 		Table table = new Table("tb").append(new Column("field1").INTEGER()).append(new Column("field2").LONG());
 		printAllDialectsDDLs(table);
+		testOnCurrentRealDatabase(table);
 	}
 
 	@Test
@@ -114,6 +103,7 @@ public class TableTest extends BaseDDLTest {
 		t.column("l5").LONG().pkey();
 		t.column("s6").SHORT();
 		printAllDialectsDDLs(t);
+		testOnCurrentRealDatabase(t);
 	}
 
 	private static Table testNotNullModel() {// Not Null
@@ -136,6 +126,7 @@ public class TableTest extends BaseDDLTest {
 	@Test
 	public void testNotNull() {
 		printAllDialectsDDLs(testNotNullModel());
+		testOnCurrentRealDatabase(testNotNullModel());
 	}
 
 	private static Table allowNullModel() {// Allow Null
@@ -158,6 +149,7 @@ public class TableTest extends BaseDDLTest {
 	@Test
 	public void testAllowNull() {
 		printAllDialectsDDLs(allowNullModel());
+		testOnCurrentRealDatabase(allowNullModel());
 	}
 
 	private static Table uniqueModel() {// unique
@@ -172,6 +164,7 @@ public class TableTest extends BaseDDLTest {
 	@Test
 	public void testUnique() {
 		printAllDialectsDDLs(uniqueModel());
+		testOnCurrentRealDatabase(allowNullModel());
 	}
 
 	private static Table checkModel() {// column check
@@ -186,6 +179,7 @@ public class TableTest extends BaseDDLTest {
 	@Test
 	public void testCheck() {
 		printAllDialectsDDLs(checkModel());
+		testOnCurrentRealDatabase(checkModel());
 	}
 
 	private static Table tableCheckModel() {// table check
@@ -199,6 +193,7 @@ public class TableTest extends BaseDDLTest {
 	@Test
 	public void testTableCheck() {
 		printAllDialectsDDLs(tableCheckModel());
+		testOnCurrentRealDatabase(tableCheckModel());
 	}
 
 	private static Table IdentityModel() {// Identity
@@ -213,6 +208,7 @@ public class TableTest extends BaseDDLTest {
 	@Test
 	public void testIdentity() {
 		printAllDialectsDDLs(IdentityModel());
+		testOnCurrentRealDatabase(IdentityModel());
 	}
 
 	@Test
@@ -233,6 +229,7 @@ public class TableTest extends BaseDDLTest {
 	@Test
 	public void testComment() {
 		printAllDialectsDDLs(CommentModel());
+		testOnCurrentRealDatabase(CommentModel());
 	}
 
 	@Test
@@ -256,6 +253,7 @@ public class TableTest extends BaseDDLTest {
 	@Test
 	public void testSequence() {
 		printAllDialectsDDLs(SequenceModel());
+		testOnCurrentRealDatabase(SequenceModel());
 	}
 
 	private static Table tableGeneratorModel() {// tableGenerator
@@ -281,6 +279,7 @@ public class TableTest extends BaseDDLTest {
 	@Test
 	public void testTableGeneratorModel() {
 		printAllDialectsDDLs(tableGeneratorModel(), tableGeneratorModel2());
+		testOnCurrentRealDatabase(tableGeneratorModel(), tableGeneratorModel2());
 	}
 
 	private static Table autoGeneratorModel() {// autoGenerator
@@ -301,11 +300,10 @@ public class TableTest extends BaseDDLTest {
 
 	@Test
 	public void testAutoGeneratorModel() {
-		// printAllDialectsDDLs(autoGeneratorModel(), autoGeneratorModel2(),
-		// tableGeneratorModel2());
+		printAllDialectsDDLs(autoGeneratorModel(), autoGeneratorModel2(), tableGeneratorModel2());
 		printOneDialectsDDLs(Dialect.MySQL5Dialect, autoGeneratorModel(), autoGeneratorModel2(),
 				tableGeneratorModel2());
-		testOnRealDatabase(autoGeneratorModel(), autoGeneratorModel2(), tableGeneratorModel2());
+		testOnCurrentRealDatabase(autoGeneratorModel(), autoGeneratorModel2(), tableGeneratorModel2());
 	}
 
 	@Test
@@ -330,9 +328,19 @@ public class TableTest extends BaseDDLTest {
 		t4.column("myaddress2").VARCHAR(20);
 		t4.fkey("masterid2").ref("master1", "id");
 		t4.fkey("myname2", "myaddress2").ref("master2", "name", "address");
-		// printAllDialectsDDLs(t1, t2, t3);
+		printAllDialectsDDLs(t1, t2, t3);
 		printOneDialectsDDLs(Dialect.MySQL5InnoDBDialect, t1, t2, t3, t4);
-		testOnRealDatabase(t1, t2, t3, t4);
+		testOnCurrentRealDatabase(t1, t2, t3, t4);
+	}
+
+	@Test
+	public void testIndex() {// index
+		Table t = new Table("indexTable");
+		t.column("s1").STRING(20).index().unique();
+		t.column("s2").STRING(20).index();
+		printAllDialectsDDLs(t);
+		printOneDialectsDDLs(Dialect.MySQL5InnoDBDialect, t);
+		testOnCurrentRealDatabase(t);
 	}
 
 }
