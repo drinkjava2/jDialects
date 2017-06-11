@@ -47,8 +47,17 @@ public class DDLFeatures {
 	protected Boolean supportsCommentOn;
 	protected Boolean supportsIdentityColumns;
 	protected Boolean supportsIfExistsAfterConstraintName;
+
+	/**
+	 * For dropping a table, can the phrase "if exists" be applied beforeQuery
+	 * the table name
+	 */
 	protected Boolean supportsIfExistsAfterTableName;
 	protected Boolean supportsIfExistsBeforeConstraintName;
+	/**
+	 * For dropping a table, can the phrase "if exists" be applied afterQuery
+	 * the table name?
+	 */
 	protected Boolean supportsIfExistsBeforeTableName;
 	protected Boolean supportsInsertSelectIdentity;
 	protected Boolean supportsPooledSequences; // support initial & increment
@@ -56,10 +65,14 @@ public class DDLFeatures {
 	protected Boolean supportsTableCheck;
 	protected String tableTypeString;
 
-	public static boolean isValidDDLTemplate(String featureValue) {
+	protected static boolean isValidDDLTemplate(String featureValue) {
 		if (StrUtils.isEmpty(featureValue) || NOT_SUPPORT.equals(featureValue))
 			return false;
 		return true;
+	}
+
+	protected boolean supportBasicOrPooledSequence() {
+		return supportsSequences || supportsPooledSequences;
 	}
 
 	@SuppressWarnings("all")
@@ -97,9 +110,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -139,9 +150,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -181,9 +190,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -223,9 +230,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -265,9 +270,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -307,9 +310,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -349,9 +350,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -391,9 +390,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -433,9 +430,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -475,9 +470,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -517,9 +510,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -559,9 +550,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -601,9 +590,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = false;
@@ -643,9 +630,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = false;
@@ -685,9 +670,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = false;
@@ -727,9 +710,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = false;
@@ -769,9 +750,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -811,9 +790,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -853,9 +830,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = true;
@@ -895,9 +870,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -937,9 +910,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = true;
 			ddl.supportsIfExistsBeforeConstraintName = true;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -979,9 +950,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -1021,9 +990,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -1063,9 +1030,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = true;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -1105,9 +1070,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -1147,9 +1110,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -1189,9 +1150,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = true;
@@ -1231,9 +1190,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -1273,9 +1230,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -1315,9 +1270,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = true;
@@ -1357,9 +1310,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -1399,9 +1350,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -1441,9 +1390,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -1483,9 +1430,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = true;
@@ -1525,9 +1470,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = true;
@@ -1567,9 +1510,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -1609,9 +1550,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -1651,9 +1590,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -1693,9 +1630,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -1735,9 +1670,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -1777,9 +1710,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -1819,9 +1750,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -1861,9 +1790,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -1903,9 +1830,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -1945,9 +1870,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -1987,9 +1910,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -2029,9 +1950,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -2071,9 +1990,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -2113,9 +2030,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -2155,9 +2070,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -2197,9 +2110,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -2239,9 +2150,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -2281,9 +2190,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -2323,9 +2230,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -2365,9 +2270,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = true;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -2407,9 +2310,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = true;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -2449,9 +2350,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = true;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -2491,9 +2390,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = true;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -2533,9 +2430,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = true;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -2575,9 +2470,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = true;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = true;
-			ddl.supportsIfExistsBeforeTableName = true;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -2617,9 +2510,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -2659,9 +2550,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -2701,9 +2590,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = true;
@@ -2743,9 +2630,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -2785,9 +2670,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -2827,9 +2710,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -2869,9 +2750,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = true;
 			ddl.supportsSequences = true;
@@ -2911,9 +2790,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -2953,9 +2830,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -2995,9 +2870,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -3037,9 +2910,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -3079,9 +2950,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = true;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -3121,9 +2990,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -3163,9 +3030,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = true;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = false;
@@ -3205,9 +3070,7 @@ public class DDLFeatures {
 			ddl.supportsCommentOn = false;
 			ddl.supportsIdentityColumns = false;
 			ddl.supportsIfExistsAfterConstraintName = false;
-			ddl.supportsIfExistsAfterTableName = false;
 			ddl.supportsIfExistsBeforeConstraintName = false;
-			ddl.supportsIfExistsBeforeTableName = false;
 			ddl.supportsInsertSelectIdentity = false;
 			ddl.supportsPooledSequences = false;
 			ddl.supportsSequences = true;

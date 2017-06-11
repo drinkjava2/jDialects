@@ -16,7 +16,9 @@ import com.github.drinkjava2.hibernate.StringHelper;
 import com.github.drinkjava2.hibernate.pagination.RowSelection;
 import com.github.drinkjava2.hibernate.pagination.SQLServer2005LimitHandler;
 import com.github.drinkjava2.hibernate.pagination.SQLServer2012LimitHandler;
+import com.github.drinkjava2.jdialects.model.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.model.Table;
+import com.github.drinkjava2.jdialects.tinyjdbc.TinyJdbc;
 
 /**
  * jDialects is a small Java project collect all databases' dialect, most are
@@ -187,19 +189,6 @@ public enum Dialect {
 		if (newValue.contains("$s"))
 			newValue = StrUtils.replace(newValue, "$s", String.valueOf(lengths[i]));
 		return newValue;
-	}
-
-	/**
-	 * return dialect's engine
-	 */
-	public String engine(String... extraStrings) {
-		String value = this.ddlFeatures.tableTypeString;
-		if (StrUtils.isEmpty(value))
-			return "";
-		StringBuilder sb = new StringBuilder(value);
-		for (String str : extraStrings)
-			sb.append(str);
-		return sb.toString();
 	}
 
 	/**
@@ -446,13 +435,24 @@ public enum Dialect {
 	}
 
 	/**
-	 * Return a SQL String array, run it will get the next Auto-Generated ID
-	 * from sequence or "jdialects_autoid" table. Note: need run inside of a
-	 * transaction, because if from jdialects_autoid table, need run 2 SQLs, one
-	 * is for get the MaxID+1, one is for update MaxID=MaxID+1
+	 * Get a bigInt type Auto-Generated ID from sequence or "jdialects_autoid"
+	 * table. Note: need run inside of a transaction, because if from
+	 * jdialects_autoid table, need run 2 SQLs, one is for get the MaxID+1, one
+	 * is for update MaxID=MaxID+1, this method does not release connection
 	 */
-	public String[] nextAutoID() {
-		return null;
-
+	public Long getNextAutoID(Connection connection) {
+		if (ddlFeatures.supportBasicOrPooledSequence()) {
+			String sql = StrUtils.replace(ddlFeatures.sequenceNextValString, "_SEQNAME",
+					AutoIdGenerator.JDIALECTS_AUTOID);
+			return (Long) TinyJdbc.queryForObject(connection, sql);
+		} else {
+			String sql = "update " + AutoIdGenerator.JDIALECTS_AUTOID + " set " + AutoIdGenerator.NEXT_VAL + "=("
+					+ AutoIdGenerator.NEXT_VAL + "+1)";
+			int updatedCount = TinyJdbc.executeUpdate(connection, sql);
+			if (updatedCount != 1)
+				DialectException.throwEX("Error to update " + AutoIdGenerator.JDIALECTS_AUTOID + " table");
+			return (Long) TinyJdbc.queryForObject(connection,
+					"select " + AutoIdGenerator.NEXT_VAL + " from " + AutoIdGenerator.JDIALECTS_AUTOID);
+		}
 	}
 }

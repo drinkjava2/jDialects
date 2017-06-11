@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package test.utils.tinyjdbc;
+package com.github.drinkjava2.jdialects.tinyjdbc;
 
 /**
  * SqlAndParameters class used by SqlBox for store sql and parameters in

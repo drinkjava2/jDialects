@@ -26,7 +26,7 @@ public class Column {
 	private Boolean unique = false;
 	private String uniqueConstraintName;
 	private Boolean index = false;
-	private String indexName;
+	private String[] indexNames;
 	private Boolean identity = false;
 
 	private String check;
@@ -38,6 +38,12 @@ public class Column {
 
 	/** bind column to a tableGenerator */
 	private String tableGenerator;
+
+	/**
+	 * Optional, an extra tail String manually at the end of column definition
+	 * DDL
+	 */
+	private String tail;
 
 	/**
 	 * bind column to Auto Id generator, can be Sequence or TableGenerator,
@@ -63,33 +69,47 @@ public class Column {
 		this.columnName = columnName;
 	}
 
+	/** Add a not null DDL piece if support */
 	public Column notNull() {
 		this.notNull = true;
 		return this;
 	}
 
+	/** Add a unique DDL piece if support */
 	public Column unique() {
 		this.unique = true;
 		return this;
 	}
 
-	public Column check(String check) {
-		this.check = check;
-		return this;
-	}
-
+	/** Add a unique DDL piece by given uniqueConstraintName if support */
 	public Column unique(String uniqueConstraintName) {
 		this.unique = true;
 		this.uniqueConstraintName = uniqueConstraintName;
 		return this;
 	}
 
-	public Column index(String indexName) {
-		this.index = true;
-		this.indexName = indexName;
+	/** Add a column check DDL piece if support */
+	public Column check(String check) {
+		this.check = check;
 		return this;
 	}
 
+	/**
+	 * Add index DDL piece by given indexNames if support, indexNames can be
+	 * empty or multiple, if in a table has same name indexNames, will cause
+	 * build compound index for columns with same name index name.
+	 * 
+	 * @param indexNames
+	 *            Optional, the index names
+	 * @return current column Object
+	 */
+	public Column index(String... indexNames) {
+		this.index = true;
+		this.indexNames = indexNames;
+		return this;
+	}
+
+	/** Add a index DDL piece for current column if support */
 	public Column index() {
 		this.index = true;
 		return this;
@@ -140,12 +160,21 @@ public class Column {
 	}
 
 	/**
-	 * bind column to Auto Id generator, can be Sequence or TableGenerator,
-	 * determined by jDialects, to get next auto generated ID value, need run
-	 * dialect.nextAutoIDSql()
+	 * bind column to a global Auto Id generator, can be Sequence(if support) or
+	 * a Table to store maximum current ID, determined by jDialects, to get next
+	 * auto generated ID value, need run dialect.getNextAutoID(connection)
+	 * method
 	 */
-	public Column autoGenerator() {
+	public Column autoID() {
 		this.autoGenerator = true;
+		return this;
+	}
+
+	/**
+	 * Put an extra tail String manually at the end of column definition DDL
+	 */
+	public Column tail(String tail) {
+		this.tail = tail;
 		return this;
 	}
 
@@ -328,13 +357,22 @@ public class Column {
 	public void setIndex(Boolean index) {
 		this.index = index;
 	}
+ 
 
-	public String getIndexName() {
-		return indexName;
+	public String getTail() {
+		return tail;
 	}
 
-	public void setIndexName(String indexName) {
-		this.indexName = indexName;
+	public void setTail(String tail) {
+		this.tail = tail;
+	}
+
+	public String[] getIndexNames() {
+		return indexNames;
+	}
+
+	public void setIndexName(String[] indexNames) {
+		this.indexNames = indexNames;
 	}
  
 }

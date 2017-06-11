@@ -30,6 +30,13 @@ public class Table {
 	/** comment for table */
 	private String comment;
 
+	/**
+	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the
+	 * end of "create table..." DDL, usually used to set encode String like "
+	 * DEFAULT CHARSET=utf8" for MySQL
+	 */
+	private String engineTail;
+
 	/** Columns in this table, key is lower case of column tableName */
 	private Map<String, Column> columns = new LinkedHashMap<>();
 
@@ -49,6 +56,10 @@ public class Table {
 		this.tableName = tableName;
 	}
 
+	/**
+	 * Add a "create table..." DDL to generate ID, similar like JPA's
+	 * TableGenerator
+	 */
 	public void addTableGenerator(TableGenerator tableGenerator) {
 		//@formatter:off
 		DialectException.assureNotNull(tableGenerator);
@@ -59,38 +70,63 @@ public class Table {
 		} 
 		tableGenerators.put(tableGenerator.getName().toLowerCase(), tableGenerator);
 	}
-
-	public void addDefaultTableGenerator() {
-		addTableGenerator(new TableGenerator("jdialets_gen", "jdialets_gen", "pk_col", "value_col", "next_val", 1, 1));
-	}
-
+ 
+	/**
+	 * Add a "create table..." DDL to generate ID, similar like JPA's TableGenerator 
+	 * @param name The name of TableGenerator Java object itself
+	 * @param tableName The name of the table will created in database to generate ID
+	 * @param pkColumnName The name of prime key column
+	 * @param valueColumnName The name of value column
+	 * @param pkColumnValue The value in prime key column
+	 * @param initialValue The initial value
+	 * @param allocationSize The allocationSize
+	 */
 	public void addTableGenerator(String name, String tableName, String pkColumnName, String valueColumnName,
 			String pkColumnValue, Integer initialValue, Integer allocationSize) {
 		addTableGenerator(new TableGenerator(name, tableName, pkColumnName, valueColumnName, pkColumnValue,
 				initialValue, allocationSize));
 	}
 
+	/**
+	 * Add a sequence definition DDL, note: some dialects do not support sequence
+	 * @param name The name of sequence Java object itself
+	 * @param sequenceName the name of the sequence will created in database
+	 * @param initialValue The initial value
+	 * @param allocationSize The allocationSize
+	 */
 	public void addSequence(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
 		this.addSequence(new Sequence(name, sequenceName, initialValue, allocationSize));
 	}
 
+	/**
+	 * Add a sequence definition DDL 
+	 */
 	public void addSequence(Sequence sequence) {
 		DialectException.assureNotNull(sequence);
 		DialectException.assureNotEmpty(sequence.getSequenceName(), "Sequence name can not be empty");
 		sequences.put(sequence.getSequenceName().toLowerCase(), sequence);
 	}
 
+	/**
+	 *  Add the table check String DDL piece if support
+	 */
 	public Table check(String check) {
 		this.check = check;
 		return this;
 	}
 
+	/**
+	 *  Add the table comment String DDL piece if support
+	 */
 	public Table comment(String comment) {
 		this.comment = comment;
 		return this;
 	}
   
-	public Table append(Column column) {
+	/**
+	 * Add a column definition piece in DDL
+	 */
+	public Table addColumn(Column column) {
 		DialectException.assureNotNull(column);
 		DialectException.assureNotEmpty(column.getColumnName(), "Column tableName can not be empty");
 		if (!(columns.get(column.getColumnName().toLowerCase()) == null)) {
@@ -101,17 +137,30 @@ public class Table {
 		return this;
 	}
 
+ 
+	/**
+	 * Start add a column definition piece in DDL, detail usage see demo
+	 *  
+	 * @param columnName
+	 * @return the Column object
+	 */
 	public Column column(String columnName) {
 		Column column = new Column(columnName);
-		append(column);
+		addColumn(column);
 		return column;
 	}
 
+	/**
+	 * Return Column object by columnName
+	 */
 	public Column getColumn(String columnName) {
 		DialectException.assureNotEmpty(columnName);
 		return columns.get(columnName.toUpperCase());
 	}
 	
+	/**
+	 *  Start add a full foreign key definition in DDL, detail usage see demo
+	 */
 	public FKeyConstraint fkey(String... columnNames) {
 		FKeyConstraint fkey=new FKeyConstraint();
 		for (String colName : columnNames) 
@@ -121,6 +170,15 @@ public class Table {
 		return fkey;
 	}
 
+	/**
+	 * If support engine like MySQL or MariaDB, add engineTail at the end of
+	 * "create table..." DDL, usually used to set encode String like " DEFAULT CHARSET=utf8" for MySQL
+	 */
+	public Table engineTail(String engineTail) {
+		this.engineTail=engineTail;
+		return this;
+	}
+	
 	// getter & setter=========================
 
 	public String getTableName() {
@@ -177,6 +235,14 @@ public class Table {
 
 	public void setFkeyConstraints(List<FKeyConstraint> fkeyConstraints) {
 		this.fkeyConstraints = fkeyConstraints;
+	}
+
+	public String getEngineTail() {
+		return engineTail;
+	}
+
+	public void setEngineTail(String engineTail) {
+		this.engineTail = engineTail;
 	}
  
 

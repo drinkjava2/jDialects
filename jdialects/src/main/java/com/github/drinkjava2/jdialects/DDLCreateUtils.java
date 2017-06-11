@@ -8,8 +8,10 @@ package com.github.drinkjava2.jdialects;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.github.drinkjava2.jdialects.model.AutoIdGenerator;
@@ -31,7 +33,8 @@ public class DDLCreateUtils {
 	private static DialectLogger logger = DialectLogger.getLog(DDLCreateUtils.class);
 
 	/**
-	 * Transfer tables to DDL by given dialect and without format it
+	 * Transfer tables to DDL by given dialect and without format it, if want
+	 * get a formatted DDL, use DDLFormatter.format(DDLs) method to format it
 	 */
 	public static String[] toCreateDDL(Dialect dialect, Table... tables) {
 		// resultList store mixed DDL String + TableGenerator + Sequence
@@ -43,7 +46,7 @@ public class DDLCreateUtils {
 		List<String> stringResultList = new ArrayList<>();
 		List<TableGenerator> tbGeneratorList = new ArrayList<>();
 		List<Sequence> sequenceList = new ArrayList<>();
-		List<AutoIdGenerator> globalIdGeneratorList = new ArrayList<>();
+		List<AutoIdGenerator> autoIdGeneratorList = new ArrayList<>();
 		List<InlineFKeyConstraint> inlinefKeyConstraintList = new ArrayList<>();
 		List<FKeyConstraint> fKeyConstraintList = new ArrayList<>();
 
@@ -56,7 +59,7 @@ public class DDLCreateUtils {
 				else if (strOrObj instanceof Sequence)
 					sequenceList.add((Sequence) strOrObj);
 				else if (strOrObj instanceof AutoIdGenerator)
-					globalIdGeneratorList.add((AutoIdGenerator) strOrObj);
+					autoIdGeneratorList.add((AutoIdGenerator) strOrObj);
 				else if (strOrObj instanceof InlineFKeyConstraint)
 					inlinefKeyConstraintList.add((InlineFKeyConstraint) strOrObj);
 				else if (strOrObj instanceof FKeyConstraint)
@@ -66,7 +69,7 @@ public class DDLCreateUtils {
 
 		buildSequenceDDL(dialect, stringResultList, sequenceList);
 		buildTableGeneratorDDL(dialect, stringResultList, tbGeneratorList);
-		buildGolbalIDGeneratorDDL(dialect, stringResultList, globalIdGeneratorList);
+		buildAutoIdGeneratorDDL(dialect, stringResultList, autoIdGeneratorList);
 		buildFKeyConstraintDDL(dialect, stringResultList, inlinefKeyConstraintList);
 		outputFKeyConstraintDDL(dialect, stringResultList, fKeyConstraintList);
 
@@ -75,6 +78,11 @@ public class DDLCreateUtils {
 
 	/**
 	 * Transfer table to a mixed DDL String or TableGenerator Object list
+	 */
+	/**
+	 * @param dialect
+	 * @param t
+	 * @param objectResultList
 	 */
 	private static void transferTableToObjectList(Dialect dialect, Table t, List<Object> objectResultList) {
 		DDLFeatures features = dialect.ddlFeatures;
@@ -94,11 +102,11 @@ public class DDLCreateUtils {
 		}
 
 		for (Column col : columns.values()) {
-			// autoGenerator, only support sequence or table for "Auto" type
+			// "Auto" type generator
 			if (col.getAutoGenerator()) {// if support sequence
-				if (features.supportsSequences || features.supportsPooledSequences) {
-					objectResultList.add(new Sequence(AutoIdGenerator.JDIALECTS_IDGEN_TABLE,
-							AutoIdGenerator.JDIALECTS_IDGEN_TABLE, 1, 1));
+				if (features.supportBasicOrPooledSequence()) {
+					objectResultList.add(new Sequence(AutoIdGenerator.JDIALECTS_AUTOID,
+							AutoIdGenerator.JDIALECTS_AUTOID, 1, 1));
 				} else {// AutoIdGenerator
 					objectResultList.add(new AutoIdGenerator());
 				}
@@ -145,11 +153,12 @@ public class DDLCreateUtils {
 			// column definition
 			buf.append(c.getColumnName()).append(" ");
 
-			// Identity or autoGenerator+supportIdentity
+			// Identity
 			if (c.getIdentity() && !features.supportsIdentityColumns)
 				DialectException.throwEX("Unsupported identity setting for dialect \"" + dialect + "\" on column \""
 						+ c.getColumnName() + "\" at table \"" + tableName + "\"");
 
+			// Column type definition
 			if (c.getIdentity()) {
 				if (features.hasDataTypeInIdentityColumn)
 					buf.append(dialect.translateToDDLType(c.getColumnType(), c.getLengths()));
@@ -192,6 +201,10 @@ public class DDLCreateUtils {
 					buf.append(StrUtils.replace(features.columnComment, "_COMMENT", c.getComment()));
 			}
 
+			// tail String
+			if (!StrUtils.isEmpty(c.getTail()))
+				buf.append(c.getTail());
+
 			buf.append(",");
 		}
 		// PKEY
@@ -211,8 +224,15 @@ public class DDLCreateUtils {
 		buf.setLength(buf.length() - 1);
 		buf.append(")");
 
-		// type or engine for MariaDB & MySql
-		buf.append(dialect.engine());
+		// Engine for MariaDB & MySql only, for example "engine=innoDB"
+		String tableTypeString = features.tableTypeString;
+		if (!StrUtils.isEmpty(tableTypeString) && !DDLFeatures.NOT_SUPPORT.equals(tableTypeString)) {
+			buf.append(tableTypeString);
+
+			// EngineTail, for example:" DEFAULT CHARSET=utf8"
+			if (!StrUtils.isEmpty(t.getEngineTail()))
+				buf.append(t.getEngineTail());
+		}
 
 		objectResultList.add(buf.toString());
 
@@ -237,18 +257,8 @@ public class DDLCreateUtils {
 		}
 
 		// index
-		for (Column c : columns.values()) {
-			if (c.getIndex() && !c.getUnique()) {
-				String indexName = c.getIndexName();
-				if (StrUtils.isEmpty(indexName))
-					indexName = "IDX_" + tableName + "_" + c.getColumnName();
-				if (Dialect.Teradata14Dialect.equals(dialect))
-					objectResultList.add("create index " + indexName + " (" + c.getColumnName() + ") on " + tableName);
-				else
-					objectResultList
-							.add("create index " + indexName + " on " + tableName + " (" + c.getColumnName() + ")");
-			}
-		}
+		buildIndexDLL(dialect, objectResultList, tableName, columns);
+
 	}
 
 	private static void buildSequenceDDL(Dialect dialect, List<String> stringList, List<Sequence> sequenceList) {
@@ -278,7 +288,7 @@ public class DDLCreateUtils {
 			if (seq.getAllocationSize() != 0) {
 				String sequenceName = seq.getSequenceName().toLowerCase();
 				if (!sequenceNameExisted.contains(sequenceName)) {
-					if (!(features.supportsPooledSequences || features.supportsSequences)) {
+					if (!features.supportBasicOrPooledSequence()) {
 						DialectException.throwEX("Dialect \"" + dialect
 								+ "\" does not support sequence setting on sequence \"" + seq.getName() + "\"");
 					}
@@ -306,12 +316,12 @@ public class DDLCreateUtils {
 
 	}
 
-	private static void buildGolbalIDGeneratorDDL(Dialect dialect, List<String> stringList,
-			List<AutoIdGenerator> globalIdGeneratorList) {
-		if (globalIdGeneratorList != null && globalIdGeneratorList.size() > 0) {
-			stringList.add(dialect.ddlFeatures.createTableString + " " + AutoIdGenerator.JDIALECTS_IDGEN_TABLE + " ("
-					+ AutoIdGenerator.JDIALECTS_IDGEN_COLUMN + " " + dialect.translateToDDLType(Type.BIGINT) + " )");
-			stringList.add("insert into " + AutoIdGenerator.JDIALECTS_IDGEN_TABLE + " values ( 1 )");
+	private static void buildAutoIdGeneratorDDL(Dialect dialect, List<String> stringList,
+			List<AutoIdGenerator> autoIdGenerator) {
+		if (autoIdGenerator != null && autoIdGenerator.size() > 0) {
+			stringList.add(dialect.ddlFeatures.createTableString + " " + AutoIdGenerator.JDIALECTS_AUTOID + " ("
+					+ AutoIdGenerator.NEXT_VAL + " " + dialect.translateToDDLType(Type.BIGINT) + " )");
+			stringList.add("insert into " + AutoIdGenerator.JDIALECTS_AUTOID + " values ( 1 )");
 		}
 	}
 
@@ -460,6 +470,34 @@ public class DDLCreateUtils {
 		sb.append(" add constraint ").append(UniqueConstraintName).append(" unique (").append(column.getColumnName())
 				.append(")").toString();
 		objectList.add(sb.toString());
+	}
+
+	private static void buildIndexDLL(Dialect dialect, List<Object> objectResultList, String tableName,
+			Map<String, Column> columns) {
+		Map<String, String> indexes = new LinkedHashMap<>();
+		for (Column c : columns.values()) {
+			if (c.getIndex() && !c.getUnique()) {
+				String[] indexNames = c.getIndexNames();
+				if (indexNames == null || indexNames.length == 0)
+					indexNames = new String[] { "IDX_" + tableName + "_" + c.getColumnName() };
+				for (String indexName : indexNames) {
+					String indexedColumns = indexes.get(indexName);
+					if (StrUtils.isEmpty(indexedColumns))
+						indexes.put(indexName, c.getColumnName());
+					else {
+						indexedColumns += "," + c.getColumnName();
+						indexes.put(indexName, indexedColumns);
+					}
+				}
+
+			}
+		}
+		for (Entry<String, String> idx : indexes.entrySet()) {
+			if (Dialect.Teradata14Dialect.equals(dialect))
+				objectResultList.add("create index " + idx.getKey() + " (" + idx.getValue() + ") on " + tableName);
+			else
+				objectResultList.add("create index " + idx.getKey() + " on " + tableName + " (" + idx.getValue() + ")");
+		}
 	}
 
 }

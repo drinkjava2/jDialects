@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package test.utils.tinyjdbc;
+package com.github.drinkjava2.jdialects.tinyjdbc;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -25,18 +25,23 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import com.github.drinkjava2.jdialects.DialectException;
+import com.github.drinkjava2.jdialects.DialectLogger;
 
 /**
- * A tiny pure JDBC tool to access database, only used for unit test
+ * A tiny JDBC tool to access database
  * 
  *
  * @author Yong Zhu
  * @version 1.0.0
  */
 public class TinyJdbc {
+	private static DialectLogger logger = DialectLogger.getLog(TinyJdbc.class);
+	public static boolean show_sql = false;
 
-	DataSource dataSource;
+	private static void loggerOutputSql(String sql) {
+		if (show_sql)
+			logger.info(sql);
+	}
 
 	private static ThreadLocal<ArrayList<Object>> paraCache = new ThreadLocal<ArrayList<Object>>() {
 		@Override
@@ -45,34 +50,61 @@ public class TinyJdbc {
 		}
 	};
 
-	public TinyJdbc(DataSource dataSource) {
-		this.dataSource = dataSource;
-	}
-
-	private Connection getConnection() throws SQLException {
-		return dataSource.getConnection();
-	}
-
-	private void releaseConnection(Connection connection) throws SQLException {
-		connection.close();
-	}
-
 	/**
 	 * Clear cache first, then return a empty string and cache parameters in
 	 * thread local for SQL use
 	 */
-	public static String para_(Object... parameters) {
+	public static String P0(Object... parameters) {
 		paraCache.get().clear();
-		return para(parameters);
+		return P(parameters);
 	}
 
 	/**
 	 * Return a empty string and cache parameters in thread local for SQL use
 	 */
-	public static String para(Object... parameters) {
+	public static String P(Object... parameters) {
 		for (Object o : parameters)
 			paraCache.get().add(o);
 		return "";
+	}
+
+	private static void closeResources(ResultSet rs, PreparedStatement pst) {
+		if (rs != null) {
+			try {
+				rs.close();
+			} catch (SQLException e) {
+				TinyJdbcException.throwEX(e, e.getMessage());
+			}
+		}
+		try {
+			if (pst != null)
+				pst.close();
+		} catch (SQLException e) {
+			TinyJdbcException.throwEX(e, e.getMessage());
+		}
+	}
+
+	public static Connection getConnection(DataSource datasource) {
+		try {
+			return datasource.getConnection();
+		} catch (SQLException e) {
+			TinyJdbcException.throwEX(e, "Can not get connection from datasource");
+			return null;
+		}
+	}
+
+	public static void closeConnection(Connection con) {
+		try {
+			if (con != null && !con.isClosed()) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					TinyJdbcException.throwEX(e, e.getMessage());
+				}
+			}
+		} catch (SQLException e) {
+			TinyJdbcException.throwEX(e, e.getMessage());
+		}
 	}
 
 	private static TinySqlAndParameters prepareSQLandParameters(String... sqls) {
@@ -93,67 +125,30 @@ public class TinyJdbc {
 		}
 	}
 
-	public TinyResult executeQuery(String... sqls) {// NOSONAR
+	public static TinyResult executeQuery(Connection con, String... sqls) {// NOSONAR
 		TinySqlAndParameters pairs = prepareSQLandParameters(sqls);
+		loggerOutputSql(pairs.getSql());
 		ResultSet rs = null;
-		Connection con = null;
 		PreparedStatement pst = null;
 		try {
-			con = getConnection();
-			con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-			con.setAutoCommit(false);
 			int i = 1;
 			pst = con.prepareStatement(pairs.getSql());// NOSONAR
 			for (Object obj : pairs.getParameters())
 				pst.setObject(i++, obj);
 			rs = pst.executeQuery();
 			TinyResult r = ResultSupport.toResult(rs);
-			con.commit();
 			return r;
 		} catch (SQLException e) {
-			try {
-				if (con != null)
-					con.rollback();
-				TinyJdbcException.throwEX(e, e.getMessage());
-			} catch (SQLException e1) {
-				TinyJdbcException.throwEX(e1, e1.getMessage());
-			}
+			TinyJdbcException.throwEX(e, e.getMessage());
 		} finally {
-			closeResources(rs, con, pst);
+			closeResources(rs, pst);
 		}
 		return null;
 	}
 
-	private void closeResources(ResultSet rs, Connection con, PreparedStatement pst) {
-		if (rs != null) {
-			try {
-				rs.close();
-			} catch (SQLException e) {
-				TinyJdbcException.throwEX(e, e.getMessage());
-			}
-		}
-		try {
-			if (pst != null)
-				pst.close();
-		} catch (SQLException e) {
-			TinyJdbcException.throwEX(e, e.getMessage());
-		}
-		try {
-			if (con != null && !con.isClosed()) {
-				try {// NOSONAR
-					releaseConnection(con);
-				} catch (SQLException e) {
-					TinyJdbcException.throwEX(e, e.getMessage());
-				}
-			}
-		} catch (SQLException e) {
-			TinyJdbcException.throwEX(e, e.getMessage());
-		}
-	}
-
 	// =============================old ============================
-	public Integer queryForInteger(String... sqls) {
-		TinyResult rst = executeQuery(sqls);
+	public static Integer queryForInteger(Connection con, String... sqls) {
+		TinyResult rst = executeQuery(con, sqls);
 		if (rst != null && rst.getRowCount() == 1) {
 			Map<?, ?> row = rst.getRows()[0];
 			Object s = row.get(row.keySet().iterator().next());
@@ -165,8 +160,8 @@ public class TinyJdbc {
 		return null;
 	}
 
-	public Object queryForObject(String... sqls) {
-		TinyResult rst = executeQuery(sqls);
+	public static Object queryForObject(Connection con, String... sqls) {
+		TinyResult rst = executeQuery(con, sqls);
 		if (rst != null && rst.getRowCount() == 1) {
 			Map<?, ?> row = rst.getRows()[0];
 			return row.get(row.keySet().iterator().next());
@@ -175,95 +170,70 @@ public class TinyJdbc {
 		return null;
 	}
 
-	public String queryForString(String... sqls) {
-		return (String) queryForObject(sqls);
+	public static String queryForString(Connection con, String... sqls) {
+		return (String) queryForObject(con, sqls);
 	}
 
-	public int executeUpdate(String... sqls) {// NOSONAR
+	public static int executeUpdate(Connection con, String... sqls) {// NOSONAR
 		TinySqlAndParameters pairs = prepareSQLandParameters(sqls);
-		Connection con = null;
+		loggerOutputSql(pairs.getSql());
 		PreparedStatement pst = null;
 		try {
-			con = getConnection();
-			con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-			con.setAutoCommit(false);
 			int i = 1;
 			pst = con.prepareStatement(pairs.getSql());// NOSONAR
 			for (Object obj : pairs.getParameters())
 				pst.setObject(i++, obj);
 			int count = pst.executeUpdate();
-			con.commit();
 			return count;
 		} catch (SQLException e) {
 			TinyJdbcException.throwEX(e, e.getMessage());
-			try {
-				if (con != null)
-					con.rollback();
-			} catch (SQLException e1) {
-				TinyJdbcException.throwEX(e1, e1.getMessage());
-			}
 		} finally {
-			closeResources(null, con, pst);
+			closeResources(null, pst);
 		}
 		return 0;
 	}
 
-	public boolean executeQuiet(String... sqls) {
+	public static boolean executeQuiet(Connection con, String... sqls) {
 		try {
-			return execute(sqls);
+			return execute(con, sqls);
 		} catch (Exception e) {
-			DialectException.eatException(e);
+			TinyJdbcException.eatException(e);
 			return false;
 		}
 	}
 
-	public void executeManySqls(String... sqls) {// NOSONAR
+	public static void executeManySqls(Connection con, String... sqls) {// NOSONAR
 		for (String str : sqls)
-			execute(str);
+			execute(con, str);
 	}
 
-	public void executeQuietManySqls(String... sqls) {// NOSONAR
+	public static void executeQuietManySqls(Connection con, String... sqls) {// NOSONAR
 		for (String str : sqls)
-			executeQuiet(str);
+			executeQuiet(con, str);
 	}
 
-	public boolean execute(String... sqls) {// NOSONAR
+	public static boolean execute(Connection con, String... sqls) {// NOSONAR
 		TinySqlAndParameters pairs = prepareSQLandParameters(sqls);
-
-		System.out.println("TinyJdbc execute sql=" + pairs.getSql());
-
-		Connection con = null;
+		loggerOutputSql(pairs.getSql());
 		PreparedStatement pst = null;
 		try {
-			con = getConnection();
-			con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-			con.setAutoCommit(false);
 			pst = con.prepareStatement(pairs.getSql());// NOSONAR
 			int i = 1;
 			for (Object obj : pairs.getParameters())
 				pst.setObject(i++, obj);
 			boolean bl = pst.execute();
-			con.commit();
 			return bl;
 		} catch (SQLException e) {
 			TinyJdbcException.throwEX(e, e.getMessage());
-			try {
-				if (con != null)
-					con.rollback();
-			} catch (SQLException e1) {
-				TinyJdbcException.throwEX(e1, e1.getMessage());
-			}
 		} finally {
-			closeResources(null, con, pst);
+			closeResources(null, pst);
 		}
 		return false;
 	}
 
-	public int getTableCount() {
-		Connection con = null;
+	public static int getTableCount(Connection con) {
 		PreparedStatement pst = null;
 		try {
-			con = getConnection();
 			DatabaseMetaData metaData = con.getMetaData();
 			int tableCount = 0;
 			ResultSet rs = metaData.getTables(con.getCatalog(), "test", null, new String[] { "TABLE" });
@@ -274,15 +244,10 @@ public class TinyJdbc {
 			return tableCount;
 		} catch (SQLException e) {
 			TinyJdbcException.throwEX(e, e.getMessage());
-			try {
-				if (con != null)
-					con.rollback();
-			} catch (SQLException e1) {
-				TinyJdbcException.throwEX(e1, e1.getMessage());
-			}
 		} finally {
-			closeResources(null, con, pst);
+			closeResources(null, pst);
 		}
 		return 0;
 	}
+
 }

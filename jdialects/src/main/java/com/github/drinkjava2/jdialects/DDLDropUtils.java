@@ -93,9 +93,9 @@ public class DDLDropUtils {
 		for (Column col : columns.values()) {
 			// autoGenerator, only support sequence or table for "Auto" type
 			if (col.getAutoGenerator()) {// if support sequence
-				if (features.supportsSequences || features.supportsPooledSequences) {
-					objectResultList.add(new Sequence(AutoIdGenerator.JDIALECTS_IDGEN_TABLE,
-							AutoIdGenerator.JDIALECTS_IDGEN_TABLE, 1, 1));
+				if (features.supportBasicOrPooledSequence()) {
+					objectResultList.add(new Sequence(AutoIdGenerator.JDIALECTS_AUTOID,
+							AutoIdGenerator.JDIALECTS_AUTOID, 1, 1));
 				} else {// AutoIdGenerator
 					objectResultList.add(new AutoIdGenerator());
 				}
@@ -152,7 +152,7 @@ public class DDLDropUtils {
 			if (seq.getAllocationSize() != 0) {
 				String sequenceName = seq.getSequenceName().toLowerCase();
 				if (!sequenceNameExisted.contains(sequenceName)) {
-					if (!(features.supportsPooledSequences || features.supportsSequences)) {
+					if (!features.supportBasicOrPooledSequence()) {
 						DialectException.throwEX("Dialect \"" + dialect
 								+ "\" does not support sequence setting on sequence \"" + seq.getName() + "\"");
 					}
@@ -195,7 +195,7 @@ public class DDLDropUtils {
 	private static void buildDropGolbalIDGeneratorDDL(Dialect dialect, List<String> stringResultList,
 			List<AutoIdGenerator> globalIdGeneratorList) {
 		if (globalIdGeneratorList != null && globalIdGeneratorList.size() > 0)
-			stringResultList.add(0, dialect.dropTableDDL(AutoIdGenerator.JDIALECTS_IDGEN_TABLE));
+			stringResultList.add(0, dialect.dropTableDDL(AutoIdGenerator.JDIALECTS_AUTOID));
 	}
 
 	private static void buildDropFKeyConstraintDDL(Dialect dialect, List<String> stringResultList,

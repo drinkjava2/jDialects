@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package test.utils.tinyjdbc;
+package com.github.drinkjava2.jdialects.tinyjdbc;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

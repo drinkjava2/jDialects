@@ -15,21 +15,24 @@
  * limitations under the License.
  */
 
-package test.utils.tinyjdbc;
+package com.github.drinkjava2.jdialects.tinyjdbc;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
  * 
- * This class is copied from javax.servlet.jsp.jstl.sql package and made some tiny changes
+ * This class is copied from javax.servlet.jsp.jstl.sql package and made some
+ * tiny changes
  * 
  * <p>
- * Supports the creation of a javax.servlet.jsp.jstl.sql.Result object from a source java.sql.ResultSet object. A Result
- * object makes it much easier for page authors to access and manipulate the data resulting from a SQL query.
+ * Supports the creation of a javax.servlet.jsp.jstl.sql.Result object from a
+ * source java.sql.ResultSet object. A Result object makes it much easier for
+ * page authors to access and manipulate the data resulting from a SQL query.
  * </p>
  * <p>
- * Note that these methods hide any SQLExceptions that are caused and return null - to work around that use
+ * Note that these methods hide any SQLExceptions that are caused and return
+ * null - to work around that use
  * org.apache.taglibs.standard.tag.common.sql.ResultImpl directly.
  *
  *
@@ -47,7 +50,8 @@ public class ResultSupport {
 	 *
 	 * @param rs
 	 *            the <code>ResultSet</code> object
-	 * @return The <code>Result</code> object created from the <code>ResultSet</code>
+	 * @return The <code>Result</code> object created from the
+	 *         <code>ResultSet</code>
 	 */
 	public static TinyResult toResult(ResultSet rs) {
 		try {
@@ -59,13 +63,16 @@ public class ResultSupport {
 	}
 
 	/**
-	 * Converts <code>maxRows</code> of a <code>ResultSet</code> object to a <code>Result</code> object.
+	 * Converts <code>maxRows</code> of a <code>ResultSet</code> object to a
+	 * <code>Result</code> object.
 	 *
 	 * @param rs
 	 *            the <code>ResultSet</code> object
 	 * @param maxRows
-	 *            the maximum number of rows to be cached into the <code>Result</code> object.
-	 * @return The <code>Result</code> object created from the <code>ResultSet</code>, limited by <code>maxRows</code>
+	 *            the maximum number of rows to be cached into the
+	 *            <code>Result</code> object.
+	 * @return The <code>Result</code> object created from the
+	 *         <code>ResultSet</code>, limited by <code>maxRows</code>
 	 */
 	public static TinyResult toResult(ResultSet rs, int maxRows) {
 		try {

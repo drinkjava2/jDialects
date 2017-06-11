@@ -6,12 +6,18 @@
  */
 package test.coveragetest.jdialects;
 
+import static com.github.drinkjava2.jdialects.tinyjdbc.TinyJdbc.P;
+import static com.github.drinkjava2.jdialects.tinyjdbc.TinyJdbc.P0;
+
+import java.sql.Connection;
+
 import org.junit.Test;
 
 import com.github.drinkjava2.hibernate.DDLFormatter;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.model.Column;
 import com.github.drinkjava2.jdialects.model.Table;
+import com.github.drinkjava2.jdialects.tinyjdbc.TinyJdbc;
 
 import test.BaseDDLTest;
 
@@ -31,17 +37,23 @@ public class TableTest extends BaseDDLTest {
 	private void testOnCurrentRealDatabase(Table... tables) {
 		System.out.println("======Test on real Database of dialect: " + guessedDialect + "=====");
 
-		String[] ddls = guessedDialect.toDropDDL(tables);
-		dao.executeQuietManySqls(ddls);
+		Connection con = null;
+		try {
+			String[] ddls = guessedDialect.toDropDDL(tables);
+			con = TinyJdbc.getConnection(ds);
+			TinyJdbc.executeQuietManySqls(con, ddls);
 
-		ddls = guessedDialect.toCreateDDL(tables);
-		dao.executeManySqls(ddls);
+			ddls = guessedDialect.toCreateDDL(tables);
+			TinyJdbc.executeManySqls(con, ddls);
 
-		ddls = guessedDialect.toDropAndCreateDDL(tables);
-		dao.executeManySqls(ddls);
+			ddls = guessedDialect.toDropAndCreateDDL(tables);
+			TinyJdbc.executeManySqls(con, ddls);
 
-		ddls = guessedDialect.toDropDDL(tables);
-		dao.executeManySqls(ddls);
+			ddls = guessedDialect.toDropDDL(tables);
+			TinyJdbc.executeManySqls(con, ddls);
+		} finally {
+			TinyJdbc.closeConnection(con);
+		}
 	}
 
 	private static void printOneDialectsDDLs(Dialect dialect, Table... tables) {
@@ -91,7 +103,7 @@ public class TableTest extends BaseDDLTest {
 	@Test
 	public void testNoPkey() {// Test no Prime Key
 		// append() is a linked method
-		Table table = new Table("tb").append(new Column("field1").INTEGER()).append(new Column("field2").LONG());
+		Table table = new Table("tb").addColumn(new Column("field1").INTEGER()).addColumn(new Column("field2").LONG());
 		printAllDialectsDDLs(table);
 		testOnCurrentRealDatabase(table);
 	}
@@ -284,17 +296,17 @@ public class TableTest extends BaseDDLTest {
 
 	private static Table autoGeneratorModel() {// autoGenerator
 		Table t = new Table("testTable1");
-		t.column("i1").INTEGER().pkey().autoGenerator();
-		t.column("i2").INTEGER().autoGenerator();
+		t.column("i1").INTEGER().pkey().autoID();
+		t.column("i2").INTEGER().autoID();
 		return t;
 	}
 
 	private static Table autoGeneratorModel2() {// autoGenerator
 		Table t = new Table("testTable2");
 		t.addTableGenerator("tbgen7", "tb1", "pkcol4", "valcol", "pkval5", 1, 10);
-		t.column("i1").INTEGER().pkey().autoGenerator();
-		t.column("i2").INTEGER().autoGenerator();
-		t.column("i3").INTEGER().autoGenerator();
+		t.column("i1").INTEGER().pkey().autoID();
+		t.column("i2").INTEGER().autoID();
+		t.column("i3").INTEGER().autoID();
 		return t;
 	}
 
@@ -338,9 +350,54 @@ public class TableTest extends BaseDDLTest {
 		Table t = new Table("indexTable");
 		t.column("s1").STRING(20).index().unique();
 		t.column("s2").STRING(20).index();
+		t.column("s3").STRING(20).index();
+		t.column("s4").STRING(20).index("a");
+		t.column("s5").STRING(20).index("b");
+		t.column("s6").STRING(20).index("b");
+		t.column("s7").STRING(20).index("c", "d");
+		t.column("s8").STRING(20).index("d", "e");
+		t.column("s9").STRING(20).index("e");
 		printAllDialectsDDLs(t);
 		printOneDialectsDDLs(Dialect.MySQL5InnoDBDialect, t);
 		testOnCurrentRealDatabase(t);
+	}
+
+	@Test
+	public void testEngineTailAndColumnTail() {// engineTail and column Tail
+		Table t = new Table("tailsTestTable");
+		t.engineTail(" DEFAULT CHARSET=utf8");
+		t.column("id").STRING(20).pkey();
+		t.column("name").STRING(20).tail(" default 'hahaha'");
+		printOneDialectsDDLs(Dialect.Oracle10gDialect, t);
+		printOneDialectsDDLs(Dialect.H2Dialect, t);
+		printOneDialectsDDLs(Dialect.MySQL5InnoDBDialect, t);
+		printOneDialectsDDLs(Dialect.MariaDB53Dialect, t);
+		testOnCurrentRealDatabase(t);
+	}
+
+	@Test
+	public void testNextID() {// nextID
+		Table t = new Table("testNextIdTable");
+		t.column("id1").LONG().autoID().pkey();
+		t.column("id2").LONG().autoID();
+		Connection con = null;
+		try {
+			TinyJdbc.show_sql = true;
+			String[] ddls = guessedDialect.toDropDDL(t);
+			con = TinyJdbc.getConnection(ds);
+			TinyJdbc.executeQuietManySqls(con, ddls);
+
+			ddls = guessedDialect.toCreateDDL(t);
+			TinyJdbc.executeManySqls(con, ddls);
+
+			for (int i = 0; i < 10; i++) {
+				Long id1 = guessedDialect.getNextAutoID(con);
+				Long id2 = guessedDialect.getNextAutoID(con);
+				TinyJdbc.execute(con, "insert into testNextIdTable values(?,?)", P0(id1), P(id2));
+			}
+		} finally {
+			TinyJdbc.closeConnection(con);
+		}
 	}
 
 }

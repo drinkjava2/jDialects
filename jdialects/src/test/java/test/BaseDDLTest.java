@@ -15,7 +15,6 @@ import com.github.drinkjava2.jbeanbox.BeanBox;
 import com.github.drinkjava2.jdialects.Dialect;
 
 import test.functiontest.DataSourceConfig.DataSourceBox;
-import test.utils.tinyjdbc.TinyJdbc;
 
 /**
  * This test base class in charge of close data sources.
@@ -27,13 +26,12 @@ import test.utils.tinyjdbc.TinyJdbc;
 public class BaseDDLTest {
 	protected DataSource ds = null;
 	protected Dialect guessedDialect = null;
-	protected TinyJdbc dao = null;
 
 	@Before
 	public void initDao() {
 		ds = BeanBox.getBean(DataSourceBox.class);
 		guessedDialect = Dialect.guessDialect(ds);
-		dao = new TinyJdbc(ds);
+		System.out.println("Current guessedDialect=" + guessedDialect);
 	}
 
 	@After
