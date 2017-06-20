@@ -15,7 +15,7 @@ package com.github.drinkjava2.jdialects;
  */
 public class DDLFeatures {
 
-	protected static final String NOT_SUPPORT = "NOT_SUPPORT";
+	public static final String NOT_SUPPORT = "NOT_SUPPORT";
 	protected String addColumnString;
 	protected String addColumnSuffixString;
 	protected String addForeignKeyConstraintString;
@@ -41,6 +41,7 @@ public class DDLFeatures {
 	protected String identitySelectString;
 	protected Boolean needDropConstraintsBeforeDropTable;
 	protected String nullColumnString;// for allowed null column definition
+	protected Boolean requiresParensForTupleDistinctCounts;
 	protected String selectSequenceNextValString;
 	protected String sequenceNextValString;
 	protected Boolean supportsColumnCheck;
@@ -48,6 +49,166 @@ public class DDLFeatures {
 	protected Boolean supportsIdentityColumns;
 	protected Boolean supportsIfExistsAfterConstraintName;
 
+	public String getAddColumnString() {
+		return addColumnString;
+	}
+
+	public String getAddColumnSuffixString() {
+		return addColumnSuffixString;
+	}
+
+	public String getAddForeignKeyConstraintString() {
+		return addForeignKeyConstraintString;
+	}
+
+	public String getAddPrimaryKeyConstraintString() {
+		return addPrimaryKeyConstraintString;
+	}
+
+	public String getColumnComment() {
+		return columnComment;
+	}
+
+	public String getCreateCatalogCommand() {
+		return createCatalogCommand;
+	}
+
+	public String getCreateMultisetTableString() {
+		return createMultisetTableString;
+	}
+
+	public String getCreatePooledSequenceStrings() {
+		return createPooledSequenceStrings;
+	}
+
+	public String getCreateSchemaCommand() {
+		return createSchemaCommand;
+	}
+
+	public String getCreateSequenceStrings() {
+		return createSequenceStrings;
+	}
+
+	public String getCreateTableString() {
+		return createTableString;
+	}
+
+	public String getCurrentSchemaCommand() {
+		return currentSchemaCommand;
+	}
+
+	public String getDropCatalogCommand() {
+		return dropCatalogCommand;
+	}
+
+	public String getDropForeignKeyString() {
+		return dropForeignKeyString;
+	}
+
+	public String getDropSchemaCommand() {
+		return dropSchemaCommand;
+	}
+
+	public String getDropSequenceStrings() {
+		return dropSequenceStrings;
+	}
+
+	public String getDropTableString() {
+		return dropTableString;
+	}
+
+	public Boolean getHasAlterTable() {
+		return hasAlterTable;
+	}
+
+	public Boolean getHasDataTypeInIdentityColumn() {
+		return hasDataTypeInIdentityColumn;
+	}
+
+	public String getIdentityColumnString() {
+		return identityColumnString;
+	}
+
+	public String getIdentityColumnStringBigINT() {
+		return identityColumnStringBigINT;
+	}
+
+	public String getIdentityInsertString() {
+		return identityInsertString;
+	}
+
+	public String getIdentitySelectString() {
+		return identitySelectString;
+	}
+
+	public Boolean getNeedDropConstraintsBeforeDropTable() {
+		return needDropConstraintsBeforeDropTable;
+	}
+
+	public String getNullColumnString() {
+		return nullColumnString;
+	}
+
+	public Boolean getRequiresParensForTupleDistinctCounts() {
+		return requiresParensForTupleDistinctCounts;
+	}
+
+	public String getSelectSequenceNextValString() {
+		return selectSequenceNextValString;
+	}
+
+	public String getSequenceNextValString() {
+		return sequenceNextValString;
+	}
+
+	public Boolean getSupportsColumnCheck() {
+		return supportsColumnCheck;
+	}
+
+	public Boolean getSupportsCommentOn() {
+		return supportsCommentOn;
+	}
+
+	public Boolean getSupportsIdentityColumns() {
+		return supportsIdentityColumns;
+	}
+
+	public Boolean getSupportsIfExistsAfterConstraintName() {
+		return supportsIfExistsAfterConstraintName;
+	}
+
+	public Boolean getSupportsIfExistsAfterTableName() {
+		return supportsIfExistsAfterTableName;
+	}
+
+	public Boolean getSupportsIfExistsBeforeConstraintName() {
+		return supportsIfExistsBeforeConstraintName;
+	}
+
+	public Boolean getSupportsIfExistsBeforeTableName() {
+		return supportsIfExistsBeforeTableName;
+	}
+
+	public Boolean getSupportsInsertSelectIdentity() {
+		return supportsInsertSelectIdentity;
+	}
+
+	public Boolean getSupportsPooledSequences() {
+		return supportsPooledSequences;
+	}
+
+	public Boolean getSupportsSequences() {
+		return supportsSequences;
+	}
+
+	public Boolean getSupportsTableCheck() {
+		return supportsTableCheck;
+	}
+
+	public String getTableTypeString() {
+		return tableTypeString;
+	}
+  
 	/**
 	 * For dropping a table, can the phrase "if exists" be applied beforeQuery
 	 * the table name
@@ -104,6 +265,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select last_insert_rowid()";
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -144,6 +306,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = " null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "nextval('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval('_SEQNAME')";
 			ddl.supportsColumnCheck = false;
@@ -184,6 +347,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = " null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "nextval('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval('_SEQNAME')";
 			ddl.supportsColumnCheck = false;
@@ -224,6 +388,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = " null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "nextval('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval('_SEQNAME')";
 			ddl.supportsColumnCheck = false;
@@ -264,6 +429,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = " null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "nextval('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval('_SEQNAME')";
 			ddl.supportsColumnCheck = false;
@@ -304,6 +470,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = " null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "nextval('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval('_SEQNAME')";
 			ddl.supportsColumnCheck = false;
@@ -344,6 +511,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = " null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "nextval('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval('_SEQNAME')";
 			ddl.supportsColumnCheck = false;
@@ -384,6 +552,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = " null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "nextval('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval('_SEQNAME')";
 			ddl.supportsColumnCheck = false;
@@ -424,6 +593,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "SELECT LAST_IDENTITY() FROM %TSQL_sys.snf";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = " null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -464,6 +634,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select last_insert_id()";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = "select _SEQNAME.next_value from table({1}) as T(X)";
 			ddl.supportsColumnCheck = false;
@@ -504,6 +675,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select _SEQNAME.nextval from dual";
 			ddl.supportsColumnCheck = true;
@@ -544,6 +716,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "values identity_val_local()";
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "next value for _SEQNAME";
 			ddl.sequenceNextValString = "values nextval for _SEQNAME";
 			ddl.supportsColumnCheck = true;
@@ -584,6 +757,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select identity_val_local() from sysibm.sysdummy1";
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "next value for _SEQNAME";
 			ddl.sequenceNextValString = "values nextval for _SEQNAME";
 			ddl.supportsColumnCheck = true;
@@ -624,6 +798,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select identity_val_local() from sysibm.sysdummy1";
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "next value for _SEQNAME";
 			ddl.sequenceNextValString = "values nextval for _SEQNAME";
 			ddl.supportsColumnCheck = true;
@@ -664,6 +839,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "values identity_val_local()";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "next value for _SEQNAME";
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -704,6 +880,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "values identity_val_local()";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "next value for _SEQNAME";
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -744,6 +921,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "values identity_val_local()";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "next value for _SEQNAME";
 			ddl.sequenceNextValString = "values next value for _SEQNAME";
 			ddl.supportsColumnCheck = true;
@@ -784,6 +962,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "values identity_val_local()";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "next value for _SEQNAME";
 			ddl.sequenceNextValString = "values next value for _SEQNAME";
 			ddl.supportsColumnCheck = true;
@@ -824,6 +1003,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "gen_id( _SEQNAME, 1 )";
 			ddl.sequenceNextValString = "select gen_id( _SEQNAME, 1 ) from RDB$DATABASE";
 			ddl.supportsColumnCheck = true;
@@ -864,6 +1044,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -904,6 +1085,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "call identity()";
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = true;
 			ddl.selectSequenceNextValString = "next value for _SEQNAME";
 			ddl.sequenceNextValString = "call next value for _SEQNAME";
 			ddl.supportsColumnCheck = true;
@@ -944,6 +1126,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select _SEQNAME.nextval from dummy";
 			ddl.supportsColumnCheck = false;
@@ -984,6 +1167,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select _SEQNAME.nextval from dummy";
 			ddl.supportsColumnCheck = false;
@@ -1024,6 +1208,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "call identity()";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "next value for _SEQNAME";
 			ddl.sequenceNextValString = "call next value for _SEQNAME";
 			ddl.supportsColumnCheck = false;
@@ -1064,6 +1249,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select dbinfo('sqlca.sqlerrd1') from informix.systables where tabid=1";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select _SEQNAME.nextval from informix.systables where tabid=1";
 			ddl.supportsColumnCheck = true;
@@ -1104,6 +1290,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select dbinfo('sqlca.sqlerrd1') from informix.systables where tabid=1";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select _SEQNAME.nextval from informix.systables where tabid=1";
 			ddl.supportsColumnCheck = true;
@@ -1144,6 +1331,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = " with null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select nextval for _SEQNAME";
 			ddl.supportsColumnCheck = true;
@@ -1184,6 +1372,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select last_identity()";
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = " with null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select nextval for _SEQNAME";
 			ddl.supportsColumnCheck = true;
@@ -1224,6 +1413,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select last_identity()";
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = " with null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select nextval for _SEQNAME";
 			ddl.supportsColumnCheck = true;
@@ -1264,6 +1454,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "gen_id( _SEQNAME, 1 )";
 			ddl.sequenceNextValString = "select gen_id( _SEQNAME, 1 ) from RDB$DATABASE";
 			ddl.supportsColumnCheck = true;
@@ -1304,6 +1495,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = false;
@@ -1344,6 +1536,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select last_insert_id()";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = false;
@@ -1384,6 +1577,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select last_insert_id()";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = false;
@@ -1424,6 +1618,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "nextval('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval('_SEQNAME')";
 			ddl.supportsColumnCheck = true;
@@ -1464,6 +1659,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = "select next_value of _SEQNAME from system.onerow";
 			ddl.supportsColumnCheck = true;
@@ -1504,6 +1700,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select last_insert_id()";
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -1544,6 +1741,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select last_insert_id()";
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = false;
@@ -1584,6 +1782,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select last_insert_id()";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = false;
@@ -1624,6 +1823,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select last_insert_id()";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = false;
@@ -1664,6 +1864,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select last_insert_id()";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = false;
@@ -1704,6 +1905,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select last_insert_id()";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = false;
@@ -1744,6 +1946,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select last_insert_id()";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -1784,6 +1987,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select last_insert_id()";
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -1824,6 +2028,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select _SEQNAME.nextval from dual";
 			ddl.supportsColumnCheck = true;
@@ -1864,6 +2069,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select _SEQNAME.nextval from dual";
 			ddl.supportsColumnCheck = true;
@@ -1904,6 +2110,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select _SEQNAME.nextval from dual";
 			ddl.supportsColumnCheck = true;
@@ -1944,6 +2151,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select _SEQNAME.nextval from dual";
 			ddl.supportsColumnCheck = true;
@@ -1984,6 +2192,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select _SEQNAME.nextval from dual";
 			ddl.supportsColumnCheck = true;
@@ -2024,6 +2233,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select _SEQNAME.nextval from dual";
 			ddl.supportsColumnCheck = true;
@@ -2064,6 +2274,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -2104,6 +2315,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select currval('_table__col_seq')";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = true;
 			ddl.selectSequenceNextValString = "nextval ('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval ('_SEQNAME')";
 			ddl.supportsColumnCheck = true;
@@ -2144,6 +2356,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select currval('_table__col_seq')";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = true;
 			ddl.selectSequenceNextValString = "nextval ('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval ('_SEQNAME')";
 			ddl.supportsColumnCheck = true;
@@ -2184,6 +2397,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select currval('_table__col_seq')";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = true;
 			ddl.selectSequenceNextValString = "nextval ('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval ('_SEQNAME')";
 			ddl.supportsColumnCheck = true;
@@ -2224,6 +2438,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select currval('_table__col_seq')";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = true;
 			ddl.selectSequenceNextValString = "nextval ('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval ('_SEQNAME')";
 			ddl.supportsColumnCheck = true;
@@ -2264,6 +2479,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select currval('_table__col_seq')";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = true;
 			ddl.selectSequenceNextValString = "nextval ('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval ('_SEQNAME')";
 			ddl.supportsColumnCheck = true;
@@ -2304,6 +2520,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select currval('_table__col_seq')";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = true;
 			ddl.selectSequenceNextValString = "nextval ('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval ('_SEQNAME')";
 			ddl.supportsColumnCheck = true;
@@ -2344,6 +2561,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select currval('_table__col_seq')";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = true;
 			ddl.selectSequenceNextValString = "nextval ('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval ('_SEQNAME')";
 			ddl.supportsColumnCheck = true;
@@ -2384,6 +2602,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select currval('_table__col_seq')";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = true;
 			ddl.selectSequenceNextValString = "nextval ('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval ('_SEQNAME')";
 			ddl.supportsColumnCheck = true;
@@ -2424,6 +2643,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select currval('_table__col_seq')";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = true;
 			ddl.selectSequenceNextValString = "nextval ('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval ('_SEQNAME')";
 			ddl.supportsColumnCheck = true;
@@ -2464,6 +2684,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select currval('_table__col_seq')";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = true;
 			ddl.selectSequenceNextValString = "nextval ('_SEQNAME')";
 			ddl.sequenceNextValString = "select nextval ('_SEQNAME')";
 			ddl.supportsColumnCheck = true;
@@ -2504,6 +2725,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -2544,6 +2766,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = " null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = "select permuted_id('NEXT',31) from rdms.rdms_dummy where key_col = 1 ";
 			ddl.supportsColumnCheck = true;
@@ -2584,6 +2807,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = " null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select _SEQNAME.nextval from dual";
 			ddl.supportsColumnCheck = true;
@@ -2624,6 +2848,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select @@identity";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -2664,6 +2889,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select @@identity";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -2704,6 +2930,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select @@identity";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -2744,6 +2971,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select @@identity";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "next value for _SEQNAME";
 			ddl.sequenceNextValString = "select next value for _SEQNAME";
 			ddl.supportsColumnCheck = true;
@@ -2784,6 +3012,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select @@identity";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = " null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -2824,6 +3053,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select @@identity";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = " null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -2864,6 +3094,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select @@identity";
 			ddl.needDropConstraintsBeforeDropTable = false;
 			ddl.nullColumnString = " null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -2904,6 +3135,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select @@identity";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = " null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -2944,6 +3176,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = "select @@identity";
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = " null";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -2984,6 +3217,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -3024,6 +3258,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = NOT_SUPPORT;
 			ddl.sequenceNextValString = NOT_SUPPORT;
 			ddl.supportsColumnCheck = true;
@@ -3064,6 +3299,7 @@ public class DDLFeatures {
 			ddl.identitySelectString = NOT_SUPPORT;
 			ddl.needDropConstraintsBeforeDropTable = true;
 			ddl.nullColumnString = "";
+			ddl.requiresParensForTupleDistinctCounts = false;
 			ddl.selectSequenceNextValString = "_SEQNAME.nextval";
 			ddl.sequenceNextValString = "select first 1 _SEQNAME.nextval from sys.tables";
 			ddl.supportsColumnCheck = false;

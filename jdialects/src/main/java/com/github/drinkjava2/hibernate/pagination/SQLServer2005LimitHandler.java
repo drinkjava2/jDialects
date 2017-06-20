@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.github.drinkjava2.hibernate.StringHelper;
+import com.github.drinkjava2.hibernate.utils.StringHelper;
 
 /**
  * LIMIT clause handler compatible with SQL Server 2005 and later.

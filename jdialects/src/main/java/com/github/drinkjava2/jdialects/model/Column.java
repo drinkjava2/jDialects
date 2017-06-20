@@ -187,6 +187,7 @@ public class Column {
 	public Column SHORT() {this.columnType=Type.SMALLINT;return this;} 
 	public Column BIGDECIMAL(Integer precision, Integer scale) {this.columnType=Type.NUMERIC; this.lengths= new Integer[]{precision,scale}; return this;} 
 	public Column STRING(Integer length) {this.columnType=Type.VARCHAR;this.lengths=new Integer[]{length}; return this;} 
+	
 	public Column DATE() {this.columnType=Type.DATE;return this;} 
 	public Column TIME() {this.columnType=Type.TIME;return this;} 
 	public Column TIMESTAMP() {this.columnType=Type.TIMESTAMP;return this;} 

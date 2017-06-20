@@ -12,10 +12,10 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import com.github.drinkjava2.hibernate.StringHelper;
 import com.github.drinkjava2.hibernate.pagination.RowSelection;
 import com.github.drinkjava2.hibernate.pagination.SQLServer2005LimitHandler;
 import com.github.drinkjava2.hibernate.pagination.SQLServer2012LimitHandler;
+import com.github.drinkjava2.hibernate.utils.StringHelper;
 import com.github.drinkjava2.jdialects.model.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.model.Table;
 import com.github.drinkjava2.jdialects.tinyjdbc.TinyJdbc;
@@ -58,9 +58,9 @@ public enum Dialect {
 
 	static {
 		for (Dialect d : Dialect.values()) {
-			d.sqlTemplate = InitPaginationTemplate.initializePaginSQLTemplate(d);
-			d.topLimitTemplate = InitPaginationTemplate.initializeTopLimitSqlTemplate(d);
-			InitTypeMapping.initializeTypeMappings(d);
+			d.sqlTemplate = DialectPaginationTemplate.initializePaginSQLTemplate(d);
+			d.topLimitTemplate = DialectPaginationTemplate.initializeTopLimitSqlTemplate(d);
+			DialectTypeMappingTemplate.initializeTypeMappings(d);
 			DDLFeatures.initDDLFeatures(d, d.ddlFeatures);
 		}
 	}
@@ -172,6 +172,49 @@ public enum Dialect {
 		}
 		return "";
 	}
+
+	//@formatter:off shut off eclipse's formatter
+	//get DDL type String, for example, if is MySQLDialect, call TYPE_LONG() method will get "bigint" String
+	public String TYPE_LONG() {return translateToDDLType(Type.BIGINT);}//NOSONAR	
+	public String TYPE_BOOLEAN() {return translateToDDLType(Type.BOOLEAN);}//NOSONAR 
+ 	public String TYPE_DOUBLE() {return translateToDDLType(Type.DOUBLE);}//NOSONAR
+	public String TYPE_FLOAT(Integer... lengths) {return translateToDDLType(Type.FLOAT, lengths);}//NOSONAR
+	public String TYPE_INTEGER() {return translateToDDLType(Type.INTEGER);}//NOSONAR
+	public String TYPE_SHORT() {return translateToDDLType(Type.SMALLINT);}//NOSONAR
+	public String TYPE_BIGDECIMAL(Integer precision, Integer scale) {return translateToDDLType(Type.NUMERIC, precision, scale);}//NOSONAR
+	public String TYPE_STRING(Integer length) {return translateToDDLType(Type.VARCHAR, length);}//NOSONAR 
+	public String TYPE_DATE() {return translateToDDLType(Type.DATE);}//NOSONAR	
+	public String TYPE_TIME() {return translateToDDLType(Type.TIME);}//NOSONAR
+	public String TYPE_TIMESTAMP() {return translateToDDLType(Type.TIMESTAMP);}//NOSONAR 
+	
+	public String TYPE_BIGINT() {return translateToDDLType(Type.BIGINT);}//NOSONAR 
+	public String TYPE_BINARY(Integer... lengths) {return translateToDDLType(Type.BINARY, lengths);}//NOSONAR
+	public String TYPE_BIT() {return translateToDDLType(Type.BIT);}//NOSONAR
+	public String TYPE_BLOB(Integer... lengths) {return translateToDDLType(Type.BLOB, lengths);}//NOSONAR 
+	public String TYPE_CHAR(Integer... lengths) {return translateToDDLType(Type.CHAR, lengths);}//NOSONAR
+	public String TYPE_CLOB(Integer... lengths) {return translateToDDLType(Type.CLOB, lengths);}//NOSONAR 
+	public String TYPE_DECIMAL(Integer... lengths) {return translateToDDLType(Type.DECIMAL, lengths);}//NOSONAR   
+	public String TYPE_JAVA_OBJECT() {return translateToDDLType(Type.JAVA_OBJECT);}//NOSONAR
+	public String TYPE_LONGNVARCHAR(Integer length) {return translateToDDLType(Type.LONGNVARCHAR, length);}//NOSONAR
+	public String TYPE_LONGVARBINARY(Integer... lengths) {return translateToDDLType(Type.LONGVARBINARY, lengths);}//NOSONAR
+	public String TYPE_LONGVARCHAR(Integer... lengths) {return translateToDDLType(Type.LONGVARCHAR, lengths);}//NOSONAR
+	public String TYPE_NCHAR(Integer length) {return translateToDDLType(Type.NCHAR, length);}//NOSONAR
+	public String TYPE_NCLOB() {return translateToDDLType(Type.NCLOB);}//NOSONAR
+	public String TYPE_NUMERIC(Integer... lengths) {return translateToDDLType(Type.NUMERIC, lengths);}//NOSONAR
+	public String TYPE_NVARCHAR(Integer length) {return translateToDDLType(Type.NVARCHAR, length);}//NOSONAR
+	public String TYPE_OTHER(Integer... lengths) {return translateToDDLType(Type.OTHER, lengths);}//NOSONAR
+	public String TYPE_REAL() {return translateToDDLType(Type.REAL);}//NOSONAR
+	public String TYPE_SMALLINT() {return translateToDDLType(Type.SMALLINT);}//NOSONAR
+	public String TYPE_TINYINT() {return translateToDDLType(Type.TINYINT);}//NOSONAR
+	public String TYPE_VARBINARY(Integer... lengths) {return translateToDDLType(Type.VARBINARY, lengths);}//NOSONAR
+	public String TYPE_VARCHAR(Integer length) {return translateToDDLType(Type.VARCHAR, length);}//NOSONAR 
+   //@formatter:on 
+
+	//@formatter:off shut off eclipse's formatter
+	//functions
+	/** ABS() function, 100% dialects support translate it to real SQL function */
+	public String fun_abs(Object... args){return FunctionUtils.render("abs", args);}  //TODO here
+	 //@formatter:on 
 
 	/**
 	 * inside function

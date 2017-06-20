@@ -14,7 +14,7 @@ package com.github.drinkjava2.jdialects;
  * @since 1.0.1
  */
 @SuppressWarnings("all")
-public class InitTypeMapping {
+public class DialectTypeMappingTemplate {
 
 	protected static void initializeTypeMappings(Dialect d) {
 		switch (d) {

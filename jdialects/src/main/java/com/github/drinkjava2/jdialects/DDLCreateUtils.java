@@ -23,8 +23,7 @@ import com.github.drinkjava2.jdialects.model.Table;
 import com.github.drinkjava2.jdialects.model.TableGenerator;
 
 /**
- * DDL utilities used to transfer platform-independent model to drop or create
- * DDL String array
+ * To transfer platform-independent model to create DDL String array
  * 
  * @author Yong Zhu
  * @since 1.0.2
@@ -105,8 +104,8 @@ public class DDLCreateUtils {
 			// "Auto" type generator
 			if (col.getAutoGenerator()) {// if support sequence
 				if (features.supportBasicOrPooledSequence()) {
-					objectResultList.add(new Sequence(AutoIdGenerator.JDIALECTS_AUTOID,
-							AutoIdGenerator.JDIALECTS_AUTOID, 1, 1));
+					objectResultList.add(
+							new Sequence(AutoIdGenerator.JDIALECTS_AUTOID, AutoIdGenerator.JDIALECTS_AUTOID, 1, 1));
 				} else {// AutoIdGenerator
 					objectResultList.add(new AutoIdGenerator());
 				}

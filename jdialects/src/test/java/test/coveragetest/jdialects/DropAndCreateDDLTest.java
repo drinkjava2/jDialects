@@ -13,7 +13,7 @@ import java.sql.Connection;
 
 import org.junit.Test;
 
-import com.github.drinkjava2.hibernate.DDLFormatter;
+import com.github.drinkjava2.hibernate.utils.DDLFormatter;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.model.Column;
 import com.github.drinkjava2.jdialects.model.Table;
@@ -27,7 +27,7 @@ import test.BaseDDLTest;
  * @author Yong Z.
  * @since 1.0.2
  */
-public class TableTest extends BaseDDLTest {
+public class DropAndCreateDDLTest extends BaseDDLTest {
 	private static void printDDLs(String[] ddl) {
 		for (String str : ddl) {
 			System.out.println(str);
