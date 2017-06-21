@@ -8,6 +8,8 @@ package test.coveragetest.jdialects;
 
 import org.junit.Test;
 
+import com.github.drinkjava2.jdialects.Dialect;
+
 /**
  * This is unit test for jDialects.Dialect
  * 
@@ -17,5 +19,8 @@ import org.junit.Test;
 public class FunctionsTest {
 
 	@Test
-	public void test1() { }
+	public void test1() { 
+		 System.out.println(Dialect.MySQL55Dialect.fn_abs());
+		 System.out.println(Dialect.MySQL55Dialect.fn_abs("123"));
+	}
 }

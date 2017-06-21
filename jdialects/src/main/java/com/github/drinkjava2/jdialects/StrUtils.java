@@ -495,28 +495,30 @@ public class StrUtils {
 	}
 
 	/**
-	 * Change a Object array to obj1,obj2... String
+	 * Change a Object array to "obj1,obj2...,objn" String
 	 */
 	public static String arrayToString(Object[] array) {
-		if (array == null || array.length == 0)
-			DialectException.throwEX("StrUtils arrayToString() method can not accept empty arrays");
+		if (array == null)
+			DialectException.throwEX("StrUtils arrayToString() method do not accept empty arrays");
 		StringBuilder sb = new StringBuilder();
 		for (Object object : array)
 			sb.append("" + object + ",");
-		sb.setLength(sb.length() - 1);
+		if (sb.length() > 0)
+			sb.setLength(sb.length() - 1);
 		return sb.toString();
 	}
 
 	/**
-	 * Change a Object List to obj1,obj2... String
+	 * Change a Object List to "obj1,obj2...,objn" String
 	 */
 	public static String listToString(List<?> lst) {
-		if (lst == null || lst.size() == 0)
-			DialectException.throwEX("StrUtils listToString() method can not accept empty list");
+		if (lst == null)
+			DialectException.throwEX("StrUtils listToString() method do not accept empty list");
 		StringBuilder sb = new StringBuilder();
 		for (Object object : lst)
 			sb.append("" + object + ",");
-		sb.setLength(sb.length() - 1);
+		if (sb.length() > 0)
+			sb.setLength(sb.length() - 1);
 		return sb.toString();
 	}
 
