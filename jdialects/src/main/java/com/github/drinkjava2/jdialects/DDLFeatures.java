@@ -208,7 +208,7 @@ public class DDLFeatures {
 	public String getTableTypeString() {
 		return tableTypeString;
 	}
-  
+
 	/**
 	 * For dropping a table, can the phrase "if exists" be applied beforeQuery
 	 * the table name
@@ -232,7 +232,7 @@ public class DDLFeatures {
 		return true;
 	}
 
-	protected boolean supportBasicOrPooledSequence() {
+	public boolean supportBasicOrPooledSequence() {
 		return supportsSequences || supportsPooledSequences;
 	}
 

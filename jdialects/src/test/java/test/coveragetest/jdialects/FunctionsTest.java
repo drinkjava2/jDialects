@@ -18,6 +18,13 @@ import com.github.drinkjava2.jdialects.Dialect;
  */
 public class FunctionsTest {
 
+	public static void main(String[] args) {
+		String[] params = new String[] { "'a'", "'b'", "'c'", "'d'" };
+		System.out.println(Dialect.MySQL55Dialect.fn_concat(params));
+		System.out.println(Dialect.SQLServerDialect.fn_concat(params));
+		System.out.println(Dialect.Oracle12cDialect.fn_concat(params));
+	}
+
 	@Test
 	public void test1() {
 		System.out.println(Dialect.MySQL55Dialect.fn_ABS());// abs($Params)
@@ -52,10 +59,10 @@ public class FunctionsTest {
 		System.out.println();
 
 		System.out.println(Dialect.H2Dialect.fn_rand());// 0 parameter
-		System.out.println(Dialect.H2Dialect.fn_CAST("a", "b"));//2 parameters
-		System.out.println(Dialect.H2Dialect.fn_TRIM("a","b","c","d")); //4 parameters
-		System.out.println(Dialect.SQLServer2012Dialect.fn_TRIM("a","b"));
+		System.out.println(Dialect.H2Dialect.fn_CAST("a", "b"));// 2 parameters
+		System.out.println(Dialect.H2Dialect.fn_TRIM("a", "b", "c", "d")); // 4
+																			// parameters
+		System.out.println(Dialect.SQLServer2012Dialect.fn_TRIM("a", "b"));
 		System.out.println();
-
 	}
 }

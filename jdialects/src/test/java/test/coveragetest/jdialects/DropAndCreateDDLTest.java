@@ -256,7 +256,7 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 	private static Table SequenceModel() {// Sequence
 		Table t = new Table("testTable");
 		t.addSequence("seq1", "seq_1", 1, 1);
-		t.addSequence("seq2", "seq_2", 1, 1);
+		t.addSequence("seq2", "seq_2", 1, 2);
 		t.column("i1").INTEGER().pkey().sequence("seq1");
 		t.column("i2").INTEGER().pkey().sequence("seq2");
 		return t;
@@ -265,7 +265,8 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 	@Test
 	public void testSequence() {
 		printAllDialectsDDLs(SequenceModel());
-		testOnCurrentRealDatabase(SequenceModel());
+		if (guessedDialect.ddlFeatures.supportBasicOrPooledSequence())
+			testOnCurrentRealDatabase(SequenceModel());
 	}
 
 	private static Table tableGeneratorModel() {// tableGenerator

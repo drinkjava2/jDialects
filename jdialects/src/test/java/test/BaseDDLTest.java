@@ -17,7 +17,7 @@ import com.github.drinkjava2.jdialects.Dialect;
 import test.functiontest.DataSourceConfig.DataSourceBox;
 
 /**
- * This test base class in charge of close data sources.
+ * This base test class in charge of configure and close data sources.
  * 
  * @author Yong Z.
  * @since 1.0.2

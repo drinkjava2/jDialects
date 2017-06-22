@@ -24,14 +24,14 @@ import com.github.drinkjava2.jdialects.tinyjdbc.TinyJdbc;
 /**
  * jDialects is a small Java project collect all databases' dialect, most are
  * extracted from Hibernate, usually jDialects is used for build pagination SQL
- * and DDL SQL for cross-databases purpose. Currently jDialects support 75
+ * and DDL SQL for cross-databases purpose. Currently jDialects support ~70
  * database dialects include SQLite and Access. It requires JDK1.7 or above.
  * 
  * @author Yong Zhu
  * @since 1.0.0
- * 
  */
 public enum Dialect {
+	//below found on Internet
 	SQLiteDialect, AccessDialect, ExcelDialect, TextDialect, ParadoxDialect, CobolDialect, XMLDialect, DbfDialect, // NOSONAR
 	// below are from Hibernate
 	@Deprecated
