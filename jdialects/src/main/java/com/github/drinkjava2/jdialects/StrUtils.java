@@ -272,32 +272,33 @@ public class StrUtils {
 	 * Replace all occurrences of a substring within a string with another
 	 * string.
 	 * 
-	 * @param inString
-	 *            String to examine
+	 * @param originString
+	 *            The original String
 	 * @param oldPattern
-	 *            String to replace
+	 *            old String Pattern to replace
 	 * @param newPattern
-	 *            String to insert
+	 *            new String pattern to insert
 	 * @return a String with the replacements
 	 */
-	public static String replace(String inString, String oldPattern, String newPattern) {
-		if (!hasLength(inString) || !hasLength(oldPattern) || newPattern == null) {
-			return inString;
+	public static String replace(String originString, String oldPattern, String newPattern) {
+		if (!hasLength(originString) || !hasLength(oldPattern) || newPattern == null) {
+			return originString;
 		}
 		StringBuilder sb = new StringBuilder();
 		int pos = 0;
-		int index = inString.indexOf(oldPattern);
+		int index = originString.indexOf(oldPattern);
 		int patLen = oldPattern.length();
 		while (index >= 0) {
-			sb.append(inString.substring(pos, index));
+			sb.append(originString.substring(pos, index));
 			sb.append(newPattern);
 			pos = index + patLen;
-			index = inString.indexOf(oldPattern, pos);
+			index = originString.indexOf(oldPattern, pos);
 		}
-		sb.append(inString.substring(pos));
+		sb.append(originString.substring(pos));
 		return sb.toString();
 	}
 
+ 
 	/**
 	 * Replace all sub strings ignore case <br/>
 	 * replaceIgnoreCase("AbcDECd", "Cd", "FF") = "AbFFEFF"
@@ -499,7 +500,7 @@ public class StrUtils {
 	 */
 	public static String arrayToString(Object[] array) {
 		if (array == null)
-			DialectException.throwEX("StrUtils arrayToString() method do not accept empty arrays");
+			DialectException.throwEX("StrUtils arrayToString() method do not accept null parameter");
 		StringBuilder sb = new StringBuilder();
 		for (Object object : array)
 			sb.append("" + object + ",");
@@ -509,11 +510,25 @@ public class StrUtils {
 	}
 
 	/**
+	 * Change a Object array to connected string by given seperateString
+	 */
+	public static String arrayToString(Object[] array, String seperateString) {
+		if (array == null)
+			DialectException.throwEX("StrUtils arrayToString() method do not accept null parameter");
+		StringBuilder sb = new StringBuilder();
+		for (Object object : array)
+			sb.append("" + object + seperateString);
+		if (sb.length() > 0)
+			sb.setLength(sb.length() - seperateString.length());
+		return sb.toString();
+	}
+
+	/**
 	 * Change a Object List to "obj1,obj2...,objn" String
 	 */
 	public static String listToString(List<?> lst) {
 		if (lst == null)
-			DialectException.throwEX("StrUtils listToString() method do not accept empty list");
+			DialectException.throwEX("StrUtils listToString() method do not accept null parameter");
 		StringBuilder sb = new StringBuilder();
 		for (Object object : lst)
 			sb.append("" + object + ",");

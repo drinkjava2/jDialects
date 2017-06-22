@@ -48,10 +48,63 @@ public class FunctionUtils {
 		DialectException.assureNotEmpty(template, "Dialect \"" + d + "\" does not support \"" + functionName
 				+ "\" function, a full list of supported functions of this dialect can see \"DatabaseDialects.xls\"");
 		if ("*".equals(template))
-			return new StringBuilder(functionName).append("(").append(StrUtils.arrayToString(args)).append(")")
-					.toString();
-		// TODO work on here
-		// bla bla
-		return template;
+			template = functionName + "($Params)";
+		char c = template.charAt(1);
+		if (c != '=') {
+			if (template.indexOf("$Params") >= 0) {
+				return StrUtils.replace(template, "$Params", StrUtils.arrayToString(args, ", "));
+			}
+			if (template.indexOf("$Compact_Params") >= 0) {
+				return StrUtils.replace(template, "$Compact_Params", StrUtils.arrayToString(args, ","));
+			}
+			if (template.indexOf("$Lined_Params") >= 0) {
+				return StrUtils.replace(template, "$Lined_Params", StrUtils.arrayToString(args, "||"));
+			}
+			if (template.indexOf("$Add_Params") >= 0) {
+				return StrUtils.replace(template, "$Add_Params", StrUtils.arrayToString(args, "+"));
+			}
+			if (template.indexOf("$IN_Params") >= 0) {
+				return StrUtils.replace(template, "$IN_Params", StrUtils.arrayToString(args, " in "));
+			}
+			if (template.indexOf("$Pattern_Params") >= 0) {
+				return StrUtils.replace(template, "$Pattern_Params", StrUtils.arrayToString(args, "%pattern"));
+			}
+			if (template.indexOf("$Startswith_Params") >= 0) {
+				return StrUtils.replace(template, "$Startswith_Params", StrUtils.arrayToString(args, "%startswith"));
+			}
+			if (template.indexOf("$NVL_Params") >= 0) {
+				if (args == null || args.length < 2)
+					DialectException.throwEX("Nvl function require at least 2 parameters");
+				String s = "nvl(" + args[args.length - 2] + ", " + args[args.length - 1] + ")";
+				for (int i = args.length - 3; i > -1; i--)
+					s = "nvl(" + args[i] + ", " + s + ")";
+				return StrUtils.replace(template, "$NVL_Params", s);
+			}
+			return (String) DialectException.throwEX("jDialect found a template bug error, please submit this bug");
+		} else {
+			int argsCount = 0;
+			if (args != null)
+				argsCount = args.length;
+			String searchStr = "" + argsCount + "=";
+			if (template.indexOf(searchStr) < 0)
+				DialectException.throwEX("Dialect " + d + "'s function \"" + functionName + "\" only support "
+						+ allowedParameterCounts(template) + " parameters");
+			String result = StrUtils.substringBetween(template + "|", searchStr, "|");
+			for (int i = 0; i < args.length; i++) {
+				result = StrUtils.replace(result, "$P" + (i + 1), "" + args[i]);
+			}
+			return result;
+		}
+	}
+
+	private static String allowedParameterCounts(String template) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < 5; i++) {
+			if (template.indexOf("" + i + "=") >= 0)
+				sb.append("" + i).append(" or ");
+		}
+		if (sb.length() > 0)
+			sb.setLength(sb.length() - 4);
+		return sb.toString();
 	}
 }
