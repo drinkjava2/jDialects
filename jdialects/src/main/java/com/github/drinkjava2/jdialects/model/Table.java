@@ -155,7 +155,7 @@ public class Table {
 	 */
 	public Column getColumn(String columnName) {
 		DialectException.assureNotEmpty(columnName);
-		return columns.get(columnName.toUpperCase());
+		return columns.get(columnName.toLowerCase());
 	}
 	
 	/**

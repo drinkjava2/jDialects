@@ -29,7 +29,7 @@ public class AnExampleOfDDL {
 		Table t2 = new Table("orders").comment("order comment");
 		t2.engineTail(" DEFAULT CHARSET=utf8");
 		t2.column("id").INTEGER().autoID().pkey();
-		t2.column("customerID").STRING(20).fkey("customer", "id");
+		t2.column("customerID").STRING(20).fkey("customers", "id");
 		t2.column("customerName").STRING(20).unique().pkey().tail(" default 'Sam'");
 		t2.column("customerEmail").STRING(50).unique().index("IDX_EMAIL");
 		t2.fkey("customerName", "customerEmail").ref("customers", "name", "email");
