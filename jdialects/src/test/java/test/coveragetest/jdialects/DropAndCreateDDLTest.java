@@ -265,7 +265,7 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 	@Test
 	public void testSequence() {
 		printAllDialectsDDLs(SequenceModel());
-		if (guessedDialect.ddlFeatures.supportBasicOrPooledSequence())
+		if (guessedDialect.getDdlFeatures().supportBasicOrPooledSequence())
 			testOnCurrentRealDatabase(SequenceModel());
 	}
 

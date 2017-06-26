@@ -31,7 +31,7 @@ import com.github.drinkjava2.jdialects.tinyjdbc.TinyJdbc;
  * @since 1.0.0
  */
 public enum Dialect {
-	//below found on Internet
+	// below found on Internet
 	SQLiteDialect, AccessDialect, ExcelDialect, TextDialect, ParadoxDialect, CobolDialect, XMLDialect, DbfDialect, // NOSONAR
 	// below are from Hibernate
 	@Deprecated
@@ -55,8 +55,7 @@ public enum Dialect {
 	private String topLimitTemplate = null;
 	protected final Map<Type, String> typeMappings = new EnumMap<>(Type.class);
 	protected final Map<String, String> functions = new HashMap<>();
-
-	public final DDLFeatures ddlFeatures = new DDLFeatures();// NOSONAR
+	protected final DDLFeatures ddlFeatures = new DDLFeatures();// NOSONAR
 
 	static {
 		for (Dialect d : Dialect.values()) {
@@ -1028,4 +1027,18 @@ public enum Dialect {
 			return result;
 		}
 	}
+
+	// getter & setter====
+	public Map<Type, String> getTypeMappings() {
+		return typeMappings;
+	}
+
+	public Map<String, String> getFunctions() {
+		return functions;
+	}
+
+	public DDLFeatures getDdlFeatures() {
+		return ddlFeatures;
+	}
+
 }
