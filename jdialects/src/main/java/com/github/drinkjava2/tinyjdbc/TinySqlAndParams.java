@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.github.drinkjava2.jdialects.tinyjdbc;
+package com.github.drinkjava2.tinyjdbc;
+
+import java.util.Arrays;
 
 /**
  * SqlAndParameters class used by SqlBox for store sql and parameters in
@@ -24,7 +26,7 @@ package com.github.drinkjava2.jdialects.tinyjdbc;
  * @version 1.0.0
  * @since 1.0
  */
-public class TinySqlAndParameters {
+public class TinySqlAndParams {
 	private String sql;
 
 	/**
@@ -32,11 +34,11 @@ public class TinySqlAndParameters {
 	 */
 	private Object[] parameters;
 
-	public TinySqlAndParameters() {
+	public TinySqlAndParams() {
 		// default Constructor
 	}
 
-	public TinySqlAndParameters(String sql, Object[] parameters) {
+	public TinySqlAndParams(String sql, Object[] parameters) {
 		this.sql = sql;
 		this.parameters = parameters;
 	}
@@ -50,9 +52,6 @@ public class TinySqlAndParameters {
 	}
 
 	public Object[] getParameters() {
-		for (Object object : parameters)
-			System.out.print(object + ",");
-		System.out.println();
 		return parameters;
 	}
 
@@ -60,4 +59,12 @@ public class TinySqlAndParameters {
 		this.parameters = parameters;
 	}
 
+	public String getLogOutputString() {
+		StringBuffer msg = new StringBuffer(" SQL: ").append(this.getSql()).append("\r\n Parameters: ");
+		if (this.getParameters() == null)
+			msg.append("[]");
+		else
+			msg.append(Arrays.deepToString(this.getParameters()));
+		return msg.append("\r\n").toString();
+	}
 }

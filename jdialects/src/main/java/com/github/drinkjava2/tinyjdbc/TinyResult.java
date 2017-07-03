@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.github.drinkjava2.jdialects.tinyjdbc;
+package com.github.drinkjava2.tinyjdbc;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -26,17 +26,17 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- * This class is copied from javax.servlet.jsp.jstl.sql package but made tiny changes (Yong said)
+ * This class is copied from javax.servlet.jsp.jstl.sql package but made tiny changes (Yong)
  * 
  * <p>
  * This class creates a cached version of a <tt>ResultSet</tt>. It's represented as a <tt>Result</tt> implementation,
- * capable of returing an array of <tt>Row</tt> objects containing a <tt>Column</tt> instance for each column in the
+ * capable of returning an array of <tt>Row</tt> objects containing a <tt>Column</tt> instance for each column in the
  * row. It is not part of the JSTL API; it serves merely as a back-end to ResultSupport's static methods. Thus, we scope
  * its access to the package.
  *
  * @author Hans Bergsten
  * @author Justyna Horwat
- * @author Yong Zhu (in jSQLBox project)
+ * @author Yong Zhu
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class TinyResult {

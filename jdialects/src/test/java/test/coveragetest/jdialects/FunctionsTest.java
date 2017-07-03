@@ -19,7 +19,7 @@ import com.github.drinkjava2.jdialects.Dialect;
 public class FunctionsTest {
 
 	public static void main(String[] args) {
-		String[] params = new String[] { "'a'", "'b'", "'c'", "'d'" };
+		Object[] params = new String[] { "'a'", "'b'", "'c'", "'d'" };
 		System.out.println(Dialect.MySQL55Dialect.fn_concat(params));
 		System.out.println(Dialect.SQLServerDialect.fn_concat(params));
 		System.out.println(Dialect.Oracle12cDialect.fn_concat(params));

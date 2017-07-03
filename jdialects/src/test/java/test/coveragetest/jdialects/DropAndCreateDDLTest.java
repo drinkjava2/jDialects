@@ -6,9 +6,6 @@
  */
 package test.coveragetest.jdialects;
 
-import static com.github.drinkjava2.jdialects.tinyjdbc.TinyJdbc.P;
-import static com.github.drinkjava2.jdialects.tinyjdbc.TinyJdbc.P0;
-
 import java.sql.Connection;
 
 import org.junit.Test;
@@ -17,7 +14,7 @@ import com.github.drinkjava2.hibernate.utils.DDLFormatter;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.model.Column;
 import com.github.drinkjava2.jdialects.model.Table;
-import com.github.drinkjava2.jdialects.tinyjdbc.TinyJdbc;
+import com.github.drinkjava2.tinyjdbc.TinyJdbcUtils;
 
 import test.BaseDDLTest;
 
@@ -37,23 +34,18 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 	private void testOnCurrentRealDatabase(Table... tables) {
 		System.out.println("======Test on real Database of dialect: " + guessedDialect + "=====");
 
-		Connection con = null;
-		try {
-			String[] ddls = guessedDialect.toDropDDL(tables);
-			con = TinyJdbc.getConnection(ds);
-			TinyJdbc.executeQuietManySqls(con, ddls);
+		String[] ddls = guessedDialect.toDropDDL(tables);
 
-			ddls = guessedDialect.toCreateDDL(tables);
-			TinyJdbc.executeManySqls(con, ddls);
+		tiny.executeQuietManySqls(ddls);
 
-			ddls = guessedDialect.toDropAndCreateDDL(tables);
-			TinyJdbc.executeManySqls(con, ddls);
+		ddls = guessedDialect.toCreateDDL(tables);
+		tiny.executeManySqls(ddls);
 
-			ddls = guessedDialect.toDropDDL(tables);
-			TinyJdbc.executeManySqls(con, ddls);
-		} finally {
-			TinyJdbc.closeConnection(con);
-		}
+		ddls = guessedDialect.toDropAndCreateDDL(tables);
+		tiny.executeManySqls(ddls);
+
+		ddls = guessedDialect.toDropDDL(tables);
+		tiny.executeManySqls(ddls);
 	}
 
 	private static void printOneDialectsDDLs(Dialect dialect, Table... tables) {
@@ -381,23 +373,23 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		Table t = new Table("testNextIdTable");
 		t.column("id1").LONG().autoID().pkey();
 		t.column("id2").LONG().autoID();
-		Connection con = null;
+		tiny.setAllowShowSQL(true);
+		String[] ddls = guessedDialect.toDropDDL(t);
+		tiny.executeQuietManySqls(ddls);
+
+		ddls = guessedDialect.toCreateDDL(t);
+		tiny.executeManySqls(ddls);
+
+		TinyJdbcUtils.setAllowShowSQL(true);
+		Connection conn = tiny.getConnection();
 		try {
-			TinyJdbc.show_sql = true;
-			String[] ddls = guessedDialect.toDropDDL(t);
-			con = TinyJdbc.getConnection(ds);
-			TinyJdbc.executeQuietManySqls(con, ddls);
-
-			ddls = guessedDialect.toCreateDDL(t);
-			TinyJdbc.executeManySqls(con, ddls);
-
 			for (int i = 0; i < 10; i++) {
-				Long id1 = guessedDialect.getNextAutoID(con);
-				Long id2 = guessedDialect.getNextAutoID(con);
-				TinyJdbc.execute(con, "insert into testNextIdTable values(?,?)", P0(id1), P(id2));
+				Long id1 = guessedDialect.getNextAutoID(conn);
+				Long id2 = guessedDialect.getNextAutoID(conn);
+				TinyJdbcUtils.hotExecute(conn, "insert into testNextIdTable values(?,?)", id1, id2);
 			}
 		} finally {
-			TinyJdbc.closeConnection(con);
+			tiny.releaseConnection(conn);
 		}
 	}
 

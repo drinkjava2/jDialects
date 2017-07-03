@@ -19,7 +19,7 @@ import com.github.drinkjava2.hibernate.pagination.SQLServer2012LimitHandler;
 import com.github.drinkjava2.hibernate.utils.StringHelper;
 import com.github.drinkjava2.jdialects.model.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.model.Table;
-import com.github.drinkjava2.jdialects.tinyjdbc.TinyJdbc;
+import com.github.drinkjava2.tinyjdbc.TinyJdbcUtils;
 
 /**
  * jDialects is a small Java project collect all databases' dialect, most are
@@ -1014,14 +1014,14 @@ public enum Dialect {
 		if (ddlFeatures.supportBasicOrPooledSequence()) {
 			String sql = StrUtils.replace(ddlFeatures.sequenceNextValString, "_SEQNAME",
 					AutoIdGenerator.JDIALECTS_AUTOID);
-			return (Long) TinyJdbc.queryForObject(connection, sql);
+			return (Long) TinyJdbcUtils.hotQueryForObject(connection, sql);
 		} else {
 			String sql = "update " + AutoIdGenerator.JDIALECTS_AUTOID + " set " + AutoIdGenerator.NEXT_VAL + "=("
 					+ AutoIdGenerator.NEXT_VAL + "+1)";
-			int updatedCount = TinyJdbc.executeUpdate(connection, sql);
+			int updatedCount = TinyJdbcUtils.hotExecuteUpdate(connection, sql);
 			if (updatedCount != 1)
 				DialectException.throwEX("Exception found when update " + AutoIdGenerator.JDIALECTS_AUTOID + " table");
-			Long result = (Long) TinyJdbc.queryForObject(connection,
+			Long result = (Long) TinyJdbcUtils.hotQueryForObject(connection,
 					"select " + AutoIdGenerator.NEXT_VAL + " from " + AutoIdGenerator.JDIALECTS_AUTOID);
 			DialectException.assureNotNull(result, "Exception found when fetch Auto-Generated ID");
 			return result;
