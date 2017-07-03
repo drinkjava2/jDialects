@@ -100,9 +100,9 @@ public class GuessDialectUtils {
 			return Dialect.H2Dialect;
 		if ("MySQL".equals(databaseName))
 			if (majorVersion >= 5)
-				return Dialect.MySQL5Dialect;
+				return Dialect.MySQL5InnoDBDialect;
 			else
-				return Dialect.MySQLDialect;
+				return Dialect.MySQLInnoDBDialect;
 		if ("PostgreSQL".equals(databaseName)) {
 			if (majorVersion == 9) {
 				if (minorVersion >= 4) {
