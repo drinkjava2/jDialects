@@ -541,7 +541,7 @@ public class StrUtils {
 	 * Join 2 String array into one
 	 */
 	public static String[] joinStringArray(String[] array1, String[] array2) {
-		List<String> l = new ArrayList<>();
+		List<String> l = new ArrayList<String>();
 		for (String string : array1)
 			l.add(string);
 		for (String string : array2)

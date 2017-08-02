@@ -7,7 +7,7 @@
 package com.github.drinkjava2.jdialects;
 
 /**
- * Guess Dialect Utils
+ * Function features Utils
  * 
  * @author Yong Zhu
  * @since 1.0.2

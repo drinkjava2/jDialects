@@ -16,7 +16,7 @@ import com.github.drinkjava2.jdialects.Dialect;
  * @author Yong Z.
  *
  */
-public class FunctionsTest {
+public class FunctionMapsTest {
 
 	public static void main(String[] args) {
 		Object[] params = new String[] { "'a'", "'b'", "'c'", "'d'" };

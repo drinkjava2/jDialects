@@ -157,7 +157,8 @@ public class SQLServer2005LimitHandler extends AbstractLimitHandler {
 	 * @return List of aliases separated with comas or {@literal *}.
 	 */
 	protected String fillAliasInSelectClause(StringBuilder sb) {
-		final String separator = System.lineSeparator();
+		//final String separator = System.lineSeparator();
+		final String separator =System.getProperty("line.separator");
 		final List<String> aliases = new LinkedList<String>();// NOSONAR
 		final int startPos = getSelectColumnsStartPosition(sb);
 		int endPos = shallowIndexOfPattern(sb, FROM_PATTERN, startPos);

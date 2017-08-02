@@ -9,11 +9,11 @@
 
   <artifactId>jdialects-package</artifactId>
 
-  <version>1.0.3-SNAPSHOT</version>
+  <version>1.0.3</version>
 
   <name>jdialects-package</name>
 
-  <description>jDialects is a small Java tool collect all database's dialects, ususally used for create pagination SQL</description>
+  <description>jDialects is a Pagination and DDL tool support ~70 databases, for Java1.6 and above</description>
 
   <modules>
     <!-- jDialects-->

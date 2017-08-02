@@ -20,8 +20,8 @@ import java.util.StringTokenizer;
  */
 public class DDLFormatter {
 
-	private static final String INITIAL_LINE = System.lineSeparator() + "    ";
-	private static final String OTHER_LINES = System.lineSeparator() + "       ";
+	private static final String INITIAL_LINE = System.getProperty("line.separator") + "    ";
+	private static final String OTHER_LINES = System.getProperty("line.separator")+ "       ";
 	/**
 	 * Singleton access
 	 */
@@ -32,7 +32,7 @@ public class DDLFormatter {
 	};
 
 	public static String[] format(String[] sql) {
-		List<String> l = new ArrayList<>();
+		List<String> l = new ArrayList<String>();
 		for (String string : sql) {
 			l.add(format(string));
 		}

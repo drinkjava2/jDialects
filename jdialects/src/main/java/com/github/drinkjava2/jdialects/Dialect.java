@@ -22,12 +22,14 @@ import com.github.drinkjava2.jdialects.model.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.model.Table;
 
 /**
- * jDialects is a small Java project collect all databases' dialect, most are
+ * jDialects is a small Java tool collect all databases' dialect, most data are
  * extracted from Hibernate, usually jDialects is used for build pagination SQL
- * and DDL SQL for cross-databases purpose. Currently jDialects support ~70
- * database dialects include SQLite and Access. It requires JDK1.7 or above.
+ * and DDL SQL for cross-databases developing. Currently jDialects support ~70
+ * database dialects. It has no any 3rd party dependency, run on JDK1.6 or
+ * above.
  * 
  * @author Yong Zhu
+ * @version 1.0.3
  * @since 1.0.0
  */
 public enum Dialect {
@@ -53,8 +55,8 @@ public enum Dialect {
 
 	private String sqlTemplate = null;
 	private String topLimitTemplate = null;
-	protected final Map<Type, String> typeMappings = new EnumMap<>(Type.class);
-	protected final Map<String, String> functions = new HashMap<>();
+	protected final Map<Type, String> typeMappings = new EnumMap<Type, String>(Type.class);
+	protected final Map<String, String> functions = new HashMap<String, String>();
 	protected final DDLFeatures ddlFeatures = new DDLFeatures();// NOSONAR
 
 	static {
@@ -63,12 +65,8 @@ public enum Dialect {
 			d.topLimitTemplate = DialectPaginationTemplate.initializeTopLimitSqlTemplate(d);
 			DialectTypeMappingTemplate.initializeTypeMappings(d);
 			DDLFeatures.initDDLFeatures(d, d.ddlFeatures);
-			// to avoid 65534 limitation of method
-			DialectFunctionTemplate.initFunctionTemplates1(d);
-			DialectFunctionTemplate.initFunctionTemplates2(d);
-			DialectFunctionTemplate.initFunctionTemplates3(d);
-			DialectFunctionTemplate.initFunctionTemplates4(d);
 		}
+		DialectFunctionTemplate.initFunctionTemplates();
 	}
 
 	/**
@@ -330,1241 +328,251 @@ public enum Dialect {
 	// @formatter:on
 
 	// @formatter:off shut off eclipse's formatter
-	// functions
-	/** ABS() function, 100% dialects support this function */
-	public String fn_ABS(Object... args) {
-		return FunctionUtils.render(this, "abs", args);
-	}
-
-	/** AVG() function, 100% dialects support this function */
-	public String fn_AVG(Object... args) {
-		return FunctionUtils.render(this, "avg", args);
-	}
-
-	/** BIT_LENGTH() function, 100% dialects support this function */
-	public String fn_BIT_LENGTH(Object... args) {
-		return FunctionUtils.render(this, "bit_length", args);
-	}
-
-	/** CAST() function, 100% dialects support this function */
-	public String fn_CAST(Object... args) {
-		return FunctionUtils.render(this, "cast", args);
-	}
-
-	/** COALESCE() function, 100% dialects support this function */
-	public String fn_COALESCE(Object... args) {
-		return FunctionUtils.render(this, "coalesce", args);
-	}
-
-	/** COUNT() function, 100% dialects support this function */
-	public String fn_COUNT(Object... args) {
-		return FunctionUtils.render(this, "count", args);
-	}
-
-	/** DAY() function, 100% dialects support this function */
-	public String fn_DAY(Object... args) {
-		return FunctionUtils.render(this, "day", args);
-	}
-
-	/** EXTRACT() function, 100% dialects support this function */
-	public String fn_EXTRACT(Object... args) {
-		return FunctionUtils.render(this, "extract", args);
-	}
-
-	/** HOUR() function, 100% dialects support this function */
-	public String fn_HOUR(Object... args) {
-		return FunctionUtils.render(this, "hour", args);
-	}
-
-	/** LENGTH() function, 100% dialects support this function */
-	public String fn_LENGTH(Object... args) {
-		return FunctionUtils.render(this, "length", args);
-	}
-
-	/** LOCATE() function, 100% dialects support this function */
-	public String fn_LOCATE(Object... args) {
-		return FunctionUtils.render(this, "locate", args);
-	}
-
-	/** LOWER() function, 100% dialects support this function */
-	public String fn_LOWER(Object... args) {
-		return FunctionUtils.render(this, "lower", args);
-	}
-
-	/** MAX() function, 100% dialects support this function */
-	public String fn_MAX(Object... args) {
-		return FunctionUtils.render(this, "max", args);
-	}
-
-	/** MIN() function, 100% dialects support this function */
-	public String fn_MIN(Object... args) {
-		return FunctionUtils.render(this, "min", args);
-	}
-
-	/** MINUTE() function, 100% dialects support this function */
-	public String fn_MINUTE(Object... args) {
-		return FunctionUtils.render(this, "minute", args);
-	}
-
-	/** MOD() function, 100% dialects support this function */
-	public String fn_MOD(Object... args) {
-		return FunctionUtils.render(this, "mod", args);
-	}
-
-	/** MONTH() function, 100% dialects support this function */
-	public String fn_MONTH(Object... args) {
-		return FunctionUtils.render(this, "month", args);
-	}
-
-	/** NULLIF() function, 100% dialects support this function */
-	public String fn_NULLIF(Object... args) {
-		return FunctionUtils.render(this, "nullif", args);
-	}
-
-	/** SECOND() function, 100% dialects support this function */
-	public String fn_SECOND(Object... args) {
-		return FunctionUtils.render(this, "second", args);
-	}
-
-	/** SQRT() function, 100% dialects support this function */
-	public String fn_SQRT(Object... args) {
-		return FunctionUtils.render(this, "sqrt", args);
-	}
-
-	/** STR() function, 100% dialects support this function */
-	public String fn_STR(Object... args) {
-		return FunctionUtils.render(this, "str", args);
-	}
-
-	/** SUBSTRING() function, 100% dialects support this function */
-	public String fn_SUBSTRING(Object... args) {
-		return FunctionUtils.render(this, "substring", args);
-	}
-
-	/** SUM() function, 100% dialects support this function */
-	public String fn_SUM(Object... args) {
-		return FunctionUtils.render(this, "sum", args);
-	}
-
-	/** TRIM() function, 100% dialects support this function */
-	public String fn_TRIM(Object... args) {
-		return FunctionUtils.render(this, "trim", args);
-	}
-
-	/** UPPER() function, 100% dialects support this function */
-	public String fn_UPPER(Object... args) {
-		return FunctionUtils.render(this, "upper", args);
-	}
-
-	/** YEAR() function, 100% dialects support this function */
-	public String fn_YEAR(Object... args) {
-		return FunctionUtils.render(this, "year", args);
-	}
-
-	/** CONCAT() function, 93% dialects support this function */
-	public String fn_concat(Object... args) {
-		return FunctionUtils.render(this, "concat", args);
-	}
-
-	/** COS() function, 83% dialects support this function */
-	public String fn_cos(Object... args) {
-		return FunctionUtils.render(this, "cos", args);
-	}
-
-	/** EXP() function, 83% dialects support this function */
-	public String fn_exp(Object... args) {
-		return FunctionUtils.render(this, "exp", args);
-	}
-
-	/** SIN() function, 83% dialects support this function */
-	public String fn_sin(Object... args) {
-		return FunctionUtils.render(this, "sin", args);
-	}
-
-	/** LOG() function, 81% dialects support this function */
-	public String fn_log(Object... args) {
-		return FunctionUtils.render(this, "log", args);
-	}
-
-	/** ROUND() function, 81% dialects support this function */
-	public String fn_round(Object... args) {
-		return FunctionUtils.render(this, "round", args);
-	}
-
-	/** ATAN() function, 80% dialects support this function */
-	public String fn_atan(Object... args) {
-		return FunctionUtils.render(this, "atan", args);
-	}
-
-	/** SIGN() function, 80% dialects support this function */
-	public String fn_sign(Object... args) {
-		return FunctionUtils.render(this, "sign", args);
-	}
-
-	/** ACOS() function, 79% dialects support this function */
-	public String fn_acos(Object... args) {
-		return FunctionUtils.render(this, "acos", args);
-	}
-
-	/** ASIN() function, 79% dialects support this function */
-	public String fn_asin(Object... args) {
-		return FunctionUtils.render(this, "asin", args);
-	}
-
-	/** CURRENT_DATE() function, 79% dialects support this function */
-	public String fn_current_date(Object... args) {
-		return FunctionUtils.render(this, "current_date", args);
-	}
-
-	/** FLOOR() function, 79% dialects support this function */
-	public String fn_floor(Object... args) {
-		return FunctionUtils.render(this, "floor", args);
-	}
-
-	/** TAN() function, 79% dialects support this function */
-	public String fn_tan(Object... args) {
-		return FunctionUtils.render(this, "tan", args);
-	}
-
-	/** CURRENT_TIMESTAMP() function, 76% dialects support this function */
-	public String fn_current_timestamp(Object... args) {
-		return FunctionUtils.render(this, "current_timestamp", args);
-	}
-
-	/** CURRENT_TIME() function, 73% dialects support this function */
-	public String fn_current_time(Object... args) {
-		return FunctionUtils.render(this, "current_time", args);
-	}
-
-	/** COT() function, 69% dialects support this function */
-	public String fn_cot(Object... args) {
-		return FunctionUtils.render(this, "cot", args);
-	}
-
-	/** ASCII() function, 68% dialects support this function */
-	public String fn_ascii(Object... args) {
-		return FunctionUtils.render(this, "ascii", args);
-	}
-
-	/** RTRIM() function, 67% dialects support this function */
-	public String fn_rtrim(Object... args) {
-		return FunctionUtils.render(this, "rtrim", args);
-	}
-
-	/** LN() function, 65% dialects support this function */
-	public String fn_ln(Object... args) {
-		return FunctionUtils.render(this, "ln", args);
-	}
-
-	/** LTRIM() function, 65% dialects support this function */
-	public String fn_ltrim(Object... args) {
-		return FunctionUtils.render(this, "ltrim", args);
-	}
-
-	/** DEGREES() function, 64% dialects support this function */
-	public String fn_degrees(Object... args) {
-		return FunctionUtils.render(this, "degrees", args);
-	}
-
-	/** RADIANS() function, 63% dialects support this function */
-	public String fn_radians(Object... args) {
-		return FunctionUtils.render(this, "radians", args);
-	}
-
-	/** RAND() function, 63% dialects support this function */
-	public String fn_rand(Object... args) {
-		return FunctionUtils.render(this, "rand", args);
-	}
-
-	/** CEIL() function, 61% dialects support this function */
-	public String fn_ceil(Object... args) {
-		return FunctionUtils.render(this, "ceil", args);
-	}
-
-	/** SOUNDEX() function, 56% dialects support this function */
-	public String fn_soundex(Object... args) {
-		return FunctionUtils.render(this, "soundex", args);
-	}
-
-	/** USER() function, 56% dialects support this function */
-	public String fn_user(Object... args) {
-		return FunctionUtils.render(this, "user", args);
-	}
-
-	/** LOG10() function, 52% dialects support this function */
-	public String fn_log10(Object... args) {
-		return FunctionUtils.render(this, "log10", args);
-	}
-
-	/** SUBSTR() function, 51% dialects support this function */
-	public String fn_substr(Object... args) {
-		return FunctionUtils.render(this, "substr", args);
-	}
-
-	/** CEILING() function, 49% dialects support this function */
-	public String fn_ceiling(Object... args) {
-		return FunctionUtils.render(this, "ceiling", args);
-	}
-
-	/** STDDEV() function, 49% dialects support this function */
-	public String fn_stddev(Object... args) {
-		return FunctionUtils.render(this, "stddev", args);
-	}
-
-	/** NOW() function, 45% dialects support this function */
-	public String fn_now(Object... args) {
-		return FunctionUtils.render(this, "now", args);
-	}
-
-	/** CHAR_LENGTH() function, 44% dialects support this function */
-	public String fn_char_length(Object... args) {
-		return FunctionUtils.render(this, "char_length", args);
-	}
-
-	/** CHR() function, 44% dialects support this function */
-	public String fn_chr(Object... args) {
-		return FunctionUtils.render(this, "chr", args);
-	}
-
-	/** DAYOFYEAR() function, 44% dialects support this function */
-	public String fn_dayofyear(Object... args) {
-		return FunctionUtils.render(this, "dayofyear", args);
-	}
-
-	/** OCTET_LENGTH() function, 43% dialects support this function */
-	public String fn_octet_length(Object... args) {
-		return FunctionUtils.render(this, "octet_length", args);
-	}
-
-	/** PI() function, 43% dialects support this function */
-	public String fn_pi(Object... args) {
-		return FunctionUtils.render(this, "pi", args);
-	}
-
-	/** WEEK() function, 43% dialects support this function */
-	public String fn_week(Object... args) {
-		return FunctionUtils.render(this, "week", args);
-	}
-
-	/** DAYNAME() function, 41% dialects support this function */
-	public String fn_dayname(Object... args) {
-		return FunctionUtils.render(this, "dayname", args);
-	}
-
-	/** DAYOFWEEK() function, 41% dialects support this function */
-	public String fn_dayofweek(Object... args) {
-		return FunctionUtils.render(this, "dayofweek", args);
-	}
-
-	/** LCASE() function, 41% dialects support this function */
-	public String fn_lcase(Object... args) {
-		return FunctionUtils.render(this, "lcase", args);
-	}
-
-	/** MONTHNAME() function, 41% dialects support this function */
-	public String fn_monthname(Object... args) {
-		return FunctionUtils.render(this, "monthname", args);
-	}
-
-	/** QUARTER() function, 41% dialects support this function */
-	public String fn_quarter(Object... args) {
-		return FunctionUtils.render(this, "quarter", args);
-	}
-
-	/** SPACE() function, 41% dialects support this function */
-	public String fn_space(Object... args) {
-		return FunctionUtils.render(this, "space", args);
-	}
-
-	/** SYSDATE() function, 41% dialects support this function */
-	public String fn_sysdate(Object... args) {
-		return FunctionUtils.render(this, "sysdate", args);
-	}
-
-	/** UCASE() function, 41% dialects support this function */
-	public String fn_ucase(Object... args) {
-		return FunctionUtils.render(this, "ucase", args);
-	}
-
-	/** CHAR() function, 39% dialects support this function */
-	public String fn_char(Object... args) {
-		return FunctionUtils.render(this, "char", args);
-	}
-
-	/** REVERSE() function, 39% dialects support this function */
-	public String fn_reverse(Object... args) {
-		return FunctionUtils.render(this, "reverse", args);
-	}
-
-	/** HEX() function, 37% dialects support this function */
-	public String fn_hex(Object... args) {
-		return FunctionUtils.render(this, "hex", args);
-	}
-
-	/** LAST_DAY() function, 37% dialects support this function */
-	public String fn_last_day(Object... args) {
-		return FunctionUtils.render(this, "last_day", args);
-	}
-
-	/** MD5() function, 37% dialects support this function */
-	public String fn_md5(Object... args) {
-		return FunctionUtils.render(this, "md5", args);
-	}
-
-	/** TIME() function, 37% dialects support this function */
-	public String fn_time(Object... args) {
-		return FunctionUtils.render(this, "time", args);
-	}
-
-	/** TIMESTAMP() function, 37% dialects support this function */
-	public String fn_timestamp(Object... args) {
-		return FunctionUtils.render(this, "timestamp", args);
-	}
-
-	/** DATE() function, 36% dialects support this function */
-	public String fn_date(Object... args) {
-		return FunctionUtils.render(this, "date", args);
-	}
-
-	/** TRUNC() function, 36% dialects support this function */
-	public String fn_trunc(Object... args) {
-		return FunctionUtils.render(this, "trunc", args);
-	}
-
-	/** VARIANCE() function, 36% dialects support this function */
-	public String fn_variance(Object... args) {
-		return FunctionUtils.render(this, "variance", args);
-	}
-
-	/** INITCAP() function, 35% dialects support this function */
-	public String fn_initcap(Object... args) {
-		return FunctionUtils.render(this, "initcap", args);
-	}
-
-	/** POWER() function, 35% dialects support this function */
-	public String fn_power(Object... args) {
-		return FunctionUtils.render(this, "power", args);
-	}
-
-	/** DAYOFMONTH() function, 33% dialects support this function */
-	public String fn_dayofmonth(Object... args) {
-		return FunctionUtils.render(this, "dayofmonth", args);
-	}
-
-	/** ATAN2() function, 31% dialects support this function */
-	public String fn_atan2(Object... args) {
-		return FunctionUtils.render(this, "atan2", args);
-	}
-
-	/** CHARACTER_LENGTH() function, 31% dialects support this function */
-	public String fn_character_length(Object... args) {
-		return FunctionUtils.render(this, "character_length", args);
-	}
-
-	/** CURDATE() function, 29% dialects support this function */
-	public String fn_curdate(Object... args) {
-		return FunctionUtils.render(this, "curdate", args);
-	}
-
-	/** CURTIME() function, 29% dialects support this function */
-	public String fn_curtime(Object... args) {
-		return FunctionUtils.render(this, "curtime", args);
-	}
-
-	/** DATEDIFF() function, 29% dialects support this function */
-	public String fn_datediff(Object... args) {
-		return FunctionUtils.render(this, "datediff", args);
-	}
-
-	/** REPLACE() function, 29% dialects support this function */
-	public String fn_replace(Object... args) {
-		return FunctionUtils.render(this, "replace", args);
-	}
-
-	/** TO_DATE() function, 29% dialects support this function */
-	public String fn_to_date(Object... args) {
-		return FunctionUtils.render(this, "to_date", args);
-	}
-
-	/** LOCALTIME() function, 28% dialects support this function */
-	public String fn_localtime(Object... args) {
-		return FunctionUtils.render(this, "localtime", args);
-	}
-
-	/** LOCALTIMESTAMP() function, 28% dialects support this function */
-	public String fn_localtimestamp(Object... args) {
-		return FunctionUtils.render(this, "localtimestamp", args);
-	}
-
-	/** NVL() function, 28% dialects support this function */
-	public String fn_nvl(Object... args) {
-		return FunctionUtils.render(this, "nvl", args);
-	}
-
-	/** TO_CHAR() function, 28% dialects support this function */
-	public String fn_to_char(Object... args) {
-		return FunctionUtils.render(this, "to_char", args);
-	}
-
-	/** LPAD() function, 27% dialects support this function */
-	public String fn_lpad(Object... args) {
-		return FunctionUtils.render(this, "lpad", args);
-	}
-
-	/** RPAD() function, 27% dialects support this function */
-	public String fn_rpad(Object... args) {
-		return FunctionUtils.render(this, "rpad", args);
-	}
-
-	/** BIN() function, 24% dialects support this function */
-	public String fn_bin(Object... args) {
-		return FunctionUtils.render(this, "bin", args);
-	}
-
-	/** ENCRYPT() function, 24% dialects support this function */
-	public String fn_encrypt(Object... args) {
-		return FunctionUtils.render(this, "encrypt", args);
-	}
-
-	/** FROM_DAYS() function, 24% dialects support this function */
-	public String fn_from_days(Object... args) {
-		return FunctionUtils.render(this, "from_days", args);
-	}
-
-	/** LOG2() function, 24% dialects support this function */
-	public String fn_log2(Object... args) {
-		return FunctionUtils.render(this, "log2", args);
-	}
-
-	/** TIMEDIFF() function, 24% dialects support this function */
-	public String fn_timediff(Object... args) {
-		return FunctionUtils.render(this, "timediff", args);
-	}
-
-	/** TO_DAYS() function, 24% dialects support this function */
-	public String fn_to_days(Object... args) {
-		return FunctionUtils.render(this, "to_days", args);
-	}
-
-	/** WEEKOFYEAR() function, 24% dialects support this function */
-	public String fn_weekofyear(Object... args) {
-		return FunctionUtils.render(this, "weekofyear", args);
-	}
-
-	/** CRC32() function, 23% dialects support this function */
-	public String fn_crc32(Object... args) {
-		return FunctionUtils.render(this, "crc32", args);
-	}
-
-	/** INSTR() function, 23% dialects support this function */
-	public String fn_instr(Object... args) {
-		return FunctionUtils.render(this, "instr", args);
-	}
-
-	/** ISNULL() function, 23% dialects support this function */
-	public String fn_isnull(Object... args) {
-		return FunctionUtils.render(this, "isnull", args);
-	}
-
-	/** LEN() function, 23% dialects support this function */
-	public String fn_len(Object... args) {
-		return FunctionUtils.render(this, "len", args);
-	}
-
-	/** OCT() function, 23% dialects support this function */
-	public String fn_oct(Object... args) {
-		return FunctionUtils.render(this, "oct", args);
-	}
-
-	/** TRANSLATE() function, 23% dialects support this function */
-	public String fn_translate(Object... args) {
-		return FunctionUtils.render(this, "translate", args);
-	}
-
-	/** MICROSECOND() function, 21% dialects support this function */
-	public String fn_microsecond(Object... args) {
-		return FunctionUtils.render(this, "microsecond", args);
-	}
-
-	/** RIGHT() function, 21% dialects support this function */
-	public String fn_right(Object... args) {
-		return FunctionUtils.render(this, "right", args);
-	}
-
-	/** CURRENT_USER() function, 20% dialects support this function */
-	public String fn_current_user(Object... args) {
-		return FunctionUtils.render(this, "current_user", args);
-	}
-
-	/** RANDOM() function, 20% dialects support this function */
-	public String fn_random(Object... args) {
-		return FunctionUtils.render(this, "random", args);
-	}
-
-	/** SESSION_USER() function, 20% dialects support this function */
-	public String fn_session_user(Object... args) {
-		return FunctionUtils.render(this, "session_user", args);
-	}
-
-	/** LEFT() function, 19% dialects support this function */
-	public String fn_left(Object... args) {
-		return FunctionUtils.render(this, "left", args);
-	}
-
-	/** DATE_TRUNC() function, 17% dialects support this function */
-	public String fn_date_trunc(Object... args) {
-		return FunctionUtils.render(this, "date_trunc", args);
-	}
-
-	/** UNHEX() function, 17% dialects support this function */
-	public String fn_unhex(Object... args) {
-		return FunctionUtils.render(this, "unhex", args);
-	}
-
-	/** WEEKDAY() function, 17% dialects support this function */
-	public String fn_weekday(Object... args) {
-		return FunctionUtils.render(this, "weekday", args);
-	}
-
-	/** CURRENT_SCHEMA() function, 16% dialects support this function */
-	public String fn_current_schema(Object... args) {
-		return FunctionUtils.render(this, "current_schema", args);
-	}
-
-	/** POSITION() function, 16% dialects support this function */
-	public String fn_position(Object... args) {
-		return FunctionUtils.render(this, "position", args);
-	}
-
-	/** TO_TIMESTAMP() function, 16% dialects support this function */
-	public String fn_to_timestamp(Object... args) {
-		return FunctionUtils.render(this, "to_timestamp", args);
-	}
-
-	/** ADD_MONTHS() function, 15% dialects support this function */
-	public String fn_add_months(Object... args) {
-		return FunctionUtils.render(this, "add_months", args);
-	}
-
-	/** BIT_COUNT() function, 15% dialects support this function */
-	public String fn_bit_count(Object... args) {
-		return FunctionUtils.render(this, "bit_count", args);
-	}
-
-	/** COSH() function, 15% dialects support this function */
-	public String fn_cosh(Object... args) {
-		return FunctionUtils.render(this, "cosh", args);
-	}
-
-	/** FROM_UNIXTIME() function, 15% dialects support this function */
-	public String fn_from_unixtime(Object... args) {
-		return FunctionUtils.render(this, "from_unixtime", args);
-	}
-
-	/** GETDATE() function, 15% dialects support this function */
-	public String fn_getdate(Object... args) {
-		return FunctionUtils.render(this, "getdate", args);
-	}
-
-	/** QUOTE() function, 15% dialects support this function */
-	public String fn_quote(Object... args) {
-		return FunctionUtils.render(this, "quote", args);
-	}
-
-	/** SEC_TO_TIME() function, 15% dialects support this function */
-	public String fn_sec_to_time(Object... args) {
-		return FunctionUtils.render(this, "sec_to_time", args);
-	}
-
-	/** SINH() function, 15% dialects support this function */
-	public String fn_sinh(Object... args) {
-		return FunctionUtils.render(this, "sinh", args);
-	}
-
-	/** TANH() function, 15% dialects support this function */
-	public String fn_tanh(Object... args) {
-		return FunctionUtils.render(this, "tanh", args);
-	}
-
-	/** TIME_TO_SEC() function, 15% dialects support this function */
-	public String fn_time_to_sec(Object... args) {
-		return FunctionUtils.render(this, "time_to_sec", args);
-	}
-
-	/** TO_NUMBER() function, 15% dialects support this function */
-	public String fn_to_number(Object... args) {
-		return FunctionUtils.render(this, "to_number", args);
-	}
-
-	/** UNIX_TIMESTAMP() function, 15% dialects support this function */
-	public String fn_unix_timestamp(Object... args) {
-		return FunctionUtils.render(this, "unix_timestamp", args);
-	}
-
-	/** UTC_DATE() function, 15% dialects support this function */
-	public String fn_utc_date(Object... args) {
-		return FunctionUtils.render(this, "utc_date", args);
-	}
-
-	/** UTC_TIME() function, 15% dialects support this function */
-	public String fn_utc_time(Object... args) {
-		return FunctionUtils.render(this, "utc_time", args);
-	}
-
-	/** AGE() function, 13% dialects support this function */
-	public String fn_age(Object... args) {
-		return FunctionUtils.render(this, "age", args);
-	}
-
-	/** CBRT() function, 13% dialects support this function */
-	public String fn_cbrt(Object... args) {
-		return FunctionUtils.render(this, "cbrt", args);
-	}
-
-	/** CURRENT_DATABASE() function, 13% dialects support this function */
-	public String fn_current_database(Object... args) {
-		return FunctionUtils.render(this, "current_database", args);
-	}
-
-	/** DATABASE() function, 13% dialects support this function */
-	public String fn_database(Object... args) {
-		return FunctionUtils.render(this, "database", args);
-	}
-
-	/** DATENAME() function, 13% dialects support this function */
-	public String fn_datename(Object... args) {
-		return FunctionUtils.render(this, "datename", args);
-	}
-
-	/** DATE_FORMAT() function, 13% dialects support this function */
-	public String fn_date_format(Object... args) {
-		return FunctionUtils.render(this, "date_format", args);
-	}
-
-	/** DIFFERENCE() function, 13% dialects support this function */
-	public String fn_difference(Object... args) {
-		return FunctionUtils.render(this, "difference", args);
-	}
-
-	/** DOW() function, 13% dialects support this function */
-	public String fn_dow(Object... args) {
-		return FunctionUtils.render(this, "dow", args);
-	}
-
-	/** IFNULL() function, 13% dialects support this function */
-	public String fn_ifnull(Object... args) {
-		return FunctionUtils.render(this, "ifnull", args);
-	}
-
-	/** MICROSECONDS() function, 13% dialects support this function */
-	public String fn_microseconds(Object... args) {
-		return FunctionUtils.render(this, "microseconds", args);
-	}
-
-	/** NEXT_DAY() function, 13% dialects support this function */
-	public String fn_next_day(Object... args) {
-		return FunctionUtils.render(this, "next_day", args);
-	}
-
-	/** ORD() function, 13% dialects support this function */
-	public String fn_ord(Object... args) {
-		return FunctionUtils.render(this, "ord", args);
-	}
-
-	/** QUOTE_IDENT() function, 13% dialects support this function */
-	public String fn_quote_ident(Object... args) {
-		return FunctionUtils.render(this, "quote_ident", args);
-	}
-
-	/** QUOTE_LITERAL() function, 13% dialects support this function */
-	public String fn_quote_literal(Object... args) {
-		return FunctionUtils.render(this, "quote_literal", args);
-	}
-
-	/** REPLICATE() function, 13% dialects support this function */
-	public String fn_replicate(Object... args) {
-		return FunctionUtils.render(this, "replicate", args);
-	}
-
-	/** SHA() function, 13% dialects support this function */
-	public String fn_sha(Object... args) {
-		return FunctionUtils.render(this, "sha", args);
-	}
-
-	/** SHA1() function, 13% dialects support this function */
-	public String fn_sha1(Object... args) {
-		return FunctionUtils.render(this, "sha1", args);
-	}
-
-	/** TIMEOFDAY() function, 13% dialects support this function */
-	public String fn_timeofday(Object... args) {
-		return FunctionUtils.render(this, "timeofday", args);
-	}
-
-	/** TO_ASCII() function, 13% dialects support this function */
-	public String fn_to_ascii(Object... args) {
-		return FunctionUtils.render(this, "to_ascii", args);
-	}
-
-	/** TRUNCATE() function, 13% dialects support this function */
-	public String fn_truncate(Object... args) {
-		return FunctionUtils.render(this, "truncate", args);
-	}
-
-	/** UTC_TIMESTAMP() function, 13% dialects support this function */
-	public String fn_utc_timestamp(Object... args) {
-		return FunctionUtils.render(this, "utc_timestamp", args);
-	}
-
-	/** YEARWEEK() function, 13% dialects support this function */
-	public String fn_yearweek(Object... args) {
-		return FunctionUtils.render(this, "yearweek", args);
-	}
-
-	/** DATETIME() function, 12% dialects support this function */
-	public String fn_datetime(Object... args) {
-		return FunctionUtils.render(this, "datetime", args);
-	}
-
-	/** GETUTCDATE() function, 12% dialects support this function */
-	public String fn_getutcdate(Object... args) {
-		return FunctionUtils.render(this, "getutcdate", args);
-	}
-
-	/** MONTHS_BETWEEN() function, 12% dialects support this function */
-	public String fn_months_between(Object... args) {
-		return FunctionUtils.render(this, "months_between", args);
-	}
-
-	/** NVL2() function, 12% dialects support this function */
-	public String fn_nvl2(Object... args) {
-		return FunctionUtils.render(this, "nvl2", args);
-	}
-
-	/** REPEAT() function, 12% dialects support this function */
-	public String fn_repeat(Object... args) {
-		return FunctionUtils.render(this, "repeat", args);
-	}
-
-	/** ROWNUM() function, 12% dialects support this function */
-	public String fn_rownum(Object... args) {
-		return FunctionUtils.render(this, "rownum", args);
-	}
-
-	/** SQUARE() function, 12% dialects support this function */
-	public String fn_square(Object... args) {
-		return FunctionUtils.render(this, "square", args);
-	}
-
-	/** STUFF() function, 12% dialects support this function */
-	public String fn_stuff(Object... args) {
-		return FunctionUtils.render(this, "stuff", args);
-	}
-
-	/** BIGINT() function, 11% dialects support this function */
-	public String fn_bigint(Object... args) {
-		return FunctionUtils.render(this, "bigint", args);
-	}
-
-	/** COMPRESS() function, 11% dialects support this function */
-	public String fn_compress(Object... args) {
-		return FunctionUtils.render(this, "compress", args);
-	}
-
-	/** DAYS() function, 11% dialects support this function */
-	public String fn_days(Object... args) {
-		return FunctionUtils.render(this, "days", args);
-	}
-
-	/** DECRYPT() function, 11% dialects support this function */
-	public String fn_decrypt(Object... args) {
-		return FunctionUtils.render(this, "decrypt", args);
-	}
-
-	/** INSTRB() function, 11% dialects support this function */
-	public String fn_instrb(Object... args) {
-		return FunctionUtils.render(this, "instrb", args);
-	}
-
-	/** INTEGER() function, 11% dialects support this function */
-	public String fn_integer(Object... args) {
-		return FunctionUtils.render(this, "integer", args);
-	}
-
-	/** REAL() function, 11% dialects support this function */
-	public String fn_real(Object... args) {
-		return FunctionUtils.render(this, "real", args);
-	}
-
-	/** ROWID() function, 11% dialects support this function */
-	public String fn_rowid(Object... args) {
-		return FunctionUtils.render(this, "rowid", args);
-	}
-
-	/** SMALLINT() function, 11% dialects support this function */
-	public String fn_smallint(Object... args) {
-		return FunctionUtils.render(this, "smallint", args);
-	}
-
-	/** SYSTIMESTAMP() function, 11% dialects support this function */
-	public String fn_systimestamp(Object... args) {
-		return FunctionUtils.render(this, "systimestamp", args);
-	}
-
-	/** TIMESTAMPADD() function, 11% dialects support this function */
-	public String fn_timestampadd(Object... args) {
-		return FunctionUtils.render(this, "timestampadd", args);
-	}
-
-	/** TIMESTAMPDIFF() function, 11% dialects support this function */
-	public String fn_timestampdiff(Object... args) {
-		return FunctionUtils.render(this, "timestampdiff", args);
-	}
-
-	/** VARCHAR() function, 11% dialects support this function */
-	public String fn_varchar(Object... args) {
-		return FunctionUtils.render(this, "varchar", args);
-	}
-
-	/** ABSVAL() function, 9% dialects support this function */
-	public String fn_absval(Object... args) {
-		return FunctionUtils.render(this, "absval", args);
-	}
-
-	/** ADDDATE() function, 9% dialects support this function */
-	public String fn_adddate(Object... args) {
-		return FunctionUtils.render(this, "adddate", args);
-	}
-
-	/** ADDTIME() function, 9% dialects support this function */
-	public String fn_addtime(Object... args) {
-		return FunctionUtils.render(this, "addtime", args);
-	}
-
-	/** ALLTRIM() function, 9% dialects support this function */
-	public String fn_alltrim(Object... args) {
-		return FunctionUtils.render(this, "alltrim", args);
-	}
-
-	/** ASC() function, 9% dialects support this function */
-	public String fn_asc(Object... args) {
-		return FunctionUtils.render(this, "asc", args);
-	}
-
-	/** AT() function, 9% dialects support this function */
-	public String fn_at(Object... args) {
-		return FunctionUtils.render(this, "at", args);
-	}
-
-	/** BITAND() function, 9% dialects support this function */
-	public String fn_bitand(Object... args) {
-		return FunctionUtils.render(this, "bitand", args);
-	}
-
-	/** CBOOL() function, 9% dialects support this function */
-	public String fn_cbool(Object... args) {
-		return FunctionUtils.render(this, "cbool", args);
-	}
-
-	/** CBYTE() function, 9% dialects support this function */
-	public String fn_cbyte(Object... args) {
-		return FunctionUtils.render(this, "cbyte", args);
-	}
-
-	/** CDATE() function, 9% dialects support this function */
-	public String fn_cdate(Object... args) {
-		return FunctionUtils.render(this, "cdate", args);
-	}
-
-	/** CDBL() function, 9% dialects support this function */
-	public String fn_cdbl(Object... args) {
-		return FunctionUtils.render(this, "cdbl", args);
-	}
-
-	/** CDOW() function, 9% dialects support this function */
-	public String fn_cdow(Object... args) {
-		return FunctionUtils.render(this, "cdow", args);
-	}
-
-	/** CHARMIRR() function, 9% dialects support this function */
-	public String fn_charmirr(Object... args) {
-		return FunctionUtils.render(this, "charmirr", args);
-	}
-
-	/** CHRTRAN() function, 9% dialects support this function */
-	public String fn_chrtran(Object... args) {
-		return FunctionUtils.render(this, "chrtran", args);
-	}
-
-	/** CINT() function, 9% dialects support this function */
-	public String fn_cint(Object... args) {
-		return FunctionUtils.render(this, "cint", args);
-	}
-
-	/** CLNG() function, 9% dialects support this function */
-	public String fn_clng(Object... args) {
-		return FunctionUtils.render(this, "clng", args);
-	}
-
-	/** CMONTH() function, 9% dialects support this function */
-	public String fn_cmonth(Object... args) {
-		return FunctionUtils.render(this, "cmonth", args);
-	}
-
-	/** CONCAT_WS() function, 9% dialects support this function */
-	public String fn_concat_ws(Object... args) {
-		return FunctionUtils.render(this, "concat_ws", args);
-	}
-
-	/** CONV() function, 9% dialects support this function */
-	public String fn_conv(Object... args) {
-		return FunctionUtils.render(this, "conv", args);
-	}
-
-	/** CRYPT3() function, 9% dialects support this function */
-	public String fn_crypt3(Object... args) {
-		return FunctionUtils.render(this, "crypt3", args);
-	}
-
-	/** CSNG() function, 9% dialects support this function */
-	public String fn_csng(Object... args) {
-		return FunctionUtils.render(this, "csng", args);
-	}
-
-	/** CSTR() function, 9% dialects support this function */
-	public String fn_cstr(Object... args) {
-		return FunctionUtils.render(this, "cstr", args);
-	}
-
-	/** CTOD() function, 9% dialects support this function */
-	public String fn_ctod(Object... args) {
-		return FunctionUtils.render(this, "ctod", args);
-	}
-
-	/** CTOT() function, 9% dialects support this function */
-	public String fn_ctot(Object... args) {
-		return FunctionUtils.render(this, "ctot", args);
-	}
-
-	/** DATE_ADD() function, 9% dialects support this function */
-	public String fn_date_add(Object... args) {
-		return FunctionUtils.render(this, "date_add", args);
-	}
-
-	/** DATE_SUB() function, 9% dialects support this function */
-	public String fn_date_sub(Object... args) {
-		return FunctionUtils.render(this, "date_sub", args);
-	}
-
-	/** DAYOFWEEK_ISO() function, 9% dialects support this function */
-	public String fn_dayofweek_iso(Object... args) {
-		return FunctionUtils.render(this, "dayofweek_iso", args);
-	}
-
-	/** DECODE() function, 9% dialects support this function */
-	public String fn_decode(Object... args) {
-		return FunctionUtils.render(this, "decode", args);
-	}
-
-	/** DELETED() function, 9% dialects support this function */
-	public String fn_deleted(Object... args) {
-		return FunctionUtils.render(this, "deleted", args);
-	}
-
-	/** DIGITS() function, 9% dialects support this function */
-	public String fn_digits(Object... args) {
-		return FunctionUtils.render(this, "digits", args);
-	}
-
-	/** DOUBLE() function, 9% dialects support this function */
-	public String fn_double(Object... args) {
-		return FunctionUtils.render(this, "double", args);
-	}
-
-	/** DTOC() function, 9% dialects support this function */
-	public String fn_dtoc(Object... args) {
-		return FunctionUtils.render(this, "dtoc", args);
-	}
-
-	/** DTOT() function, 9% dialects support this function */
-	public String fn_dtot(Object... args) {
-		return FunctionUtils.render(this, "dtot", args);
-	}
-
-	/** EMPTY() function, 9% dialects support this function */
-	public String fn_empty(Object... args) {
-		return FunctionUtils.render(this, "empty", args);
-	}
-
-	/** ENCODE() function, 9% dialects support this function */
-	public String fn_encode(Object... args) {
-		return FunctionUtils.render(this, "encode", args);
-	}
-
-	/** FLOAT() function, 9% dialects support this function */
-	public String fn_float(Object... args) {
-		return FunctionUtils.render(this, "float", args);
-	}
-
-	/** GOMONTH() function, 9% dialects support this function */
-	public String fn_gomonth(Object... args) {
-		return FunctionUtils.render(this, "gomonth", args);
-	}
-
-	/** INT() function, 9% dialects support this function */
-	public String fn_int(Object... args) {
-		return FunctionUtils.render(this, "int", args);
-	}
-
-	/** ISALPHA() function, 9% dialects support this function */
-	public String fn_isalpha(Object... args) {
-		return FunctionUtils.render(this, "isalpha", args);
-	}
-
-	/** ISBLANK() function, 9% dialects support this function */
-	public String fn_isblank(Object... args) {
-		return FunctionUtils.render(this, "isblank", args);
-	}
-
-	/** ISDIGIT() function, 9% dialects support this function */
-	public String fn_isdigit(Object... args) {
-		return FunctionUtils.render(this, "isdigit", args);
-	}
-
-	/** JULIAN_DAY() function, 9% dialects support this function */
-	public String fn_julian_day(Object... args) {
-		return FunctionUtils.render(this, "julian_day", args);
-	}
-
-	/** MID() function, 9% dialects support this function */
-	public String fn_mid(Object... args) {
-		return FunctionUtils.render(this, "mid", args);
-	}
-
-	/** MIDNIGHT_SECONDS() function, 9% dialects support this function */
-	public String fn_midnight_seconds(Object... args) {
-		return FunctionUtils.render(this, "midnight_seconds", args);
-	}
-
-	/** MILLISECOND() function, 9% dialects support this function */
-	public String fn_millisecond(Object... args) {
-		return FunctionUtils.render(this, "millisecond", args);
-	}
-
-	/** PADC() function, 9% dialects support this function */
-	public String fn_padc(Object... args) {
-		return FunctionUtils.render(this, "padc", args);
-	}
-
-	/** PADIANS() function, 9% dialects support this function */
-	public String fn_padians(Object... args) {
-		return FunctionUtils.render(this, "padians", args);
-	}
-
-	/** PADL() function, 9% dialects support this function */
-	public String fn_padl(Object... args) {
-		return FunctionUtils.render(this, "padl", args);
-	}
-
-	/** PADR() function, 9% dialects support this function */
-	public String fn_padr(Object... args) {
-		return FunctionUtils.render(this, "padr", args);
-	}
-
-	/** POSSTR() function, 9% dialects support this function */
-	public String fn_posstr(Object... args) {
-		return FunctionUtils.render(this, "posstr", args);
-	}
-
-	/** POW() function, 9% dialects support this function */
-	public String fn_pow(Object... args) {
-		return FunctionUtils.render(this, "pow", args);
-	}
-
-	/** PROPER() function, 9% dialects support this function */
-	public String fn_proper(Object... args) {
-		return FunctionUtils.render(this, "proper", args);
-	}
-
-	/** RECCOUNT() function, 9% dialects support this function */
-	public String fn_reccount(Object... args) {
-		return FunctionUtils.render(this, "reccount", args);
-	}
-
-	/** RECNO() function, 9% dialects support this function */
-	public String fn_recno(Object... args) {
-		return FunctionUtils.render(this, "recno", args);
-	}
-
-	/** ROWLOCKED() function, 9% dialects support this function */
-	public String fn_rowlocked(Object... args) {
-		return FunctionUtils.render(this, "rowlocked", args);
-	}
-
-	/** STRCAT() function, 9% dialects support this function */
-	public String fn_strcat(Object... args) {
-		return FunctionUtils.render(this, "strcat", args);
-	}
-
-	/** STRCMP() function, 9% dialects support this function */
-	public String fn_strcmp(Object... args) {
-		return FunctionUtils.render(this, "strcmp", args);
-	}
-
-	/** STRCONV() function, 9% dialects support this function */
-	public String fn_strconv(Object... args) {
-		return FunctionUtils.render(this, "strconv", args);
-	}
-
-	/** STRTRAN() function, 9% dialects support this function */
-	public String fn_strtran(Object... args) {
-		return FunctionUtils.render(this, "strtran", args);
-	}
-
-	/** SUBDATE() function, 9% dialects support this function */
-	public String fn_subdate(Object... args) {
-		return FunctionUtils.render(this, "subdate", args);
-	}
-
-	/** SUBSTRB() function, 9% dialects support this function */
-	public String fn_substrb(Object... args) {
-		return FunctionUtils.render(this, "substrb", args);
-	}
-
-	/** SUB_TIME() function, 9% dialects support this function */
-	public String fn_sub_time(Object... args) {
-		return FunctionUtils.render(this, "sub_time", args);
-	}
-
-	/** TIMESTAMP_ISO() function, 9% dialects support this function */
-	public String fn_timestamp_iso(Object... args) {
-		return FunctionUtils.render(this, "timestamp_iso", args);
-	}
-
-	/** TTOC() function, 9% dialects support this function */
-	public String fn_ttoc(Object... args) {
-		return FunctionUtils.render(this, "ttoc", args);
-	}
-
-	/** TTOD() function, 9% dialects support this function */
-	public String fn_ttod(Object... args) {
-		return FunctionUtils.render(this, "ttod", args);
-	}
-
-	/** UID() function, 9% dialects support this function */
-	public String fn_uid(Object... args) {
-		return FunctionUtils.render(this, "uid", args);
-	}
-
-	/** UNCOMPRESS() function, 9% dialects support this function */
-	public String fn_uncompress(Object... args) {
-		return FunctionUtils.render(this, "uncompress", args);
-	}
-
-	/** WEEK_ISO() function, 9% dialects support this function */
-	public String fn_week_iso(Object... args) {
-		return FunctionUtils.render(this, "week_iso", args);
-	}
+	// functions 
+			/** ABS() function, all dialects support this function */
+			public String fn_ABS(Object... args){return FunctionUtils.render(this, "abs", args);}
+			/** AVG() function, all dialects support this function */
+			public String fn_AVG(Object... args){return FunctionUtils.render(this, "avg", args);}
+			/** BIT_LENGTH() function, all dialects support this function */
+			public String fn_BIT_LENGTH(Object... args){return FunctionUtils.render(this, "bit_length", args);}
+			/** CAST() function, all dialects support this function */
+			public String fn_CAST(Object... args){return FunctionUtils.render(this, "cast", args);}
+			/** COALESCE() function, all dialects support this function */
+			public String fn_COALESCE(Object... args){return FunctionUtils.render(this, "coalesce", args);}
+			/** COUNT() function, all dialects support this function */
+			public String fn_COUNT(Object... args){return FunctionUtils.render(this, "count", args);}
+			/** DAY() function, all dialects support this function */
+			public String fn_DAY(Object... args){return FunctionUtils.render(this, "day", args);}
+			/** EXTRACT() function, all dialects support this function */
+			public String fn_EXTRACT(Object... args){return FunctionUtils.render(this, "extract", args);}
+			/** HOUR() function, all dialects support this function */
+			public String fn_HOUR(Object... args){return FunctionUtils.render(this, "hour", args);}
+			/** LENGTH() function, all dialects support this function */
+			public String fn_LENGTH(Object... args){return FunctionUtils.render(this, "length", args);}
+			/** LOCATE() function, all dialects support this function */
+			public String fn_LOCATE(Object... args){return FunctionUtils.render(this, "locate", args);}
+			/** LOWER() function, all dialects support this function */
+			public String fn_LOWER(Object... args){return FunctionUtils.render(this, "lower", args);}
+			/** MAX() function, all dialects support this function */
+			public String fn_MAX(Object... args){return FunctionUtils.render(this, "max", args);}
+			/** MIN() function, all dialects support this function */
+			public String fn_MIN(Object... args){return FunctionUtils.render(this, "min", args);}
+			/** MINUTE() function, all dialects support this function */
+			public String fn_MINUTE(Object... args){return FunctionUtils.render(this, "minute", args);}
+			/** MOD() function, all dialects support this function */
+			public String fn_MOD(Object... args){return FunctionUtils.render(this, "mod", args);}
+			/** MONTH() function, all dialects support this function */
+			public String fn_MONTH(Object... args){return FunctionUtils.render(this, "month", args);}
+			/** NULLIF() function, all dialects support this function */
+			public String fn_NULLIF(Object... args){return FunctionUtils.render(this, "nullif", args);}
+			/** SECOND() function, all dialects support this function */
+			public String fn_SECOND(Object... args){return FunctionUtils.render(this, "second", args);}
+			/** SQRT() function, all dialects support this function */
+			public String fn_SQRT(Object... args){return FunctionUtils.render(this, "sqrt", args);}
+			/** STR() function, all dialects support this function */
+			public String fn_STR(Object... args){return FunctionUtils.render(this, "str", args);}
+			/** SUBSTRING() function, all dialects support this function */
+			public String fn_SUBSTRING(Object... args){return FunctionUtils.render(this, "substring", args);}
+			/** SUM() function, all dialects support this function */
+			public String fn_SUM(Object... args){return FunctionUtils.render(this, "sum", args);}
+			/** TRIM() function, all dialects support this function */
+			public String fn_TRIM(Object... args){return FunctionUtils.render(this, "trim", args);}
+			/** UPPER() function, all dialects support this function */
+			public String fn_UPPER(Object... args){return FunctionUtils.render(this, "upper", args);}
+			/** YEAR() function, all dialects support this function */
+			public String fn_YEAR(Object... args){return FunctionUtils.render(this, "year", args);}
+			/** CONCAT() function, 93% dialects support this function */
+			public String fn_concat(Object... args){return FunctionUtils.render(this, "concat", args);}
+			/** COS() function, 83% dialects support this function */
+			public String fn_cos(Object... args){return FunctionUtils.render(this, "cos", args);}
+			/** EXP() function, 83% dialects support this function */
+			public String fn_exp(Object... args){return FunctionUtils.render(this, "exp", args);}
+			/** SIN() function, 83% dialects support this function */
+			public String fn_sin(Object... args){return FunctionUtils.render(this, "sin", args);}
+			/** LOG() function, 81% dialects support this function */
+			public String fn_log(Object... args){return FunctionUtils.render(this, "log", args);}
+			/** ROUND() function, 81% dialects support this function */
+			public String fn_round(Object... args){return FunctionUtils.render(this, "round", args);}
+			/** ATAN() function, 80% dialects support this function */
+			public String fn_atan(Object... args){return FunctionUtils.render(this, "atan", args);}
+			/** SIGN() function, 80% dialects support this function */
+			public String fn_sign(Object... args){return FunctionUtils.render(this, "sign", args);}
+			/** ACOS() function, 79% dialects support this function */
+			public String fn_acos(Object... args){return FunctionUtils.render(this, "acos", args);}
+			/** ASIN() function, 79% dialects support this function */
+			public String fn_asin(Object... args){return FunctionUtils.render(this, "asin", args);}
+			/** CURRENT_DATE() function, 79% dialects support this function */
+			public String fn_current_date(Object... args){return FunctionUtils.render(this, "current_date", args);}
+			/** FLOOR() function, 79% dialects support this function */
+			public String fn_floor(Object... args){return FunctionUtils.render(this, "floor", args);}
+			/** TAN() function, 79% dialects support this function */
+			public String fn_tan(Object... args){return FunctionUtils.render(this, "tan", args);}
+			/** CURRENT_TIMESTAMP() function, 76% dialects support this function */
+			public String fn_current_timestamp(Object... args){return FunctionUtils.render(this, "current_timestamp", args);}
+			/** CURRENT_TIME() function, 73% dialects support this function */
+			public String fn_current_time(Object... args){return FunctionUtils.render(this, "current_time", args);}
+			/** COT() function, 69% dialects support this function */
+			public String fn_cot(Object... args){return FunctionUtils.render(this, "cot", args);}
+			/** ASCII() function, 68% dialects support this function */
+			public String fn_ascii(Object... args){return FunctionUtils.render(this, "ascii", args);}
+			/** RTRIM() function, 67% dialects support this function */
+			public String fn_rtrim(Object... args){return FunctionUtils.render(this, "rtrim", args);}
+			/** LN() function, 65% dialects support this function */
+			public String fn_ln(Object... args){return FunctionUtils.render(this, "ln", args);}
+			/** LTRIM() function, 65% dialects support this function */
+			public String fn_ltrim(Object... args){return FunctionUtils.render(this, "ltrim", args);}
+			/** DEGREES() function, 64% dialects support this function */
+			public String fn_degrees(Object... args){return FunctionUtils.render(this, "degrees", args);}
+			/** RADIANS() function, 63% dialects support this function */
+			public String fn_radians(Object... args){return FunctionUtils.render(this, "radians", args);}
+			/** RAND() function, 63% dialects support this function */
+			public String fn_rand(Object... args){return FunctionUtils.render(this, "rand", args);}
+			/** CEIL() function, 61% dialects support this function */
+			public String fn_ceil(Object... args){return FunctionUtils.render(this, "ceil", args);}
+			/** SOUNDEX() function, 56% dialects support this function */
+			public String fn_soundex(Object... args){return FunctionUtils.render(this, "soundex", args);}
+			/** USER() function, 56% dialects support this function */
+			public String fn_user(Object... args){return FunctionUtils.render(this, "user", args);}
+			/** LOG10() function, 52% dialects support this function */
+			public String fn_log10(Object... args){return FunctionUtils.render(this, "log10", args);}
+			/** SUBSTR() function, 51% dialects support this function */
+			public String fn_substr(Object... args){return FunctionUtils.render(this, "substr", args);}
+			/** CEILING() function, 49% dialects support this function */
+			public String fn_ceiling(Object... args){return FunctionUtils.render(this, "ceiling", args);}
+			/** STDDEV() function, 49% dialects support this function */
+			public String fn_stddev(Object... args){return FunctionUtils.render(this, "stddev", args);}
+			/** NOW() function, 45% dialects support this function */
+			public String fn_now(Object... args){return FunctionUtils.render(this, "now", args);}
+			/** CHAR_LENGTH() function, 44% dialects support this function */
+			public String fn_char_length(Object... args){return FunctionUtils.render(this, "char_length", args);}
+			/** CHR() function, 44% dialects support this function */
+			public String fn_chr(Object... args){return FunctionUtils.render(this, "chr", args);}
+			/** DAYOFYEAR() function, 44% dialects support this function */
+			public String fn_dayofyear(Object... args){return FunctionUtils.render(this, "dayofyear", args);}
+			/** OCTET_LENGTH() function, 43% dialects support this function */
+			public String fn_octet_length(Object... args){return FunctionUtils.render(this, "octet_length", args);}
+			/** PI() function, 43% dialects support this function */
+			public String fn_pi(Object... args){return FunctionUtils.render(this, "pi", args);}
+			/** WEEK() function, 43% dialects support this function */
+			public String fn_week(Object... args){return FunctionUtils.render(this, "week", args);}
+			/** DAYNAME() function, 41% dialects support this function */
+			public String fn_dayname(Object... args){return FunctionUtils.render(this, "dayname", args);}
+			/** DAYOFWEEK() function, 41% dialects support this function */
+			public String fn_dayofweek(Object... args){return FunctionUtils.render(this, "dayofweek", args);}
+			/** LCASE() function, 41% dialects support this function */
+			public String fn_lcase(Object... args){return FunctionUtils.render(this, "lcase", args);}
+			/** MONTHNAME() function, 41% dialects support this function */
+			public String fn_monthname(Object... args){return FunctionUtils.render(this, "monthname", args);}
+			/** QUARTER() function, 41% dialects support this function */
+			public String fn_quarter(Object... args){return FunctionUtils.render(this, "quarter", args);}
+			/** SPACE() function, 41% dialects support this function */
+			public String fn_space(Object... args){return FunctionUtils.render(this, "space", args);}
+			/** SYSDATE() function, 41% dialects support this function */
+			public String fn_sysdate(Object... args){return FunctionUtils.render(this, "sysdate", args);}
+			/** UCASE() function, 41% dialects support this function */
+			public String fn_ucase(Object... args){return FunctionUtils.render(this, "ucase", args);}
+			/** CHAR() function, 39% dialects support this function */
+			public String fn_char(Object... args){return FunctionUtils.render(this, "char", args);}
+			/** REVERSE() function, 39% dialects support this function */
+			public String fn_reverse(Object... args){return FunctionUtils.render(this, "reverse", args);}
+			/** HEX() function, 37% dialects support this function */
+			public String fn_hex(Object... args){return FunctionUtils.render(this, "hex", args);}
+			/** LAST_DAY() function, 37% dialects support this function */
+			public String fn_last_day(Object... args){return FunctionUtils.render(this, "last_day", args);}
+			/** MD5() function, 37% dialects support this function */
+			public String fn_md5(Object... args){return FunctionUtils.render(this, "md5", args);}
+			/** TIME() function, 37% dialects support this function */
+			public String fn_time(Object... args){return FunctionUtils.render(this, "time", args);}
+			/** TIMESTAMP() function, 37% dialects support this function */
+			public String fn_timestamp(Object... args){return FunctionUtils.render(this, "timestamp", args);}
+			/** DATE() function, 36% dialects support this function */
+			public String fn_date(Object... args){return FunctionUtils.render(this, "date", args);}
+			/** TRUNC() function, 36% dialects support this function */
+			public String fn_trunc(Object... args){return FunctionUtils.render(this, "trunc", args);}
+			/** VARIANCE() function, 36% dialects support this function */
+			public String fn_variance(Object... args){return FunctionUtils.render(this, "variance", args);}
+			/** INITCAP() function, 35% dialects support this function */
+			public String fn_initcap(Object... args){return FunctionUtils.render(this, "initcap", args);}
+			/** POWER() function, 35% dialects support this function */
+			public String fn_power(Object... args){return FunctionUtils.render(this, "power", args);}
+			/** DAYOFMONTH() function, 33% dialects support this function */
+			public String fn_dayofmonth(Object... args){return FunctionUtils.render(this, "dayofmonth", args);}
+			/** ATAN2() function, 31% dialects support this function */
+			public String fn_atan2(Object... args){return FunctionUtils.render(this, "atan2", args);}
+			/** CHARACTER_LENGTH() function, 31% dialects support this function */
+			public String fn_character_length(Object... args){return FunctionUtils.render(this, "character_length", args);}
+			/** CURDATE() function, 29% dialects support this function */
+			public String fn_curdate(Object... args){return FunctionUtils.render(this, "curdate", args);}
+			/** CURTIME() function, 29% dialects support this function */
+			public String fn_curtime(Object... args){return FunctionUtils.render(this, "curtime", args);}
+			/** DATEDIFF() function, 29% dialects support this function */
+			public String fn_datediff(Object... args){return FunctionUtils.render(this, "datediff", args);}
+			/** REPLACE() function, 29% dialects support this function */
+			public String fn_replace(Object... args){return FunctionUtils.render(this, "replace", args);}
+			/** TO_DATE() function, 29% dialects support this function */
+			public String fn_to_date(Object... args){return FunctionUtils.render(this, "to_date", args);}
+			/** LOCALTIME() function, 28% dialects support this function */
+			public String fn_localtime(Object... args){return FunctionUtils.render(this, "localtime", args);}
+			/** LOCALTIMESTAMP() function, 28% dialects support this function */
+			public String fn_localtimestamp(Object... args){return FunctionUtils.render(this, "localtimestamp", args);}
+			/** NVL() function, 28% dialects support this function */
+			public String fn_nvl(Object... args){return FunctionUtils.render(this, "nvl", args);}
+			/** TO_CHAR() function, 28% dialects support this function */
+			public String fn_to_char(Object... args){return FunctionUtils.render(this, "to_char", args);}
+			/** LPAD() function, 27% dialects support this function */
+			public String fn_lpad(Object... args){return FunctionUtils.render(this, "lpad", args);}
+			/** RPAD() function, 27% dialects support this function */
+			public String fn_rpad(Object... args){return FunctionUtils.render(this, "rpad", args);}
+			/** BIN() function, 24% dialects support this function */
+			public String fn_bin(Object... args){return FunctionUtils.render(this, "bin", args);}
+			/** ENCRYPT() function, 24% dialects support this function */
+			public String fn_encrypt(Object... args){return FunctionUtils.render(this, "encrypt", args);}
+			/** FROM_DAYS() function, 24% dialects support this function */
+			public String fn_from_days(Object... args){return FunctionUtils.render(this, "from_days", args);}
+			/** LOG2() function, 24% dialects support this function */
+			public String fn_log2(Object... args){return FunctionUtils.render(this, "log2", args);}
+			/** TIMEDIFF() function, 24% dialects support this function */
+			public String fn_timediff(Object... args){return FunctionUtils.render(this, "timediff", args);}
+			/** TO_DAYS() function, 24% dialects support this function */
+			public String fn_to_days(Object... args){return FunctionUtils.render(this, "to_days", args);}
+			/** WEEKOFYEAR() function, 24% dialects support this function */
+			public String fn_weekofyear(Object... args){return FunctionUtils.render(this, "weekofyear", args);}
+			/** CRC32() function, 23% dialects support this function */
+			public String fn_crc32(Object... args){return FunctionUtils.render(this, "crc32", args);}
+			/** INSTR() function, 23% dialects support this function */
+			public String fn_instr(Object... args){return FunctionUtils.render(this, "instr", args);}
+			/** ISNULL() function, 23% dialects support this function */
+			public String fn_isnull(Object... args){return FunctionUtils.render(this, "isnull", args);}
+			/** LEN() function, 23% dialects support this function */
+			public String fn_len(Object... args){return FunctionUtils.render(this, "len", args);}
+			/** OCT() function, 23% dialects support this function */
+			public String fn_oct(Object... args){return FunctionUtils.render(this, "oct", args);}
+			/** TRANSLATE() function, 23% dialects support this function */
+			public String fn_translate(Object... args){return FunctionUtils.render(this, "translate", args);}
+			/** MICROSECOND() function, 21% dialects support this function */
+			public String fn_microsecond(Object... args){return FunctionUtils.render(this, "microsecond", args);}
+			/** RIGHT() function, 21% dialects support this function */
+			public String fn_right(Object... args){return FunctionUtils.render(this, "right", args);}
+			/** CURRENT_USER() function, 20% dialects support this function */
+			public String fn_current_user(Object... args){return FunctionUtils.render(this, "current_user", args);}
+			/** RANDOM() function, 20% dialects support this function */
+			public String fn_random(Object... args){return FunctionUtils.render(this, "random", args);}
+			/** SESSION_USER() function, 20% dialects support this function */
+			public String fn_session_user(Object... args){return FunctionUtils.render(this, "session_user", args);}
+			/** LEFT() function, 19% dialects support this function */
+			public String fn_left(Object... args){return FunctionUtils.render(this, "left", args);}
+			/** DATE_TRUNC() function, 17% dialects support this function */
+			public String fn_date_trunc(Object... args){return FunctionUtils.render(this, "date_trunc", args);}
+			/** UNHEX() function, 17% dialects support this function */
+			public String fn_unhex(Object... args){return FunctionUtils.render(this, "unhex", args);}
+			/** WEEKDAY() function, 17% dialects support this function */
+			public String fn_weekday(Object... args){return FunctionUtils.render(this, "weekday", args);}
+			/** CURRENT_SCHEMA() function, 16% dialects support this function */
+			public String fn_current_schema(Object... args){return FunctionUtils.render(this, "current_schema", args);}
+			/** POSITION() function, 16% dialects support this function */
+			public String fn_position(Object... args){return FunctionUtils.render(this, "position", args);}
+			/** TO_TIMESTAMP() function, 16% dialects support this function */
+			public String fn_to_timestamp(Object... args){return FunctionUtils.render(this, "to_timestamp", args);}
 	// @formatter:on
 
 	/**
@@ -1630,7 +638,7 @@ public enum Dialect {
 				"offset 0 rows fetch next " + pageSize + " rows only");
 
 		if (StrUtils.isEmpty(result))
-			return (String) DialectException.throwEX("Unexpected error, please report this bug");
+			DialectException.throwEX("Unexpected error, please report this bug");
 		return result;
 	}
 

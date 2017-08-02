@@ -13,8 +13,8 @@ import org.junit.Before;
 
 import com.github.drinkjava2.jbeanbox.BeanBox;
 import com.github.drinkjava2.jdialects.Dialect;
-import com.github.drinkjava2.tinyjdbc.TinyDataSourceManager;
 import com.github.drinkjava2.tinyjdbc.TinyJdbc;
+import com.github.drinkjava2.tinyjdbc.dm.BasicDataSourceManager;
 
 import test.functiontest.DataSourceConfig.DataSourceBox;
 
@@ -27,7 +27,7 @@ import test.functiontest.DataSourceConfig.DataSourceBox;
  */
 public class BaseDDLTest {
 	protected DataSource ds = BeanBox.getBean(DataSourceBox.class);
-	protected TinyJdbc tiny = new TinyJdbc(ds, TinyDataSourceManager.jdbcDataSourceManager());
+	protected TinyJdbc tiny = new TinyJdbc(ds, BasicDataSourceManager.instance());
 	protected Dialect guessedDialect = Dialect.guessDialect(ds);;
 
 	@Before

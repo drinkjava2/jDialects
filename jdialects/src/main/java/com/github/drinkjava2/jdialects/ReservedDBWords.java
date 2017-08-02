@@ -18,7 +18,7 @@ import java.util.Map;
 @SuppressWarnings("all")
 public class ReservedDBWords {
 
-	private static final Map<String, String> RESERVED_WORDS = new HashMap<>();
+	private static final Map<String, String> RESERVED_WORDS = new HashMap<String, String>();
 
 	private ReservedDBWords() {
 		// hide default constructor

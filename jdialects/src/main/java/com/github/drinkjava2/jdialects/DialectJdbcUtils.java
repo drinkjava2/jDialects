@@ -26,7 +26,7 @@ public abstract class DialectJdbcUtils {
 			pst = conn.prepareStatement(sql);
 			ResultSet rs = pst.executeQuery();
 			rs.next();
-			return rs.getLong(0);
+			return rs.getLong(1);
 		} catch (SQLException e) {
 			exception = e;
 			return null;

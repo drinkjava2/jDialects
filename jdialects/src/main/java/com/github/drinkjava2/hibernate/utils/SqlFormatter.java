@@ -67,7 +67,8 @@ public class SqlFormatter {
 	}
 
 	private static final String INDENT_STRING = "    ";
-	private static final String INITIAL = System.lineSeparator() + INDENT_STRING;
+	//private static final String INITIAL = System.lineSeparator() + INDENT_STRING;
+	private static final String INITIAL = System.getProperty("line.separator") + INDENT_STRING;
 
 	public static String format(String source) {
 		return new FormatProcess(source).perform();
@@ -352,12 +353,12 @@ public class SqlFormatter {
 		}
 
 		private void newline() {
-			result.append(System.lineSeparator());
+			result.append(System.getProperty("line.separator"));
 			for (int i = 0; i < indent; i++) {
 				result.append(INDENT_STRING);
 			}
 			beginLine = true;
 		}
 	}
-
+ 
 }

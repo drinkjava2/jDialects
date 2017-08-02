@@ -33,17 +33,17 @@ public class DDLDropUtils {
 	 */
 	public static String[] toDropDDL(Dialect dialect, Table... tables) {
 		// resultList store mixed drop DDL + drop Ojbects
-		List<Object> objectResultList = new ArrayList<>();
+		List<Object> objectResultList = new ArrayList<Object>();
 
 		for (Table table : tables)
 			transferTableToObjectList(dialect, table, objectResultList);
 
-		List<String> stringResultList = new ArrayList<>();
-		List<TableGenerator> tbGeneratorList = new ArrayList<>();
-		List<Sequence> sequenceList = new ArrayList<>();
-		List<AutoIdGenerator> globalIdGeneratorList = new ArrayList<>();
-		List<InlineFKeyConstraint> inlinefKeyConstraintList = new ArrayList<>();
-		List<FKeyConstraint> fKeyConstraintList = new ArrayList<>();
+		List<String> stringResultList = new ArrayList<String>();
+		List<TableGenerator> tbGeneratorList = new ArrayList<TableGenerator>();
+		List<Sequence> sequenceList = new ArrayList<Sequence>();
+		List<AutoIdGenerator> globalIdGeneratorList = new ArrayList<AutoIdGenerator>();
+		List<InlineFKeyConstraint> inlinefKeyConstraintList = new ArrayList<InlineFKeyConstraint>();
+		List<FKeyConstraint> fKeyConstraintList = new ArrayList<FKeyConstraint>();
 
 		for (Object strOrObj : objectResultList) {
 			if (!StrUtils.isEmpty(strOrObj)) {
@@ -146,7 +146,7 @@ public class DDLDropUtils {
 			}
 		}
 
-		Set<String> sequenceNameExisted = new HashSet<>();
+		Set<String> sequenceNameExisted = new HashSet<String>();
 		for (Sequence seq : sequenceList) {
 			if (seq.getAllocationSize() != 0) {
 				String sequenceName = seq.getSequenceName().toLowerCase();
@@ -181,7 +181,7 @@ public class DDLDropUtils {
 			//@formatter:on
 		}
 
-		Set<String> tableExisted = new HashSet<>();
+		Set<String> tableExisted = new HashSet<String>();
 		for (TableGenerator tg : tbGeneratorList) {
 			String tableName = tg.getTableName().toLowerCase();
 			if (!tableExisted.contains(tableName)) {
@@ -208,7 +208,7 @@ public class DDLDropUtils {
 		 * join table col1 refTable ref1 ref2 + table col2 refTable ref1 ref2
 		 * into one
 		 */
-		List<FKeyConstraint> trueList = new ArrayList<>();
+		List<FKeyConstraint> trueList = new ArrayList<FKeyConstraint>();
 		for (int i = 0; i < fKeyConstraintList.size(); i++) {
 			InlineFKeyConstraint fk = fKeyConstraintList.get(i);
 			FKeyConstraint temp = new FKeyConstraint(fk);

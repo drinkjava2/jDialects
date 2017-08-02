@@ -37,17 +37,17 @@ public class DDLCreateUtils {
 	 */
 	public static String[] toCreateDDL(Dialect dialect, Table... tables) {
 		// resultList store mixed DDL String + TableGenerator + Sequence
-		List<Object> objectResultList = new ArrayList<>();
+		List<Object> objectResultList = new ArrayList<Object>();
 
 		for (Table table : tables)
 			transferTableToObjectList(dialect, table, objectResultList);
 
-		List<String> stringResultList = new ArrayList<>();
-		List<TableGenerator> tbGeneratorList = new ArrayList<>();
-		List<Sequence> sequenceList = new ArrayList<>();
-		List<AutoIdGenerator> autoIdGeneratorList = new ArrayList<>();
-		List<InlineFKeyConstraint> inlinefKeyConstraintList = new ArrayList<>();
-		List<FKeyConstraint> fKeyConstraintList = new ArrayList<>();
+		List<String> stringResultList = new ArrayList<String>();
+		List<TableGenerator> tbGeneratorList = new ArrayList<TableGenerator>();
+		List<Sequence> sequenceList = new ArrayList<Sequence>();
+		List<AutoIdGenerator> autoIdGeneratorList = new ArrayList<AutoIdGenerator>();
+		List<InlineFKeyConstraint> inlinefKeyConstraintList = new ArrayList<InlineFKeyConstraint>();
+		List<FKeyConstraint> fKeyConstraintList = new ArrayList<FKeyConstraint>();
 
 		for (Object strOrObj : objectResultList) {
 			if (!StrUtils.isEmpty(strOrObj)) {
@@ -282,7 +282,7 @@ public class DDLCreateUtils {
 			}
 		}
 
-		Set<String> sequenceNameExisted = new HashSet<>();
+		Set<String> sequenceNameExisted = new HashSet<String>();
 		for (Sequence seq : sequenceList) {
 			if (seq.getAllocationSize() != 0) {
 				String sequenceName = seq.getSequenceName().toLowerCase();
@@ -353,8 +353,8 @@ public class DDLCreateUtils {
 			}
 		}
 
-		Set<String> tableExisted = new HashSet<>();
-		Set<String> columnExisted = new HashSet<>();
+		Set<String> tableExisted = new HashSet<String>();
+		Set<String> columnExisted = new HashSet<String>();
 		for (TableGenerator tg : tbGeneratorList)
 			if (tg.getAllocationSize() != 0) {
 				String tableName = tg.getTableName().toLowerCase();
@@ -396,7 +396,7 @@ public class DDLCreateUtils {
 		 * join table col1 refTable ref1 ref2 + table col2 refTable ref1 ref2
 		 * into one
 		 */
-		List<FKeyConstraint> trueList = new ArrayList<>();
+		List<FKeyConstraint> trueList = new ArrayList<FKeyConstraint>();
 		for (int i = 0; i < fKeyConstraintList.size(); i++) {
 			InlineFKeyConstraint fk = fKeyConstraintList.get(i);
 			FKeyConstraint temp = new FKeyConstraint(fk);
@@ -473,7 +473,7 @@ public class DDLCreateUtils {
 
 	private static void buildIndexDLL(Dialect dialect, List<Object> objectResultList, String tableName,
 			Map<String, Column> columns) {
-		Map<String, String> indexes = new LinkedHashMap<>();
+		Map<String, String> indexes = new LinkedHashMap<String, String>();
 		for (Column c : columns.values()) {
 			if (c.getIndex() && !c.getUnique()) {
 				String[] indexNames = c.getIndexNames();

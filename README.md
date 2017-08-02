@@ -1,4 +1,4 @@
-(English version see "README-ENGLISH.MD")  
+(English instruction please see [README-ENGLISH.MD](README-ENGLISH.MD) )  
 ## jDialects
 开源协议: [LGPL 2.1](http://www.gnu.org/licenses/lgpl-2.1.html) 
 
@@ -7,15 +7,15 @@ jDialects是一个从Hibernate中提取的支持70多种数据库(并加入了SQ
 2.创建跨数据库的建表和删表DDL语句，根据当前数据库方言生成相应的DDL语句。  
 3.创建跨数据库的SQL函数，根据当前数据库方言生成对应的SQL函数片段。  
 
-jDialects起初是为了jSqlBox项目而开发的，但它本身是一个独立的项目，发布包只有200k大小且无第三方依赖，只要用到了原生SQL，就可以利用它来实现跨数据库开发，适用于使用了纯JDBC、JdbcTemplate、DbUtils等以原生SQL为基础的持久层工具，并有跨数据库需求的场合(例如单元测试需要同时在H2内存数据库和实际数据库Oracle上运行)。对于一些ORM项目来说，也可以考虑引入jDialects来避免重复开发自已的数据库方言实现。jDialects项目的主体部分是由代码生成工具从Hibernate5.2.9版中抽取自动生成，这从一定程度上也保证了它的代码质量。代码生成工具详见[jDiagen](https://github.com/drinkjava2/jDiagen)项目。jDialects需Java7或以上版本支持。  
+jDialects起初是为了jSqlBox项目而开发的，但它本身是一个独立的项目，发布包只有160k大小且无第三方依赖，只要用到了原生SQL，就可以利用它来实现跨数据库开发，适用于使用了纯JDBC、JdbcTemplate、DbUtils等以原生SQL为基础的持久层工具，并有跨数据库需求的场合(例如单元测试需要同时在H2内存数据库和实际数据库Oracle上运行)。对于一些ORM项目来说，也可以考虑引入jDialects来避免重复开发自已的数据库方言实现。jDialects项目的主体部分是由代码生成工具从Hibernate5.2.9版中抽取自动生成，这从一定程度上也保证了它的代码质量。代码生成工具详见[jDiagen](https://github.com/drinkjava2/jDiagen)项目。jDialects需Java6或以上版本支持。  
   
 ### 如何引入项目?  
-下载"jdialects-1.0.2.jar"并放入项目库目录，或在项目的pom.xml文件中加入：
+下载"jdialects-1.0.3.jar"并放入项目库目录，或在项目的pom.xml文件中加入：
 ```
 	<dependency>  
 		<groupId>com.github.drinkjava2</groupId>  
 		<artifactId>jdialects</artifactId>  
-		<version>1.0.2</version>  
+		<version>1.0.3</version>  
 	</dependency>
 ```	 
 ### 在程序中使用   
@@ -114,12 +114,12 @@ alter table orders  add constraint fk_orders_customerName_customerEmail foreign 
    
 三. 生成跨数据库的SQL函数片段:
 ```
-	public static void main(String[] args) {
-		String[] params = new String[] { "'a'", "'b'", "'c'", "'d'" };
-		System.out.println(Dialect.MySQL55Dialect.fn_concat(params));
-		System.out.println(Dialect.SQLServerDialect.fn_concat(params));
-		System.out.println(Dialect.Oracle12cDialect.fn_concat(params));
-	}
+    public static void main(String[] args) {
+        String[] params = new String[] { "'a'", "'b'", "'c'", "'d'" };
+        System.out.println(Dialect.MySQL55Dialect.fn_concat(params));
+        System.out.println(Dialect.SQLServerDialect.fn_concat(params));
+        System.out.println(Dialect.Oracle12cDialect.fn_concat(params));
+    }
 ```     
 上例运行结果如下：
 ```
@@ -134,6 +134,11 @@ Jdialect抽取了Hibernate所有方言的函数定义，所有函数均以"fn_"�
 四. 总结  
 以上即为jDialects全部文档，如有不清楚处可以查看项目及单元测试源码。最后强调一下，jDialects只是个文本变换工具，根据不同的方言对SQL进行不同的变换，它本身不是一个完整的持久化工具，必须配合其它持久化工具如JDBC/DbUtils等使用。 
 
-五. 附录  
+五 版本变动记录  
+1.0.1 第一版发布，支持Java7  
+1.0.2 完善DDL功能  
+1.0.3 更正一些Bug，压缩了一下尽寸; 并降级到Java6版本，以支持更多开发环境  
+
+六. 附录  
 以下为目前jDialects支持的75种数据库方言： 
 Cache71Dialect, CobolDialect, CUBRIDDialect, DataDirectOracle9Dialect, DB2390Dialect, DB2400Dialect, DB2Dialect, DbfDialect, DerbyDialect, DerbyTenFiveDialect, DerbyTenSevenDialect, DerbyTenSixDialect, ExcelDialect, FirebirdDialect, FrontBaseDialect, H2Dialect, HANAColumnStoreDialect, HANARowStoreDialect, HSQLDialect, Informix10Dialect, InformixDialect, Ingres10Dialect, Ingres9Dialect, IngresDialect, InterbaseDialect, JDataStoreDialect, MariaDB53Dialect, MariaDBDialect, MckoiDialect, MimerSQLDialect, MySQL55Dialect, MySQL57Dialect, MySQL57InnoDBDialect, MySQL5Dialect, MySQL5InnoDBDialect, MySQLDialect, MySQLInnoDBDialect, MySQLMyISAMDialect, Oracle10gDialect, Oracle12cDialect, Oracle8iDialect, Oracle9Dialect, Oracle9iDialect, OracleDialect, ParadoxDialect, PointbaseDialect, PostgresPlusDialect, PostgreSQL81Dialect, PostgreSQL82Dialect, PostgreSQL91Dialect, PostgreSQL92Dialect, PostgreSQL93Dialect, PostgreSQL94Dialect, PostgreSQL95Dialect, PostgreSQL9Dialect, PostgreSQLDialect, ProgressDialect, RDMSOS2200Dialect, SAPDBDialect, SQLiteDialect, SQLServer2005Dialect, SQLServer2008Dialect, SQLServer2012Dialect, SQLServerDialect, Sybase11Dialect, SybaseAnywhereDialect, SybaseASE157Dialect, SybaseASE15Dialect, SybaseDialect, Teradata14Dialect, TeradataDialect, TextDialect, TimesTenDialect, XMLDialect 

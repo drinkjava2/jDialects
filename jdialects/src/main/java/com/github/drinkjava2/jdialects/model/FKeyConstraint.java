@@ -29,7 +29,7 @@ import java.util.List;
 public class FKeyConstraint {
 
 	private String tableName;
-	private List<String> columnNames = new ArrayList<>();
+	private List<String> columnNames = new ArrayList<String>();
 	private String refTableName;
 	private String[] refColumnNames;
 

@@ -38,15 +38,15 @@ public class Table {
 	private String engineTail;
 
 	/** Columns in this table, key is lower case of column tableName */
-	private Map<String, Column> columns = new LinkedHashMap<>();
+	private Map<String, Column> columns = new LinkedHashMap<String, Column>();
 
 	/** sequences */
-	private Map<String, Sequence> sequences = new LinkedHashMap<>();
+	private Map<String, Sequence> sequences = new LinkedHashMap<String, Sequence>();
 
 	/** tableGenerators */
-	private Map<String, TableGenerator> tableGenerators = new LinkedHashMap<>();
+	private Map<String, TableGenerator> tableGenerators = new LinkedHashMap<String, TableGenerator>();
 
-	private List<FKeyConstraint> fkeyConstraints = new ArrayList<>();
+	private List<FKeyConstraint> fkeyConstraints = new ArrayList<FKeyConstraint>();
 
 	public Table() {
 		super();

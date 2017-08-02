@@ -7,6 +7,7 @@
 package test.coveragetest.jdialects;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import org.junit.Test;
 
@@ -36,16 +37,16 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 
 		String[] ddls = guessedDialect.toDropDDL(tables);
 
-		tiny.executeQuietManySqls(ddls);
+		tiny.executeNoParamSqlsQuiet(ddls);
 
 		ddls = guessedDialect.toCreateDDL(tables);
-		tiny.executeManySqls(ddls);
+		tiny.executeNoParamSqls(ddls);
 
 		ddls = guessedDialect.toDropAndCreateDDL(tables);
-		tiny.executeManySqls(ddls);
+		tiny.executeNoParamSqls(ddls);
 
 		ddls = guessedDialect.toDropDDL(tables);
-		tiny.executeManySqls(ddls);
+		tiny.executeNoParamSqls(ddls);
 	}
 
 	private static void printOneDialectsDDLs(Dialect dialect, Table... tables) {
@@ -373,12 +374,12 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		Table t = new Table("testNextIdTable");
 		t.column("id1").LONG().autoID().pkey();
 		t.column("id2").LONG().autoID();
-		tiny.setAllowShowSQL(true);
+		TinyJdbcUtils.setAllowShowSQL(true);
 		String[] ddls = guessedDialect.toDropDDL(t);
-		tiny.executeQuietManySqls(ddls);
+		tiny.executeNoParamSqlsQuiet(ddls);
 
 		ddls = guessedDialect.toCreateDDL(t);
-		tiny.executeManySqls(ddls);
+		tiny.executeNoParamSqls(ddls);
 
 		TinyJdbcUtils.setAllowShowSQL(true);
 		Connection conn = tiny.getConnection();
@@ -386,8 +387,10 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 			for (int i = 0; i < 10; i++) {
 				Long id1 = guessedDialect.getNextAutoID(conn);
 				Long id2 = guessedDialect.getNextAutoID(conn);
-				TinyJdbcUtils.hotExecute(conn, "insert into testNextIdTable values(?,?)", id1, id2);
+				TinyJdbcUtils.execute(conn, "insert into testNextIdTable values(?,?)", id1, id2);
 			}
+		} catch (SQLException e) {
+			tiny.linkException(e);
 		} finally {
 			tiny.releaseConnection(conn);
 		}
