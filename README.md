@@ -10,12 +10,12 @@ jDialects是一个从Hibernate中提取的支持70多种数据库(并加入了SQ
 jDialects起初是为了jSqlBox项目而开发的，但它本身是一个独立的项目，发布包只有160k大小且无第三方依赖，只要用到了原生SQL，就可以利用它来实现跨数据库开发，适用于使用了纯JDBC、JdbcTemplate、DbUtils等以原生SQL为基础的持久层工具，并有跨数据库需求的场合(例如单元测试需要同时在H2内存数据库和实际数据库Oracle上运行)。对于一些ORM项目来说，也可以考虑引入jDialects来避免重复开发自已的数据库方言实现。jDialects项目的主体部分是由代码生成工具从Hibernate5.2.9版中抽取自动生成，这从一定程度上也保证了它的代码质量。代码生成工具详见[jDiagen](https://github.com/drinkjava2/jDiagen)项目。jDialects需Java6或以上版本支持。  
   
 ### 如何引入项目?  
-下载"jdialects-1.0.3.jar"并放入项目库目录，或在项目的pom.xml文件中加入：
+下载"jdialects-1.0.4.jar"并放入项目库目录，或在项目的pom.xml文件中加入：
 ```
 	<dependency>  
 		<groupId>com.github.drinkjava2</groupId>  
 		<artifactId>jdialects</artifactId>  
-		<version>1.0.3</version>  
+		<version>1.0.4</version>  
 	</dependency>
 ```	 
 ### 在程序中使用   
