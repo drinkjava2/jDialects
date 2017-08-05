@@ -24,7 +24,7 @@ public class Column {
 	private Boolean pkey = false;
 	private Boolean notNull = false;
 	private Boolean unique = false;
-	private String uniqueConstraintName;
+	private String[] uniqueConstraintNames;
 	private Boolean index = false;
 	private String[] indexNames;
 	private Boolean identity = false;
@@ -82,9 +82,9 @@ public class Column {
 	}
 
 	/** Add a unique DDL piece by given uniqueConstraintName if support */
-	public Column unique(String uniqueConstraintName) {
+	public Column unique(String... uniqueConstraintNames) {
 		this.unique = true;
-		this.uniqueConstraintName = uniqueConstraintName;
+		this.uniqueConstraintNames = uniqueConstraintNames;
 		return this;
 	}
 
@@ -255,12 +255,12 @@ public class Column {
 		this.unique = unique;
 	}
 
-	public String getUniqueConstraintName() {
-		return uniqueConstraintName;
+	public String[] getUniqueConstraintNames() {
+		return uniqueConstraintNames;
 	}
 
-	public void setUniqueConstraintName(String uniqueConstraintName) {
-		this.uniqueConstraintName = uniqueConstraintName;
+	public void setUniqueConstraintName(String... uniqueConstraintNames) {
+		this.uniqueConstraintNames = uniqueConstraintNames;
 	}
   
 	public Boolean getIdentity() {

@@ -1,17 +1,17 @@
 ## jDialects
 License: [LGPL 2.1](http://www.gnu.org/licenses/lgpl-2.1.html)  
   
-jDialects is a small java project support ~70 database dialects included SQLLite and Access, usually jDialects is used for build pagination SQL and DDL SQL for cross-databases developing. jDialects runs on Java6+.  
+jDialects is a small java project support ~70 database dialects included SQLite and Access, usually jDialects is used for build pagination SQL and DDL SQL for cross-databases developing. jDialects runs on Java6 or above.  
   
 jDialects is a core part of jSqlBox project, but it can be used seperately for any Java project which used JDBC. Main parts of jDialects are extracted from Hibernate5.2.9 project by source code generator tool, see project [jDiagen](https://github.com/drinkjava2/jDiagen). And also it build a Excel file "DatabaseDialects.xls", it's useful if you want compare difference of databases.  
   
 ### How to Use jDialects in project?   
-Download and put file "jdialects-1.0.3.jar" in class folder, or add below in pom.xml: 
+Download and put file "jdialects-1.0.4.jar" in class folder, or add below in pom.xml: 
 ```
     <dependency>  
         <groupId>com.github.drinkjava2</groupId>  
         <artifactId>jdialects</artifactId>  
-        <version>1.0.3</version>  
+        <version>1.0.4</version>  
     </dependency> 
 ```
   
@@ -25,42 +25,43 @@ Download and put file "jdialects-1.0.3.jar" in class folder, or add below in pom
       
      in MySQL5Dialect, result is: "select * from users  where id=? limit 20, 10"
      in Oracle8iDialect, result is: "select * from ( select row_.*, rownum rownum_ from ( select * from users  where id=? ) row_ ) where rownum_ <= 30 and rownum_ > 20"
-     in Oracle12cDialect, result is: "select * from users  where id=? offset 20 rows fetch next 10 rows only"
+     in Oracle12cDialect, result is: "select * from users where id=? offset 20 rows fetch next 10 rows only"
      in Sybase11Dialect, get a DialectExcepiton with message: "Sybase11Dialect" does not support physical pagination
      ...
 ```     
       
 2) Build cross-database DDL SQL: 
 ```   
-    public static void main(String[] args) {
-        Table t1 = new Table("customers");
-        t1.column("id").LONG().identity();
-        t1.column("name").STRING(20).unique().pkey();
-        t1.column("email").STRING(50).unique().pkey().index("IDX_EMAIL");
-        t1.column("address").VARCHAR(50).index().defaultValue("Beijing").comment("address comment");
-        t1.column("phoneNumber").VARCHAR(50).index("IDX_phone");
-        t1.column("age").INTEGER().notNull().check(">0");
+	public static void main(String[] args) {
+		Table t1 = new Table("customers");
+		t1.column("name").STRING(20).unique().pkey();
+		t1.column("email").STRING(20).pkey();
+		t1.column("address").VARCHAR(50).index("IDX1").defaultValue("'Beijing'").comment("address comment");
+		t1.column("phoneNumber").VARCHAR(50).index("IDX1","IDX2");
+		t1.column("age").INTEGER().notNull().check("'>0'");
 
-        Table t2 = new Table("orders").comment("order comment");
-        t2.engineTail(" DEFAULT CHARSET=utf8");
-        t2.column("id").INTEGER().autoID().pkey();
-        t2.column("customerID").STRING(20).fkey("customers", "id");
-        t2.column("customerName").STRING(20).unique().pkey().tail(" default 'Sam'");
-        t2.column("customerEmail").STRING(50).unique().index("IDX_EMAIL");
-        t2.fkey("customerName", "customerEmail").ref("customers", "name", "email");
+		Table t2 = new Table("orders").comment("order comment");
+		t2.column("id").LONG().autoID().pkey();
+		t2.column("name").STRING(20).fkey("customers", "name", "email");
+		t2.column("email").STRING(20).fkey("customers", "name", "email");
+		t2.column("name2").STRING(20).unique("A").pkey().tail(" default 'Sam'");
+		t2.column("email2").STRING(20).unique("A", "B");
+		t2.fkey("name2", "email2").ref("customers", "name", "email");
 
-        Table t3 = new Table("sampletable");
-        t3.addTableGenerator("table_gen1", "tb1", "pkcol2", "valcol", "pkval", 1, 10);
-        t3.column("id1").INTEGER().tableGenerator("table_gen1");
-        t3.addSequence("seq1", "seq_1", 1, 1);
-        t3.column("id2").INTEGER().sequence("seq1");
+		Table t3 = new Table("sampletable");
+		t3.column("id").LONG().identity().pkey();
+		t3.addTableGenerator("table_gen1", "tb1", "pkcol2", "valcol", "pkval", 1, 10);
+		t3.column("id1").INTEGER().tableGenerator("table_gen1");
+		t3.addSequence("seq1", "seq_1", 1, 1);
+		t3.column("id2").INTEGER().sequence("seq1");
+		t3.engineTail(" DEFAULT CHARSET=utf8");
 
-        String[] dropAndCreateDDL = Dialect.Oracle12cDialect.toDropAndCreateDDL(t1, t2, t3);
-        for (String ddl : dropAndCreateDDL)
-            System.out.println(ddl); 
-    }
+		String[] dropAndCreateDDL = Dialect.H2Dialect.toDropAndCreateDDL(t1, t2, t3);
+		for (String ddl : dropAndCreateDDL)
+			System.out.println(ddl);
+	}
 ```    
-*)LONG、SRING...method: column type definition:  
+*)LONG()、STRING()...methods: column type definition:  
 Common: BOOLEAN,DOUBLE,FLOAT,INTEGER,LONG(=BIGINT),SHORT(=SMALLINT),BIGDECIMAL(=NUMERIC),STRING(=VARCHAR),DATE,TIME,TIMESTAMP,BIGINT,VARCHAR  
 Un-common：BINARY,BIT,BLOB,CHAR,CLOB,DECIMAL,LONGNVARCHAR,LONGVARBINARY,LONGVARCHAR,NCHAR,NCLOB,NUMERIC,NVARCHAR,REAL,SMALLINT,TINYINT,VARBINARY  
 *)pkey(): Primary key definition.  
@@ -68,44 +69,41 @@ Un-common：BINARY,BIT,BLOB,CHAR,CLOB,DECIMAL,LONGNVARCHAR,LONGVARBINARY,LONGVAR
 *)unique:  Unique constraint definition.  
 *)index(): Index definition.  
 *)notNull(): Not null column definition.  
-*)check(): Check constraint definition  
-*)defaultValue(): default value definition  
-*)column's fkey() method: foreign key definition, format: column.fkey(ftable，fcol1, fcol2...).  
+*)check(): Check constraint definition.  
+*)defaultValue(): default value definition.  
+*)fkey() method: foreign key definition, format: column.fkey(ftable，fcol1, fcol2...).  
 *)table's fkey() method: another way to define a foreign key, format: table.fkey(col1,col2).ref(ftable，fcol1,fcol2..).  
 *)comment(): comment definition.  
-*)autoID(): Similar like JPA's @Auto type, in program using dialect.getNextAutoID(connection) to get a Long type ID。  
+*)autoID(): Similar like JPA's @Auto type, in program using dialect.getNextAutoID(connection) to get a Long type ID.  
 *)tableGenerator(): Simliar like JPA's @TableGenerator type.  
 *)dialect's toDropDDL(), toCreateDDL() and toDropAndCreateDDL() methods: build DDL String Array。DDLFormatter.format() can be used format DDL.  
 *)toCreateDDL() method will run reserved words checking, if found reserved words like "user"、"order" will throw an Exception.  
-*)table.engineTail() method: put extra String behind DDL tail only when database(like MySql) support engine keyword。column.tail() put extra String on column definition.  
+*)table.engineTail() method: put extra String behind DDL tail only when database(like MySql) support engine。column.tail() add extra String on column definition.  
 
 Result of above example is:
 ```
-alter table orders  drop constraint  fk_orders_customerName_customerEmail
-alter table orders  drop constraint  fk_orders_customerID
-drop table tb1 cascade constraints
-drop sequence seq_1
-drop sequence jdialects_autoid
-drop table customers cascade constraints
-drop table orders cascade constraints
-drop table sampletable cascade constraints
-create table customers (id number(19,0) generated as identity,name varchar2(20 char),email varchar2(50 char),address varchar2(50 char) default Beijing,phoneNumber varchar2(50 char),age number(10,0) not null check (>0), primary key (name,email))
-alter table customers add constraint unique_customers_name unique (name)
-alter table customers add constraint unique_customers_email unique (email)
-comment on column customers.address is 'address comment'
-create index IDX_customers_address on customers (address)
-create index IDX_phone on customers (phoneNumber)
-create table orders (id number(10,0),customerID varchar2(20 char),customerName varchar2(20 char) default 'Sam',customerEmail varchar2(50 char), primary key (id,customerName))
-alter table orders add constraint unique_orders_customername unique (customerName)
-alter table orders add constraint unique_orders_customeremail unique (customerEmail)
-comment on table orders is 'order comment'
-create table sampletable (id1 number(10,0),id2 number(10,0))
+alter table orders  drop constraint  fk_orders_name2_email2
+alter table orders  drop constraint  fk_orders_name_email
+drop table tb1 if exists
+drop sequence if exists seq_1
+drop sequence if exists jdialects_autoid
+drop table customers if exists
+drop table orders if exists
+drop table sampletable if exists
+create table customers (name varchar(20),email varchar(20),address varchar(50) default 'Beijing',phoneNumber varchar(50),age integer not null check ('>0'), primary key (name,email))
+alter table customers add constraint UK_customers_name unique (name)
+create index IDX1 on customers (address,phoneNumber)
+create index IDX2 on customers (phoneNumber)
+create table orders (id bigint,name varchar(20),email varchar(20),name2 varchar(20) default 'Sam',email2 varchar(20), primary key (id,name2))
+alter table orders add constraint A unique (name2,email2)
+alter table orders add constraint B unique (email2)
+create table sampletable (id bigint generated by default as identity,id1 integer,id2 integer, primary key (id))
 create sequence jdialects_autoid start with 1 increment by 1
 create sequence seq_1 start with 1 increment by 1
-create table tb1 (pkcol2 varchar2(100 char),valcol number(19,0) )
-alter table orders  add constraint fk_orders_customerID foreign key (customerID) references customers
-alter table orders  add constraint fk_orders_customerName_customerEmail foreign key (customerName,customerEmail) references customers```   
-```    
+create table tb1 (pkcol2 varchar(100),valcol bigint )
+alter table orders  add constraint fk_orders_name_email foreign key (name,email) references customers
+alter table orders  add constraint fk_orders_name2_email2 foreign key (name2,email2) references customers
+```   
 3) SQL function support:
 ```
     public static void main(String[] args) {

@@ -157,12 +157,23 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		testOnCurrentRealDatabase(allowNullModel());
 	}
 
-	private static Table uniqueModel() {// unique
+	private static Table uniqueModel() {// unique constraint
 		Table t = new Table("testTable");
-		t.column("s1").STRING(20).unique().notNull();
-		t.column("s2").STRING(20).unique();
-		t.column("s3").STRING(20).unique("uname1").notNull();
-		t.column("s4").STRING(20).unique("uname2");
+		t.column("s1").STRING(20).unique();
+		t.column("s2").STRING(20).unique().notNull();
+
+		t.column("s3").STRING(20).unique("uname1");
+		t.column("s4").STRING(20).unique("uname2").notNull();
+
+		t.column("s5").STRING(20).unique("A");
+		t.column("s6").STRING(20).unique("A");
+		t.column("s7").STRING(20).unique("B").notNull();
+		t.column("s8").STRING(20).unique("B").notNull();
+
+		t.column("s9").STRING(20).unique("C", "D");
+		t.column("s10").STRING(20).unique("C");
+		t.column("s11").STRING(20).unique("E", "F").notNull();
+		t.column("s12").STRING(20).unique("F", "G").notNull();
 		return t;
 	}
 
@@ -170,6 +181,8 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 	public void testUnique() {
 		printAllDialectsDDLs(uniqueModel());
 		testOnCurrentRealDatabase(allowNullModel());
+		printOneDialectsDDLs(Dialect.DB2Dialect, uniqueModel());
+		printOneDialectsDDLs(Dialect.InformixDialect, uniqueModel());
 	}
 
 	private static Table checkModel() {// column check
@@ -396,4 +409,35 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		}
 	}
 
+	@Test
+	public void sampleTest() {// An example used to put on README.md
+		Table t1 = new Table("customers");
+		t1.column("name").STRING(20).unique().pkey();
+		t1.column("email").STRING(20).pkey();
+		t1.column("address").VARCHAR(50).index("IDX1").defaultValue("'Beijing'").comment("address comment");
+		t1.column("phoneNumber").VARCHAR(50).index("IDX1","IDX2");
+		t1.column("age").INTEGER().notNull().check("'>0'");
+
+		Table t2 = new Table("orders").comment("order comment");
+		t2.column("id").LONG().autoID().pkey();
+		t2.column("name").STRING(20).fkey("customers", "name", "email");
+		t2.column("email").STRING(20).fkey("customers", "name", "email");
+		t2.column("name2").STRING(20).unique("A").pkey().tail(" default 'Sam'");
+		t2.column("email2").STRING(20).unique("A", "B");
+		t2.fkey("name2", "email2").ref("customers", "name", "email");
+
+		Table t3 = new Table("sampletable");
+		t3.column("id").LONG().identity().pkey();
+		t3.addTableGenerator("table_gen1", "tb1", "pkcol2", "valcol", "pkval", 1, 10);
+		t3.column("id1").INTEGER().tableGenerator("table_gen1");
+		t3.addSequence("seq1", "seq_1", 1, 1);
+		t3.column("id2").INTEGER().sequence("seq1");
+		t3.engineTail(" DEFAULT CHARSET=utf8");
+
+		String[] dropAndCreateDDL = Dialect.H2Dialect.toDropAndCreateDDL(t1, t2, t3);
+		for (String ddl : dropAndCreateDDL)
+			System.out.println(ddl);
+
+		testOnCurrentRealDatabase(t1, t2, t3);
+	}
 }

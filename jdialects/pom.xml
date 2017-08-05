@@ -4,11 +4,11 @@
  
  <groupId>com.github.drinkjava2</groupId>
  <artifactId>jdialects</artifactId>
- <version>1.0.3</version>
+ <version>1.0.4</version>
  <packaging>jar</packaging> 
  
  <name>jdialects</name>
- <description>jDialects is a Pagination and DDL tool support ~70 databases, for Java1.6 and above</description>
+ <description>jDialects is a Pagination and DDL tool support ~70 databases, run on Java1.6 and above</description>
  <url>https://github.com/drinkjava2/jDialects</url>
   
  <issueManagement>
@@ -58,7 +58,7 @@
 	
  <dependencies>   
  
-    <!-- jDialects has no any 3rd party dependency, it's a "Green" lib -->   
+    <!-- jDialects has no any 3rd party dependency -->   
 	
     <!-- ============================================================================= -->
     <!-- Below dependencies are for unit test only, scope set to "test"                --> 
@@ -94,6 +94,15 @@
       <version>1.3.176</version>
       <scope>test</scope>
     </dependency> 
+    
+    <!-- MySql Database driver for unit test --> 
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>5.1.43</version>
+        <scope>test</scope>
+    </dependency>
+    
 </dependencies> 
  
  <build>
@@ -179,7 +188,7 @@
                             <links>
                                 <link>http://docs.oracle.com/javase/${version.javadoc}/docs/api</link>
                             </links>
-							<!-- close doc line check, for Java7 only, if run on Java8 will get a Javadoc-plugin error -->
+							<!-- close doc line check, for Java6,7 only, if run on Java8 will get a Javadoc-plugin error -->
 							<properties>
 								<javadoc.opts>-Xdoclint:none</javadoc.opts>
 							</properties>
@@ -216,36 +225,6 @@
               </repository>
            </distributionManagement>
         </profile>
-		
-		<!-- If want release to private or company server, can take a look this releaseLocal profile -->
-        <profile>
-            <id>releaseLocal</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>${version.source-plugin}</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <attach>true</attach>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-            <distributionManagement>
-                <repository>
-                    <id>nexus-197</id>
-                    <url>http://192.168.1.197:8081/content/repositories/releases</url>
-                </repository>
-            </distributionManagement>
-        </profile>
     </profiles> 
+	
 </project>

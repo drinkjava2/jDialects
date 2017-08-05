@@ -29,7 +29,7 @@ import com.github.drinkjava2.jdialects.model.Table;
  * above.
  * 
  * @author Yong Zhu
- * @version 1.0.3
+ * @version 1.0.4
  * @since 1.0.0
  */
 public enum Dialect {
@@ -111,22 +111,25 @@ public enum Dialect {
 			String reservedForDB = ReservedDBWords.reservedForDB(word);
 			if (ReservedDBWords.isReservedWord(this, word)) {
 				DialectException.throwEX("\"" + word + "\" is a reserved word of \"" + reservedForDB
-						+ "\", should not use it as table or column name");
+						+ "\", should not use it as table, column, unique or index name");
 			} else {
 				logger.warn("\"" + word + "\" is a reserved word of other database \"" + reservedForDB
-						+ "\", not recommended to be used as table or column name");
+						+ "\", not recommended to be used as table, column, unique or index name");
 			}
 		}
 	}
 
 	/**
-	 * Check if a word is current dialect or ANSI-SQL's reserved word, if yes
-	 * throw exception. if is other database's reserved word, log output a
-	 * warning. Otherwise return word itself.
+	 * Check if a word or word array include current dialect or ANSI-SQL's reserved word, if yes
+	 * throw exception. if belong to other database's reserved word, log output a
+	 * warning. Otherwise return word itself or first word if is array
 	 */
-	public String checkReservedWords(String word) {
-		checkIfReservedWord(word);
-		return word;
+	public String checkReservedWords(String... words) {
+		if (words == null || words.length == 0)
+			return null;
+		for (String word : words)  
+			checkIfReservedWord(word); 
+		return words[0];
 	}
 
 	/**
@@ -652,7 +655,7 @@ public enum Dialect {
 	 *            The page number, start from 1
 	 * @param pageSize
 	 *            The page item size
-	 * @param trimedSql
+	 * @param sql
 	 *            The original SQL
 	 * @return The paginated SQL
 	 */
@@ -852,17 +855,17 @@ public enum Dialect {
 		if (ddlFeatures.supportBasicOrPooledSequence()) {
 			String sql = StrUtils.replace(ddlFeatures.sequenceNextValString, "_SEQNAME",
 					AutoIdGenerator.JDIALECTS_AUTOID);
-			result = DialectJdbcUtils.hotQueryForLong(connection, sql);
+			result = DialectJdbcUtils.hotExecuteQuery(connection, sql);
 			DialectException.assureNotNull(result, "Null value found when fetch Auto-Generated ID from sequence '"
 					+ AutoIdGenerator.JDIALECTS_AUTOID + "'");
 		} else {
 			String sql = "update " + AutoIdGenerator.JDIALECTS_AUTOID + " set " + AutoIdGenerator.NEXT_VAL + "=("
 					+ AutoIdGenerator.NEXT_VAL + "+1)";
-			Long updatedCount = DialectJdbcUtils.hotQueryForLong(connection, sql);
+			int updatedCount = DialectJdbcUtils.hotExecuteUpdate(connection, sql);
 			if (updatedCount != 1)
 				throw new SQLException("When fetch Auto-Generated ID, can not read from \""
 						+ AutoIdGenerator.JDIALECTS_AUTOID + "\" table");
-			result = DialectJdbcUtils.hotQueryForLong(connection,
+			result = DialectJdbcUtils.hotExecuteQuery(connection,
 					"select " + AutoIdGenerator.NEXT_VAL + " from " + AutoIdGenerator.JDIALECTS_AUTOID);
 			DialectException.assureNotNull(result, "Null value found when fetch Auto-Generated ID from table \""
 					+ AutoIdGenerator.JDIALECTS_AUTOID + "\"");

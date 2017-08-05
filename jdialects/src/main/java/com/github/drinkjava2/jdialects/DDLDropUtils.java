@@ -86,7 +86,8 @@ public class DDLDropUtils {
 		for (Column col : columns.values()) {
 			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
 			dialect.checkReservedWords(col.getPkeyName());
-			dialect.checkReservedWords(col.getUniqueConstraintName());
+			dialect.checkReservedWords(col.getUniqueConstraintNames());
+			dialect.checkReservedWords(col.getIndexNames()); 
 		}
 
 		for (Column col : columns.values()) {

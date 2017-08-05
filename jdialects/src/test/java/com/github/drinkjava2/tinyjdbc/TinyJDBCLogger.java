@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class TinyLogger {
+public class TinyJDBCLogger {
 	boolean fatalEnabled = true;
 	boolean errorEnabled = true;
 	boolean warnEnabled = true;
@@ -45,11 +45,11 @@ public class TinyLogger {
 	private Logger jdkLogger;
 
 	public static void main(String[] args) {
-		TinyLogger log = TinyLogger.getLog(TinyLogger.class);
+		TinyJDBCLogger log = TinyJDBCLogger.getLog(TinyJDBCLogger.class);
 		log.info("aaaaa");
 	}
 
-	public TinyLogger(Class<?> targetClass) {
+	public TinyJDBCLogger(Class<?> targetClass) {
 		if (targetClass == null)
 			throw new LoggingException("targetClass can not be null.");
 		try {
@@ -67,13 +67,13 @@ public class TinyLogger {
 		}
 
 		if (commonLogger == null || commonLoggerFatalMethod == null) {
-			System.err.println("TinyLogger failed to load org.apache.commons.logging.LogFactory, use JDK logger.");
+			System.err.println("TinyJDBCLogger failed to load org.apache.commons.logging.LogFactory, use JDK logger.");
 			jdkLogger = Logger.getLogger(targetClass.getName());// use JDK log
 		}
 	}
 
-	public static TinyLogger getLog(Class<?> targetClass) {
-		return new TinyLogger(targetClass);
+	public static TinyJDBCLogger getLog(Class<?> targetClass) {
+		return new TinyJDBCLogger(targetClass);
 	}
 
 	public boolean isFatalEnabled() {

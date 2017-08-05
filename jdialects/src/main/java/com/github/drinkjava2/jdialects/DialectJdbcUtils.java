@@ -19,7 +19,7 @@ import java.sql.SQLException;
  */
 public abstract class DialectJdbcUtils {
 
-	public static Long hotQueryForLong(Connection conn, String sql) throws SQLException {
+	public static Long hotExecuteQuery(Connection conn, String sql) throws SQLException {
 		PreparedStatement pst = null;
 		SQLException exception = null;
 		try {
@@ -35,14 +35,15 @@ public abstract class DialectJdbcUtils {
 		}
 	}
 
-	public static void hotExecuteSql(Connection conn, String sql) throws SQLException {
+	public static int hotExecuteUpdate(Connection conn, String sql) throws SQLException {
 		PreparedStatement pst = null;
 		SQLException exception = null;
 		try {
 			pst = conn.prepareStatement(sql);
-			pst.execute();
+			return pst.executeUpdate();
 		} catch (SQLException e) {
 			exception = e;
+			return 0;
 		} finally {
 			closeRSandPST(null, pst, exception, sql);
 		}

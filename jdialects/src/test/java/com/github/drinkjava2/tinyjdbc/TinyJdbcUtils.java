@@ -49,7 +49,7 @@ import com.github.drinkjava2.tinyjdbc.inline.SqlAndParams;
  * @since 1.0.0
  */
 public abstract class TinyJdbcUtils extends InlineSupport {
-	private static TinyLogger logger = TinyLogger.getLog(TinyJdbcUtils.class);
+	private static TinyJDBCLogger logger = TinyJDBCLogger.getLog(TinyJdbcUtils.class);
 	private static Boolean allowShowSQL = false;
 
 	public static Boolean getAllowShowSQL() {

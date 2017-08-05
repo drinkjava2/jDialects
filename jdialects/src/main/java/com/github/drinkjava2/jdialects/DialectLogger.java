@@ -24,6 +24,7 @@ public class DialectLogger {
 	private Method commonLoggerWarnMethod;
 	private Method commonLoggerErrorMethod;
 	private Logger jdkLogger;
+	private static boolean showedErrMsg = false;
 
 	private static boolean enableLog = true;
 
@@ -40,8 +41,14 @@ public class DialectLogger {
 		} catch (Exception e) {
 			DialectException.eatException(e);
 		}
-		if (commonLogger == null)
-			jdkLogger = Logger.getLogger(targetClass.getName());
+		if (commonLogger == null || commonLoggerWarnMethod == null) {
+			if (!showedErrMsg) {
+				showedErrMsg = true;
+				System.err
+						.println("jDialects failed to load org.apache.commons.logging.LogFactory, use JDK logger.");
+			}
+			jdkLogger = Logger.getLogger(targetClass.getName());// use JDK log
+		}
 
 	}
 

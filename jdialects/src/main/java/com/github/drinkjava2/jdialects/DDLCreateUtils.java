@@ -36,7 +36,7 @@ public class DDLCreateUtils {
 	 * get a formatted DDL, use DDLFormatter.format(DDLs) method to format it
 	 */
 	public static String[] toCreateDDL(Dialect dialect, Table... tables) {
-		// resultList store mixed DDL String + TableGenerator + Sequence
+		// Store mixed DDL String, TableGenerator Object, Sequence Object ...
 		List<Object> objectResultList = new ArrayList<Object>();
 
 		for (Table table : tables)
@@ -97,7 +97,8 @@ public class DDLCreateUtils {
 		for (Column col : columns.values()) {
 			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
 			dialect.checkReservedWords(col.getPkeyName());
-			dialect.checkReservedWords(col.getUniqueConstraintName());
+			dialect.checkReservedWords(col.getUniqueConstraintNames());
+			dialect.checkReservedWords(col.getIndexNames());
 		}
 
 		for (Column col : columns.values()) {
@@ -235,10 +236,6 @@ public class DDLCreateUtils {
 
 		objectResultList.add(buf.toString());
 
-		// unique constraint
-		for (Column column : columns.values())
-			addUniqueConstraintDDL(objectResultList, dialect, tableName, column);
-
 		// table comment on
 		if (t.getComment() != null) {
 			if (features.supportsCommentOn)
@@ -255,9 +252,11 @@ public class DDLCreateUtils {
 						"comment on column " + tableName + '.' + c.getColumnName() + " is '" + c.getComment() + "'");
 		}
 
+		// Named unique constraints
+		buildUniqueDLL(dialect, objectResultList, tableName, columns);
+
 		// index
 		buildIndexDLL(dialect, objectResultList, tableName, columns);
-
 	}
 
 	private static void buildSequenceDDL(Dialect dialect, List<String> stringList, List<Sequence> sequenceList) {
@@ -443,33 +442,38 @@ public class DDLCreateUtils {
 		}
 	}
 
-	private static void addUniqueConstraintDDL(List<Object> objectList, Dialect dialect, String tableName,
-			Column column) {
-		if (!column.getUnique())
-			return;
-		String UniqueConstraintName = column.getUniqueConstraintName();
-		if (StrUtils.isEmpty(UniqueConstraintName))
-			UniqueConstraintName = "unique_" + tableName.toLowerCase() + "_" + column.getColumnName().toLowerCase();
-		StringBuilder sb = new StringBuilder("alter table ").append(tableName);
-
-		if (dialect.isInfomixFamily()) {
-			sb.append(" add constraint unique (").append(column.getColumnName()).append(") constraint ")
-					.append(UniqueConstraintName).toString();
-			objectList.add(sb.toString());
-			return;
-		}
-
-		if (dialect.isDerbyFamily() || dialect.isDB2Family()) {
-			if (!column.getNotNull()) {
-				objectList.add(new StringBuilder("create unique index ").append(UniqueConstraintName).append(" on ")
-						.append(tableName).append("(").append(column.getColumnName()).append(")").toString());
-				return;
-			}
-		}
-		sb.append(" add constraint ").append(UniqueConstraintName).append(" unique (").append(column.getColumnName())
-				.append(")").toString();
-		objectList.add(sb.toString());
-	}
+	// private static void addEmptyNameUniqueConstraintDDL(List<Object>
+	// objectList, Dialect dialect, String tableName,
+	// Column column) {
+	// if (!column.getUnique())
+	// return;
+	// String UniqueConstraintName = column.getUniqueConstraintName();
+	// if (StrUtils.isEmpty(UniqueConstraintName))
+	// UniqueConstraintName = "unique_" + tableName.toLowerCase() + "_" +
+	// column.getColumnName().toLowerCase();
+	// StringBuilder sb = new StringBuilder("alter table ").append(tableName);
+	//
+	// if (dialect.isInfomixFamily()) {
+	// sb.append(" add constraint unique
+	// (").append(column.getColumnName()).append(") constraint ")
+	// .append(UniqueConstraintName).toString();
+	// objectList.add(sb.toString());
+	// return;
+	// }
+	//
+	// if (dialect.isDerbyFamily() || dialect.isDB2Family()) {
+	// if (!column.getNotNull()) {
+	// objectList.add(new StringBuilder("create unique index
+	// ").append(UniqueConstraintName).append(" on ")
+	// .append(tableName).append("(").append(column.getColumnName()).append(")").toString());
+	// return;
+	// }
+	// }
+	// sb.append(" add constraint ").append(UniqueConstraintName).append("
+	// unique (").append(column.getColumnName())
+	// .append(")").toString();
+	// objectList.add(sb.toString());
+	// }
 
 	private static void buildIndexDLL(Dialect dialect, List<Object> objectResultList, String tableName,
 			Map<String, Column> columns) {
@@ -496,6 +500,45 @@ public class DDLCreateUtils {
 				objectResultList.add("create index " + idx.getKey() + " (" + idx.getValue() + ") on " + tableName);
 			else
 				objectResultList.add("create index " + idx.getKey() + " on " + tableName + " (" + idx.getValue() + ")");
+		}
+	}
+
+	private static void buildUniqueDLL(Dialect dialect, List<Object> objectResultList, String tableName,
+			Map<String, Column> columns) {
+		Map<String, String> ukMap = new LinkedHashMap<String, String>();
+		Map<String, String> ukAllowNullMap = new LinkedHashMap<String, String>();
+		for (Column c : columns.values()) {
+			if (c.getUnique()) {
+				String[] ukNames = c.getUniqueConstraintNames();
+				if (ukNames == null || ukNames.length == 0)
+					ukNames = new String[] { "UK_" + tableName + "_" + c.getColumnName() };
+				for (String ukName : ukNames) {
+					String ukColumnNames = ukMap.get(ukName);
+					if (StrUtils.isEmpty(ukColumnNames))
+						ukMap.put(ukName, c.getColumnName());
+					else {
+						ukColumnNames += "," + c.getColumnName();
+						ukMap.put(ukName, ukColumnNames);
+					}
+					if (c.getNotNull() == false)// DB2 & Derby
+						ukAllowNullMap.put(ukName, "AllowNull");
+				}
+			}
+		}
+
+		for (Entry<String, String> uniqueEntry : ukMap.entrySet()) {
+			String template = "alter table $TABLE add constraint $UKNAME unique ($COLUMNS)";
+			String DialectName = "" + dialect;
+			if ((StrUtils.startsWithIgnoreCase(DialectName, "DB2")
+					|| StrUtils.startsWithIgnoreCase(DialectName, "DERBY"))
+					&& "AllowNull".equals(ukAllowNullMap.get(uniqueEntry.getKey())))
+				template = "create unique index $UKNAME on $TABLE ($COLUMNS)";
+			else if (StrUtils.startsWithIgnoreCase(DialectName, "Informix"))
+				template = "alter table $TABLE add constraint unique ($COLUMNS) constraint $UKNAME";
+			String uniqueConstraintDDL = StrUtils.replace(template, "$TABLE", tableName);
+			uniqueConstraintDDL = StrUtils.replace(uniqueConstraintDDL, "$UKNAME", uniqueEntry.getKey());
+			uniqueConstraintDDL = StrUtils.replace(uniqueConstraintDDL, "$COLUMNS", uniqueEntry.getValue());
+			objectResultList.add(uniqueConstraintDDL);
 		}
 	}
 
