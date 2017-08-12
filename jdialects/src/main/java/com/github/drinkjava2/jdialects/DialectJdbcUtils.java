@@ -22,16 +22,17 @@ public abstract class DialectJdbcUtils {
 	public static Long hotExecuteQuery(Connection conn, String sql) throws SQLException {
 		PreparedStatement pst = null;
 		SQLException exception = null;
+		ResultSet rs =null;
 		try {
 			pst = conn.prepareStatement(sql);
-			ResultSet rs = pst.executeQuery();
+			rs = pst.executeQuery();
 			rs.next();
 			return rs.getLong(1);
 		} catch (SQLException e) {
 			exception = e;
 			return null;
 		} finally {
-			closeRSandPST(null, pst, exception, sql);
+			closeRSandPST(rs, pst, exception);
 		}
 	}
 
@@ -45,35 +46,31 @@ public abstract class DialectJdbcUtils {
 			exception = e;
 			return 0;
 		} finally {
-			closeRSandPST(null, pst, exception, sql);
+			closeRSandPST(null, pst, exception);
 		}
 	}
 
-	public static void closeRSandPST(ResultSet rs, PreparedStatement pst, SQLException exception, String sql,
-			Object... params) throws SQLException {
+	public static void closeRSandPST(ResultSet rs, PreparedStatement pst, SQLException exception) throws SQLException {
+		SQLException newSQLException=exception;
 		if (rs != null) {
 			try {
 				rs.close();
 			} catch (SQLException e) {
-				if (exception != null)
-					e.setNextException(exception);
-				exception = e;
-			} finally {
-				rs = null;
-			}
+				if (newSQLException != null)
+					e.setNextException(newSQLException);
+				newSQLException = e;
+			}  
 		}
 		if (pst != null) {
 			try {
 				pst.close();
 			} catch (SQLException e) {
-				if (exception != null)
-					e.setNextException(exception);
-				exception = e;
-			} finally {
-				pst = null;
-			}
+				if (newSQLException != null)
+					e.setNextException(newSQLException);
+				newSQLException = e;
+			}  
 		}
-		if (exception != null)
-			throw exception;
+		if (newSQLException != null)
+			throw newSQLException;
 	}
 }

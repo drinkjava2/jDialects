@@ -194,7 +194,7 @@ public class DDLDropUtils {
 
 	private static void buildDropGolbalIDGeneratorDDL(Dialect dialect, List<String> stringResultList,
 			List<AutoIdGenerator> globalIdGeneratorList) {
-		if (globalIdGeneratorList != null && globalIdGeneratorList.size() > 0)
+		if (globalIdGeneratorList != null && !globalIdGeneratorList.isEmpty())
 			stringResultList.add(0, dialect.dropTableDDL(AutoIdGenerator.JDIALECTS_AUTOID));
 	}
 

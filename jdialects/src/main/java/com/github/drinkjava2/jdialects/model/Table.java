@@ -129,7 +129,7 @@ public class Table {
 	public Table addColumn(Column column) {
 		DialectException.assureNotNull(column);
 		DialectException.assureNotEmpty(column.getColumnName(), "Column tableName can not be empty");
-		if (!(columns.get(column.getColumnName().toLowerCase()) == null)) {
+		if ((columns.get(column.getColumnName().toLowerCase()) != null)) {
 			DialectException.throwEX("Dulplicated column name \"" + column.getColumnName() + "\" found in table \""
 					+ this.getTableName() + "\"");
 		}

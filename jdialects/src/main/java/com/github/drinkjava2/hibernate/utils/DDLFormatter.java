@@ -29,7 +29,7 @@ public class DDLFormatter {
 
 	public static String format(String sql) {
 		return INSTANCE.formatDDL(sql);
-	};
+	}
 
 	public static String[] format(String[] sql) {
 		List<String> l = new ArrayList<String>();
@@ -37,7 +37,7 @@ public class DDLFormatter {
 			l.add(format(string));
 		}
 		return l.toArray(new String[l.size()]);
-	};
+	}
 
 	private String formatDDL(String sql) {
 		if (StringHelper.isEmpty(sql)) {

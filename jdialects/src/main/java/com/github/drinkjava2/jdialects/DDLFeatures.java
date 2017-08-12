@@ -227,9 +227,7 @@ public class DDLFeatures {
 	protected String tableTypeString;
 
 	protected static boolean isValidDDLTemplate(String featureValue) {
-		if (StrUtils.isEmpty(featureValue) || NOT_SUPPORT.equals(featureValue))
-			return false;
-		return true;
+		return !(StrUtils.isEmpty(featureValue) || NOT_SUPPORT.equals(featureValue));
 	}
 
 	public boolean supportBasicOrPooledSequence() {

@@ -16,6 +16,6 @@ package com.github.drinkjava2.jdialects.model;
  * @since 1.0.2
  */
 public class AutoIdGenerator {
-	public static final String JDIALECTS_AUTOID = "jdialects_autoid";;
+	public static final String JDIALECTS_AUTOID = "jdialects_autoid";
 	public static final String NEXT_VAL = "next_val";
 }

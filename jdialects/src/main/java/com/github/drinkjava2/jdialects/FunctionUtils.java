@@ -37,10 +37,8 @@ public class FunctionUtils {
 	 * 
 	 * </pre>
 	 * 
-	 * @param functionName
-	 *            function name
-	 * @param args
-	 *            function parameters
+	 * @param functionName function name
+	 * @param args function parameters
 	 * @return A SQL function piece
 	 */
 	protected static String render(Dialect d, String functionName, Object... args) {
@@ -75,22 +73,24 @@ public class FunctionUtils {
 			if (template.indexOf("$NVL_Params") >= 0) {
 				if (args == null || args.length < 2)
 					DialectException.throwEX("Nvl function require at least 2 parameters");
-				String s = "nvl(" + args[args.length - 2] + ", " + args[args.length - 1] + ")";
-				for (int i = args.length - 3; i > -1; i--)
-					s = "nvl(" + args[i] + ", " + s + ")";
-				return StrUtils.replace(template, "$NVL_Params", s);
+				else {
+					String s = "nvl(" + args[args.length - 2] + ", " + args[args.length - 1] + ")";
+					for (int i = args.length - 3; i > -1; i--)
+						s = "nvl(" + args[i] + ", " + s + ")";
+					return StrUtils.replace(template, "$NVL_Params", s);
+				}
 			}
 			return (String) DialectException.throwEX("jDialect found a template bug error, please submit this bug");
 		} else {
 			int argsCount = 0;
 			if (args != null)
 				argsCount = args.length;
-			String searchStr = "" + argsCount + "=";
+			String searchStr = Integer.toString(argsCount) + "=";
 			if (template.indexOf(searchStr) < 0)
 				DialectException.throwEX("Dialect " + d + "'s function \"" + functionName + "\" only support "
 						+ allowedParameterCounts(template) + " parameters");
 			String result = StrUtils.substringBetween(template + "|", searchStr, "|");
-			for (int i = 0; i < args.length; i++) {
+			for (int i = 0; args != null && i < args.length; i++) {
 				result = StrUtils.replace(result, "$P" + (i + 1), "" + args[i]);
 			}
 			return result;
@@ -100,8 +100,8 @@ public class FunctionUtils {
 	private static String allowedParameterCounts(String template) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < 5; i++) {
-			if (template.indexOf("" + i + "=") >= 0)
-				sb.append("" + i).append(" or ");
+			if (template.indexOf(Integer.toString(i) + "=") >= 0)
+				sb.append(Integer.toString(i)).append(" or ");
 		}
 		if (sb.length() > 0)
 			sb.setLength(sb.length() - 4);

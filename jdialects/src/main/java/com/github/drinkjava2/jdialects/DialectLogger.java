@@ -33,20 +33,17 @@ public class DialectLogger {
 			throw new AssertionError("DialectLogger error: targetClass can not be null.");
 		try {
 			Class<?> logFactoryClass = Class.forName("org.apache.commons.logging.LogFactory");
-			Method method = logFactoryClass.getMethod("getLog", new Class[] { Class.class });
-			commonLogger = method.invoke(logFactoryClass, new Object[] { targetClass });
-			commonLoggerInfoMethod = commonLogger.getClass().getMethod("info", new Class[] { Object.class });
-			commonLoggerWarnMethod = commonLogger.getClass().getMethod("warn", new Class[] { Object.class });
-			commonLoggerErrorMethod = commonLogger.getClass().getMethod("error", new Class[] { Object.class });
+			Method method = logFactoryClass.getMethod("getLog", Class.class);
+			commonLogger = method.invoke(logFactoryClass, targetClass);
+			commonLoggerInfoMethod = commonLogger.getClass().getMethod("info", Object.class);
+			commonLoggerWarnMethod = commonLogger.getClass().getMethod("warn", Object.class);
+			commonLoggerErrorMethod = commonLogger.getClass().getMethod("error", Object.class);
 		} catch (Exception e) {
 			DialectException.eatException(e);
 		}
 		if (commonLogger == null || commonLoggerWarnMethod == null) {
-			if (!showedErrMsg) {
-				showedErrMsg = true;
-				System.err
-						.println("jDialects failed to load org.apache.commons.logging.LogFactory, use JDK logger.");
-			}
+			if (!showedErrMsg)
+				System.err.println("jDialects failed to load org.apache.commons.logging.LogFactory, use JDK logger."); //NOSONAR
 			jdkLogger = Logger.getLogger(targetClass.getName());// use JDK log
 		}
 
@@ -68,7 +65,7 @@ public class DialectLogger {
 			return;
 		}
 		try {
-			commonLoggerInfoMethod.invoke(commonLogger, new Object[] { msg });
+			commonLoggerInfoMethod.invoke(commonLogger, msg);
 		} catch (Exception e) {
 			DialectException.eatException(e);
 			throw new AssertionError(e.getMessage());
@@ -83,7 +80,7 @@ public class DialectLogger {
 			return;
 		}
 		try {
-			commonLoggerWarnMethod.invoke(commonLogger, new Object[] { msg });
+			commonLoggerWarnMethod.invoke(commonLogger, msg);
 		} catch (Exception e) {
 			DialectException.eatException(e);
 			throw new AssertionError(e.getMessage());
@@ -98,7 +95,7 @@ public class DialectLogger {
 			return;
 		}
 		try {
-			commonLoggerErrorMethod.invoke(commonLogger, new Object[] { msg });
+			commonLoggerErrorMethod.invoke(commonLogger, msg);
 		} catch (Exception e) {
 			DialectException.eatException(e);
 			throw new AssertionError(e.getMessage());

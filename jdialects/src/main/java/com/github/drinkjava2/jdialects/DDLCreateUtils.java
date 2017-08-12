@@ -316,7 +316,7 @@ public class DDLCreateUtils {
 
 	private static void buildAutoIdGeneratorDDL(Dialect dialect, List<String> stringList,
 			List<AutoIdGenerator> autoIdGenerator) {
-		if (autoIdGenerator != null && autoIdGenerator.size() > 0) {
+		if (autoIdGenerator != null && !autoIdGenerator.isEmpty()) {
 			stringList.add(dialect.ddlFeatures.createTableString + " " + AutoIdGenerator.JDIALECTS_AUTOID + " ("
 					+ AutoIdGenerator.NEXT_VAL + " " + dialect.translateToDDLType(Type.BIGINT) + " )");
 			stringList.add("insert into " + AutoIdGenerator.JDIALECTS_AUTOID + " values ( 1 )");
@@ -520,7 +520,7 @@ public class DDLCreateUtils {
 						ukColumnNames += "," + c.getColumnName();
 						ukMap.put(ukName, ukColumnNames);
 					}
-					if (c.getNotNull() == false)// DB2 & Derby
+					if (!c.getNotNull())// DB2 & Derby
 						ukAllowNullMap.put(ukName, "AllowNull");
 				}
 			}
@@ -528,12 +528,12 @@ public class DDLCreateUtils {
 
 		for (Entry<String, String> uniqueEntry : ukMap.entrySet()) {
 			String template = "alter table $TABLE add constraint $UKNAME unique ($COLUMNS)";
-			String DialectName = "" + dialect;
-			if ((StrUtils.startsWithIgnoreCase(DialectName, "DB2")
-					|| StrUtils.startsWithIgnoreCase(DialectName, "DERBY"))
+			String dialectName = "" + dialect;
+			if ((StrUtils.startsWithIgnoreCase(dialectName, "DB2")
+					|| StrUtils.startsWithIgnoreCase(dialectName, "DERBY"))
 					&& "AllowNull".equals(ukAllowNullMap.get(uniqueEntry.getKey())))
 				template = "create unique index $UKNAME on $TABLE ($COLUMNS)";
-			else if (StrUtils.startsWithIgnoreCase(DialectName, "Informix"))
+			else if (StrUtils.startsWithIgnoreCase(dialectName, "Informix"))
 				template = "alter table $TABLE add constraint unique ($COLUMNS) constraint $UKNAME";
 			String uniqueConstraintDDL = StrUtils.replace(template, "$TABLE", tableName);
 			uniqueConstraintDDL = StrUtils.replace(uniqueConstraintDDL, "$UKNAME", uniqueEntry.getKey());

@@ -99,8 +99,7 @@ public class Column {
 	 * empty or multiple, if in a table has same name indexNames, will cause
 	 * build compound index for columns with same name index name.
 	 * 
-	 * @param indexNames
-	 *            Optional, the index names
+	 * @param indexNames Optional, the index names
 	 * @return current column Object
 	 */
 	public Column index(String... indexNames) {
@@ -205,7 +204,7 @@ public class Column {
 	public Column NCHAR(Integer length) {this.columnType=Type.NCHAR;this.lengths=new Integer[]{length};return this;} 
 	public Column NCLOB() {this.columnType=Type.NCLOB;return this;} 
 	public Column NUMERIC(Integer... lengths) {this.columnType=Type.NUMERIC;this.lengths=lengths;return this;} 
-	public Column NVARCHAR(Integer length) {this.columnType=Type.NVARCHAR;return this;} 
+	public Column NVARCHAR(Integer length) {this.columnType=Type.NVARCHAR;   this.lengths=new Integer[]{length};return this;} 
 	public Column OTHER(Integer... lengths) {this.columnType=Type.OTHER;this.lengths=lengths;return this;} 
 	public Column REAL() {this.columnType=Type.REAL;return this;} 
 	public Column SMALLINT() {this.columnType=Type.SMALLINT;return this;} 

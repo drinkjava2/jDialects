@@ -42,8 +42,7 @@ public class StrUtils {
 	 * StrUtils.hasLength("Hello") = true
 	 * </pre>
 	 * 
-	 * @param str
-	 *            the CharSequence to check (may be {@code null})
+	 * @param str the CharSequence to check (may be {@code null})
 	 * @return {@code true} if the CharSequence is not null and has length
 	 * @see #hasText(String)
 	 */
@@ -56,8 +55,7 @@ public class StrUtils {
 	 * Note: Will return {@code true} for a String that purely consists of
 	 * whitespace.
 	 * 
-	 * @param str
-	 *            the String to check (may be {@code null})
+	 * @param str the String to check (may be {@code null})
 	 * @return {@code true} if the String is not null and has length
 	 * @see #hasLength(CharSequence)
 	 */
@@ -68,8 +66,7 @@ public class StrUtils {
 	/**
 	 * Check whether the given CharSequence contains any whitespace characters.
 	 * 
-	 * @param str
-	 *            the CharSequence to check (may be {@code null})
+	 * @param str the CharSequence to check (may be {@code null})
 	 * @return {@code true} if the CharSequence is not empty and contains at
 	 *         least 1 whitespace character
 	 * @see Character#isWhitespace
@@ -90,8 +87,7 @@ public class StrUtils {
 	/**
 	 * Check whether the given String contains any whitespace characters.
 	 * 
-	 * @param str
-	 *            the String to check (may be {@code null})
+	 * @param str the String to check (may be {@code null})
 	 * @return {@code true} if the String is not empty and contains at least 1
 	 *         whitespace character
 	 * @see #containsWhitespace(CharSequence)
@@ -103,8 +99,7 @@ public class StrUtils {
 	/**
 	 * Trim leading and trailing whitespace from the given String.
 	 * 
-	 * @param str
-	 *            the String to check
+	 * @param str the String to check
 	 * @return the trimmed String
 	 * @see java.lang.Character#isWhitespace
 	 */
@@ -126,8 +121,7 @@ public class StrUtils {
 	 * Trim <i>all</i> whitespace from the given String: leading, trailing, and
 	 * in between characters.
 	 * 
-	 * @param str
-	 *            the String to check
+	 * @param str the String to check
 	 * @return the trimmed String
 	 * @see java.lang.Character#isWhitespace
 	 */
@@ -150,8 +144,7 @@ public class StrUtils {
 	/**
 	 * Trim leading whitespace from the given String.
 	 * 
-	 * @param str
-	 *            the String to check
+	 * @param str the String to check
 	 * @return the trimmed String
 	 * @see java.lang.Character#isWhitespace
 	 */
@@ -169,8 +162,7 @@ public class StrUtils {
 	/**
 	 * Trim trailing whitespace from the given String.
 	 * 
-	 * @param str
-	 *            the String to check
+	 * @param str the String to check
 	 * @return the trimmed String
 	 * @see java.lang.Character#isWhitespace
 	 */
@@ -189,10 +181,8 @@ public class StrUtils {
 	 * Trim all occurrences of the supplied leading character from the given
 	 * String.
 	 * 
-	 * @param str
-	 *            the String to check
-	 * @param leadingCharacter
-	 *            the leading character to be trimmed
+	 * @param str the String to check
+	 * @param leadingCharacter the leading character to be trimmed
 	 * @return the trimmed String
 	 */
 	public static String trimLeadingCharacter(String str, char leadingCharacter) {
@@ -210,10 +200,8 @@ public class StrUtils {
 	 * Trim all occurrences of the supplied trailing character from the given
 	 * String.
 	 * 
-	 * @param str
-	 *            the String to check
-	 * @param trailingCharacter
-	 *            the trailing character to be trimmed
+	 * @param str the String to check
+	 * @param trailingCharacter the trailing character to be trimmed
 	 * @return the trimmed String
 	 */
 	public static String trimTrailingCharacter(String str, char trailingCharacter) {
@@ -231,10 +219,8 @@ public class StrUtils {
 	 * Test if the given String starts with the specified prefix, ignoring
 	 * upper/lower case.
 	 * 
-	 * @param str
-	 *            the String to check
-	 * @param prefix
-	 *            the prefix to look for
+	 * @param str the String to check
+	 * @param prefix the prefix to look for
 	 * @see java.lang.String#startsWith
 	 */
 	public static boolean startsWithIgnoreCase(String str, String prefix) {
@@ -272,12 +258,9 @@ public class StrUtils {
 	 * Replace all occurrences of a substring within a string with another
 	 * string.
 	 * 
-	 * @param originString
-	 *            The original String
-	 * @param oldPattern
-	 *            old String Pattern to replace
-	 * @param newPattern
-	 *            new String pattern to insert
+	 * @param originString The original String
+	 * @param oldPattern old String Pattern to replace
+	 * @param newPattern new String pattern to insert
 	 * @return a String with the replacements
 	 */
 	public static String replace(String originString, String oldPattern, String newPattern) {
@@ -298,16 +281,15 @@ public class StrUtils {
 		return sb.toString();
 	}
 
- 
 	/**
 	 * Replace all sub strings ignore case <br/>
 	 * replaceIgnoreCase("AbcDECd", "Cd", "FF") = "AbFFEFF"
 	 * 
 	 */
-	public static String replaceIgnoreCase(String str, String findtxt, String replacetxt) {
-		if (str == null) {
+	public static String replaceIgnoreCase(String text, String findtxt, String replacetxt) {
+		if (text == null)
 			return null;
-		}
+		String str = text;
 		if (findtxt == null || findtxt.length() == 0) {
 			return str;
 		}
@@ -407,12 +389,9 @@ public class StrUtils {
 	 * StringUtils.substringBetween("yabczyabcz", "y", "z")   = "abc"
 	 * </pre>
 	 *
-	 * @param str
-	 *            the String containing the substring, may be null
-	 * @param open
-	 *            the String before the substring, may be null
-	 * @param close
-	 *            the String after the substring, may be null
+	 * @param str the String containing the substring, may be null
+	 * @param open the String before the substring, may be null
+	 * @param close the String after the substring, may be null
 	 * @return the substring, <code>null</code> if no match
 	 * @since 2.0
 	 */
@@ -448,10 +427,8 @@ public class StrUtils {
 	 * StringUtils.countMatches("abba", 'x') = 0
 	 * </pre>
 	 *
-	 * @param str
-	 *            the CharSequence to check, may be null
-	 * @param ch
-	 *            the char to count
+	 * @param str the CharSequence to check, may be null
+	 * @param ch the char to count
 	 * @return the number of occurrences, 0 if the CharSequence is {@code null}
 	 * @since 3.4
 	 */
@@ -489,7 +466,7 @@ public class StrUtils {
 	public static boolean arraysEqual(Object[] array1, Object[] array2) {
 		if (array1 == null || array1.length == 0 || array2 == null || array2.length == 0)
 			DialectException.throwEX("StrUtils arraysEqual() method can not compare empty arrays");
-		for (int i = 0; i < array1.length; i++)
+		for (int i = 0; array1 != null && array2 != null && i < array1.length; i++)
 			if (!array1[i].equals(array2[i]))
 				return false;
 		return true;
