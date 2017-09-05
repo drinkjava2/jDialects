@@ -18,8 +18,8 @@ import com.github.drinkjava2.jdialects.hibernatesrc.pagination.RowSelection;
 import com.github.drinkjava2.jdialects.hibernatesrc.pagination.SQLServer2005LimitHandler;
 import com.github.drinkjava2.jdialects.hibernatesrc.pagination.SQLServer2012LimitHandler;
 import com.github.drinkjava2.jdialects.hibernatesrc.utils.StringHelper;
-import com.github.drinkjava2.jdialects.model.AutoIdGenerator;
-import com.github.drinkjava2.jdialects.model.VTable;
+import com.github.drinkjava2.jdialects.model.AutoIdGen;
+import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
@@ -791,21 +791,21 @@ public enum Dialect {
 	/**
 	 * Transfer tables to formatted create DDL
 	 */
-	public String[] toCreateDDL(VTable... tables) {
+	public String[] toCreateDDL(TableModel... tables) {
 		return DDLCreateUtils.toCreateDDL(this, tables);
 	}
 
 	/**
 	 * Transfer tables to formatted drop DDL
 	 */
-	public String[] toDropDDL(VTable... tables) {
+	public String[] toDropDDL(TableModel... tables) {
 		return DDLDropUtils.toDropDDL(this, tables);
 	}
 
 	/**
 	 * Transfer tables to drop and create DDL String array
 	 */
-	public String[] toDropAndCreateDDL(VTable... tables) {
+	public String[] toDropAndCreateDDL(TableModel... tables) {
 		String[] drop = DDLDropUtils.toDropDDL(this, tables);
 		String[] create = DDLCreateUtils.toCreateDDL(this, tables);
 		return StrUtils.joinStringArray(drop, create);
@@ -855,21 +855,21 @@ public enum Dialect {
 		Long result;
 		if (ddlFeatures.supportBasicOrPooledSequence()) {
 			String sql = StrUtils.replace(ddlFeatures.sequenceNextValString, "_SEQNAME",
-					AutoIdGenerator.JDIALECTS_AUTOID);
+					AutoIdGen.JDIALECTS_AUTOID);
 			result = DialectJdbcUtils.hotExecuteQuery(connection, sql);
 			DialectException.assureNotNull(result, "Null value found when fetch Auto-Generated ID from sequence '"
-					+ AutoIdGenerator.JDIALECTS_AUTOID + "'");
+					+ AutoIdGen.JDIALECTS_AUTOID + "'");
 		} else {
-			String sql = "update " + AutoIdGenerator.JDIALECTS_AUTOID + " set " + AutoIdGenerator.NEXT_VAL + "=("
-					+ AutoIdGenerator.NEXT_VAL + "+1)";
+			String sql = "update " + AutoIdGen.JDIALECTS_AUTOID + " set " + AutoIdGen.NEXT_VAL + "=("
+					+ AutoIdGen.NEXT_VAL + "+1)";
 			int updatedCount = DialectJdbcUtils.hotExecuteUpdate(connection, sql);
 			if (updatedCount != 1)
 				throw new SQLException("When fetch Auto-Generated ID, can not read from \""
-						+ AutoIdGenerator.JDIALECTS_AUTOID + "\" table");
+						+ AutoIdGen.JDIALECTS_AUTOID + "\" table");
 			result = DialectJdbcUtils.hotExecuteQuery(connection,
-					"select " + AutoIdGenerator.NEXT_VAL + " from " + AutoIdGenerator.JDIALECTS_AUTOID);
+					"select " + AutoIdGen.NEXT_VAL + " from " + AutoIdGen.JDIALECTS_AUTOID);
 			DialectException.assureNotNull(result, "Null value found when fetch Auto-Generated ID from table \""
-					+ AutoIdGenerator.JDIALECTS_AUTOID + "\"");
+					+ AutoIdGen.JDIALECTS_AUTOID + "\"");
 		}
 		return result;
 	}

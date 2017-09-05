@@ -14,37 +14,42 @@ import java.lang.reflect.Field;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import com.github.drinkjava2.jdialects.ColumnDef;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.DialectException;
-import com.github.drinkjava2.jdialects.model.VColumn;
-import com.github.drinkjava2.jdialects.model.VTable;
+import com.github.drinkjava2.jdialects.model.ColumnModel;
+import com.github.drinkjava2.jdialects.model.SequenceGen;
+import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
 import com.github.drinkjava2.jdialects.springsrc.utils.StringUtils;
 
 /**
  * This utility tool should have below methods:
  * 
- * pojo2VTable() method: Convert POJO or JPA annotated POJO classes to "VTable"
- * Object, this method only support below JPA Annotations:
- * Column,GeneratedValue,GenerationType,Id,Index,Table,Transient,UniqueConstraint
+ * pojo2TableModel() method: Convert POJO or JPA annotated POJO classes to
+ * "TableModel" Object, this method only support below JPA Annotations:
+ * Entity,Column,GeneratedValue,GenerationType,Id,Index,Table,Transient,UniqueConstraint,sequenceGenerator,TableGenerator
  * 
- * vTable2Excel() method: Convert VTable Object to Excel CSV format text
+ * TableModel2Excel() method: Convert TableModel Object to Excel CSV format text
  *
- * excel2VTable() method: Convert Excel CSV format text to VTable Object
+ * excel2TableModel() method: Convert Excel CSV format text to TableModel Object
  * 
- * vTable2JpaPOJO() method: Convert VTable Object to JPA annotated POJO Java
- * Source code
+ * TableModel2JpaPOJO() method: Convert TableModel Object to JPA annotated POJO
+ * Java Source code
  * 
- * vTable2DdlPOJO() method: Convert VTable Objects to jDialects style POJO Java
- * Source code, i.e., pure POJO no annotations but has a method: "public static
- * VTable vTable(){} "
+ * TableModel2DdlPOJO() method: Convert TableModel Objects to jDialects style
+ * POJO Java Source code, i.e., pure POJO no annotations but has a method:
+ * "public static TableModel TableModel(){} "
  * 
  * @author Yong Zhu
  * @since 1.0.5
@@ -52,11 +57,11 @@ import com.github.drinkjava2.jdialects.springsrc.utils.StringUtils;
 public abstract class ConvertUtils {
 
 	@Entity
-	@Table(name = "persn", //
+	@Table(name = "testpo", //
 			uniqueConstraints = { @UniqueConstraint(columnNames = { "field1" }),
-					@UniqueConstraint(columnNames = { "field1", "field2" }) }, //
-			indexes = { @Index(name = "my_index_name", columnList = "iso_code, anothercode", unique = true),
-					@Index(name = "my_index_name2", columnList = "name", unique = false) }//
+					@UniqueConstraint(name = "cons2", columnNames = { "field1", "field2" }) }, //
+			indexes = { @Index(columnList = "field1,field2", unique = true),
+					@Index(name = "idx2", columnList = "field2", unique = false) }//
 	)
 	public static class POJO {
 		@Id
@@ -66,6 +71,9 @@ public abstract class ConvertUtils {
 		@Transient
 		@Column(name = "field2", nullable = false, columnDefinition = ColumnDef.BIGINT)
 		public String field2;
+
+		@GeneratedValue(strategy = GenerationType.TABLE, generator = "CUST_GEN")
+		public Integer field3;
 
 		public String getField1() {
 			return field1;
@@ -85,21 +93,21 @@ public abstract class ConvertUtils {
 	}
 
 	public static void main(String[] args) {
-		String[] ddls = Dialect.H2Dialect.toCreateDDL(ConvertUtils.pojo2VTable(POJO.class));
+		String[] ddls = Dialect.H2Dialect.toCreateDDL(ConvertUtils.pojo2TableModel(POJO.class));
 		for (String ddl : ddls)
 			System.out.println(ddl);
 	}
 
 	/**
-	 * Convert POJO or JPA annotated POJO classes to "VTable" Object, this method
-	 * only support below JPA Annotations: Entity, Table, Column, GeneratedValue,
-	 * GenerationType, Id, Index, Transient, UniqueConstraint
+	 * Convert POJO or JPA annotated POJO classes to "TableModel" Object, this
+	 * method only support below JPA Annotations: Entity, Table, Column,
+	 * GeneratedValue, GenerationType, Id, Index, Transient, UniqueConstraint
 	 * 
 	 * @param pojoClass
-	 * @return VTable
+	 * @return TableModel
 	 */
-	public static VTable pojo2VTable(Class<?> pojoClass) {
-		DialectException.assureNotNull(pojoClass, "pojo2VTable method does not accept a null parameter");
+	public static TableModel pojo2TableModel(Class<?> pojoClass) {
+		DialectException.assureNotNull(pojoClass, "pojo2TableModel method does not accept a null parameter");
 		String tableName = null;
 		Entity entity = pojoClass.getAnnotation(Entity.class);// Entity
 		if (entity != null)
@@ -109,7 +117,17 @@ public abstract class ConvertUtils {
 			tableName = table.name();
 		if (StrUtils.isEmpty(tableName))
 			tableName = pojoClass.getSimpleName();
-		VTable vtable = new VTable(tableName);
+		TableModel TableModel = new TableModel(tableName);
+
+		SequenceGenerator seqGen = pojoClass.getAnnotation(SequenceGenerator.class);// SequenceGenerator
+		if (seqGen != null)
+			TableModel.addSequence(new SequenceGen(seqGen.name(), seqGen.sequenceName(), seqGen.initialValue(),
+					seqGen.allocationSize()));
+
+		TableGenerator tb = pojoClass.getAnnotation(TableGenerator.class);// TableGenerator
+		if (tb != null)
+			TableModel.addTableGenerator(tb.name(), tb.table(), tb.pkColumnName(), tb.valueColumnName(),
+					tb.pkColumnValue(), tb.initialValue(), tb.allocationSize());
 
 		BeanInfo beanInfo = null;
 		PropertyDescriptor[] pds = null;
@@ -117,7 +135,7 @@ public abstract class ConvertUtils {
 			beanInfo = Introspector.getBeanInfo(pojoClass);
 			pds = beanInfo.getPropertyDescriptors();
 		} catch (Exception e) {
-			DialectException.throwEX(e, "pojo2VTable can not get bean info");
+			DialectException.throwEX(e, "pojo2TableModel can not get bean info");
 		}
 
 		for (PropertyDescriptor pd : pds) {
@@ -125,8 +143,8 @@ public abstract class ConvertUtils {
 			Class<?> propertyClass = pd.getPropertyType();
 			if (ColumnDef.canMapToSqlType(propertyClass)) {
 				Field field = ReflectionUtils.findField(pojoClass, entityField);
-				if (null == field.getAnnotation(Transient.class)) {// Not Transient
-					VColumn vcolumn = new VColumn(entityField);
+				if (null == field.getAnnotation(Transient.class)) {// Transient
+					ColumnModel vcolumn = new ColumnModel(entityField);
 					vcolumn.entityField(entityField);
 					Column col = field.getAnnotation(Column.class);// Column
 					if (col != null) {
@@ -143,9 +161,32 @@ public abstract class ConvertUtils {
 						vcolumn.setColumnType(ColumnDef.toType(propertyClass));
 						vcolumn.setLengths(new Integer[] { 255, 0, 0 });
 					}
+
+					SequenceGenerator seq = field.getAnnotation(SequenceGenerator.class);// SequenceGenerator
+					if (seq != null)
+						TableModel.addSequence(new SequenceGen(seq.name(), seq.sequenceName(), seq.initialValue(),
+								seq.allocationSize()));
+
+					TableGenerator tb2 = pojoClass.getAnnotation(TableGenerator.class);// TableGenerator
+					if (tb2 != null)
+						TableModel.addTableGenerator(tb2.name(), tb2.table(), tb2.pkColumnName(), tb2.valueColumnName(),
+								tb2.pkColumnValue(), tb2.initialValue(), tb2.allocationSize());
+
 					if (null != field.getAnnotation(Id.class))// Id
 						vcolumn.pkey();
-					vtable.addColumn(vcolumn);
+					TableModel.addColumn(vcolumn);
+
+					GeneratedValue gv = field.getAnnotation(GeneratedValue.class);// GeneratedValue
+					if (gv != null) {
+						if (GenerationType.AUTO.equals(gv.annotationType()))
+							vcolumn.autoID();
+						else if (GenerationType.SEQUENCE.equals(gv.annotationType()))
+							vcolumn.sequence(gv.generator());
+						else if (GenerationType.IDENTITY.equals(gv.annotationType()))
+							vcolumn.identity();
+						else if (GenerationType.TABLE.equals(gv.annotationType()))
+							vcolumn.tableGenerator(gv.generator());
+					}
 				}
 			}
 		}
@@ -163,7 +204,7 @@ public abstract class ConvertUtils {
 							indexColumnList = new String[] { columns };
 
 						if (indexColumnList != null && indexColumnList.length > 0) {
-							vtable.index(indexName).columns(indexColumnList).setUnique(index.unique());
+							TableModel.index(indexName).columns(indexColumnList).setUnique(index.unique());
 						}
 					}
 				}
@@ -175,12 +216,12 @@ public abstract class ConvertUtils {
 					String indexName = unique.name();
 					String[] columns = unique.columnNames();
 					if (columns != null && columns.length > 0)
-						vtable.unique(indexName).columns(columns);
+						TableModel.unique(indexName).columns(columns);
 				}
 			}
 		}
 
-		return vtable;
+		return TableModel;
 	}
 
 }

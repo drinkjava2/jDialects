@@ -7,15 +7,14 @@
 package com.github.drinkjava2.jdialects.model;
 
 /**
- * The platform-independent Sequence model, similar like JPA but use
- * allocationSize instead of allocationSize
+ * The platform-independent SequenceGen model, similar like JPA 
  * 
  * </pre>
  * 
  * @author Yong Zhu
  * @since 1.0.0
  */
-public class Sequence {
+public class SequenceGen {
 
 	/**
 	 * A unique generator name that can be referenced by one or more classes to
@@ -40,11 +39,11 @@ public class Sequence {
 	 */
 	private Integer allocationSize = 1;
 
-	public Sequence() {
+	public SequenceGen() {
 		// default constructor
 	}
 
-	public Sequence(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
+	public SequenceGen(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
 		this.name = name;
 		this.sequenceName = sequenceName;
 		this.initialValue = initialValue;

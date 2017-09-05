@@ -12,7 +12,7 @@ package com.github.drinkjava2.jdialects.model;
  * @author Yong Zhu
  * @since 1.0.2
  */
-public class TableGenerator {
+public class TableGen {
 
 	/**
 	 * A unique generator name that can be referenced by one or more classes to
@@ -52,13 +52,13 @@ public class TableGenerator {
 	 */
 	private Integer allocationSize = 50;
 
-	public TableGenerator() {
+	public TableGen() {
 		super();
 		// default constructor
 	}
 
-	public TableGenerator(String name, String tableName, String pkColumnName, String valueColumnName,
-			String pkColumnValue, Integer initialValue, Integer allocationSize) {
+	public TableGen(String name, String tableName, String pkColumnName, String valueColumnName, String pkColumnValue,
+			Integer initialValue, Integer allocationSize) {
 		this.name = name;
 		this.setTableName(tableName);
 		this.pkColumnName = pkColumnName;

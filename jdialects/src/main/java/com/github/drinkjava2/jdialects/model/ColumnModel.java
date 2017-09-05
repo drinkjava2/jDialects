@@ -12,8 +12,8 @@ import com.github.drinkjava2.jdialects.Type;
 import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
- * A Virtual Column definition represents a platform dependent column in a
- * Database Table, from 1.0.5 this class name changed from "Column" to "VColumn"
+ * A ColumnModel definition represents a platform dependent column in a
+ * Database Table, from 1.0.5 this class name changed from "Column" to "ColumnModel"
  * to avoid naming conflict to JPA's "@Column" annotation
  * 
  * </pre>
@@ -21,9 +21,9 @@ import com.github.drinkjava2.jdialects.utils.StrUtils;
  * @author Yong Zhu
  * @since 1.0.0
  */
-public class VColumn {
+public class ColumnModel {
 	private String columnName;// no need explain
-	private VTable vtable;
+	private TableModel tableModel;
 	private Type columnType;
 	private Boolean pkey = false;
 	private Boolean nullable = true;
@@ -43,7 +43,7 @@ public class VColumn {
 	private String tail;
 
 	/**
-	 * bind column to Auto Id generator, can be Sequence or TableGenerator,
+	 * bind column to Auto Id generator, can be SequenceGen or TableGen,
 	 * determined by jDialects
 	 */
 	private Boolean autoGenerator = false;
@@ -73,120 +73,120 @@ public class VColumn {
 	/** If update-able or not, for JPA or ORM tool use only */
 	private Boolean updatable = true;
 
-	public VColumn(String columnName) {
+	public ColumnModel(String columnName) {
 		if (StrUtils.isEmpty(columnName))
 			DialectException.throwEX("columnName is not allowed empty");
 		this.columnName = columnName;
 	}
 
 	/** Add a not null DDL piece if support */
-	public VColumn notNull() {
+	public ColumnModel notNull() {
 		this.nullable = false;
 		return this;
 	}
 
 	/** Add a column check DDL piece if support */
-	public VColumn check(String check) {
+	public ColumnModel check(String check) {
 		this.check = check;
 		return this;
 	}
 
 	/**
 	 * A shortcut method to add a index for single column, for multiple columns
-	 * index please use vtable.index() method
+	 * index please use tableModel.index() method
 	 */
-	public VColumn index(String indexName) {
-		DialectException.assureNotNull(this.vtable,
-				"index() shortcut method used only as vtable.column().index() format");
+	public ColumnModel index(String indexName) {
+		DialectException.assureNotNull(this.tableModel,
+				"index() shortcut method used only as tableModel.column().index() format");
 		DialectException.assureNotEmpty(indexName, "indexName can not be empty");
-		this.vtable.index(indexName).columns(this.getColumnName());
+		this.tableModel.index(indexName).columns(this.getColumnName());
 		return this;
 	}
 
 	/**
 	 * A shortcut method to add a simple index for single column, for multiple
-	 * columns index please use vtable.index() method
+	 * columns index please use tableModel.index() method
 	 */
-	public VColumn index() {
-		DialectException.assureNotNull(this.vtable,
-				"index() shortcut method used only as vtable.column().index() format");
-		this.vtable.index().columns(this.getColumnName());
+	public ColumnModel index() {
+		DialectException.assureNotNull(this.tableModel,
+				"index() shortcut method used only as tableModel.column().index() format");
+		this.tableModel.index().columns(this.getColumnName());
 		return this;
 	}
 
 	/**
 	 * A shortcut method to add a unique constraint for single column, for multiple
-	 * columns index please use vtable.unique() method
+	 * columns index please use tableModel.unique() method
 	 */
-	public VColumn unique(String uniqueName) {
-		DialectException.assureNotNull(this.vtable,
-				"unique() shortcut method used only as vtable.column().index() format");
+	public ColumnModel unique(String uniqueName) {
+		DialectException.assureNotNull(this.tableModel,
+				"unique() shortcut method used only as tableModel.column().index() format");
 		DialectException.assureNotEmpty(uniqueName, "indexName can not be empty");
-		this.vtable.unique(uniqueName).columns(this.getColumnName());
+		this.tableModel.unique(uniqueName).columns(this.getColumnName());
 		return this;
 	}
 
 	/**
 	 * A shortcut method to add a unique constraint for single column, for multiple
-	 * columns index please use vtable.unique() method
+	 * columns index please use tableModel.unique() method
 	 */
-	public VColumn unique() {
-		DialectException.assureNotNull(this.vtable,
-				"unique() shortcut method used only as vtable.column().index() format");
-		this.vtable.unique().columns(this.getColumnName());
+	public ColumnModel unique() {
+		DialectException.assureNotNull(this.tableModel,
+				"unique() shortcut method used only as tableModel.column().index() format");
+		this.tableModel.unique().columns(this.getColumnName());
 		return this;
 	}
 
-	public VColumn identity() {
+	public ColumnModel identity() {
 		this.identity = true;
 		return this;
 	}
 
-	public VColumn defaultValue(String value) {
+	public ColumnModel defaultValue(String value) {
 		this.defaultValue = value;
 		return this;
 	}
 
-	public VColumn comment(String comment) {
+	public ColumnModel comment(String comment) {
 		this.comment = comment;
 		return this;
 	}
 
-	public VColumn pkey() {
+	public ColumnModel pkey() {
 		this.pkey = true;
 		return this;
 	}
 
 	/**
 	 * A shortcut method to add Foreign constraint for single column, for multiple
-	 * columns please use vtable.fkey() method instead
+	 * columns please use tableModel.fkey() method instead
 	 */
-	public VColumn ref(String refTableName, String refColumnName) {
-		DialectException.assureNotNull(this.vtable, "ref() shortcut method used only as vtable.column().ref() format");
+	public ColumnModel ref(String refTableName, String refColumnName) {
+		DialectException.assureNotNull(this.tableModel, "ref() shortcut method used only as tableModel.column().ref() format");
 		DialectException.assureNotEmpty(refTableName, "refTable can not be empty");
 		DialectException.assureNotEmpty(refColumnName, "refColumn can not be empty");
-		this.vtable.fkey().columns(this.columnName).ref(refTableName, refColumnName);
+		this.tableModel.fkey().columns(this.columnName).ref(refTableName, refColumnName);
 		return this;
 	}
 
 	/** bind column to a sequence */
-	public VColumn sequence(String sequence) {
+	public ColumnModel sequence(String sequence) {
 		this.sequence = sequence;
 		return this;
 	}
 
 	/** bind column to a tableGenerator */
-	public VColumn tableGenerator(String tableGenerator) {
+	public ColumnModel tableGenerator(String tableGenerator) {
 		this.tableGenerator = tableGenerator;
 		return this;
 	}
 
 	/**
-	 * bind column to a global Auto Id generator, can be Sequence(if support) or a
+	 * bind column to a global Auto Id generator, can be SequenceGen(if support) or a
 	 * Table to store maximum current ID, determined by jDialects, to get next auto
 	 * generated ID value, need run dialect.getNextAutoID(connection) method
 	 */
-	public VColumn autoID() {
+	public ColumnModel autoID() {
 		this.autoGenerator = true;
 		return this;
 	}
@@ -194,7 +194,7 @@ public class VColumn {
 	/**
 	 * Put an extra tail String manually at the end of column definition DDL
 	 */
-	public VColumn tail(String tail) {
+	public ColumnModel tail(String tail) {
 		this.tail = tail;
 		return this;
 	}
@@ -203,45 +203,45 @@ public class VColumn {
 	 * Tell this column map to a Java Entity's field, usually used by an ORM
 	 * framework like jSqlBox
 	 */
-	public VColumn entityField(String entityField) {
+	public ColumnModel entityField(String entityField) {
 		this.entityField = entityField;
 		return this;
 	}
 
 	//@formatter:off shut off eclipse's formatter
-	public VColumn LONG() {this.columnType=Type.BIGINT;return this;} 
-	public VColumn BOOLEAN() {this.columnType=Type.BOOLEAN;return this;} 
-	public VColumn DOUBLE() {this.columnType=Type.DOUBLE;return this;} 
-	public VColumn FLOAT(Integer... lengths) {this.columnType=Type.FLOAT;this.lengths=lengths;return this;} 
-	public VColumn INTEGER() {this.columnType=Type.INTEGER;return this;} 
-	public VColumn SHORT() {this.columnType=Type.SMALLINT;return this;} 
-	public VColumn BIGDECIMAL(Integer precision, Integer scale) {this.columnType=Type.NUMERIC; this.lengths= new Integer[]{precision,scale}; return this;} 
-	public VColumn STRING(Integer length) {this.columnType=Type.VARCHAR;this.lengths=new Integer[]{length}; return this;} 
+	public ColumnModel LONG() {this.columnType=Type.BIGINT;return this;} 
+	public ColumnModel BOOLEAN() {this.columnType=Type.BOOLEAN;return this;} 
+	public ColumnModel DOUBLE() {this.columnType=Type.DOUBLE;return this;} 
+	public ColumnModel FLOAT(Integer... lengths) {this.columnType=Type.FLOAT;this.lengths=lengths;return this;} 
+	public ColumnModel INTEGER() {this.columnType=Type.INTEGER;return this;} 
+	public ColumnModel SHORT() {this.columnType=Type.SMALLINT;return this;} 
+	public ColumnModel BIGDECIMAL(Integer precision, Integer scale) {this.columnType=Type.NUMERIC; this.lengths= new Integer[]{precision,scale}; return this;} 
+	public ColumnModel STRING(Integer length) {this.columnType=Type.VARCHAR;this.lengths=new Integer[]{length}; return this;} 
 	
-	public VColumn DATE() {this.columnType=Type.DATE;return this;} 
-	public VColumn TIME() {this.columnType=Type.TIME;return this;} 
-	public VColumn TIMESTAMP() {this.columnType=Type.TIMESTAMP;return this;} 
-	public VColumn BIGINT() {this.columnType=Type.BIGINT;return this;} 
-	public VColumn BINARY(Integer... lengths) {this.columnType=Type.BINARY;this.lengths=lengths; return this;} 
-	public VColumn BIT() {this.columnType=Type.BIT;return this;} 
-	public VColumn BLOB(Integer... lengths) {this.columnType=Type.BLOB;this.lengths=lengths;return this;} 
-	public VColumn CHAR(Integer... lengths) {this.columnType=Type.CHAR;this.lengths=lengths;return this;} 
-	public VColumn CLOB(Integer... lengths) {this.columnType=Type.CLOB;this.lengths=lengths;return this;} 
-	public VColumn DECIMAL(Integer... lengths) {this.columnType=Type.DECIMAL;this.lengths=lengths;return this;} 
-	public VColumn JAVA_OBJECT() {this.columnType=Type.JAVA_OBJECT;return this;} 
-	public VColumn LONGNVARCHAR(Integer length) {this.columnType=Type.LONGNVARCHAR;this.lengths=new Integer[]{length};return this;} 
-	public VColumn LONGVARBINARY(Integer... lengths) {this.columnType=Type.LONGVARBINARY;this.lengths=lengths;return this;} 
-	public VColumn LONGVARCHAR(Integer... lengths) {this.columnType=Type.LONGVARCHAR;this.lengths=lengths;return this;} 
-	public VColumn NCHAR(Integer length) {this.columnType=Type.NCHAR;this.lengths=new Integer[]{length};return this;} 
-	public VColumn NCLOB() {this.columnType=Type.NCLOB;return this;} 
-	public VColumn NUMERIC(Integer... lengths) {this.columnType=Type.NUMERIC;this.lengths=lengths;return this;} 
-	public VColumn NVARCHAR(Integer length) {this.columnType=Type.NVARCHAR;   this.lengths=new Integer[]{length};return this;} 
-	public VColumn OTHER(Integer... lengths) {this.columnType=Type.OTHER;this.lengths=lengths;return this;} 
-	public VColumn REAL() {this.columnType=Type.REAL;return this;} 
-	public VColumn SMALLINT() {this.columnType=Type.SMALLINT;return this;} 
-	public VColumn TINYINT() {this.columnType=Type.TINYINT;return this;} 
-	public VColumn VARBINARY(Integer... lengths) {this.columnType=Type.VARBINARY;this.lengths=lengths;return this;} 
-	public VColumn VARCHAR(Integer length) {this.columnType=Type.VARCHAR;this.lengths=new Integer[]{length};return this;}
+	public ColumnModel DATE() {this.columnType=Type.DATE;return this;} 
+	public ColumnModel TIME() {this.columnType=Type.TIME;return this;} 
+	public ColumnModel TIMESTAMP() {this.columnType=Type.TIMESTAMP;return this;} 
+	public ColumnModel BIGINT() {this.columnType=Type.BIGINT;return this;} 
+	public ColumnModel BINARY(Integer... lengths) {this.columnType=Type.BINARY;this.lengths=lengths; return this;} 
+	public ColumnModel BIT() {this.columnType=Type.BIT;return this;} 
+	public ColumnModel BLOB(Integer... lengths) {this.columnType=Type.BLOB;this.lengths=lengths;return this;} 
+	public ColumnModel CHAR(Integer... lengths) {this.columnType=Type.CHAR;this.lengths=lengths;return this;} 
+	public ColumnModel CLOB(Integer... lengths) {this.columnType=Type.CLOB;this.lengths=lengths;return this;} 
+	public ColumnModel DECIMAL(Integer... lengths) {this.columnType=Type.DECIMAL;this.lengths=lengths;return this;} 
+	public ColumnModel JAVA_OBJECT() {this.columnType=Type.JAVA_OBJECT;return this;} 
+	public ColumnModel LONGNVARCHAR(Integer length) {this.columnType=Type.LONGNVARCHAR;this.lengths=new Integer[]{length};return this;} 
+	public ColumnModel LONGVARBINARY(Integer... lengths) {this.columnType=Type.LONGVARBINARY;this.lengths=lengths;return this;} 
+	public ColumnModel LONGVARCHAR(Integer... lengths) {this.columnType=Type.LONGVARCHAR;this.lengths=lengths;return this;} 
+	public ColumnModel NCHAR(Integer length) {this.columnType=Type.NCHAR;this.lengths=new Integer[]{length};return this;} 
+	public ColumnModel NCLOB() {this.columnType=Type.NCLOB;return this;} 
+	public ColumnModel NUMERIC(Integer... lengths) {this.columnType=Type.NUMERIC;this.lengths=lengths;return this;} 
+	public ColumnModel NVARCHAR(Integer length) {this.columnType=Type.NVARCHAR;   this.lengths=new Integer[]{length};return this;} 
+	public ColumnModel OTHER(Integer... lengths) {this.columnType=Type.OTHER;this.lengths=lengths;return this;} 
+	public ColumnModel REAL() {this.columnType=Type.REAL;return this;} 
+	public ColumnModel SMALLINT() {this.columnType=Type.SMALLINT;return this;} 
+	public ColumnModel TINYINT() {this.columnType=Type.TINYINT;return this;} 
+	public ColumnModel VARBINARY(Integer... lengths) {this.columnType=Type.VARBINARY;this.lengths=lengths;return this;} 
+	public ColumnModel VARCHAR(Integer length) {this.columnType=Type.VARCHAR;this.lengths=new Integer[]{length};return this;}
 	//@formatter:on
 
 	// getter & setters==============
@@ -397,12 +397,12 @@ public class VColumn {
 		this.entityField = entityField;
 	}
 
-	public VTable getVtable() {
-		return vtable;
+	public TableModel getTableModel() {
+		return tableModel;
 	}
 
-	public void setVtable(VTable vtable) {
-		this.vtable = vtable;
+	public void setTableModel(TableModel tableModel) {
+		this.tableModel = tableModel;
 	}
 
 }

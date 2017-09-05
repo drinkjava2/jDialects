@@ -13,14 +13,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.github.drinkjava2.jdialects.model.AutoIdGenerator;
+import com.github.drinkjava2.jdialects.model.AutoIdGen;
 import com.github.drinkjava2.jdialects.model.FKeyConst;
 import com.github.drinkjava2.jdialects.model.IndexConst;
-import com.github.drinkjava2.jdialects.model.Sequence;
-import com.github.drinkjava2.jdialects.model.TableGenerator;
+import com.github.drinkjava2.jdialects.model.SequenceGen;
+import com.github.drinkjava2.jdialects.model.TableGen;
 import com.github.drinkjava2.jdialects.model.UniqueConst;
-import com.github.drinkjava2.jdialects.model.VColumn;
-import com.github.drinkjava2.jdialects.model.VTable;
+import com.github.drinkjava2.jdialects.model.ColumnModel;
+import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
@@ -36,29 +36,29 @@ public class DDLCreateUtils {
 	 * Transfer tables to DDL by given dialect and without format it, if want get a
 	 * formatted DDL, use DDLFormatter.format(DDLs) method to format it
 	 */
-	public static String[] toCreateDDL(Dialect dialect, VTable... tables) {
-		// Store mixed DDL String, TableGenerator Object, Sequence Object ...
+	public static String[] toCreateDDL(Dialect dialect, TableModel... tables) {
+		// Store mixed DDL String, TableGen Object, SequenceGen Object ...
 		List<Object> objectResultList = new ArrayList<Object>();
 
-		for (VTable table : tables)
+		for (TableModel table : tables)
 			transferTableToObjectList(dialect, table, objectResultList);
 
 		List<String> stringResultList = new ArrayList<String>();
-		List<TableGenerator> tbGeneratorList = new ArrayList<TableGenerator>();
-		List<Sequence> sequenceList = new ArrayList<Sequence>();
-		List<AutoIdGenerator> autoIdGeneratorList = new ArrayList<AutoIdGenerator>();
+		List<TableGen> tbGeneratorList = new ArrayList<TableGen>();
+		List<SequenceGen> sequenceList = new ArrayList<SequenceGen>();
+		List<AutoIdGen> autoIdGeneratorList = new ArrayList<AutoIdGen>();
 		List<FKeyConst> fKeyConstraintList = new ArrayList<FKeyConst>();
 
 		for (Object strOrObj : objectResultList) {
 			if (!StrUtils.isEmpty(strOrObj)) {
 				if (strOrObj instanceof String)
 					stringResultList.add((String) strOrObj);
-				else if (strOrObj instanceof TableGenerator)
-					tbGeneratorList.add((TableGenerator) strOrObj);
-				else if (strOrObj instanceof Sequence)
-					sequenceList.add((Sequence) strOrObj);
-				else if (strOrObj instanceof AutoIdGenerator)
-					autoIdGeneratorList.add((AutoIdGenerator) strOrObj);
+				else if (strOrObj instanceof TableGen)
+					tbGeneratorList.add((TableGen) strOrObj);
+				else if (strOrObj instanceof SequenceGen)
+					sequenceList.add((SequenceGen) strOrObj);
+				else if (strOrObj instanceof AutoIdGen)
+					autoIdGeneratorList.add((AutoIdGen) strOrObj);
 				else if (strOrObj instanceof FKeyConst)
 					fKeyConstraintList.add((FKeyConst) strOrObj);
 			}
@@ -73,21 +73,21 @@ public class DDLCreateUtils {
 	}
 
 	/**
-	 * Transfer table to a mixed DDL String or TableGenerator Object list
+	 * Transfer table to a mixed DDL String or TableGen Object list
 	 */
 	/**
 	 * @param dialect
 	 * @param t
 	 * @param objectResultList
 	 */
-	private static void transferTableToObjectList(Dialect dialect, VTable t, List<Object> objectResultList) {
+	private static void transferTableToObjectList(Dialect dialect, TableModel t, List<Object> objectResultList) {
 		DDLFeatures features = dialect.ddlFeatures;
 
 		StringBuilder buf = new StringBuilder();
 		boolean hasPkey = false;
 		String pkeys = "";
 		String tableName = t.getTableName();
-		Map<String, VColumn> columns = t.getColumns();
+		Map<String, ColumnModel> columns = t.getColumns();
 
 		// Reserved words check
 		dialect.checkNotEmptyReservedWords(tableName, "Table name can not be empty");
@@ -102,28 +102,28 @@ public class DDLCreateUtils {
 			for (UniqueConst unique : l2)
 				dialect.checkReservedWords(unique.getName());
 
-		for (VColumn col : columns.values())
+		for (ColumnModel col : columns.values())
 			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
 
-		for (VColumn col : columns.values()) {
+		for (ColumnModel col : columns.values()) {
 			// "Auto" type generator
 			if (col.getAutoGenerator()) {// if support sequence
 				if (features.supportBasicOrPooledSequence()) {
 					objectResultList.add(
-							new Sequence(AutoIdGenerator.JDIALECTS_AUTOID, AutoIdGenerator.JDIALECTS_AUTOID, 1, 1));
-				} else {// AutoIdGenerator
-					objectResultList.add(new AutoIdGenerator());
+							new SequenceGen(AutoIdGen.JDIALECTS_AUTOID, AutoIdGen.JDIALECTS_AUTOID, 1, 1));
+				} else {// AutoIdGen
+					objectResultList.add(new AutoIdGen());
 				}
 			}
 
 		}
 
 		// sequence
-		for (Sequence seq : t.getSequences().values())
+		for (SequenceGen seq : t.getSequences().values())
 			objectResultList.add(seq);
 
 		// tableGenerator
-		for (TableGenerator tableGenerator : t.getTableGenerators().values())
+		for (TableGen tableGenerator : t.getTableGenerators().values())
 			objectResultList.add(tableGenerator);
 
 		// Foreign key
@@ -131,7 +131,7 @@ public class DDLCreateUtils {
 			objectResultList.add(fkey);
 
 		// check and cache prime keys
-		for (VColumn col : columns.values()) {
+		for (ColumnModel col : columns.values()) {
 			if (col.getPkey()) {
 				hasPkey = true;
 				if (StrUtils.isEmpty(pkeys))
@@ -145,7 +145,7 @@ public class DDLCreateUtils {
 		buf.append(hasPkey ? dialect.ddlFeatures.createTableString : dialect.ddlFeatures.createMultisetTableString)
 				.append(" ").append(tableName).append(" ( ");
 
-		for (VColumn c : columns.values()) {
+		for (ColumnModel c : columns.values()) {
 			if (c.getColumnType() == null)
 				DialectException
 						.throwEX("Type not set on column \"" + c.getColumnName() + "\" at table \"" + tableName + "\"");
@@ -246,7 +246,7 @@ public class DDLCreateUtils {
 		}
 
 		// column comment on
-		for (VColumn c : columns.values()) {
+		for (ColumnModel c : columns.values()) {
 			if (features.supportsCommentOn && c.getComment() != null && StrUtils.isEmpty(features.columnComment))
 				objectResultList.add(
 						"comment on column " + tableName + '.' + c.getColumnName() + " is '" + c.getComment() + "'");
@@ -259,22 +259,22 @@ public class DDLCreateUtils {
 		buildUniqueDLL(dialect, objectResultList, t);
 	}
 
-	private static void buildSequenceDDL(Dialect dialect, List<String> stringList, List<Sequence> sequenceList) {
+	private static void buildSequenceDDL(Dialect dialect, List<String> stringList, List<SequenceGen> sequenceList) {
 		DDLFeatures features = dialect.ddlFeatures;
-		for (Sequence seq : sequenceList) {
-			DialectException.assureNotEmpty(seq.getName(), "Sequence name can not be empty");
+		for (SequenceGen seq : sequenceList) {
+			DialectException.assureNotEmpty(seq.getName(), "SequenceGen name can not be empty");
 			DialectException.assureNotEmpty(seq.getSequenceName(),
 					"sequenceName can not be empty of \"" + seq.getName() + "\"");
 		}
 
-		for (Sequence seq : sequenceList) {
-			for (Sequence seq2 : sequenceList) {
+		for (SequenceGen seq : sequenceList) {
+			for (SequenceGen seq2 : sequenceList) {
 				if (seq != seq2 && (seq2.getAllocationSize() != 0)) {
 					if (seq.getName().equalsIgnoreCase(seq2.getName())) {
 						seq.setAllocationSize(0);// set to 0 to skip repeated
 					} else {
 						if (seq.getSequenceName().equalsIgnoreCase(seq2.getSequenceName()))
-							DialectException.throwEX("Dulplicated Sequence setting \"" + seq.getName() + "\" and \""
+							DialectException.throwEX("Dulplicated SequenceGen setting \"" + seq.getName() + "\" and \""
 									+ seq2.getName() + "\" found.");
 					}
 				}
@@ -282,7 +282,7 @@ public class DDLCreateUtils {
 		}
 
 		Set<String> sequenceNameExisted = new HashSet<String>();
-		for (Sequence seq : sequenceList) {
+		for (SequenceGen seq : sequenceList) {
 			if (seq.getAllocationSize() != 0) {
 				String sequenceName = seq.getSequenceName().toLowerCase();
 				if (!sequenceNameExisted.contains(sequenceName)) {
@@ -315,28 +315,28 @@ public class DDLCreateUtils {
 	}
 
 	private static void buildAutoIdGeneratorDDL(Dialect dialect, List<String> stringList,
-			List<AutoIdGenerator> autoIdGenerator) {
+			List<AutoIdGen> autoIdGenerator) {
 		if (autoIdGenerator != null && !autoIdGenerator.isEmpty()) {
-			stringList.add(dialect.ddlFeatures.createTableString + " " + AutoIdGenerator.JDIALECTS_AUTOID + " ("
-					+ AutoIdGenerator.NEXT_VAL + " " + dialect.translateToDDLType(Type.BIGINT) + " )");
-			stringList.add("insert into " + AutoIdGenerator.JDIALECTS_AUTOID + " values ( 1 )");
+			stringList.add(dialect.ddlFeatures.createTableString + " " + AutoIdGen.JDIALECTS_AUTOID + " ("
+					+ AutoIdGen.NEXT_VAL + " " + dialect.translateToDDLType(Type.BIGINT) + " )");
+			stringList.add("insert into " + AutoIdGen.JDIALECTS_AUTOID + " values ( 1 )");
 		}
 	}
 
 	private static void buildTableGeneratorDDL(Dialect dialect, List<String> stringList,
-			List<TableGenerator> tbGeneratorList) {
-		for (TableGenerator tg : tbGeneratorList) {
+			List<TableGen> tbGeneratorList) {
+		for (TableGen tg : tbGeneratorList) {
 			//@formatter:off
-			DialectException.assureNotEmpty(tg.getName(), "TableGenerator name can not be empty"); 
-			DialectException.assureNotEmpty(tg.getTableName(), "TableGenerator tableName can not be empty of \""+tg.getName()+"\"");
-			DialectException.assureNotEmpty(tg.getPkColumnName(), "TableGenerator pkColumnName can not be empty of \""+tg.getName()+"\"");
-			DialectException.assureNotEmpty(tg.getPkColumnValue(), "TableGenerator pkColumnValue can not be empty of \""+tg.getName()+"\"");
-			DialectException.assureNotEmpty(tg.getValueColumnName(), "TableGenerator valueColumnName can not be empty of \""+tg.getName()+"\""); 
+			DialectException.assureNotEmpty(tg.getName(), "TableGen name can not be empty"); 
+			DialectException.assureNotEmpty(tg.getTableName(), "TableGen tableName can not be empty of \""+tg.getName()+"\"");
+			DialectException.assureNotEmpty(tg.getPkColumnName(), "TableGen pkColumnName can not be empty of \""+tg.getName()+"\"");
+			DialectException.assureNotEmpty(tg.getPkColumnValue(), "TableGen pkColumnValue can not be empty of \""+tg.getName()+"\"");
+			DialectException.assureNotEmpty(tg.getValueColumnName(), "TableGen valueColumnName can not be empty of \""+tg.getName()+"\""); 
 			//@formatter:on
 		}
 
-		for (TableGenerator tg : tbGeneratorList) {
-			for (TableGenerator tg2 : tbGeneratorList) {
+		for (TableGen tg : tbGeneratorList) {
+			for (TableGen tg2 : tbGeneratorList) {
 				if (tg != tg2 && (tg2.getAllocationSize() != 0)) {
 					if (tg.getName().equalsIgnoreCase(tg2.getName())) {
 						tg.setAllocationSize(0);// set to 0 to skip repeated
@@ -354,7 +354,7 @@ public class DDLCreateUtils {
 
 		Set<String> tableExisted = new HashSet<String>();
 		Set<String> columnExisted = new HashSet<String>();
-		for (TableGenerator tg : tbGeneratorList)
+		for (TableGen tg : tbGeneratorList)
 			if (tg.getAllocationSize() != 0) {
 				String tableName = tg.getTableName().toLowerCase();
 				String tableAndPKColumn = tg.getTableName().toLowerCase() + "..XXOO.." + tg.getPkColumnName();
@@ -404,7 +404,7 @@ public class DDLCreateUtils {
 		}
 	}
 
-	private static void buildIndexDLL(Dialect dialect, List<Object> objectResultList, VTable t) {
+	private static void buildIndexDLL(Dialect dialect, List<Object> objectResultList, TableModel t) {
 		List<IndexConst> l = t.getIndexConsts();
 		if (l == null || l.isEmpty())
 			return;
@@ -425,7 +425,7 @@ public class DDLCreateUtils {
 		}
 	}
 
-	private static void buildUniqueDLL(Dialect dialect, List<Object> objectResultList, VTable t) {
+	private static void buildUniqueDLL(Dialect dialect, List<Object> objectResultList, TableModel t) {
 		List<UniqueConst> l = t.getUniqueConsts();
 		if (l == null || l.isEmpty())
 			return;
@@ -434,7 +434,7 @@ public class DDLCreateUtils {
 			boolean nullable = false;
 			String[] columns = unique.getColumnList();
 			for (String colNames : columns) {
-				VColumn vc = t.getColumn(colNames.toLowerCase());
+				ColumnModel vc = t.getColumn(colNames.toLowerCase());
 				if (vc != null && vc.getNullable())
 					nullable = true;
 			}

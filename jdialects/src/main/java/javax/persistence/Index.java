@@ -40,7 +40,7 @@ import java.lang.annotation.Target;
  * @see SecondaryTable
  * @see CollectionTable
  * @see JoinTable
- * @see TableGenerator
+ * @see TableGen
  *
  * @since Java Persistence 2.1
  *

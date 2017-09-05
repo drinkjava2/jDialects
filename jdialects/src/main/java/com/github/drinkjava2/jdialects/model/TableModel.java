@@ -15,14 +15,14 @@ import java.util.Map;
 import com.github.drinkjava2.jdialects.DialectException;
 
 /**
- * A Virtual Table definition represents a platform dependent Database Table,
- * from 1.0.5 this class name changed from "Table" to "VTable" to avoid naming
+ * A TableModel definition represents a platform dependent Database Table,
+ * from 1.0.5 this class name changed from "Table" to "TableModel" to avoid naming
  * conflict to JPA's "@Table" annotation
  * 
  * @author Yong Zhu
  * @since 1.0.2
  */
-public class VTable {
+public class TableModel {
 
 	/** The table tableName in database */
 	private String tableName;
@@ -41,43 +41,43 @@ public class VTable {
 	private String engineTail;
 
 	/** Columns in this table, key is lower case of column tableName */
-	private Map<String, VColumn> columns = new LinkedHashMap<String, VColumn>();
+	private Map<String, ColumnModel> columns = new LinkedHashMap<String, ColumnModel>();
 
 	/** sequences */
-	private Map<String, Sequence> sequences = new LinkedHashMap<String, Sequence>();
+	private Map<String, SequenceGen> sequences = new LinkedHashMap<String, SequenceGen>();
 
 	/** tableGenerators */
-	private Map<String, TableGenerator> tableGenerators = new LinkedHashMap<String, TableGenerator>();
+	private Map<String, TableGen> tableGenerators = new LinkedHashMap<String, TableGen>();
 
 	private List<FKeyConst> fkeyConstraints = new ArrayList<FKeyConst>();
 	private List<IndexConst> indexConsts = new ArrayList<IndexConst>();
 	private List<UniqueConst> uniqueConsts = new ArrayList<UniqueConst>();
 
-	public VTable() {
+	public TableModel() {
 		super();
 	}
 
-	public VTable(String tableName) {
+	public TableModel(String tableName) {
 		this.tableName = tableName;
 	}
 
 	/**
-	 * Add a "create table..." DDL to generate ID, similar like JPA's TableGenerator
+	 * Add a "create table..." DDL to generate ID, similar like JPA's TableGen
 	 */
-	public void addTableGenerator(TableGenerator tableGenerator) {
+	public void addTableGenerator(TableGen tableGenerator) {
 		//@formatter:off
 		DialectException.assureNotNull(tableGenerator);
-		DialectException.assureNotEmpty(tableGenerator.getName(), "TableGenerator name can not be empty");  
+		DialectException.assureNotEmpty(tableGenerator.getName(), "TableGen name can not be empty");  
 		if (  tableGenerators.get(tableGenerator.getName().toLowerCase()) != null ) {
-			DialectException.throwEX("Dulplicated TableGenerator name \"" + tableGenerator.getName() + "\" found in table \""
+			DialectException.throwEX("Dulplicated TableGen name \"" + tableGenerator.getName() + "\" found in table \""
 					+ this.getTableName() + "\"");
 		} 
 		tableGenerators.put(tableGenerator.getName().toLowerCase(), tableGenerator);
 	}
  
 	/**
-	 * Add a "create table..." DDL to generate ID, similar like JPA's TableGenerator 
-	 * @param name The name of TableGenerator Java object itself
+	 * Add a "create table..." DDL to generate ID, similar like JPA's TableGen 
+	 * @param name The name of TableGen Java object itself
 	 * @param tableName The name of the table will created in database to generate ID
 	 * @param pkColumnName The name of prime key column
 	 * @param valueColumnName The name of value column
@@ -87,7 +87,7 @@ public class VTable {
 	 */
 	public void addTableGenerator(String name, String tableName, String pkColumnName, String valueColumnName,
 			String pkColumnValue, Integer initialValue, Integer allocationSize) {
-		addTableGenerator(new TableGenerator(name, tableName, pkColumnName, valueColumnName, pkColumnValue,
+		addTableGenerator(new TableGen(name, tableName, pkColumnName, valueColumnName, pkColumnValue,
 				initialValue, allocationSize));
 	}
 
@@ -99,22 +99,22 @@ public class VTable {
 	 * @param allocationSize The allocationSize
 	 */
 	public void addSequence(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
-		this.addSequence(new Sequence(name, sequenceName, initialValue, allocationSize));
+		this.addSequence(new SequenceGen(name, sequenceName, initialValue, allocationSize));
 	}
 
 	/**
 	 * Add a sequence definition DDL 
 	 */
-	public void addSequence(Sequence sequence) {
+	public void addSequence(SequenceGen sequence) {
 		DialectException.assureNotNull(sequence);
-		DialectException.assureNotEmpty(sequence.getSequenceName(), "Sequence name can not be empty");
+		DialectException.assureNotEmpty(sequence.getSequenceName(), "SequenceGen name can not be empty");
 		sequences.put(sequence.getSequenceName().toLowerCase(), sequence);
 	}
 
 	/**
 	 *  Add the table check String DDL piece if support
 	 */
-	public VTable check(String check) {
+	public TableModel check(String check) {
 		this.check = check;
 		return this;
 	}
@@ -122,7 +122,7 @@ public class VTable {
 	/**
 	 *  Add the table comment String DDL piece if support
 	 */
-	public VTable comment(String comment) {
+	public TableModel comment(String comment) {
 		this.comment = comment;
 		return this;
 	}
@@ -130,7 +130,7 @@ public class VTable {
 	/**
 	 * Add a column definition piece in DDL
 	 */
-	public VTable addColumn(VColumn column) {
+	public TableModel addColumn(ColumnModel column) {
 		DialectException.assureNotNull(column);
 		DialectException.assureNotEmpty(column.getColumnName(), "Column's columnName can not be empty");
 		if ((columns.get(column.getColumnName().toLowerCase()) != null)) {
@@ -148,9 +148,9 @@ public class VTable {
 	 * @param columnName
 	 * @return the Column object
 	 */
-	public VColumn column(String columnName) {
-		VColumn column = new VColumn(columnName);
-		column.setVtable(this);
+	public ColumnModel column(String columnName) {
+		ColumnModel column = new ColumnModel(columnName);
+		column.setTableModel(this);
 		addColumn(column);
 		return column;
 	}
@@ -158,7 +158,7 @@ public class VTable {
 	/**
 	 * Return Column object by columnName
 	 */
-	public VColumn getColumn(String columnName) {
+	public ColumnModel getColumn(String columnName) {
 		DialectException.assureNotEmpty(columnName);
 		return columns.get(columnName.toLowerCase());
 	}
@@ -224,7 +224,7 @@ public class VTable {
 	 * If support engine like MySQL or MariaDB, add engineTail at the end of
 	 * "create table..." DDL, usually used to set encode String like " DEFAULT CHARSET=utf8" for MySQL
 	 */
-	public VTable engineTail(String engineTail) {
+	public TableModel engineTail(String engineTail) {
 		this.engineTail=engineTail;
 		return this;
 	}
@@ -255,27 +255,27 @@ public class VTable {
 		this.comment = comment;
 	}
 
-	public Map<String, VColumn> getColumns() {
+	public Map<String, ColumnModel> getColumns() {
 		return columns;
 	}
 
-	public void setColumns(Map<String, VColumn> columns) {
+	public void setColumns(Map<String, ColumnModel> columns) {
 		this.columns = columns;
 	}
 
-	public Map<String, Sequence> getSequences() {
+	public Map<String, SequenceGen> getSequences() {
 		return sequences;
 	}
 
-	public void setSequences(Map<String, Sequence> sequences) {
+	public void setSequences(Map<String, SequenceGen> sequences) {
 		this.sequences = sequences;
 	}
 
-	public Map<String, TableGenerator> getTableGenerators() {
+	public Map<String, TableGen> getTableGenerators() {
 		return tableGenerators;
 	}
 
-	public void setTableGenerators(Map<String, TableGenerator> tableGenerators) {
+	public void setTableGenerators(Map<String, TableGen> tableGenerators) {
 		this.tableGenerators = tableGenerators;
 	}
 
