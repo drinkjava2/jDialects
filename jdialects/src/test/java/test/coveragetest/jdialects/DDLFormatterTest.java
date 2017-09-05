@@ -8,7 +8,7 @@ package test.coveragetest.jdialects;
 
 import org.junit.Test;
 
-import com.github.drinkjava2.hibernate.utils.DDLFormatter;
+import com.github.drinkjava2.jdialects.hibernatesrc.utils.DDLFormatter;
 
 /**
  * This is for DDLFormatter Test

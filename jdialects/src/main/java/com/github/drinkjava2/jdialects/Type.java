@@ -7,7 +7,7 @@
 package com.github.drinkjava2.jdialects;
 
 /**
- * Type definitions
+ * SQL Type definitions
  * 
  * @author Yong Zhu
  * @since 1.0.0

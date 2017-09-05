@@ -1,9 +1,10 @@
 /*
-* jDialects, a tiny SQL dialect tool 
-*
-* License: GNU Lesser General Public License (LGPL), version 2.1 or later.
-* See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
-*/
+ * jDialects, a tiny SQL dialect tool
+ *
+ * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
+ * the lgpl.txt file in the root directory or
+ * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ */
 package com.github.drinkjava2.jdialects;
 
 import java.lang.reflect.Method;
@@ -19,18 +20,24 @@ import java.util.logging.Logger;
  * @since 1.0.1
  */
 public class DialectLogger {
+
 	private Object commonLogger;
 	private Method commonLoggerInfoMethod;
 	private Method commonLoggerWarnMethod;
 	private Method commonLoggerErrorMethod;
 	private Logger jdkLogger;
-	private static boolean showedErrMsg = false;
-
+	private static boolean firstRun = true;
 	private static boolean enableLog = true;
+	public static DialectLogger INSTANCE = null;// NOSONAR
+
+	static {
+		INSTANCE = new DialectLogger(DialectLogger.class);
+		firstRun = false;
+	}
 
 	public DialectLogger(Class<?> targetClass) {
 		if (targetClass == null)
-			throw new AssertionError("DialectLogger error: targetClass can not be null.");
+			throw new AssertionError("DbProLogger error: targetClass can not be null.");
 		try {
 			Class<?> logFactoryClass = Class.forName("org.apache.commons.logging.LogFactory");
 			Method method = logFactoryClass.getMethod("getLog", Class.class);
@@ -39,16 +46,22 @@ public class DialectLogger {
 			commonLoggerWarnMethod = commonLogger.getClass().getMethod("warn", Object.class);
 			commonLoggerErrorMethod = commonLogger.getClass().getMethod("error", Object.class);
 		} catch (Exception e) {
-			DialectException.eatException(e);
-		}
-		if (commonLogger == null || commonLoggerWarnMethod == null) {
-			if (!showedErrMsg)
-				System.err.println("jDialects failed to load org.apache.commons.logging.LogFactory, use JDK logger."); //NOSONAR
-			jdkLogger = Logger.getLogger(targetClass.getName());// use JDK log
+			// do nothing
 		}
 
+		if (commonLogger == null || commonLoggerWarnMethod == null) {
+			if (firstRun)
+				System.err.println("DbProLogger failed to load org.apache.commons.logging.LogFactory. Use JDK logger.");// NOSONAR
+			jdkLogger = Logger.getLogger(targetClass.getName());// use JDK log
+		} else if (firstRun)
+			System.out.println("org.apache.commons.logging.LogFactory loaded, DbProLogger use it as logger.");// NOSONAR
 	}
 
+	/**
+	 * Build a DbProLogger instance by given targetClass
+	 * @param targetClass
+	 * @return A DbProLogger instance
+	 */
 	public static DialectLogger getLog(Class<?> targetClass) {
 		return new DialectLogger(targetClass);
 	}
@@ -67,7 +80,6 @@ public class DialectLogger {
 		try {
 			commonLoggerInfoMethod.invoke(commonLogger, msg);
 		} catch (Exception e) {
-			DialectException.eatException(e);
 			throw new AssertionError(e.getMessage());
 		}
 	}
@@ -82,7 +94,6 @@ public class DialectLogger {
 		try {
 			commonLoggerWarnMethod.invoke(commonLogger, msg);
 		} catch (Exception e) {
-			DialectException.eatException(e);
 			throw new AssertionError(e.getMessage());
 		}
 	}
@@ -97,8 +108,8 @@ public class DialectLogger {
 		try {
 			commonLoggerErrorMethod.invoke(commonLogger, msg);
 		} catch (Exception e) {
-			DialectException.eatException(e);
 			throw new AssertionError(e.getMessage());
 		}
 	}
+
 }

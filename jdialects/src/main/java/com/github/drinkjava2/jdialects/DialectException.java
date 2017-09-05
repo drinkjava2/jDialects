@@ -1,9 +1,10 @@
 /*
-* jDialects, a tiny SQL dialect tool 
-*
-* License: GNU Lesser General Public License (LGPL), version 2.1 or later.
-* See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
-*/
+ * jDialects, a tiny SQL dialect tool
+ *
+ * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
+ * the lgpl.txt file in the root directory or
+ * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ */
 package com.github.drinkjava2.jdialects;
 
 /**
@@ -23,8 +24,12 @@ public class DialectException extends RuntimeException {
 		super(message);
 	}
 
+	public DialectException(Throwable cause, String message) {
+		super(message, cause);
+	}
+
 	public static Object throwEX(Exception e, String errorMsg) {
-		throw new DialectException(errorMsg);
+		throw new DialectException(e, errorMsg);
 	}
 
 	public static Object throwEX(String errorMsg) {

@@ -1,26 +1,27 @@
 /**
- * jDialects, a tiny SQL dialect tool 
+ * jDialects, a tiny SQL dialect tool
  *
- * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
- * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
+ * the lgpl.txt file in the root directory or
+ * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
 package com.github.drinkjava2.jdialects;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import com.github.drinkjava2.jdialects.model.AutoIdGenerator;
-import com.github.drinkjava2.jdialects.model.Column;
-import com.github.drinkjava2.jdialects.model.FKeyConstraint;
-import com.github.drinkjava2.jdialects.model.InlineFKeyConstraint;
+import com.github.drinkjava2.jdialects.model.FKeyConst;
+import com.github.drinkjava2.jdialects.model.IndexConst;
 import com.github.drinkjava2.jdialects.model.Sequence;
-import com.github.drinkjava2.jdialects.model.Table;
 import com.github.drinkjava2.jdialects.model.TableGenerator;
+import com.github.drinkjava2.jdialects.model.UniqueConst;
+import com.github.drinkjava2.jdialects.model.VColumn;
+import com.github.drinkjava2.jdialects.model.VTable;
+import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
  * To transfer platform-independent model to create DDL String array
@@ -32,22 +33,21 @@ public class DDLCreateUtils {
 	private static DialectLogger logger = DialectLogger.getLog(DDLCreateUtils.class);
 
 	/**
-	 * Transfer tables to DDL by given dialect and without format it, if want
-	 * get a formatted DDL, use DDLFormatter.format(DDLs) method to format it
+	 * Transfer tables to DDL by given dialect and without format it, if want get a
+	 * formatted DDL, use DDLFormatter.format(DDLs) method to format it
 	 */
-	public static String[] toCreateDDL(Dialect dialect, Table... tables) {
+	public static String[] toCreateDDL(Dialect dialect, VTable... tables) {
 		// Store mixed DDL String, TableGenerator Object, Sequence Object ...
 		List<Object> objectResultList = new ArrayList<Object>();
 
-		for (Table table : tables)
+		for (VTable table : tables)
 			transferTableToObjectList(dialect, table, objectResultList);
 
 		List<String> stringResultList = new ArrayList<String>();
 		List<TableGenerator> tbGeneratorList = new ArrayList<TableGenerator>();
 		List<Sequence> sequenceList = new ArrayList<Sequence>();
 		List<AutoIdGenerator> autoIdGeneratorList = new ArrayList<AutoIdGenerator>();
-		List<InlineFKeyConstraint> inlinefKeyConstraintList = new ArrayList<InlineFKeyConstraint>();
-		List<FKeyConstraint> fKeyConstraintList = new ArrayList<FKeyConstraint>();
+		List<FKeyConst> fKeyConstraintList = new ArrayList<FKeyConst>();
 
 		for (Object strOrObj : objectResultList) {
 			if (!StrUtils.isEmpty(strOrObj)) {
@@ -59,17 +59,14 @@ public class DDLCreateUtils {
 					sequenceList.add((Sequence) strOrObj);
 				else if (strOrObj instanceof AutoIdGenerator)
 					autoIdGeneratorList.add((AutoIdGenerator) strOrObj);
-				else if (strOrObj instanceof InlineFKeyConstraint)
-					inlinefKeyConstraintList.add((InlineFKeyConstraint) strOrObj);
-				else if (strOrObj instanceof FKeyConstraint)
-					fKeyConstraintList.add((FKeyConstraint) strOrObj);
+				else if (strOrObj instanceof FKeyConst)
+					fKeyConstraintList.add((FKeyConst) strOrObj);
 			}
 		}
 
 		buildSequenceDDL(dialect, stringResultList, sequenceList);
 		buildTableGeneratorDDL(dialect, stringResultList, tbGeneratorList);
 		buildAutoIdGeneratorDDL(dialect, stringResultList, autoIdGeneratorList);
-		buildFKeyConstraintDDL(dialect, stringResultList, inlinefKeyConstraintList);
 		outputFKeyConstraintDDL(dialect, stringResultList, fKeyConstraintList);
 
 		return stringResultList.toArray(new String[stringResultList.size()]);
@@ -83,25 +80,32 @@ public class DDLCreateUtils {
 	 * @param t
 	 * @param objectResultList
 	 */
-	private static void transferTableToObjectList(Dialect dialect, Table t, List<Object> objectResultList) {
+	private static void transferTableToObjectList(Dialect dialect, VTable t, List<Object> objectResultList) {
 		DDLFeatures features = dialect.ddlFeatures;
 
 		StringBuilder buf = new StringBuilder();
 		boolean hasPkey = false;
 		String pkeys = "";
 		String tableName = t.getTableName();
-		Map<String, Column> columns = t.getColumns();
+		Map<String, VColumn> columns = t.getColumns();
 
 		// Reserved words check
 		dialect.checkNotEmptyReservedWords(tableName, "Table name can not be empty");
-		for (Column col : columns.values()) {
-			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
-			dialect.checkReservedWords(col.getPkeyName());
-			dialect.checkReservedWords(col.getUniqueConstraintNames());
-			dialect.checkReservedWords(col.getIndexNames());
-		}
 
-		for (Column col : columns.values()) {
+		List<IndexConst> l = t.getIndexConsts();// check index names
+		if (l != null && !l.isEmpty())
+			for (IndexConst index : l)
+				dialect.checkReservedWords(index.getName());
+
+		List<UniqueConst> l2 = t.getUniqueConsts();// check unique names
+		if (l2 != null && !l2.isEmpty())
+			for (UniqueConst unique : l2)
+				dialect.checkReservedWords(unique.getName());
+
+		for (VColumn col : columns.values())
+			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
+
+		for (VColumn col : columns.values()) {
 			// "Auto" type generator
 			if (col.getAutoGenerator()) {// if support sequence
 				if (features.supportBasicOrPooledSequence()) {
@@ -112,10 +116,6 @@ public class DDLCreateUtils {
 				}
 			}
 
-			// foreign keys
-			if (!StrUtils.isEmpty(col.getFkeyReferenceTable()))
-				objectResultList.add(new InlineFKeyConstraint(tableName, col.getColumnName(),
-						col.getFkeyReferenceTable(), col.getFkeyReferenceColumns()));
 		}
 
 		// sequence
@@ -127,11 +127,11 @@ public class DDLCreateUtils {
 			objectResultList.add(tableGenerator);
 
 		// Foreign key
-		for (FKeyConstraint fkey : t.getFkeyConstraints())
+		for (FKeyConst fkey : t.getFkeyConstraints())
 			objectResultList.add(fkey);
 
 		// check and cache prime keys
-		for (Column col : columns.values()) {
+		for (VColumn col : columns.values()) {
 			if (col.getPkey()) {
 				hasPkey = true;
 				if (StrUtils.isEmpty(pkeys))
@@ -143,9 +143,9 @@ public class DDLCreateUtils {
 
 		// create table
 		buf.append(hasPkey ? dialect.ddlFeatures.createTableString : dialect.ddlFeatures.createMultisetTableString)
-				.append(" ").append(tableName).append(" (");
+				.append(" ").append(tableName).append(" ( ");
 
-		for (Column c : columns.values()) {
+		for (VColumn c : columns.values()) {
 			if (c.getColumnType() == null)
 				DialectException
 						.throwEX("Type not set on column \"" + c.getColumnName() + "\" at table \"" + tableName + "\"");
@@ -177,7 +177,7 @@ public class DDLCreateUtils {
 				}
 
 				// Not null
-				if (c.getNotNull())
+				if (!c.getNullable())
 					buf.append(" not null");
 				else
 					buf.append(features.nullColumnString);
@@ -246,17 +246,17 @@ public class DDLCreateUtils {
 		}
 
 		// column comment on
-		for (Column c : columns.values()) {
+		for (VColumn c : columns.values()) {
 			if (features.supportsCommentOn && c.getComment() != null && StrUtils.isEmpty(features.columnComment))
 				objectResultList.add(
 						"comment on column " + tableName + '.' + c.getColumnName() + " is '" + c.getComment() + "'");
 		}
 
-		// Named unique constraints
-		buildUniqueDLL(dialect, objectResultList, tableName, columns);
-
 		// index
-		buildIndexDLL(dialect, objectResultList, tableName, columns);
+		buildIndexDLL(dialect, objectResultList, t);
+
+		// unique
+		buildUniqueDLL(dialect, objectResultList, t);
 	}
 
 	private static void buildSequenceDDL(Dialect dialect, List<String> stringList, List<Sequence> sequenceList) {
@@ -384,53 +384,15 @@ public class DDLCreateUtils {
 			}
 	}
 
-	private static void buildFKeyConstraintDDL(Dialect dialect, List<String> stringList,
-			List<InlineFKeyConstraint> fKeyConstraintList) {
-		for (InlineFKeyConstraint kfc : fKeyConstraintList) {
-			dialect.checkNotEmptyReservedWords(kfc.getFkeyReferenceTable(), "FkeyReferenceTable can not be empty");
-			for (String refColName : kfc.getRefColumnNames())
-				dialect.checkNotEmptyReservedWords(refColName, "FkeyReferenceColumn name can not be empty");
-		}
-		/*
-		 * join table col1 refTable ref1 ref2 + table col2 refTable ref1 ref2
-		 * into one
-		 */
-		List<FKeyConstraint> trueList = new ArrayList<FKeyConstraint>();
-		for (int i = 0; i < fKeyConstraintList.size(); i++) {
-			InlineFKeyConstraint fk = fKeyConstraintList.get(i);
-			FKeyConstraint temp = new FKeyConstraint(fk);
-			temp.getColumnNames().add(fk.getColumnName());
-			if (i == 0) {
-				trueList.add(temp);
-			} else {
-				FKeyConstraint found = null;
-				for (FKeyConstraint old : trueList) {
-					if (fk.getTableName().equals(old.getTableName())
-							&& fk.getFkeyReferenceTable().equals(old.getRefTableName())
-							&& StrUtils.arraysEqual(fk.getRefColumnNames(), old.getRefColumnNames())) {
-						found = old;
-					}
-				}
-				if (found == null)
-					trueList.add(temp);
-				else
-					found.getColumnNames().add(fk.getColumnName());
-			}
-		}
-
-		outputFKeyConstraintDDL(dialect, stringList, trueList);
-	}
-
-	private static void outputFKeyConstraintDDL(Dialect dialect, List<String> stringList,
-			List<FKeyConstraint> trueList) {
+	private static void outputFKeyConstraintDDL(Dialect dialect, List<String> stringList, List<FKeyConst> trueList) {
 		if (DDLFeatures.NOT_SUPPORT.equals(dialect.ddlFeatures.addForeignKeyConstraintString)) {
 			logger.warn("Dialect \"" + dialect + "\" does not support foreign key setting, settings be ignored");
 			return;
 		}
-		for (FKeyConstraint t : trueList) {
+		for (FKeyConst t : trueList) {
 			/*
-			 * ADD CONSTRAINT _FKEYNAME FOREIGN KEY _FKEYNAME (_FK1, _FK2)
-			 * REFERENCES _REFTABLE (_REF1, _REF2)
+			 * ADD CONSTRAINT _FKEYNAME FOREIGN KEY _FKEYNAME (_FK1, _FK2) REFERENCES
+			 * _REFTABLE (_REF1, _REF2)
 			 */
 			String s = dialect.ddlFeatures.addForeignKeyConstraintString;
 			s = StrUtils.replace(s, "_FK1, _FK2", StrUtils.listToString(t.getColumnNames()));
@@ -442,103 +404,54 @@ public class DDLCreateUtils {
 		}
 	}
 
-	// private static void addEmptyNameUniqueConstraintDDL(List<Object>
-	// objectList, Dialect dialect, String tableName,
-	// Column column) {
-	// if (!column.getUnique())
-	// return;
-	// String UniqueConstraintName = column.getUniqueConstraintName();
-	// if (StrUtils.isEmpty(UniqueConstraintName))
-	// UniqueConstraintName = "unique_" + tableName.toLowerCase() + "_" +
-	// column.getColumnName().toLowerCase();
-	// StringBuilder sb = new StringBuilder("alter table ").append(tableName);
-	//
-	// if (dialect.isInfomixFamily()) {
-	// sb.append(" add constraint unique
-	// (").append(column.getColumnName()).append(") constraint ")
-	// .append(UniqueConstraintName).toString();
-	// objectList.add(sb.toString());
-	// return;
-	// }
-	//
-	// if (dialect.isDerbyFamily() || dialect.isDB2Family()) {
-	// if (!column.getNotNull()) {
-	// objectList.add(new StringBuilder("create unique index
-	// ").append(UniqueConstraintName).append(" on ")
-	// .append(tableName).append("(").append(column.getColumnName()).append(")").toString());
-	// return;
-	// }
-	// }
-	// sb.append(" add constraint ").append(UniqueConstraintName).append("
-	// unique (").append(column.getColumnName())
-	// .append(")").toString();
-	// objectList.add(sb.toString());
-	// }
-
-	private static void buildIndexDLL(Dialect dialect, List<Object> objectResultList, String tableName,
-			Map<String, Column> columns) {
-		Map<String, String> indexes = new LinkedHashMap<String, String>();
-		for (Column c : columns.values()) {
-			if (c.getIndex() && !c.getUnique()) {
-				String[] indexNames = c.getIndexNames();
-				if (indexNames == null || indexNames.length == 0)
-					indexNames = new String[] { "IDX_" + tableName + "_" + c.getColumnName() };
-				for (String indexName : indexNames) {
-					String indexedColumns = indexes.get(indexName);
-					if (StrUtils.isEmpty(indexedColumns))
-						indexes.put(indexName, c.getColumnName());
-					else {
-						indexedColumns += "," + c.getColumnName();
-						indexes.put(indexName, indexedColumns);
-					}
-				}
-
-			}
-		}
-		for (Entry<String, String> idx : indexes.entrySet()) {
-			if (Dialect.Teradata14Dialect.equals(dialect))
-				objectResultList.add("create index " + idx.getKey() + " (" + idx.getValue() + ") on " + tableName);
-			else
-				objectResultList.add("create index " + idx.getKey() + " on " + tableName + " (" + idx.getValue() + ")");
+	private static void buildIndexDLL(Dialect dialect, List<Object> objectResultList, VTable t) {
+		List<IndexConst> l = t.getIndexConsts();
+		if (l == null || l.isEmpty())
+			return;
+		String template;
+		if (Dialect.Teradata14Dialect.equals(dialect))
+			template = "create $ifUnique index $indexName ($indexValues) on " + t.getTableName();
+		else
+			template = "create $ifUnique index $indexName on " + t.getTableName() + " ($indexValues)";
+		for (IndexConst index : l) {
+			String indexname = index.getName();
+			if (StrUtils.isEmpty(indexname))
+				indexname = "IX_" + t.getTableName() + "_" + StrUtils.arrayToString(index.getColumnList(), "_");
+			String ifUnique = index.getUnique() ? "unique" : "";
+			String result = StrUtils.replace(template, "$ifUnique", ifUnique);
+			result = StrUtils.replace(result, "$indexName", indexname);
+			result = StrUtils.replace(result, "$indexValues", StrUtils.arrayToString(index.getColumnList()));
+			objectResultList.add(result);
 		}
 	}
 
-	private static void buildUniqueDLL(Dialect dialect, List<Object> objectResultList, String tableName,
-			Map<String, Column> columns) {
-		Map<String, String> ukMap = new LinkedHashMap<String, String>();
-		Map<String, String> ukAllowNullMap = new LinkedHashMap<String, String>();
-		for (Column c : columns.values()) {
-			if (c.getUnique()) {
-				String[] ukNames = c.getUniqueConstraintNames();
-				if (ukNames == null || ukNames.length == 0)
-					ukNames = new String[] { "UK_" + tableName + "_" + c.getColumnName() };
-				for (String ukName : ukNames) {
-					String ukColumnNames = ukMap.get(ukName);
-					if (StrUtils.isEmpty(ukColumnNames))
-						ukMap.put(ukName, c.getColumnName());
-					else {
-						ukColumnNames += "," + c.getColumnName();
-						ukMap.put(ukName, ukColumnNames);
-					}
-					if (!c.getNotNull())// DB2 & Derby
-						ukAllowNullMap.put(ukName, "AllowNull");
-				}
+	private static void buildUniqueDLL(Dialect dialect, List<Object> objectResultList, VTable t) {
+		List<UniqueConst> l = t.getUniqueConsts();
+		if (l == null || l.isEmpty())
+			return;
+		String dialectName = "" + dialect;
+		for (UniqueConst unique : l) {
+			boolean nullable = false;
+			String[] columns = unique.getColumnList();
+			for (String colNames : columns) {
+				VColumn vc = t.getColumn(colNames.toLowerCase());
+				if (vc != null && vc.getNullable())
+					nullable = true;
 			}
-		}
+			String uniqueName = unique.getName();
+			if (StrUtils.isEmpty(uniqueName))
+				uniqueName = "UK_" + t.getTableName() + "_" + StrUtils.arrayToString(unique.getColumnList(), "_");
 
-		for (Entry<String, String> uniqueEntry : ukMap.entrySet()) {
 			String template = "alter table $TABLE add constraint $UKNAME unique ($COLUMNS)";
-			String dialectName = "" + dialect;
-			if ((StrUtils.startsWithIgnoreCase(dialectName, "DB2")
-					|| StrUtils.startsWithIgnoreCase(dialectName, "DERBY"))
-					&& "AllowNull".equals(ukAllowNullMap.get(uniqueEntry.getKey())))
+			if ((StrUtils.startsWithIgnoreCase(dialectName, "DB2")// DB2 and DERBY
+					|| StrUtils.startsWithIgnoreCase(dialectName, "DERBY")) && nullable)
 				template = "create unique index $UKNAME on $TABLE ($COLUMNS)";
 			else if (StrUtils.startsWithIgnoreCase(dialectName, "Informix"))
 				template = "alter table $TABLE add constraint unique ($COLUMNS) constraint $UKNAME";
-			String uniqueConstraintDDL = StrUtils.replace(template, "$TABLE", tableName);
-			uniqueConstraintDDL = StrUtils.replace(uniqueConstraintDDL, "$UKNAME", uniqueEntry.getKey());
-			uniqueConstraintDDL = StrUtils.replace(uniqueConstraintDDL, "$COLUMNS", uniqueEntry.getValue());
-			objectResultList.add(uniqueConstraintDDL);
+			String result = StrUtils.replace(template, "$TABLE", t.getTableName());
+			result = StrUtils.replace(result, "$UKNAME", uniqueName);
+			result = StrUtils.replace(result, "$COLUMNS", StrUtils.arrayToString(unique.getColumnList()));
+			objectResultList.add(result);
 		}
 	}
 

@@ -38,7 +38,7 @@ import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.DialectException;
-import com.github.drinkjava2.jdialects.StrUtils;
+import com.github.drinkjava2.jdialects.utils.StrUtils;
 import com.zaxxer.hikari.HikariDataSource;
 
 /**

@@ -12,6 +12,8 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import com.github.drinkjava2.jdialects.utils.StrUtils;
+
 /**
  * Guess Dialect Utils
  * 

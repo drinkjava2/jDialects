@@ -14,12 +14,13 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import com.github.drinkjava2.hibernate.pagination.RowSelection;
-import com.github.drinkjava2.hibernate.pagination.SQLServer2005LimitHandler;
-import com.github.drinkjava2.hibernate.pagination.SQLServer2012LimitHandler;
-import com.github.drinkjava2.hibernate.utils.StringHelper;
+import com.github.drinkjava2.jdialects.hibernatesrc.pagination.RowSelection;
+import com.github.drinkjava2.jdialects.hibernatesrc.pagination.SQLServer2005LimitHandler;
+import com.github.drinkjava2.jdialects.hibernatesrc.pagination.SQLServer2012LimitHandler;
+import com.github.drinkjava2.jdialects.hibernatesrc.utils.StringHelper;
 import com.github.drinkjava2.jdialects.model.AutoIdGenerator;
-import com.github.drinkjava2.jdialects.model.Table;
+import com.github.drinkjava2.jdialects.model.VTable;
+import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
  * jDialects is a small Java tool collect all databases' dialect, most data are
@@ -29,7 +30,7 @@ import com.github.drinkjava2.jdialects.model.Table;
  * above.
  * 
  * @author Yong Zhu
- * @version 1.0.4
+ * @version 1.0.5
  * @since 1.0.0
  */
 public enum Dialect {
@@ -790,21 +791,21 @@ public enum Dialect {
 	/**
 	 * Transfer tables to formatted create DDL
 	 */
-	public String[] toCreateDDL(Table... tables) {
+	public String[] toCreateDDL(VTable... tables) {
 		return DDLCreateUtils.toCreateDDL(this, tables);
 	}
 
 	/**
 	 * Transfer tables to formatted drop DDL
 	 */
-	public String[] toDropDDL(Table... tables) {
+	public String[] toDropDDL(VTable... tables) {
 		return DDLDropUtils.toDropDDL(this, tables);
 	}
 
 	/**
 	 * Transfer tables to drop and create DDL String array
 	 */
-	public String[] toDropAndCreateDDL(Table... tables) {
+	public String[] toDropAndCreateDDL(VTable... tables) {
 		String[] drop = DDLDropUtils.toDropDDL(this, tables);
 		String[] create = DDLCreateUtils.toCreateDDL(this, tables);
 		return StrUtils.joinStringArray(drop, create);

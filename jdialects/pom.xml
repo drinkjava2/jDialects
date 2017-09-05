@@ -4,7 +4,7 @@
  
  <groupId>com.github.drinkjava2</groupId>
  <artifactId>jdialects</artifactId>
- <version>1.0.4</version>
+ <version>1.0.5-SNAPSHOT</version>
  <packaging>jar</packaging> 
  
  <name>jdialects</name>
@@ -78,6 +78,14 @@
     	<version>2.4.3</version>
     	<scope>test</scope>
 	</dependency>  
+	
+    <!-- DbUtils-Pro-1.7.0 is a improved version of DbUtils-1.7, here only be used for unit test -->
+    <dependency>
+       <groupId>com.github.drinkjava2</groupId>
+       <artifactId>dbutils-pro</artifactId>
+       <version>1.7.0</version>
+       <scope>test</scope>
+    </dependency>
     
    <!-- HikariCP is a dataSource pool quicker than c3p0 -->
     <dependency>

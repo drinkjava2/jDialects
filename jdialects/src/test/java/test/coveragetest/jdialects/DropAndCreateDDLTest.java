@@ -1,8 +1,9 @@
 /*
- * jDialects, a tiny SQL dialect tool 
+ * jDialects, a tiny SQL dialect tool
  *
- * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
- * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
+ * the lgpl.txt file in the root directory or
+ * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
 package test.coveragetest.jdialects;
 
@@ -11,11 +12,10 @@ import java.sql.SQLException;
 
 import org.junit.Test;
 
-import com.github.drinkjava2.hibernate.utils.DDLFormatter;
 import com.github.drinkjava2.jdialects.Dialect;
-import com.github.drinkjava2.jdialects.model.Column;
-import com.github.drinkjava2.jdialects.model.Table;
-import com.github.drinkjava2.tinyjdbc.TinyJdbcUtils;
+import com.github.drinkjava2.jdialects.hibernatesrc.utils.DDLFormatter;
+import com.github.drinkjava2.jdialects.model.VColumn;
+import com.github.drinkjava2.jdialects.model.VTable;
 
 import test.BaseDDLTest;
 
@@ -32,24 +32,38 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		}
 	}
 
-	private void testOnCurrentRealDatabase(Table... tables) {
+	private void quiteExecuteNoParamSqls(String... sqls) {
+		for (String sql : sqls) {
+			try {
+				tiny.nExecute(sql);
+			} catch (Exception e) {
+			}
+		}
+	}
+
+	private void executeNoParamSqls(String... sqls) {
+		for (String sql : sqls)
+			tiny.nExecute(sql);
+	}
+
+	private void testOnCurrentRealDatabase(VTable... tables) {
 		System.out.println("======Test on real Database of dialect: " + guessedDialect + "=====");
 
 		String[] ddls = guessedDialect.toDropDDL(tables);
 
-		tiny.executeNoParamSqlsQuiet(ddls);
+		quiteExecuteNoParamSqls(ddls);
 
 		ddls = guessedDialect.toCreateDDL(tables);
-		tiny.executeNoParamSqls(ddls);
+		executeNoParamSqls(ddls);
 
 		ddls = guessedDialect.toDropAndCreateDDL(tables);
-		tiny.executeNoParamSqls(ddls);
+		executeNoParamSqls(ddls);
 
 		ddls = guessedDialect.toDropDDL(tables);
-		tiny.executeNoParamSqls(ddls);
+		executeNoParamSqls(ddls);
 	}
 
-	private static void printOneDialectsDDLs(Dialect dialect, Table... tables) {
+	private static void printOneDialectsDDLs(Dialect dialect, VTable... tables) {
 		System.out.println("======" + dialect + "=====");
 		try {
 			String[] ddls = dialect.toDropAndCreateDDL(tables);
@@ -60,7 +74,7 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		}
 	}
 
-	private static void printAllDialectsDDLs(Table... tables) {
+	private static void printAllDialectsDDLs(VTable... tables) {
 		Dialect[] diaList = Dialect.values();
 		for (Dialect dialect : diaList) {
 			System.out.println("======" + dialect + "=====");
@@ -76,7 +90,7 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 
 	@Test
 	public void testANormalModel() {// A normal setting
-		Table t = new Table("testTable");
+		VTable t = new VTable("testTable");
 		t.column("b1").BOOLEAN();
 		t.column("d2").DOUBLE();
 		t.column("f3").FLOAT(5);
@@ -96,14 +110,17 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 	@Test
 	public void testNoPkey() {// Test no Prime Key
 		// append() is a linked method
-		Table table = new Table("tb").addColumn(new Column("field1").INTEGER()).addColumn(new Column("field2").LONG());
+		VTable t = new VTable("aa");
+		t.addColumn(new VColumn("aaaa"));
+		VTable table = new VTable("tb").addColumn(new VColumn("field1").INTEGER())
+				.addColumn(new VColumn("field2").LONG());
 		printAllDialectsDDLs(table);
 		testOnCurrentRealDatabase(table);
 	}
 
 	@Test
 	public void testCompondPkey() {// Compound PKEY
-		Table t = new Table("testTable");
+		VTable t = new VTable("testTable");
 		t.column("i4").INTEGER().pkey().unique().notNull().defaultValue("1");
 		t.column("l5").LONG().pkey();
 		t.column("s6").SHORT();
@@ -111,8 +128,8 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		testOnCurrentRealDatabase(t);
 	}
 
-	private static Table testNotNullModel() {// Not Null
-		Table t = new Table("testTable");
+	private static VTable testNotNullModel() {// Not Null
+		VTable t = new VTable("testTable");
 		t.column("b1").BOOLEAN().notNull();
 		t.column("d2").DOUBLE().notNull();
 		t.column("f3").FLOAT(5).notNull();
@@ -134,8 +151,8 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		testOnCurrentRealDatabase(testNotNullModel());
 	}
 
-	private static Table allowNullModel() {// Allow Null
-		Table t = new Table("testTable");
+	private static VTable allowNullModel() {// Allow Null
+		VTable t = new VTable("testTable");
 		t.column("b1").BOOLEAN();
 		t.column("d2").DOUBLE();
 		t.column("f3").FLOAT(5);
@@ -157,8 +174,8 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		testOnCurrentRealDatabase(allowNullModel());
 	}
 
-	private static Table uniqueModel() {// unique constraint
-		Table t = new Table("testTable");
+	private static VTable uniqueModel() {// unique constraint
+		VTable t = new VTable("testTable");
 		t.column("s1").STRING(20).unique();
 		t.column("s2").STRING(20).unique().notNull();
 
@@ -170,10 +187,13 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		t.column("s7").STRING(20).unique("B").notNull();
 		t.column("s8").STRING(20).unique("B").notNull();
 
-		t.column("s9").STRING(20).unique("C", "D");
-		t.column("s10").STRING(20).unique("C");
-		t.column("s11").STRING(20).unique("E", "F").notNull();
-		t.column("s12").STRING(20).unique("F", "G").notNull();
+		t.column("s9").STRING(20).unique("C");
+		t.column("s10").STRING(20).unique("D");
+		t.column("s11").STRING(20).unique("E").notNull();
+		t.column("s12").STRING(20).unique("F").notNull();
+		t.unique().columns("S9","S10");
+		t.unique("uk1").columns("s11","s12");
+		t.unique().columns("s5");
 		return t;
 	}
 
@@ -185,8 +205,8 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		printOneDialectsDDLs(Dialect.InformixDialect, uniqueModel());
 	}
 
-	private static Table checkModel() {// column check
-		Table t = new Table("testTable");
+	private static VTable checkModel() {// column check
+		VTable t = new VTable("testTable");
 		t.column("s1").STRING(20).unique().notNull().check("s1>5");
 		t.column("s2").STRING(20).unique().check("s2>5");
 		t.column("s3").STRING(20).unique("uname1").notNull().check("s3>5");
@@ -200,8 +220,8 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		testOnCurrentRealDatabase(checkModel());
 	}
 
-	private static Table tableCheckModel() {// table check
-		Table t = new Table("testTable");
+	private static VTable tableCheckModel() {// table check
+		VTable t = new VTable("testTable");
 		t.check("s2>10");
 		t.column("s1").STRING(20).unique().notNull();
 		t.column("s2").STRING(20);
@@ -214,8 +234,8 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		testOnCurrentRealDatabase(tableCheckModel());
 	}
 
-	private static Table IdentityModel() {// Identity
-		Table t = new Table("testTable");
+	private static VTable IdentityModel() {// Identity
+		VTable t = new VTable("testTable");
 		t.check("s2>10");
 		t.column("s1").INTEGER().unique().notNull().identity().pkey();
 		t.column("s2").LONG().check("s2>10");
@@ -236,8 +256,8 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		printOneDialectsDDLs(Dialect.InformixDialect, IdentityModel());
 	}
 
-	private static Table CommentModel() {// Comment
-		Table t = new Table("testTable").comment("table_comment");
+	private static VTable CommentModel() {// Comment
+		VTable t = new VTable("testTable").comment("table_comment");
 		t.column("s1").INTEGER().unique().notNull().identity().pkey();
 		t.column("s2").LONG().comment("column_comment1");
 		t.column("s3").BIGINT().comment("column_comment2");
@@ -259,8 +279,8 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		printOneDialectsDDLs(Dialect.MySQL55Dialect, CommentModel());
 	}
 
-	private static Table SequenceModel() {// Sequence
-		Table t = new Table("testTable");
+	private static VTable SequenceModel() {// Sequence
+		VTable t = new VTable("testTable");
 		t.addSequence("seq1", "seq_1", 1, 1);
 		t.addSequence("seq2", "seq_2", 1, 2);
 		t.column("i1").INTEGER().pkey().sequence("seq1");
@@ -275,8 +295,8 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 			testOnCurrentRealDatabase(SequenceModel());
 	}
 
-	private static Table tableGeneratorModel() {// tableGenerator
-		Table t = new Table("testTable");
+	private static VTable tableGeneratorModel() {// tableGenerator
+		VTable t = new VTable("testTable");
 		t.addTableGenerator("tbgen1", "tb1", "pkcol", "valcol", "pkval", 1, 10);
 		t.addTableGenerator("tbgen2", "tb1", "pkcol2", "valcol", "pkval", 1, 10);
 		t.column("i1").INTEGER().pkey().tableGenerator("tbgen1");
@@ -284,8 +304,8 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		return t;
 	}
 
-	private static Table tableGeneratorModel2() {// tableGenerator
-		Table t = new Table("testTableGeneratorModel2");
+	private static VTable tableGeneratorModel2() {// tableGenerator
+		VTable t = new VTable("testTableGeneratorModel2");
 		t.addTableGenerator("tbgen3", "tb1", "pkcol3", "valcol", "pkval", 1, 10);
 		t.addTableGenerator("tbgen4", "tb1", "pkcol3", "valcol", "pkval2", 1, 10);
 		t.addTableGenerator("tbgen5", "tb1", "pkcol4", "valcol", "pkval3", 1, 10);
@@ -301,15 +321,15 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		testOnCurrentRealDatabase(tableGeneratorModel(), tableGeneratorModel2());
 	}
 
-	private static Table autoGeneratorModel() {// autoGenerator
-		Table t = new Table("testTable1");
+	private static VTable autoGeneratorModel() {// autoGenerator
+		VTable t = new VTable("testTable1");
 		t.column("i1").INTEGER().pkey().autoID();
 		t.column("i2").INTEGER().autoID();
 		return t;
 	}
 
-	private static Table autoGeneratorModel2() {// autoGenerator
-		Table t = new Table("testTable2");
+	private static VTable autoGeneratorModel2() {// autoGenerator
+		VTable t = new VTable("testTable2");
 		t.addTableGenerator("tbgen7", "tb1", "pkcol4", "valcol", "pkval5", 1, 10);
 		t.column("i1").INTEGER().pkey().autoID();
 		t.column("i2").INTEGER().autoID();
@@ -327,26 +347,28 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 
 	@Test
 	public void testFKEY() {// FKEY
-		Table t1 = new Table("master1");
+		VTable t1 = new VTable("master1");
 		t1.column("id").INTEGER().pkey();
 
-		Table t2 = new Table("master2");
+		VTable t2 = new VTable("master2");
 		t2.column("name").VARCHAR(20).pkey();
 		t2.column("address").VARCHAR(20).pkey();
 
-		Table t3 = new Table("child");
+		VTable t3 = new VTable("child");
 		t3.column("id").INTEGER().pkey();
-		t3.column("masterid1").INTEGER().fkey("master1", "id");
-		t3.column("myname").VARCHAR(20).fkey("master2", "name", "address");
-		t3.column("myaddress").VARCHAR(20).fkey("master2", "name", "address");
+		t3.column("masterid1").INTEGER();
+		t3.column("myname").VARCHAR(20);
+		t3.column("myaddress").VARCHAR(20);
+		t3.fkey().columns("masterid1").ref("master1", "id");
+		t3.fkey().columns("myname", "myaddress").ref("master2", "name", "address");
 
-		Table t4 = new Table("child2");
+		VTable t4 = new VTable("child2");
 		t4.column("id").INTEGER().pkey();
 		t4.column("masterid2").INTEGER();
 		t4.column("myname2").VARCHAR(20);
 		t4.column("myaddress2").VARCHAR(20);
-		t4.fkey("masterid2").ref("master1", "id");
-		t4.fkey("myname2", "myaddress2").ref("master2", "name", "address");
+		t4.fkey().columns("masterid2").ref("master1", "id");
+		t4.fkey().columns("myname2", "myaddress2").ref("master2", "name", "address");
 		printAllDialectsDDLs(t1, t2, t3);
 		printOneDialectsDDLs(Dialect.MySQL5InnoDBDialect, t1, t2, t3, t4);
 		testOnCurrentRealDatabase(t1, t2, t3, t4);
@@ -354,16 +376,15 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 
 	@Test
 	public void testIndex() {// index
-		Table t = new Table("indexTable");
+		VTable t = new VTable("indexTable");
 		t.column("s1").STRING(20).index().unique();
 		t.column("s2").STRING(20).index();
 		t.column("s3").STRING(20).index();
 		t.column("s4").STRING(20).index("a");
 		t.column("s5").STRING(20).index("b");
-		t.column("s6").STRING(20).index("b");
-		t.column("s7").STRING(20).index("c", "d");
-		t.column("s8").STRING(20).index("d", "e");
-		t.column("s9").STRING(20).index("e");
+		t.column("s6").STRING(20).index("c");
+		t.index().columns("s1","s2");
+		t.index("idx1").columns("s5","s1");
 		printAllDialectsDDLs(t);
 		printOneDialectsDDLs(Dialect.MySQL5InnoDBDialect, t);
 		testOnCurrentRealDatabase(t);
@@ -371,7 +392,7 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 
 	@Test
 	public void testEngineTailAndColumnTail() {// engineTail and column Tail
-		Table t = new Table("tailsTestTable");
+		VTable t = new VTable("tailsTestTable");
 		t.engineTail(" DEFAULT CHARSET=utf8");
 		t.column("id").STRING(20).pkey();
 		t.column("name").STRING(20).tail(" default 'hahaha'");
@@ -384,49 +405,55 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 
 	@Test
 	public void testNextID() {// nextID
-		Table t = new Table("testNextIdTable");
+		VTable t = new VTable("testNextIdTable");
 		t.column("id1").LONG().autoID().pkey();
 		t.column("id2").LONG().autoID();
-		TinyJdbcUtils.setAllowShowSQL(true);
+		tiny.setAllowShowSQL(true);
 		String[] ddls = guessedDialect.toDropDDL(t);
-		tiny.executeNoParamSqlsQuiet(ddls);
+		quiteExecuteNoParamSqls(ddls);
 
 		ddls = guessedDialect.toCreateDDL(t);
-		tiny.executeNoParamSqls(ddls);
-
-		TinyJdbcUtils.setAllowShowSQL(true);
-		Connection conn = tiny.getConnection();
+		executeNoParamSqls(ddls);
+		Connection conn = null;
 		try {
+			conn = tiny.prepareConnection();
 			for (int i = 0; i < 10; i++) {
 				Long id1 = guessedDialect.getNextAutoID(conn);
 				Long id2 = guessedDialect.getNextAutoID(conn);
-				TinyJdbcUtils.execute(conn, "insert into testNextIdTable values(?,?)", id1, id2);
+				tiny.execute(conn, "insert into testNextIdTable values(?,?)", id1, id2);
 			}
 		} catch (SQLException e) {
-			tiny.linkException(e);
+			e.printStackTrace();
 		} finally {
-			tiny.releaseConnection(conn);
+			try {
+				tiny.close(conn);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
 	@Test
 	public void sampleTest() {// An example used to put on README.md
-		Table t1 = new Table("customers");
+		VTable t1 = new VTable("customers");
 		t1.column("name").STRING(20).unique().pkey();
 		t1.column("email").STRING(20).pkey();
 		t1.column("address").VARCHAR(50).index("IDX1").defaultValue("'Beijing'").comment("address comment");
-		t1.column("phoneNumber").VARCHAR(50).index("IDX1","IDX2");
+		t1.column("phoneNumber").VARCHAR(50).index("IDX2");
 		t1.column("age").INTEGER().notNull().check("'>0'");
+		t1.index("idx3").columns("address","phoneNumber").unique();
 
-		Table t2 = new Table("orders").comment("order comment");
+		VTable t2 = new VTable("orders").comment("order comment");
 		t2.column("id").LONG().autoID().pkey();
-		t2.column("name").STRING(20).fkey("customers", "name", "email");
-		t2.column("email").STRING(20).fkey("customers", "name", "email");
+		t2.column("name").STRING(20);
+		t2.column("email").STRING(20);
 		t2.column("name2").STRING(20).unique("A").pkey().tail(" default 'Sam'");
-		t2.column("email2").STRING(20).unique("A", "B");
-		t2.fkey("name2", "email2").ref("customers", "name", "email");
+		t2.column("email2").STRING(20).unique("B");
+		t2.fkey().columns("name2", "email2").ref("customers", "name", "email");
+		t2.fkey("fk1").columns("name", "email").ref("customers", "name", "email");
+		t2.unique("uk1").columns("name2","email2");
 
-		Table t3 = new Table("sampletable");
+		VTable t3 = new VTable("sampletable");
 		t3.column("id").LONG().identity().pkey();
 		t3.addTableGenerator("table_gen1", "tb1", "pkcol2", "valcol", "pkval", 1, 10);
 		t3.column("id1").INTEGER().tableGenerator("table_gen1");
@@ -434,10 +461,13 @@ public class DropAndCreateDDLTest extends BaseDDLTest {
 		t3.column("id2").INTEGER().sequence("seq1");
 		t3.engineTail(" DEFAULT CHARSET=utf8");
 
-		String[] dropAndCreateDDL = Dialect.H2Dialect.toDropAndCreateDDL(t1, t2, t3);
+		VTable t4 = new VTable("sampletable2");
+		t3.column("id_a").LONG().ref("sampletable", "id");
+
+		String[] dropAndCreateDDL = Dialect.H2Dialect.toDropAndCreateDDL(t1, t2, t3, t4);
 		for (String ddl : dropAndCreateDDL)
 			System.out.println(ddl);
 
-		testOnCurrentRealDatabase(t1, t2, t3);
+		testOnCurrentRealDatabase(t1, t2, t3, t4);
 	}
 }
