@@ -47,9 +47,9 @@ import com.github.drinkjava2.jdialects.springsrc.utils.StringUtils;
  * TableModel2JpaPOJO() method: Convert TableModel Object to JPA annotated POJO
  * Java Source code
  * 
- * TableModel2DdlPOJO() method: Convert TableModel Objects to jDialects style
- * POJO Java Source code, i.e., pure POJO no annotations but has a method:
- * "public static TableModel TableModel(){} "
+ * TableModel2PurePOJO(ifHas) method: Convert TableModel Objects to pure POJO or
+ * jDialects style POJO Java Source code. i.e., jDialects POJO is a pure POJO
+ * with a method: "public static TableModel TableModel(){} "
  * 
  * @author Yong Zhu
  * @since 1.0.5
@@ -99,9 +99,14 @@ public abstract class ConvertUtils {
 	}
 
 	/**
-	 * Convert POJO or JPA annotated POJO classes to "TableModel" Object, this
-	 * method only support below JPA Annotations: Entity, Table, Column,
-	 * GeneratedValue, GenerationType, Id, Index, Transient, UniqueConstraint
+	 * Convert POJO or JPA annotated POJO classes to "TableModel" Object,  
+	 * <pre>
+	 * This method support below JPA Annotations:  
+	 * Entity, Table, Column, GeneratedValue, GenerationType, Id, Index, Transient, UniqueConstraint
+	 * 
+	 * And below annotations are added by jDialects:
+	 * FKey, FKey1, FKey2, FKey3, Ref
+	 * </pre>
 	 * 
 	 * @param pojoClass
 	 * @return TableModel
@@ -128,6 +133,9 @@ public abstract class ConvertUtils {
 		if (tb != null)
 			TableModel.addTableGenerator(tb.name(), tb.table(), tb.pkColumnName(), tb.valueColumnName(),
 					tb.pkColumnValue(), tb.initialValue(), tb.allocationSize());
+
+		// TODO: here will add FKey
+		// Fkey fk= pojoClass.getAnnotation(FKey.class); blablabla
 
 		BeanInfo beanInfo = null;
 		PropertyDescriptor[] pds = null;
@@ -187,6 +195,9 @@ public abstract class ConvertUtils {
 						else if (GenerationType.TABLE.equals(gv.annotationType()))
 							vcolumn.tableGenerator(gv.generator());
 					}
+
+					// TODO: here will add @ref
+					// Ref ref = field.getAnnotation(Ref.class); blablabla
 				}
 			}
 		}
