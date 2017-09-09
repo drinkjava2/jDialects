@@ -1,4 +1,4 @@
-/**
+/*
  * jDialects, a tiny SQL dialect tool
  *
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
@@ -109,8 +109,7 @@ public class DDLCreateUtils {
 			// "Auto" type generator
 			if (col.getAutoGenerator()) {// if support sequence
 				if (features.supportBasicOrPooledSequence()) {
-					objectResultList.add(
-							new SequenceGen(AutoIdGen.JDIALECTS_AUTOID, AutoIdGen.JDIALECTS_AUTOID, 1, 1));
+					objectResultList.add(new SequenceGen(AutoIdGen.JDIALECTS_AUTOID, AutoIdGen.JDIALECTS_AUTOID, 1, 1));
 				} else {// AutoIdGen
 					objectResultList.add(new AutoIdGen());
 				}
@@ -394,12 +393,15 @@ public class DDLCreateUtils {
 			 * ADD CONSTRAINT _FKEYNAME FOREIGN KEY _FKEYNAME (_FK1, _FK2) REFERENCES
 			 * _REFTABLE (_REF1, _REF2)
 			 */
+			String constName = t.getFkeyName();
+			if (StrUtils.isEmpty(constName))
+				constName = "fk_" + t.getTableName().toLowerCase() + "_"
+						+ StrUtils.replace(StrUtils.listToString(t.getColumnNames()), ",", "_");
 			String s = dialect.ddlFeatures.addForeignKeyConstraintString;
 			s = StrUtils.replace(s, "_FK1, _FK2", StrUtils.listToString(t.getColumnNames()));
-			s = StrUtils.replace(s, "_REF1, _REF2", StrUtils.arrayToString(t.getRefColumnNames()));
-			s = StrUtils.replace(s, "_REFTABLE", t.getRefTableName());
-			s = StrUtils.replace(s, "_FKEYNAME", "fk_" + t.getTableName().toLowerCase() + "_"
-					+ StrUtils.replace(StrUtils.listToString(t.getColumnNames()), ",", "_"));
+			s = StrUtils.replace(s, "_REF1, _REF2", StrUtils.arrayToStringButSkipFirst(t.getRefTableAndColumns()));
+			s = StrUtils.replace(s, "_REFTABLE", t.getRefTableAndColumns()[0]);
+			s = StrUtils.replace(s, "_FKEYNAME", constName);
 			stringList.add("alter table " + t.getTableName() + " " + s);
 		}
 	}

@@ -1,4 +1,4 @@
-/**
+/*
  * jDialects, a tiny SQL dialect tool
  *
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
@@ -30,9 +30,6 @@ public class IndexConst {
 	/** The names of the columns to be included in the index */
 	private String[] columnList;
 
-	/** The names of the table which index belong to */
-	private String tableName;
-
 	/** Whether the index is unique. */
 	private Boolean unique = false;
 
@@ -48,8 +45,8 @@ public class IndexConst {
 		this.columnList = columns;
 		return this;
 	}
-	
-	public IndexConst unique( ) {
+
+	public IndexConst unique() {
 		this.unique = true;
 		return this;
 	}
@@ -69,14 +66,6 @@ public class IndexConst {
 
 	public void setColumnList(String[] columnList) {
 		this.columnList = columnList;
-	}
-
-	public String getTableName() {
-		return tableName;
-	}
-
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
 	}
 
 	public Boolean getUnique() {

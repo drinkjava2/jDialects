@@ -15,6 +15,7 @@ import org.junit.Before;
 import com.github.drinkjava2.dbutilspro.DbPro;
 import com.github.drinkjava2.jbeanbox.BeanBox;
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.model.TableModel;
 
 import test.DataSourceConfig.DataSourceBox;
 
@@ -40,4 +41,67 @@ public class BaseDDLTest {
 		BeanBox.defaultContext.close();// close dataSource
 	}
 
+	protected static void printDDLs(String[] ddl) {
+		for (String str : ddl) {
+			System.out.println(str);
+		}
+	}
+
+	protected void quiteExecuteNoParamSqls(String... sqls) {
+		for (String sql : sqls) {
+			try {
+				tiny.nExecute(sql);
+			} catch (Exception e) {
+			}
+		}
+	}
+
+	protected void executeNoParamSqls(String... sqls) {
+		for (String sql : sqls)
+			tiny.nExecute(sql);
+	}
+
+	protected void testOnCurrentRealDatabase(TableModel... tables) {
+		System.out.println("======Test on real Database of dialect: " + guessedDialect + "=====");
+
+		String[] ddls = guessedDialect.toDropDDL(tables);
+
+		quiteExecuteNoParamSqls(ddls);
+
+		ddls = guessedDialect.toCreateDDL(tables);
+		executeNoParamSqls(ddls);
+
+		ddls = guessedDialect.toDropAndCreateDDL(tables);
+		executeNoParamSqls(ddls);
+
+		ddls = guessedDialect.toDropDDL(tables);
+		executeNoParamSqls(ddls);
+	}
+
+	protected static void printOneDialectsDDLs(Dialect dialect, TableModel... tables) {
+		System.out.println("======" + dialect + "=====");
+		try {
+			String[] ddls = dialect.toDropAndCreateDDL(tables);
+			printDDLs(ddls);
+			// printDDLs(DDLFormatter.format(ddls));
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Exception found: " + e.getMessage());
+		}
+	}
+
+	protected static void printAllDialectsDDLs(TableModel... tables) {
+		Dialect[] diaList = Dialect.values();
+		for (Dialect dialect : diaList) {
+			System.out.println("======" + dialect + "=====");
+			try {
+				String[] ddls = dialect.toDropAndCreateDDL(tables);
+				printDDLs(ddls);
+				// printDDLs(DDLFormatter.format(ddls));
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("Exception found: " + e.getMessage());
+			}
+		}
+	}
 }

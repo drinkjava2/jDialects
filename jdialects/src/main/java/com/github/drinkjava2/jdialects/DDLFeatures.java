@@ -1,8 +1,9 @@
 /*
- * jDialects, a tiny SQL dialect tool 
+ * jDialects, a tiny SQL dialect tool
  *
- * License: GNU Lesser General protected License (LGPL), version 2.1 or later.
- * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
+ * the lgpl.txt file in the root directory or
+ * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
 package com.github.drinkjava2.jdialects;
 
@@ -212,14 +213,14 @@ public class DDLFeatures {
 	}
 
 	/**
-	 * For dropping a table, can the phrase "if exists" be applied beforeQuery
-	 * the table name
+	 * For dropping a table, can the phrase "if exists" be applied beforeQuery the
+	 * table name
 	 */
 	protected Boolean supportsIfExistsAfterTableName;
 	protected Boolean supportsIfExistsBeforeConstraintName;
 	/**
-	 * For dropping a table, can the phrase "if exists" be applied afterQuery
-	 * the table name?
+	 * For dropping a table, can the phrase "if exists" be applied afterQuery the
+	 * table name?
 	 */
 	protected Boolean supportsIfExistsBeforeTableName;
 	protected Boolean supportsInsertSelectIdentity;
@@ -283,7 +284,7 @@ public class DDLFeatures {
 		case AccessDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -406,7 +407,7 @@ public class DDLFeatures {
 		case ParadoxDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -447,7 +448,7 @@ public class DDLFeatures {
 		case CobolDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -529,7 +530,7 @@ public class DDLFeatures {
 		case DbfDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -611,7 +612,7 @@ public class DDLFeatures {
 		case CUBRIDDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -652,7 +653,7 @@ public class DDLFeatures {
 		case DataDirectOracle9Dialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -693,7 +694,7 @@ public class DDLFeatures {
 		case DB2Dialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -734,7 +735,7 @@ public class DDLFeatures {
 		case DB2390Dialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -775,7 +776,7 @@ public class DDLFeatures {
 		case DB2400Dialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -816,7 +817,7 @@ public class DDLFeatures {
 		case DerbyDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -857,7 +858,7 @@ public class DDLFeatures {
 		case DerbyTenFiveDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -898,7 +899,7 @@ public class DDLFeatures {
 		case DerbyTenSevenDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -939,7 +940,7 @@ public class DDLFeatures {
 		case DerbyTenSixDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -980,7 +981,7 @@ public class DDLFeatures {
 		case FirebirdDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -1021,7 +1022,7 @@ public class DDLFeatures {
 		case FrontBaseDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -1062,7 +1063,7 @@ public class DDLFeatures {
 		case H2Dialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -1103,7 +1104,7 @@ public class DDLFeatures {
 		case HANAColumnStoreDialect: {
 			ddl.addColumnString = "add (";
 			ddl.addColumnSuffixString = ")";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE on update cascade";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2) on update cascade";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -1144,7 +1145,7 @@ public class DDLFeatures {
 		case HANARowStoreDialect: {
 			ddl.addColumnString = "add (";
 			ddl.addColumnSuffixString = ")";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE on update cascade";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2) on update cascade";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -1185,7 +1186,7 @@ public class DDLFeatures {
 		case HSQLDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -1226,7 +1227,7 @@ public class DDLFeatures {
 		case InformixDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint  foreign key (_FK1, _FK2) references _REFTABLE constraint _FKEYNAME";
+			ddl.addForeignKeyConstraintString = " add constraint  foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2) constraint _FKEYNAME";
 			ddl.addPrimaryKeyConstraintString = " add constraint primary key constraint _PKEYNAME ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -1267,7 +1268,7 @@ public class DDLFeatures {
 		case Informix10Dialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint  foreign key (_FK1, _FK2) references _REFTABLE constraint _FKEYNAME";
+			ddl.addForeignKeyConstraintString = " add constraint  foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2) constraint _FKEYNAME";
 			ddl.addPrimaryKeyConstraintString = " add constraint primary key constraint _PKEYNAME ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -1308,7 +1309,7 @@ public class DDLFeatures {
 		case IngresDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -1349,7 +1350,7 @@ public class DDLFeatures {
 		case Ingres10Dialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -1390,7 +1391,7 @@ public class DDLFeatures {
 		case Ingres9Dialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -1431,7 +1432,7 @@ public class DDLFeatures {
 		case InterbaseDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -1472,7 +1473,7 @@ public class DDLFeatures {
 		case JDataStoreDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -1595,7 +1596,7 @@ public class DDLFeatures {
 		case MckoiDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -1636,7 +1637,7 @@ public class DDLFeatures {
 		case MimerSQLDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2005,7 +2006,7 @@ public class DDLFeatures {
 		case OracleDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2046,7 +2047,7 @@ public class DDLFeatures {
 		case Oracle10gDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2087,7 +2088,7 @@ public class DDLFeatures {
 		case Oracle12cDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2128,7 +2129,7 @@ public class DDLFeatures {
 		case Oracle8iDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2169,7 +2170,7 @@ public class DDLFeatures {
 		case Oracle9Dialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2210,7 +2211,7 @@ public class DDLFeatures {
 		case Oracle9iDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2251,7 +2252,7 @@ public class DDLFeatures {
 		case PointbaseDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2292,7 +2293,7 @@ public class DDLFeatures {
 		case PostgresPlusDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2333,7 +2334,7 @@ public class DDLFeatures {
 		case PostgreSQLDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2374,7 +2375,7 @@ public class DDLFeatures {
 		case PostgreSQL81Dialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2415,7 +2416,7 @@ public class DDLFeatures {
 		case PostgreSQL82Dialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2456,7 +2457,7 @@ public class DDLFeatures {
 		case PostgreSQL9Dialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2497,7 +2498,7 @@ public class DDLFeatures {
 		case PostgreSQL91Dialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2538,7 +2539,7 @@ public class DDLFeatures {
 		case PostgreSQL92Dialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2579,7 +2580,7 @@ public class DDLFeatures {
 		case PostgreSQL93Dialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2620,7 +2621,7 @@ public class DDLFeatures {
 		case PostgreSQL94Dialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2661,7 +2662,7 @@ public class DDLFeatures {
 		case PostgreSQL95Dialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2702,7 +2703,7 @@ public class DDLFeatures {
 		case ProgressDialect: {
 			ddl.addColumnString = "add column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2743,7 +2744,7 @@ public class DDLFeatures {
 		case RDMSOS2200Dialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2784,7 +2785,7 @@ public class DDLFeatures {
 		case SAPDBDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " foreign key _FKEYNAME (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " foreign key _FKEYNAME (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2825,7 +2826,7 @@ public class DDLFeatures {
 		case SQLServerDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2866,7 +2867,7 @@ public class DDLFeatures {
 		case SQLServer2005Dialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2907,7 +2908,7 @@ public class DDLFeatures {
 		case SQLServer2008Dialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2948,7 +2949,7 @@ public class DDLFeatures {
 		case SQLServer2012Dialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -2989,7 +2990,7 @@ public class DDLFeatures {
 		case SybaseDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -3030,7 +3031,7 @@ public class DDLFeatures {
 		case Sybase11Dialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -3071,7 +3072,7 @@ public class DDLFeatures {
 		case SybaseAnywhereDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -3112,7 +3113,7 @@ public class DDLFeatures {
 		case SybaseASE15Dialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -3153,7 +3154,7 @@ public class DDLFeatures {
 		case SybaseASE157Dialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -3194,7 +3195,7 @@ public class DDLFeatures {
 		case TeradataDialect: {
 			ddl.addColumnString = "Add Column";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -3235,7 +3236,7 @@ public class DDLFeatures {
 		case Teradata14Dialect: {
 			ddl.addColumnString = "Add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;
@@ -3276,7 +3277,7 @@ public class DDLFeatures {
 		case TimesTenDialect: {
 			ddl.addColumnString = "add";
 			ddl.addColumnSuffixString = "";
-			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
+			ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
 			ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";
 			ddl.columnComment = "";
 			ddl.createCatalogCommand = NOT_SUPPORT;

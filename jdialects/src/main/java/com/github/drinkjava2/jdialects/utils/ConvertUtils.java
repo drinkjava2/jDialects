@@ -10,33 +10,26 @@ package com.github.drinkjava2.jdialects.utils;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.github.drinkjava2.jdialects.ColumnDef;
-import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.DialectException;
+import com.github.drinkjava2.jdialects.annotation.GenerationType;
 import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.SequenceGen;
 import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
-import com.github.drinkjava2.jdialects.springsrc.utils.StringUtils;
 
 /**
  * This utility tool should have below methods:
  * 
- * pojo2TableModel() method: Convert POJO or JPA annotated POJO classes to
+ * pojo2Model() method: Convert POJO or JPA annotated POJO classes to
  * "TableModel" Object, this method only support below JPA Annotations:
  * Entity,Column,GeneratedValue,GenerationType,Id,Index,Table,Transient,UniqueConstraint,sequenceGenerator,TableGenerator
  * 
@@ -56,50 +49,66 @@ import com.github.drinkjava2.jdialects.springsrc.utils.StringUtils;
  */
 public abstract class ConvertUtils {
 
-	@Entity
-	@Table(name = "testpo", //
-			uniqueConstraints = { @UniqueConstraint(columnNames = { "field1" }),
-					@UniqueConstraint(name = "cons2", columnNames = { "field1", "field2" }) }, //
-			indexes = { @Index(columnList = "field1,field2", unique = true),
-					@Index(name = "idx2", columnList = "field2", unique = false) }//
-	)
-	public static class POJO {
-		@Id
-		@Column(columnDefinition = ColumnDef.VARCHAR, length = 20)
-		public String field1;
-
-		@Transient
-		@Column(name = "field2", nullable = false, columnDefinition = ColumnDef.BIGINT)
-		public String field2;
-
-		@GeneratedValue(strategy = GenerationType.TABLE, generator = "CUST_GEN")
-		public Integer field3;
-
-		public String getField1() {
-			return field1;
+	private static boolean matchNameCheck(String annotationName, String cName) {
+		if (("javax.persistence." + annotationName).equals(cName))
+			return true;
+		if (("com.github.drinkjava2.jdialects.annotation." + annotationName).equals(cName))
+			return true;
+		for (int i = 1; i <= 3; i++) {// Java6 no allow repeat annotation, have to use FKey1, Fkey2, Fkey3
+			if (("com.github.drinkjava2.jdialects.annotation." + annotationName + i).equals(cName))
+				return true;
 		}
-
-		public void setField1(String field1) {
-			this.field1 = field1;
-		}
-
-		public String getField2() {
-			return field2;
-		}
-
-		public void setField2(String field2) {
-			this.field2 = field2;
-		}
+		return false;
 	}
 
-	public static void main(String[] args) {
-		String[] ddls = Dialect.H2Dialect.toCreateDDL(ConvertUtils.pojo2TableModel(POJO.class));
-		for (String ddl : ddls)
-			System.out.println(ddl);
+	private static List<Map<String, Object>> getPojoAnnotations(Object targetClass, String annotationName) {
+		Annotation[] anno = null;
+		if (targetClass instanceof Field)
+			anno = ((Field) targetClass).getAnnotations();
+		else
+			anno = ((Class<?>) targetClass).getAnnotations();
+		List<Map<String, Object>> l = new ArrayList<Map<String, Object>>();
+		for (Annotation annotation : anno) {
+			Class<? extends Annotation> type = annotation.annotationType();
+			String cName = type.getName();
+			if (matchNameCheck(annotationName, cName)) {
+				l.add(changeAnnotationValuesToMap(annotation, type));
+			}
+		}
+		return l;
+	}
+
+	private static Map<String, Object> getFirstPojoAnnotation(Object targetClass, String annotationName) {
+		Annotation[] anno = null;
+		if (targetClass instanceof Field)
+			anno = ((Field) targetClass).getAnnotations();
+		else
+			anno = ((Class<?>) targetClass).getAnnotations();
+		for (Annotation annotation : anno) {
+			Class<? extends Annotation> type = annotation.annotationType();
+			String cName = type.getName();
+			if (matchNameCheck(annotationName, cName))
+				return changeAnnotationValuesToMap(annotation, type);
+		}
+		return new HashMap<String, Object>();
+	}
+
+	/** Change Annotation fields values into a Map */
+	private static Map<String, Object> changeAnnotationValuesToMap(Annotation annotation,
+			Class<? extends Annotation> type) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("AnnotationExist", true);
+		for (Method method : type.getDeclaredMethods())
+			try {
+				result.put(method.getName(), method.invoke(annotation, (Object[]) null));
+			} catch (Exception e) {
+			}
+		return result;
 	}
 
 	/**
-	 * Convert POJO or JPA annotated POJO classes to "TableModel" Object,  
+	 * Convert POJO or JPA annotated POJO classes to "TableModel" Object,
+	 * 
 	 * <pre>
 	 * This method support below JPA Annotations:  
 	 * Entity, Table, Column, GeneratedValue, GenerationType, Id, Index, Transient, UniqueConstraint
@@ -111,31 +120,79 @@ public abstract class ConvertUtils {
 	 * @param pojoClass
 	 * @return TableModel
 	 */
-	public static TableModel pojo2TableModel(Class<?> pojoClass) {
-		DialectException.assureNotNull(pojoClass, "pojo2TableModel method does not accept a null parameter");
+	public static TableModel[] pojo2Model(Class<?>... pojoClasses) {
+		List<TableModel> l = new ArrayList<TableModel>();
+		for (Class<?> clazz : pojoClasses) {
+			l.add(onePojo2Model(clazz));
+		}
+		return l.toArray(new TableModel[l.size()]);
+	}
+
+	private static TableModel onePojo2Model(Class<?> pojoClass) {
+		DialectException.assureNotNull(pojoClass, "pojo2Model method does not accept a null class");
+
+		// Entity
 		String tableName = null;
-		Entity entity = pojoClass.getAnnotation(Entity.class);// Entity
-		if (entity != null)
-			tableName = entity.name();
-		Table table = pojoClass.getAnnotation(Table.class);// Table
-		if (table != null && !StrUtils.isEmpty(table.name()))
-			tableName = table.name();
+		Map<String, Object> entityMap = getFirstPojoAnnotation(pojoClass, "Entity");
+		tableName = (String) entityMap.get("name");
+
+		// Table
+		Map<String, Object> tableMap = getFirstPojoAnnotation(pojoClass, "Table");
+		if (!StrUtils.isEmpty(tableMap.get("name")))
+			tableName = (String) tableMap.get("name");
 		if (StrUtils.isEmpty(tableName))
 			tableName = pojoClass.getSimpleName();
-		TableModel TableModel = new TableModel(tableName);
+		TableModel model = new TableModel(tableName); // Build the tableModel
 
-		SequenceGenerator seqGen = pojoClass.getAnnotation(SequenceGenerator.class);// SequenceGenerator
-		if (seqGen != null)
-			TableModel.addSequence(new SequenceGen(seqGen.name(), seqGen.sequenceName(), seqGen.initialValue(),
-					seqGen.allocationSize()));
+		if (!tableMap.isEmpty()) {
+			// Index
+			Annotation[] indexes = (Annotation[]) tableMap.get("indexes");
+			if (indexes != null && indexes.length > 0)
+				for (Annotation anno : indexes) {
+					Map<String, Object> mp = changeAnnotationValuesToMap(anno, anno.annotationType());
+					String columnListString = (String) mp.get("columnList");
+					String[] columns;
+					if (columnListString.indexOf(',') >= 0)
+						columns = columnListString.split(",");
+					else
+						columns = new String[] { columnListString };
+					if (columns.length > 0)
+						model.index((String) mp.get("name")).columns(columns).setUnique((Boolean) mp.get("unique"));
+				}
 
-		TableGenerator tb = pojoClass.getAnnotation(TableGenerator.class);// TableGenerator
-		if (tb != null)
-			TableModel.addTableGenerator(tb.name(), tb.table(), tb.pkColumnName(), tb.valueColumnName(),
-					tb.pkColumnValue(), tb.initialValue(), tb.allocationSize());
+			// Unique
+			Annotation[] uniques = (Annotation[]) tableMap.get("uniqueConstraints");
+			if (uniques != null && uniques.length > 0)
+				for (Annotation anno : uniques) {
+					Map<String, Object> mp = changeAnnotationValuesToMap(anno, anno.annotationType());
+					String[] columnNames = (String[]) mp.get("columnNames");
+					if (columnNames != null && columnNames.length > 0)
+						model.unique((String) mp.get("name")).columns(columnNames);
+				}
+		}
 
-		// TODO: here will add FKey
-		// Fkey fk= pojoClass.getAnnotation(FKey.class); blablabla
+		// SequenceGenerator
+		List<Map<String, Object>> sequences = getPojoAnnotations(pojoClass, "SequenceGenerator");
+		for (Map<String, Object> map : sequences) {
+			model.addSequence(new SequenceGen((String) map.get("name"), (String) map.get("sequenceName"),
+					(Integer) map.get("initialValue"), (Integer) map.get("allocationSize")));
+		}
+
+		// TableGenerator
+		List<Map<String, Object>> tableGens = getPojoAnnotations(pojoClass, "TableGenerator");
+		for (Map<String, Object> map : tableGens) {
+			model.addTableGenerator((String) map.get("name"), (String) map.get("table"),
+					(String) map.get("pkColumnName"), (String) map.get("valueColumnName"),
+					(String) map.get("pkColumnValue"), (Integer) map.get("initialValue"),
+					(Integer) map.get("allocationSize"));
+		}
+
+		// FKey
+		List<Map<String, Object>> fkeys = getPojoAnnotations(pojoClass, "FKey");
+		for (Map<String, Object> map : fkeys) {
+			model.fkey((String) map.get("name")).columns((String[]) map.get("columns"))
+					.refs((String[]) map.get("refs"));
+		}
 
 		BeanInfo beanInfo = null;
 		PropertyDescriptor[] pds = null;
@@ -143,7 +200,7 @@ public abstract class ConvertUtils {
 			beanInfo = Introspector.getBeanInfo(pojoClass);
 			pds = beanInfo.getPropertyDescriptors();
 		} catch (Exception e) {
-			DialectException.throwEX(e, "pojo2TableModel can not get bean info");
+			DialectException.throwEX(e, "pojo2Model can not get bean info");
 		}
 
 		for (PropertyDescriptor pd : pds) {
@@ -151,88 +208,74 @@ public abstract class ConvertUtils {
 			Class<?> propertyClass = pd.getPropertyType();
 			if (ColumnDef.canMapToSqlType(propertyClass)) {
 				Field field = ReflectionUtils.findField(pojoClass, entityField);
-				if (null == field.getAnnotation(Transient.class)) {// Transient
+				// Transient
+				if (getFirstPojoAnnotation(field, "Transient").isEmpty()) {
 					ColumnModel vcolumn = new ColumnModel(entityField);
 					vcolumn.entityField(entityField);
-					Column col = field.getAnnotation(Column.class);// Column
-					if (col != null) {
-						if (!col.nullable())
+					// Column
+					Map<String, Object> colMap = getFirstPojoAnnotation(field, "Column");
+					if (!colMap.isEmpty()) {
+						if (!(Boolean) colMap.get("nullable"))
 							vcolumn.setNullable(false);
-						if (!StrUtils.isEmpty(col.name()))
-							vcolumn.setColumnName(col.name());
-						vcolumn.setLength(col.length());
-						vcolumn.setPrecision(col.precision());
-						vcolumn.setScale(col.scale());
-						vcolumn.setLengths(new Integer[] { col.length(), col.precision(), col.scale() });
-						vcolumn.setColumnType(ColumnDef.toType(col.columnDefinition()));
+						if (!StrUtils.isEmpty(colMap.get("name")))
+							vcolumn.setColumnName((String) colMap.get("name"));
+						vcolumn.setLength((Integer) colMap.get("length"));
+						vcolumn.setPrecision((Integer) colMap.get("precision"));
+						vcolumn.setScale((Integer) colMap.get("scale"));
+						vcolumn.setLengths(
+								new Integer[] { vcolumn.getLength(), vcolumn.getPrecision(), vcolumn.getScale() });
+						vcolumn.setColumnType(ColumnDef.toType((String) colMap.get("columnDefinition")));
 					} else {
 						vcolumn.setColumnType(ColumnDef.toType(propertyClass));
 						vcolumn.setLengths(new Integer[] { 255, 0, 0 });
 					}
 
-					SequenceGenerator seq = field.getAnnotation(SequenceGenerator.class);// SequenceGenerator
-					if (seq != null)
-						TableModel.addSequence(new SequenceGen(seq.name(), seq.sequenceName(), seq.initialValue(),
-								seq.allocationSize()));
+					// SequenceGenerator
+					Map<String, Object> seqMap = getFirstPojoAnnotation(field, "SequenceGenerator");
+					if (!seqMap.isEmpty())
+						model.addSequence(
+								new SequenceGen((String) seqMap.get("name"), (String) seqMap.get("sequenceName"),
+										(Integer) seqMap.get("initialValue"), (Integer) seqMap.get("allocationSize")));
 
-					TableGenerator tb2 = pojoClass.getAnnotation(TableGenerator.class);// TableGenerator
-					if (tb2 != null)
-						TableModel.addTableGenerator(tb2.name(), tb2.table(), tb2.pkColumnName(), tb2.valueColumnName(),
-								tb2.pkColumnValue(), tb2.initialValue(), tb2.allocationSize());
-
-					if (null != field.getAnnotation(Id.class))// Id
+					// Id
+					if (!getFirstPojoAnnotation(field, "Id").isEmpty())
 						vcolumn.pkey();
-					TableModel.addColumn(vcolumn);
 
-					GeneratedValue gv = field.getAnnotation(GeneratedValue.class);// GeneratedValue
-					if (gv != null) {
-						if (GenerationType.AUTO.equals(gv.annotationType()))
+					model.addColumn(vcolumn);// Should add column first, otherwise ref() method will error
+
+					// GeneratedValue
+					Map<String, Object> gvMap = getFirstPojoAnnotation(field, "GeneratedValue");
+					if (!gvMap.isEmpty()) {
+						GenerationType typ = (GenerationType) gvMap.get("annotationType");
+						if (GenerationType.AUTO.equals(typ))
 							vcolumn.autoID();
-						else if (GenerationType.SEQUENCE.equals(gv.annotationType()))
-							vcolumn.sequence(gv.generator());
-						else if (GenerationType.IDENTITY.equals(gv.annotationType()))
+						else if (GenerationType.SEQUENCE.equals(typ))
+							vcolumn.sequence((String) gvMap.get("generator"));
+						else if (GenerationType.IDENTITY.equals(typ))
 							vcolumn.identity();
-						else if (GenerationType.TABLE.equals(gv.annotationType()))
-							vcolumn.tableGenerator(gv.generator());
+						else if (GenerationType.TABLE.equals(typ))
+							vcolumn.tableGenerator((String) gvMap.get("generator"));
 					}
 
-					// TODO: here will add @ref
-					// Ref ref = field.getAnnotation(Ref.class); blablabla
+					// SingleFKey is a shortcut format of FKey, only for 1 column
+					Map<String, Object> refMap = getFirstPojoAnnotation(field, "SingleFKey");
+					if (!refMap.isEmpty())
+						model.fkey((String) refMap.get("name")).columns(vcolumn.getColumnName())
+								.refs((String[]) refMap.get("refs"));
+
+					// SingleIndex is a ShortCut format of Index, only for 1 column
+					Map<String, Object> idxMap = getFirstPojoAnnotation(field, "SingleIndex");
+					if (!idxMap.isEmpty())
+						model.index((String) idxMap.get("name")).columns(vcolumn.getColumnName());
+
+					// SingleUnique is a ShortCut format of Unique, only for 1 column
+					Map<String, Object> uniMap = getFirstPojoAnnotation(field, "SingleUnique");
+					if (!uniMap.isEmpty())
+						model.unique((String) uniMap.get("name")).columns(vcolumn.getColumnName());
 				}
 			}
-		}
-		if (table != null) {
-			Index[] indexes = table.indexes();// Index
-			if (indexes != null) {
-				for (Index index : indexes) {
-					String indexName = index.name();
-					String columns = index.columnList();
-					if (!StrUtils.isEmpty(columns)) {
-						String[] indexColumnList;
-						if (columns.indexOf(',') >= 0)
-							indexColumnList = StringUtils.split(columns, ",");
-						else
-							indexColumnList = new String[] { columns };
-
-						if (indexColumnList != null && indexColumnList.length > 0) {
-							TableModel.index(indexName).columns(indexColumnList).setUnique(index.unique());
-						}
-					}
-				}
-			}
-
-			UniqueConstraint[] uniques = table.uniqueConstraints();// Unique
-			if (uniques != null) {
-				for (UniqueConstraint unique : uniques) {
-					String indexName = unique.name();
-					String[] columns = unique.columnNames();
-					if (columns != null && columns.length > 0)
-						TableModel.unique(indexName).columns(columns);
-				}
-			}
-		}
-
-		return TableModel;
+		} // End of columns loop
+		return model;
 	}
 
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * jDialects, a tiny SQL dialect tool
  *
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
@@ -31,9 +31,10 @@ import java.util.List;
 public class FKeyConst {
 	private String fkeyName;
 	private String tableName;
-	private List<String> columnNames = new ArrayList<String>();
-	private String refTableName;
-	private String[] refColumnNames;
+	private List<String> columnNames = new ArrayList<String>(); 
+	
+	/** format: "reftable, refcol1, refcol2..." */
+	private String[] refTableAndColumns;
 
 	public FKeyConst() {
 		// default constructor
@@ -48,9 +49,8 @@ public class FKeyConst {
 		return this;
 	}
 
-	public FKeyConst ref(String refTableName, String... refColumnNames) {
-		this.refTableName = refTableName;
-		this.refColumnNames = refColumnNames;
+	public FKeyConst refs( String... refTableAndColumns) { 
+		this.refTableAndColumns = refTableAndColumns;
 		return this;
 	}
 
@@ -71,20 +71,12 @@ public class FKeyConst {
 		this.columnNames = columnNames;
 	}
 
-	public String getRefTableName() {
-		return refTableName;
+  	public String[] getRefTableAndColumns() {
+		return refTableAndColumns;
 	}
 
-	public void setRefTableName(String refTableName) {
-		this.refTableName = refTableName;
-	}
-
-	public String[] getRefColumnNames() {
-		return refColumnNames;
-	}
-
-	public void setRefColumnNames(String[] refColumnNames) {
-		this.refColumnNames = refColumnNames;
+	public void setRefTableAndColumns(String[] refTableAndColumns) {
+		this.refTableAndColumns = refTableAndColumns;
 	}
 
 	public String getFkeyName() {

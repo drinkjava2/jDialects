@@ -12,9 +12,9 @@ import com.github.drinkjava2.jdialects.Type;
 import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
- * A ColumnModel definition represents a platform dependent column in a
- * Database Table, from 1.0.5 this class name changed from "Column" to "ColumnModel"
- * to avoid naming conflict to JPA's "@Column" annotation
+ * A ColumnModel definition represents a platform dependent column in a Database
+ * Table, from 1.0.5 this class name changed from "Column" to "ColumnModel" to
+ * avoid naming conflict to JPA's "@Column" annotation
  * 
  * </pre>
  * 
@@ -43,8 +43,8 @@ public class ColumnModel {
 	private String tail;
 
 	/**
-	 * bind column to Auto Id generator, can be SequenceGen or TableGen,
-	 * determined by jDialects
+	 * bind column to Auto Id generator, can be SequenceGen or TableGen, determined
+	 * by jDialects
 	 */
 	private Boolean autoGenerator = false;
 
@@ -95,7 +95,7 @@ public class ColumnModel {
 	 * A shortcut method to add a index for single column, for multiple columns
 	 * index please use tableModel.index() method
 	 */
-	public ColumnModel index(String indexName) {
+	public ColumnModel singleIndex(String indexName) {
 		DialectException.assureNotNull(this.tableModel,
 				"index() shortcut method used only as tableModel.column().index() format");
 		DialectException.assureNotEmpty(indexName, "indexName can not be empty");
@@ -118,7 +118,7 @@ public class ColumnModel {
 	 * A shortcut method to add a unique constraint for single column, for multiple
 	 * columns index please use tableModel.unique() method
 	 */
-	public ColumnModel unique(String uniqueName) {
+	public ColumnModel singleUnique(String uniqueName) {
 		DialectException.assureNotNull(this.tableModel,
 				"unique() shortcut method used only as tableModel.column().index() format");
 		DialectException.assureNotEmpty(uniqueName, "indexName can not be empty");
@@ -130,7 +130,7 @@ public class ColumnModel {
 	 * A shortcut method to add a unique constraint for single column, for multiple
 	 * columns index please use tableModel.unique() method
 	 */
-	public ColumnModel unique() {
+	public ColumnModel singleUnique() {
 		DialectException.assureNotNull(this.tableModel,
 				"unique() shortcut method used only as tableModel.column().index() format");
 		this.tableModel.unique().columns(this.getColumnName());
@@ -161,11 +161,13 @@ public class ColumnModel {
 	 * A shortcut method to add Foreign constraint for single column, for multiple
 	 * columns please use tableModel.fkey() method instead
 	 */
-	public ColumnModel ref(String refTableName, String refColumnName) {
-		DialectException.assureNotNull(this.tableModel, "ref() shortcut method used only as tableModel.column().ref() format");
-		DialectException.assureNotEmpty(refTableName, "refTable can not be empty");
-		DialectException.assureNotEmpty(refColumnName, "refColumn can not be empty");
-		this.tableModel.fkey().columns(this.columnName).ref(refTableName, refColumnName);
+	public ColumnModel singleFKey(String... refTableAndColumns) {
+		DialectException.assureNotNull(this.tableModel,
+				"ref() shortcut method only be used when tableModel is set, like tableModel.column().ref() format");
+		if (refTableAndColumns == null || refTableAndColumns.length < 2)
+			throw new DialectException(
+					"refTableAndColumns format should at least have 2 parameters like 'tablename,col1,col2...'");
+		this.tableModel.fkey().columns(this.columnName).refs(refTableAndColumns);
 		return this;
 	}
 
@@ -182,9 +184,9 @@ public class ColumnModel {
 	}
 
 	/**
-	 * bind column to a global Auto Id generator, can be SequenceGen(if support) or a
-	 * Table to store maximum current ID, determined by jDialects, to get next auto
-	 * generated ID value, need run dialect.getNextAutoID(connection) method
+	 * bind column to a global Auto Id generator, can be SequenceGen(if support) or
+	 * a Table to store maximum current ID, determined by jDialects, to get next
+	 * auto generated ID value, need run dialect.getNextAutoID(connection) method
 	 */
 	public ColumnModel autoID() {
 		this.autoGenerator = true;

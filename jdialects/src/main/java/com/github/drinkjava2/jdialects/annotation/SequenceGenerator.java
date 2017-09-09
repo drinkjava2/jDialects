@@ -1,20 +1,11 @@
-/*******************************************************************************
- * Copyright (c) 2008 - 2017 Oracle Corporation. All rights reserved.
+/*
+ * jDialects, a tiny SQL dialect tool
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License v1.0 and Eclipse Distribution License v. 1.0
- * which accompanies this distribution.
- * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at
- * http://www.eclipse.org/org/documents/edl-v10.php.
- *
- * Contributors:
- *     Lukas Jungmann  - Java Persistence 2.2
- *     Linda DeMichiel - Java Persistence 2.1
- *     Linda DeMichiel - Java Persistence 2.0
- *
- ******************************************************************************/ 
-package javax.persistence;
+ * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
+ * the lgpl.txt file in the root directory or
+ * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ */
+package com.github.drinkjava2.jdialects.annotation;
 
 import java.lang.annotation.Target;
 import java.lang.annotation.Retention;

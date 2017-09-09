@@ -1,8 +1,9 @@
-/**
- * jDialects, a tiny SQL dialect tool 
+/*
+ * jDialects, a tiny SQL dialect tool
  *
- * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
- * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
+ * the lgpl.txt file in the root directory or
+ * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
 package com.github.drinkjava2.jdialects.model;
 
@@ -15,8 +16,8 @@ package com.github.drinkjava2.jdialects.model;
 public class TableGen {
 
 	/**
-	 * A unique generator name that can be referenced by one or more classes to
-	 * be the generator for id values.
+	 * A unique generator name that can be referenced by one or more classes to be
+	 * the generator for id values.
 	 */
 	private String name;
 
@@ -36,14 +37,13 @@ public class TableGen {
 	private String valueColumnName = "";
 
 	/**
-	 * The primary key value in the generator table that distinguishes this set
-	 * of generated values from others that may be stored in the table.
+	 * The primary key value in the generator table that distinguishes this set of
+	 * generated values from others that may be stored in the table.
 	 */
 	private String pkColumnValue = "";
 
 	/**
-	 * The initial value to be used when allocating id numbers from the
-	 * generator.
+	 * The initial value to be used when allocating id numbers from the generator.
 	 */
 	private Integer initialValue = 0;
 

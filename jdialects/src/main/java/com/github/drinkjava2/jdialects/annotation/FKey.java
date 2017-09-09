@@ -13,35 +13,34 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
- 
 /**
  * Specifies the foreign key
-  
+ * 
  * <pre>
  *   Example:
  *
  *   &#064;FKey(name="fk_1", columns="field1,field2", ref="OtherTable, field1, field2")
  *   public class SomeClass()
- * </pre> 
+ * </pre>
  *
  * @since jDialects 1.0.5
  */
-@Target(TYPE) 
+@Target(TYPE)
 @Retention(RUNTIME)
 public @interface FKey {
-    /**
-     * (Optional) The name of the foreign key. 
-     */
-    String name() default "";
- 
+	/**
+	 * (Optional) The name of the foreign key.
+	 */
+	String name() default "";
 
-    /**
-     * Columns in this table
-     */
-    String[] columns() default {};
+	/**
+	 * Columns in this table
+	 */
+	String[] columns() default {};
 
-    /**
-     * Referenced table name and columns, separated by ","
-     */
-    String[] ref() default {};	
+	/**
+	 * Referenced table name and columns, first is table name, followed by column
+	 * names, like "table1, col1, col2..."
+	 */
+	String[] refs() default {};
 }

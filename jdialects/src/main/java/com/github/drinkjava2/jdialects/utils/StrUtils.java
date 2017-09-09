@@ -1,8 +1,9 @@
 /*
- * jDialects, a tiny SQL dialect tool 
+ * jDialects, a tiny SQL dialect tool
  *
- * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
- * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
+ * the lgpl.txt file in the root directory or
+ * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
 package com.github.drinkjava2.jdialects.utils;
 
@@ -32,9 +33,9 @@ public class StrUtils {
 	}
 
 	/**
-	 * Check that the given CharSequence is neither {@code null} nor of length
-	 * 0. Note: Will return {@code true} for a CharSequence that purely consists
-	 * of whitespace.
+	 * Check that the given CharSequence is neither {@code null} nor of length 0.
+	 * Note: Will return {@code true} for a CharSequence that purely consists of
+	 * whitespace.
 	 * <p>
 	 * 
 	 * <pre class="code">
@@ -53,9 +54,8 @@ public class StrUtils {
 	}
 
 	/**
-	 * Check that the given String is neither {@code null} nor of length 0.
-	 * Note: Will return {@code true} for a String that purely consists of
-	 * whitespace.
+	 * Check that the given String is neither {@code null} nor of length 0. Note:
+	 * Will return {@code true} for a String that purely consists of whitespace.
 	 * 
 	 * @param str the String to check (may be {@code null})
 	 * @return {@code true} if the String is not null and has length
@@ -69,8 +69,8 @@ public class StrUtils {
 	 * Check whether the given CharSequence contains any whitespace characters.
 	 * 
 	 * @param str the CharSequence to check (may be {@code null})
-	 * @return {@code true} if the CharSequence is not empty and contains at
-	 *         least 1 whitespace character
+	 * @return {@code true} if the CharSequence is not empty and contains at least 1
+	 *         whitespace character
 	 * @see Character#isWhitespace
 	 */
 	public static boolean containsWhitespace(CharSequence str) {
@@ -120,8 +120,8 @@ public class StrUtils {
 	}
 
 	/**
-	 * Trim <i>all</i> whitespace from the given String: leading, trailing, and
-	 * in between characters.
+	 * Trim <i>all</i> whitespace from the given String: leading, trailing, and in
+	 * between characters.
 	 * 
 	 * @param str the String to check
 	 * @return the trimmed String
@@ -180,8 +180,7 @@ public class StrUtils {
 	}
 
 	/**
-	 * Trim all occurrences of the supplied leading character from the given
-	 * String.
+	 * Trim all occurrences of the supplied leading character from the given String.
 	 * 
 	 * @param str the String to check
 	 * @param leadingCharacter the leading character to be trimmed
@@ -257,8 +256,7 @@ public class StrUtils {
 	}
 
 	/**
-	 * Replace all occurrences of a substring within a string with another
-	 * string.
+	 * Replace all occurrences of a substring within a string with another string.
 	 * 
 	 * @param originString The original String
 	 * @param oldPattern old String Pattern to replace
@@ -371,12 +369,12 @@ public class StrUtils {
 	}
 
 	/**
-	 * Gets the String that is nested in between two Strings. Only the first
-	 * match is returned.
+	 * Gets the String that is nested in between two Strings. Only the first match
+	 * is returned.
 	 *
 	 * A <code>null</code> input String returns <code>null</code>. A
-	 * <code>null</code> open/close returns <code>null</code> (no match). An
-	 * empty ("") open and close returns an empty string.
+	 * <code>null</code> open/close returns <code>null</code> (no match). An empty
+	 * ("") open and close returns an empty string.
 	 *
 	 * <pre>
 	 * StringUtils.substringBetween("wx[b]yz", "[", "]") = "b"
@@ -477,6 +475,24 @@ public class StrUtils {
 	/**
 	 * Change a Object array to "obj1,obj2...,objn" String
 	 */
+	public static String arrayToStringButSkipFirst(Object[] array) {
+		if (array == null)
+			DialectException.throwEX("StrUtils arrayToString() method do not accept null parameter");
+		StringBuilder sb = new StringBuilder();
+		int i = 1;
+		for (Object object : array) {
+			if (i++ != 1)
+				sb.append("" + object + ",");
+
+		}
+		if (sb.length() > 0)
+			sb.setLength(sb.length() - 1);
+		return sb.toString();
+	}
+
+	/**
+	 * Change a Object array to "obj1,obj2...,objn" String
+	 */
 	public static String arrayToString(Object[] array) {
 		if (array == null)
 			DialectException.throwEX("StrUtils arrayToString() method do not accept null parameter");
@@ -527,7 +543,7 @@ public class StrUtils {
 			l.add(string);
 		return l.toArray(new String[l.size()]);
 	}
-	
+
 	/**
 	 * Return true if first letter is Capitalised
 	 */

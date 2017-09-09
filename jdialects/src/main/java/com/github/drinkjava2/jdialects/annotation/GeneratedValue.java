@@ -1,26 +1,19 @@
-/*******************************************************************************
- * Copyright (c) 2008 - 2013 Oracle Corporation. All rights reserved.
+/*
+ * jDialects, a tiny SQL dialect tool
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License v1.0 and Eclipse Distribution License v. 1.0
- * which accompanies this distribution.
- * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at
- * http://www.eclipse.org/org/documents/edl-v10.php.
- *
- * Contributors:
- *     Linda DeMichiel - Java Persistence 2.1
- *     Linda DeMichiel - Java Persistence 2.0
- *
- ******************************************************************************/
-package javax.persistence;
+ * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
+ * the lgpl.txt file in the root directory or
+ * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ */
+package com.github.drinkjava2.jdialects.annotation;
 
-import java.lang.annotation.Target;
-import java.lang.annotation.Retention;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import static javax.persistence.GenerationType.AUTO;
+import static com.github.drinkjava2.jdialects.annotation.GenerationType.AUTO;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
  * Provides for the specification of generation strategies for the
@@ -52,7 +45,7 @@ import static javax.persistence.GenerationType.AUTO;
  * </pre>
  *
  * @see Id
- * @see TableGen
+ * @see TableGenerator
  * @see SequenceGenerator
  *
  * @since Java Persistence 1.0
@@ -72,7 +65,7 @@ public @interface GeneratedValue {
     /**
      * (Optional) The name of the primary key generator
      * to use as specified in the {@link SequenceGenerator} 
-     * or {@link TableGen} annotation.
+     * or {@link TableGenerator} annotation.
      * <p> Defaults to the id generator supplied by persistence provider.
      */
     String generator() default "";

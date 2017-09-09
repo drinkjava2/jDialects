@@ -15,27 +15,19 @@ import java.lang.annotation.Target;
 
  
 /**
- * Specifies a foreign key for only single column, for multiple columns foreign key, please use &#064;FKey annotation
-  
- * <pre>
- *   Example:
- *
- *   &#064;Ref("OtherTable, field1")
- *   private String someField;
- * </pre> 
- *
- * @since jDialects 1.0.5
+ * A shortcut annotation of FKey, only for one column
  */
 @Target(FIELD) 
 @Retention(RUNTIME)
-public @interface Ref {
+public @interface SingleFKey {
     /**
      * (Optional) The name of the foreign key. 
      */
     String name() default "";
  
-    /**
-     * Referenced table name and columns, separated by ","
-     */
-    String[] ref() default {};	
+	/**
+	 * Referenced table name and columns, first is table name, followed by column
+	 * names, like "table1, col1, col2..."
+	 */
+	String[] refs() default {};
 }

@@ -204,13 +204,14 @@ public class DDLDropUtils {
 			return;
 		for (FKeyConst t : trueList) {
 			String dropStr = dialect.ddlFeatures.dropForeignKeyString;
-			String fkname = "fk_" + t.getTableName().toLowerCase() + "_"
-					+ StrUtils.replace(StrUtils.listToString(t.getColumnNames()), ",", "_");
-
+			String constName = t.getFkeyName();
+			if (StrUtils.isEmpty(constName))
+				constName = "fk_" + t.getTableName().toLowerCase() + "_"
+						+ StrUtils.replace(StrUtils.listToString(t.getColumnNames()), ",", "_"); 
 			if (DDLFeatures.NOT_SUPPORT.equals(dropStr))
 				DialectException.throwEX("Dialect \"" + dialect
-						+ "\" does not support drop foreign key, for setting: \"" + "fk_" + fkname + "\"");
-			stringResultList.add(0, "alter table " + t.getTableName() + " " + dropStr + " " + fkname);
+						+ "\" does not support drop foreign key, for setting: \"" + "fk_" + constName + "\"");
+			stringResultList.add(0, "alter table " + t.getTableName() + " " + dropStr + " " + constName);
 		}
 	}
 }

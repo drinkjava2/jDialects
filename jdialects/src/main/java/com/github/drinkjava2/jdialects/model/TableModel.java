@@ -1,4 +1,4 @@
-/**
+/*
  * jDialects, a tiny SQL dialect tool
  *
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
@@ -15,8 +15,8 @@ import java.util.Map;
 import com.github.drinkjava2.jdialects.DialectException;
 
 /**
- * A TableModel definition represents a platform dependent Database Table,
- * from 1.0.5 this class name changed from "Table" to "TableModel" to avoid naming
+ * A TableModel definition represents a platform dependent Database Table, from
+ * 1.0.5 this class name changed from "Table" to "TableModel" to avoid naming
  * conflict to JPA's "@Table" annotation
  * 
  * @author Yong Zhu
@@ -137,7 +137,8 @@ public class TableModel {
 			DialectException.throwEX("Dulplicated column name \"" + column.getColumnName() + "\" found in table \""
 					+ this.getTableName() + "\"");
 		}
-		columns.put(column.getColumnName().toLowerCase(), column);
+		column.setTableModel(this);
+		columns.put(column.getColumnName().toLowerCase(), column); 
 		return this;
 	}
 
@@ -167,7 +168,7 @@ public class TableModel {
 	 *  Start add a foreign key definition in DDL, detail usage see demo
 	 */
 	public FKeyConst fkey() {
-		FKeyConst fkey=new FKeyConst(); 
+		FKeyConst fkey=new FKeyConst();  
 		fkey.setTableName(this.tableName);
 		this.fkeyConstraints.add(fkey);
 		return fkey;
@@ -186,8 +187,7 @@ public class TableModel {
 	 *  Start add a Index in DDL, detail usage see demo
 	 */
 	public IndexConst index( ) {
-		IndexConst index=new IndexConst( ); 
-		index.setTableName(this.tableName);
+		IndexConst index=new IndexConst( );  
 		this.indexConsts.add(index);
 		return index;
 	}
@@ -205,8 +205,7 @@ public class TableModel {
 	 *  Start add a unique constraint in DDL, detail usage see demo
 	 */
 	public UniqueConst unique( ) {
-		UniqueConst unique=new UniqueConst( ); 
-		unique.setTableName(this.tableName);
+		UniqueConst unique=new UniqueConst( );  
 		this.uniqueConsts.add(unique);
 		return unique;
 	}

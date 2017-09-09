@@ -5,7 +5,7 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package test.coveragetest.jdialects;
+package test.functiontest.jdialects;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.Dialect;
-import com.github.drinkjava2.jdialects.hibernatesrc.utils.DDLFormatter;
 import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.TableModel;
 
@@ -25,68 +24,7 @@ import test.BaseDDLTest;
  * @author Yong Z.
  * @since 1.0.2
  */
-public class DDLTest extends BaseDDLTest {
-	private static void printDDLs(String[] ddl) {
-		for (String str : ddl) {
-			System.out.println(str);
-		}
-	}
-
-	private void quiteExecuteNoParamSqls(String... sqls) {
-		for (String sql : sqls) {
-			try {
-				tiny.nExecute(sql);
-			} catch (Exception e) {
-			}
-		}
-	}
-
-	private void executeNoParamSqls(String... sqls) {
-		for (String sql : sqls)
-			tiny.nExecute(sql);
-	}
-
-	private void testOnCurrentRealDatabase(TableModel... tables) {
-		System.out.println("======Test on real Database of dialect: " + guessedDialect + "=====");
-
-		String[] ddls = guessedDialect.toDropDDL(tables);
-
-		quiteExecuteNoParamSqls(ddls);
-
-		ddls = guessedDialect.toCreateDDL(tables);
-		executeNoParamSqls(ddls);
-
-		ddls = guessedDialect.toDropAndCreateDDL(tables);
-		executeNoParamSqls(ddls);
-
-		ddls = guessedDialect.toDropDDL(tables);
-		executeNoParamSqls(ddls);
-	}
-
-	private static void printOneDialectsDDLs(Dialect dialect, TableModel... tables) {
-		System.out.println("======" + dialect + "=====");
-		try {
-			String[] ddls = dialect.toDropAndCreateDDL(tables);
-			printDDLs(DDLFormatter.format(ddls));
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("Exception found: " + e.getMessage());
-		}
-	}
-
-	private static void printAllDialectsDDLs(TableModel... tables) {
-		Dialect[] diaList = Dialect.values();
-		for (Dialect dialect : diaList) {
-			System.out.println("======" + dialect + "=====");
-			try {
-				String[] ddls = dialect.toDropAndCreateDDL(tables);
-				printDDLs(DDLFormatter.format(ddls));
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.out.println("Exception found: " + e.getMessage());
-			}
-		}
-	}
+public class DDLTest extends BaseDDLTest { 
 
 	@Test
 	public void testANormalModel() {// A normal setting
@@ -121,7 +59,7 @@ public class DDLTest extends BaseDDLTest {
 	@Test
 	public void testCompondPkey() {// Compound PKEY
 		TableModel t = new TableModel("testTable");
-		t.column("i4").INTEGER().pkey().unique().notNull().defaultValue("1");
+		t.column("i4").INTEGER().pkey().notNull().defaultValue("1");
 		t.column("l5").LONG().pkey();
 		t.column("s6").SHORT();
 		printAllDialectsDDLs(t);
@@ -176,23 +114,23 @@ public class DDLTest extends BaseDDLTest {
 
 	private static TableModel uniqueModel() {// unique constraint
 		TableModel t = new TableModel("testTable");
-		t.column("s1").STRING(20).unique();
-		t.column("s2").STRING(20).unique().notNull();
+		t.column("s1").STRING(20).singleUnique();
+		t.column("s2").STRING(20).singleUnique().notNull();
 
-		t.column("s3").STRING(20).unique("uname1");
-		t.column("s4").STRING(20).unique("uname2").notNull();
+		t.column("s3").STRING(20).singleUnique("uname1");
+		t.column("s4").STRING(20).singleUnique("uname2").notNull();
 
-		t.column("s5").STRING(20).unique("A");
-		t.column("s6").STRING(20).unique("A");
-		t.column("s7").STRING(20).unique("B").notNull();
-		t.column("s8").STRING(20).unique("B").notNull();
+		t.column("s5").STRING(20).singleUnique("A");
+		t.column("s6").STRING(20).singleUnique("A");
+		t.column("s7").STRING(20).singleUnique("B").notNull();
+		t.column("s8").STRING(20).singleUnique("B").notNull();
 
-		t.column("s9").STRING(20).unique("C");
-		t.column("s10").STRING(20).unique("D");
-		t.column("s11").STRING(20).unique("E").notNull();
-		t.column("s12").STRING(20).unique("F").notNull();
-		t.unique().columns("S9","S10");
-		t.unique("uk1").columns("s11","s12");
+		t.column("s9").STRING(20).singleUnique("C");
+		t.column("s10").STRING(20).singleUnique("D");
+		t.column("s11").STRING(20).singleUnique("E").notNull();
+		t.column("s12").STRING(20).singleUnique("F").notNull();
+		t.unique().columns("S9", "S10");
+		t.unique("uk1").columns("s11", "s12");
 		t.unique().columns("s5");
 		return t;
 	}
@@ -207,10 +145,10 @@ public class DDLTest extends BaseDDLTest {
 
 	private static TableModel checkModel() {// column check
 		TableModel t = new TableModel("testTable");
-		t.column("s1").STRING(20).unique().notNull().check("s1>5");
-		t.column("s2").STRING(20).unique().check("s2>5");
-		t.column("s3").STRING(20).unique("uname1").notNull().check("s3>5");
-		t.column("s4").STRING(20).unique("uname2").check("s4>5");
+		t.column("s1").STRING(20).notNull().check("s1>5");
+		t.column("s2").STRING(20).check("s2>5");
+		t.column("s3").STRING(20).notNull().check("s3>5");
+		t.column("s4").STRING(20).check("s4>5");
 		return t;
 	}
 
@@ -223,7 +161,7 @@ public class DDLTest extends BaseDDLTest {
 	private static TableModel tableCheckModel() {// table check
 		TableModel t = new TableModel("testTable");
 		t.check("s2>10");
-		t.column("s1").STRING(20).unique().notNull();
+		t.column("s1").STRING(20).notNull();
 		t.column("s2").STRING(20);
 		return t;
 	}
@@ -236,8 +174,8 @@ public class DDLTest extends BaseDDLTest {
 
 	private static TableModel IdentityModel() {// Identity
 		TableModel t = new TableModel("testTable");
-		t.check("s2>10");
-		t.column("s1").INTEGER().unique().notNull().identity().pkey();
+		t.check("s2>10"); 
+		t.column("s1").INTEGER().notNull().identity().pkey();
 		t.column("s2").LONG().check("s2>10");
 		t.column("s3").BIGINT();
 		return t;
@@ -258,7 +196,7 @@ public class DDLTest extends BaseDDLTest {
 
 	private static TableModel CommentModel() {// Comment
 		TableModel t = new TableModel("testTable").comment("table_comment");
-		t.column("s1").INTEGER().unique().notNull().identity().pkey();
+		t.column("s1").INTEGER().notNull().identity().pkey();
 		t.column("s2").LONG().comment("column_comment1");
 		t.column("s3").BIGINT().comment("column_comment2");
 		return t;
@@ -359,16 +297,16 @@ public class DDLTest extends BaseDDLTest {
 		t3.column("masterid1").INTEGER();
 		t3.column("myname").VARCHAR(20);
 		t3.column("myaddress").VARCHAR(20);
-		t3.fkey().columns("masterid1").ref("master1", "id");
-		t3.fkey().columns("myname", "myaddress").ref("master2", "name", "address");
+		t3.fkey().columns("masterid1").refs("master1", "id");
+		t3.fkey("FKNAME1").columns("myname", "myaddress").refs("master2", "name", "address");
 
 		TableModel t4 = new TableModel("child2");
 		t4.column("id").INTEGER().pkey();
 		t4.column("masterid2").INTEGER();
 		t4.column("myname2").VARCHAR(20);
 		t4.column("myaddress2").VARCHAR(20);
-		t4.fkey().columns("masterid2").ref("master1", "id");
-		t4.fkey().columns("myname2", "myaddress2").ref("master2", "name", "address");
+		t4.fkey().columns("masterid2").refs("master1", "id");
+		t4.fkey().columns("myname2", "myaddress2").refs("master2", "name", "address");
 		printAllDialectsDDLs(t1, t2, t3);
 		printOneDialectsDDLs(Dialect.MySQL5InnoDBDialect, t1, t2, t3, t4);
 		testOnCurrentRealDatabase(t1, t2, t3, t4);
@@ -377,14 +315,14 @@ public class DDLTest extends BaseDDLTest {
 	@Test
 	public void testIndex() {// index
 		TableModel t = new TableModel("indexTable");
-		t.column("s1").STRING(20).index().unique();
+		t.column("s1").STRING(20).index().singleUnique();
 		t.column("s2").STRING(20).index();
 		t.column("s3").STRING(20).index();
-		t.column("s4").STRING(20).index("a");
-		t.column("s5").STRING(20).index("b");
-		t.column("s6").STRING(20).index("c");
-		t.index().columns("s1","s2");
-		t.index("idx1").columns("s5","s1");
+		t.column("s4").STRING(20).singleIndex("a");
+		t.column("s5").STRING(20).singleIndex("b");
+		t.column("s6").STRING(20).singleIndex("c");
+		t.index().columns("s1", "s2");
+		t.index("idx1").columns("s5", "s1");
 		printAllDialectsDDLs(t);
 		printOneDialectsDDLs(Dialect.MySQL5InnoDBDialect, t);
 		testOnCurrentRealDatabase(t);
@@ -434,24 +372,40 @@ public class DDLTest extends BaseDDLTest {
 	}
 
 	@Test
+	public void singleXxxMethodTest() {// Test singleXxx methods
+		TableModel t1 = new TableModel("customers");
+		t1.column("name").STRING(20).singleUnique();
+		t1.column("email").VARCHAR(50).singleIndex("IDX1").defaultValue("'Beijing'").comment("address comment");
+
+		TableModel t2 = new TableModel("orders");
+		t2.column("item").STRING(20).singleUnique("A");
+		t2.column("name").STRING(20).singleFKey("customers", "name");
+
+		String[] dropAndCreateDDL = Dialect.H2Dialect.toDropAndCreateDDL(t1, t2);
+		for (String ddl : dropAndCreateDDL)
+			System.out.println(ddl);
+		testOnCurrentRealDatabase(t1, t2);
+	}
+
+	@Test
 	public void sampleTest() {// An example used to put on README.md
 		TableModel t1 = new TableModel("customers");
-		t1.column("name").STRING(20).unique().pkey();
+		t1.column("name").STRING(20).pkey();
 		t1.column("email").STRING(20).pkey();
-		t1.column("address").VARCHAR(50).index("IDX1").defaultValue("'Beijing'").comment("address comment");
-		t1.column("phoneNumber").VARCHAR(50).index("IDX2");
+		t1.column("address").VARCHAR(50).defaultValue("'Beijing'").comment("address comment");
+		t1.column("phoneNumber").VARCHAR(50).singleIndex("IDX2");
 		t1.column("age").INTEGER().notNull().check("'>0'");
-		t1.index("idx3").columns("address","phoneNumber").unique();
+		t1.index("idx3").columns("address", "phoneNumber").unique();
 
 		TableModel t2 = new TableModel("orders").comment("order comment");
 		t2.column("id").LONG().autoID().pkey();
 		t2.column("name").STRING(20);
 		t2.column("email").STRING(20);
-		t2.column("name2").STRING(20).unique("A").pkey().tail(" default 'Sam'");
-		t2.column("email2").STRING(20).unique("B");
-		t2.fkey().columns("name2", "email2").ref("customers", "name", "email");
-		t2.fkey("fk1").columns("name", "email").ref("customers", "name", "email");
-		t2.unique("uk1").columns("name2","email2");
+		t2.column("name2").STRING(20).pkey().tail(" default 'Sam'");
+		t2.column("email2").STRING(20);
+		t2.fkey().columns("name2", "email2").refs("customers", "name", "email");
+		t2.fkey("fk1").columns("name", "email").refs("customers", "name", "email");
+		t2.unique("uk1").columns("name2", "email2");
 
 		TableModel t3 = new TableModel("sampletable");
 		t3.column("id").LONG().identity().pkey();
@@ -460,14 +414,12 @@ public class DDLTest extends BaseDDLTest {
 		t3.addSequence("seq1", "seq_1", 1, 1);
 		t3.column("id2").INTEGER().sequence("seq1");
 		t3.engineTail(" DEFAULT CHARSET=utf8");
+ 
 
-		TableModel t4 = new TableModel("sampletable2");
-		t3.column("id_a").LONG().ref("sampletable", "id");
-
-		String[] dropAndCreateDDL = Dialect.H2Dialect.toDropAndCreateDDL(t1, t2, t3, t4);
+		String[] dropAndCreateDDL = Dialect.H2Dialect.toDropAndCreateDDL(t1, t2, t3);
 		for (String ddl : dropAndCreateDDL)
 			System.out.println(ddl);
 
-		testOnCurrentRealDatabase(t1, t2, t3, t4);
+		testOnCurrentRealDatabase(t1, t2, t3);
 	}
 }

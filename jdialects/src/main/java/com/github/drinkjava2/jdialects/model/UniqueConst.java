@@ -1,4 +1,4 @@
-/**
+/*
  * jDialects, a tiny SQL dialect tool
  *
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
@@ -26,7 +26,6 @@ package com.github.drinkjava2.jdialects.model;
 public class UniqueConst {
 	private String name;
 	private String[] columnList;
-	private String tableName;
 
 	public UniqueConst() {
 
@@ -56,14 +55,6 @@ public class UniqueConst {
 
 	public void setColumnList(String[] columnList) {
 		this.columnList = columnList;
-	}
-
-	public String getTableName() {
-		return tableName;
-	}
-
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
 	}
 
 }

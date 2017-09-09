@@ -40,8 +40,9 @@ public @interface FKey2 {
      */
     String[] columns() default {};
 
-    /**
-     * Referenced table name and columns, separated by ","
-     */
-    String[] ref() default {};	
+	/**
+	 * Referenced table name and columns, first is table name, followed by column
+	 * names, like "table1, col1, col2..."
+	 */
+	String[] refs() default {};
 }
