@@ -23,13 +23,13 @@ import com.github.drinkjava2.jdialects.utils.StrUtils;
  */
 public class ColumnModel {
 	private String columnName;// no need explain
-	private TableModel tableModel;
-	private Type columnType;
-	private Boolean pkey = false;
-	private Boolean nullable = true;
-	private Boolean identity = false;
-	private String check;
-	private String defaultValue;
+	private TableModel tableModel; // not important, only used for singleXxx() shortcut methods
+	private Type columnType;// See com.github.drinkjava2.jdialects.Type
+	private Boolean pkey = false; // if is primary key
+	private Boolean nullable = true; // if nullable
+	private Boolean identity = false; // if use native identity type
+	private String check; // DDL check string
+	private String defaultValue; // DDL default value
 
 	/** bind column to a sequence */
 	private String sequence;
@@ -37,26 +37,24 @@ public class ColumnModel {
 	/** bind column to a tableGenerator */
 	private String tableGenerator;
 
-	/**
-	 * Optional, an extra tail String manually at the end of column definition DDL
-	 */
+	/** Optional, put an extra tail String at end of column definition DDL */
 	private String tail;
 
 	/**
-	 * bind column to Auto Id generator, can be SequenceGen or TableGen, determined
+	 * Bind column to Auto Id generator, can be SequenceGen or TableGen, determined
 	 * by jDialects
 	 */
 	private Boolean autoGenerator = false;
 
-	/** comment of this column */
+	/** Comment of this column */
 	private String comment;
 
 	/** length, precision, scale all share use lengths array */
 	private Integer[] lengths = new Integer[] {};
 
 	// =====Below fields are only used by JPA and ORM tools==========
-	/** Map to Entity class's which field, for JPA or ORM tool use only */
-	private String entityField;
+	/** Map to a Java POJO field, for JPA or ORM tool use only */
+	private String pojoField;
 
 	/** The column length, for JPA or ORM tool use only */
 	private Integer length = 255;
@@ -104,10 +102,10 @@ public class ColumnModel {
 	}
 
 	/**
-	 * A shortcut method to add a simple index for single column, for multiple
-	 * columns index please use tableModel.index() method
+	 * A shortcut method to add a index for single column, for multiple columns
+	 * index please use tableModel.index() method
 	 */
-	public ColumnModel index() {
+	public ColumnModel singleIndex() {
 		DialectException.assureNotNull(this.tableModel,
 				"index() shortcut method used only as tableModel.column().index() format");
 		this.tableModel.index().columns(this.getColumnName());
@@ -137,21 +135,28 @@ public class ColumnModel {
 		return this;
 	}
 
+	/**
+	 * Mark a field will use database's native identity type. Note:Note all
+	 * databases support identity
+	 */
 	public ColumnModel identity() {
 		this.identity = true;
 		return this;
 	}
 
+	/** Default value for column's definition DDL */
 	public ColumnModel defaultValue(String value) {
 		this.defaultValue = value;
 		return this;
 	}
 
+	/** Add comments at end of column definition DDL */
 	public ColumnModel comment(String comment) {
 		this.comment = comment;
 		return this;
 	}
 
+	/** Mark primary key, if more than one will build compound Primary key */
 	public ColumnModel pkey() {
 		this.pkey = true;
 		return this;
@@ -161,14 +166,12 @@ public class ColumnModel {
 	 * A shortcut method to add Foreign constraint for single column, for multiple
 	 * columns please use tableModel.fkey() method instead
 	 */
-	public ColumnModel singleFKey(String... refTableAndColumns) {
+	public FKeyConst singleFKey(String... refTableAndColumns) {
 		DialectException.assureNotNull(this.tableModel,
-				"ref() shortcut method only be used when tableModel is set, like tableModel.column().ref() format");
-		if (refTableAndColumns == null || refTableAndColumns.length < 2)
-			throw new DialectException(
-					"refTableAndColumns format should at least have 2 parameters like 'tablename,col1,col2...'");
-		this.tableModel.fkey().columns(this.columnName).refs(refTableAndColumns);
-		return this;
+				"singleFKey() method only be used when tableModel is set, like tableModel.column().singleFKey() format");
+		if (refTableAndColumns == null || refTableAndColumns.length != 2)
+			throw new DialectException("singleFKey() method can only have 2 parameters like \"tablename\",\"col1\"");
+		return this.tableModel.fkey().columns(this.columnName).refs(refTableAndColumns);
 	}
 
 	/** bind column to a sequence */
@@ -201,12 +204,21 @@ public class ColumnModel {
 		return this;
 	}
 
-	/**
-	 * Tell this column map to a Java Entity's field, usually used by an ORM
-	 * framework like jSqlBox
-	 */
-	public ColumnModel entityField(String entityField) {
-		this.entityField = entityField;
+	/** Mark this column map to a Java POJO's field, only for JPA or ORM tool use */
+	public ColumnModel pojoField(String pojoField) {
+		this.pojoField = pojoField;
+		return this;
+	}
+
+	/** Mark a field insertable=true, only for JPA or ORM tool use */
+	public ColumnModel insertable(Boolean insertable) {
+		this.insertable = insertable;
+		return this;
+	}
+
+	/** Mark a field updatable=true, only for JPA or ORM tool use */
+	public ColumnModel updatable(Boolean updatable) {
+		this.updatable = updatable;
 		return this;
 	}
 
@@ -391,12 +403,12 @@ public class ColumnModel {
 		this.updatable = updatable;
 	}
 
-	public String getEntityField() {
-		return entityField;
+	public String getPojoField() {
+		return pojoField;
 	}
 
-	public void setEntityField(String entityField) {
-		this.entityField = entityField;
+	public void setPojoField(String pojoField) {
+		this.pojoField = pojoField;
 	}
 
 	public TableModel getTableModel() {

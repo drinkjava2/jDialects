@@ -85,7 +85,7 @@ public class TableModel {
 	 * @param initialValue The initial value
 	 * @param allocationSize The allocationSize
 	 */
-	public void addTableGenerator(String name, String tableName, String pkColumnName, String valueColumnName,
+	public void tableGenerator(String name, String tableName, String pkColumnName, String valueColumnName,
 			String pkColumnValue, Integer initialValue, Integer allocationSize) {
 		addTableGenerator(new TableGen(name, tableName, pkColumnName, valueColumnName, pkColumnValue,
 				initialValue, allocationSize));
@@ -98,14 +98,14 @@ public class TableModel {
 	 * @param initialValue The initial value
 	 * @param allocationSize The allocationSize
 	 */
-	public void addSequence(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
-		this.addSequence(new SequenceGen(name, sequenceName, initialValue, allocationSize));
+	public void sequenceGenerator(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
+		this.sequenceGenerator(new SequenceGen(name, sequenceName, initialValue, allocationSize));
 	}
 
 	/**
 	 * Add a sequence definition DDL 
 	 */
-	public void addSequence(SequenceGen sequence) {
+	public void sequenceGenerator(SequenceGen sequence) {
 		DialectException.assureNotNull(sequence);
 		DialectException.assureNotEmpty(sequence.getSequenceName(), "SequenceGen name can not be empty");
 		sequences.put(sequence.getSequenceName().toLowerCase(), sequence);
@@ -178,9 +178,11 @@ public class TableModel {
 	 *  Start add a foreign key definition in DDL, detail usage see demo
 	 */
 	public FKeyConst fkey(String fkeyName) {
-		FKeyConst fkey=fkey();
+		FKeyConst fkey=new FKeyConst();  
+		fkey.setTableName(this.tableName);
 		fkey.setFkeyName(fkeyName);
-		return fkey;
+		this.fkeyConstraints.add(fkey);
+		return fkey; 
 	}
 	
 	/**
@@ -196,8 +198,9 @@ public class TableModel {
 	 *  Start add a Index in DDL, detail usage see demo
 	 */
 	public IndexConst index(String indexName) {
-		IndexConst index=index();
-		index.setName(indexName);
+		IndexConst index=new IndexConst();
+		index.setName(indexName); 
+		this.indexConsts.add(index);  
 		return index;
 	}
 	
@@ -214,8 +217,9 @@ public class TableModel {
 	 *  Start add a unique constraint in DDL, detail usage see demo
 	 */
 	public UniqueConst unique(String uniqueName) {
-		UniqueConst unique=unique();
+		UniqueConst unique=new UniqueConst( );  
 		unique.setName(uniqueName);
+		this.uniqueConsts.add(unique);
 		return unique;
 	}
  

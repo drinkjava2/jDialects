@@ -12,8 +12,8 @@ import javax.sql.DataSource;
 import org.junit.After;
 import org.junit.Before;
 
-import com.github.drinkjava2.dbutilspro.DbPro;
 import com.github.drinkjava2.jbeanbox.BeanBox;
+import com.github.drinkjava2.jdbpro.DbPro;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.model.TableModel;
 
@@ -28,7 +28,7 @@ import test.DataSourceConfig.DataSourceBox;
  */
 public class BaseDDLTest {
 	protected DataSource ds = BeanBox.getBean(DataSourceBox.class);
-	protected DbPro tiny = new DbPro(ds);
+	protected DbPro db = new DbPro(ds);
 	protected Dialect guessedDialect = Dialect.guessDialect(ds);;
 
 	@Before
@@ -50,7 +50,7 @@ public class BaseDDLTest {
 	protected void quiteExecuteNoParamSqls(String... sqls) {
 		for (String sql : sqls) {
 			try {
-				tiny.nExecute(sql);
+				db.nExecute(sql);
 			} catch (Exception e) {
 			}
 		}
@@ -58,7 +58,7 @@ public class BaseDDLTest {
 
 	protected void executeNoParamSqls(String... sqls) {
 		for (String sql : sqls)
-			tiny.nExecute(sql);
+			db.nExecute(sql);
 	}
 
 	protected void testOnCurrentRealDatabase(TableModel... tables) {

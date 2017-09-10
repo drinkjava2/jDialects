@@ -174,14 +174,14 @@ public abstract class ConvertUtils {
 		// SequenceGenerator
 		List<Map<String, Object>> sequences = getPojoAnnotations(pojoClass, "SequenceGenerator");
 		for (Map<String, Object> map : sequences) {
-			model.addSequence(new SequenceGen((String) map.get("name"), (String) map.get("sequenceName"),
+			model.sequenceGenerator(new SequenceGen((String) map.get("name"), (String) map.get("sequenceName"),
 					(Integer) map.get("initialValue"), (Integer) map.get("allocationSize")));
 		}
 
 		// TableGenerator
 		List<Map<String, Object>> tableGens = getPojoAnnotations(pojoClass, "TableGenerator");
 		for (Map<String, Object> map : tableGens) {
-			model.addTableGenerator((String) map.get("name"), (String) map.get("table"),
+			model.tableGenerator((String) map.get("name"), (String) map.get("table"),
 					(String) map.get("pkColumnName"), (String) map.get("valueColumnName"),
 					(String) map.get("pkColumnValue"), (Integer) map.get("initialValue"),
 					(Integer) map.get("allocationSize"));
@@ -211,7 +211,7 @@ public abstract class ConvertUtils {
 				// Transient
 				if (getFirstPojoAnnotation(field, "Transient").isEmpty()) {
 					ColumnModel vcolumn = new ColumnModel(entityField);
-					vcolumn.entityField(entityField);
+					vcolumn.pojoField(entityField);
 					// Column
 					Map<String, Object> colMap = getFirstPojoAnnotation(field, "Column");
 					if (!colMap.isEmpty()) {
@@ -225,6 +225,8 @@ public abstract class ConvertUtils {
 						vcolumn.setLengths(
 								new Integer[] { vcolumn.getLength(), vcolumn.getPrecision(), vcolumn.getScale() });
 						vcolumn.setColumnType(ColumnDef.toType((String) colMap.get("columnDefinition")));
+						vcolumn.setInsertable((Boolean) colMap.get("insertable"));
+						vcolumn.setUpdatable((Boolean) colMap.get("updatable"));
 					} else {
 						vcolumn.setColumnType(ColumnDef.toType(propertyClass));
 						vcolumn.setLengths(new Integer[] { 255, 0, 0 });
@@ -233,7 +235,7 @@ public abstract class ConvertUtils {
 					// SequenceGenerator
 					Map<String, Object> seqMap = getFirstPojoAnnotation(field, "SequenceGenerator");
 					if (!seqMap.isEmpty())
-						model.addSequence(
+						model.sequenceGenerator(
 								new SequenceGen((String) seqMap.get("name"), (String) seqMap.get("sequenceName"),
 										(Integer) seqMap.get("initialValue"), (Integer) seqMap.get("allocationSize")));
 

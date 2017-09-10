@@ -4,7 +4,7 @@
  
  <groupId>com.github.drinkjava2</groupId>
  <artifactId>jdialects</artifactId>
- <version>1.0.5-SNAPSHOT</version>
+ <version>1.0.5</version>
  <packaging>jar</packaging> 
  
  <name>jdialects</name>
@@ -79,10 +79,10 @@
     	<scope>test</scope>
 	</dependency>  
 	
-    <!-- DbUtils-Pro-1.7.0 is a improved version of DbUtils-1.7, here only be used for unit test -->
+    <!-- jDbPro is a JDBC tool depends on Apache Commons DbUtils but made some improvements -->
     <dependency>
        <groupId>com.github.drinkjava2</groupId>
-       <artifactId>dbutils-pro</artifactId>
+       <artifactId>jdbpro</artifactId>
        <version>1.7.0</version>
        <scope>test</scope>
     </dependency>

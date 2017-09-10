@@ -402,7 +402,8 @@ public class DDLCreateUtils {
 			s = StrUtils.replace(s, "_REF1, _REF2", StrUtils.arrayToStringButSkipFirst(t.getRefTableAndColumns()));
 			s = StrUtils.replace(s, "_REFTABLE", t.getRefTableAndColumns()[0]);
 			s = StrUtils.replace(s, "_FKEYNAME", constName);
-			stringList.add("alter table " + t.getTableName() + " " + s);
+			String tail = StrUtils.isEmpty(t.getFkeyTail()) ? "" : " " + t.getFkeyTail();
+			stringList.add("alter table " + t.getTableName() + " " + s + tail);
 		}
 	}
 

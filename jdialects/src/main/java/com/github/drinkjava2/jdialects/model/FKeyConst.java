@@ -31,8 +31,9 @@ import java.util.List;
 public class FKeyConst {
 	private String fkeyName;
 	private String tableName;
-	private List<String> columnNames = new ArrayList<String>(); 
-	
+	private List<String> columnNames = new ArrayList<String>();
+	private String fkeyTail;
+
 	/** format: "reftable, refcol1, refcol2..." */
 	private String[] refTableAndColumns;
 
@@ -48,9 +49,20 @@ public class FKeyConst {
 		this.columnNames = Arrays.asList(columnNames);
 		return this;
 	}
+	
+	public FKeyConst fkeyName(String fkeyName) {
+		this.fkeyName =fkeyName;
+		return this;
+	}
 
-	public FKeyConst refs( String... refTableAndColumns) { 
+	public FKeyConst refs(String... refTableAndColumns) {
 		this.refTableAndColumns = refTableAndColumns;
+		return this;
+	}
+
+	/** Add a tail String at the end of Foreign key DDL */
+	public FKeyConst fkeyTail(String fkeyTail) {
+		this.fkeyTail = fkeyTail;
 		return this;
 	}
 
@@ -71,7 +83,7 @@ public class FKeyConst {
 		this.columnNames = columnNames;
 	}
 
-  	public String[] getRefTableAndColumns() {
+	public String[] getRefTableAndColumns() {
 		return refTableAndColumns;
 	}
 
@@ -85,6 +97,14 @@ public class FKeyConst {
 
 	public void setFkeyName(String fkeyName) {
 		this.fkeyName = fkeyName;
+	}
+
+	public String getFkeyTail() {
+		return fkeyTail;
+	}
+
+	public void setFkeyTail(String tail) {
+		this.fkeyTail = tail;
 	}
 
 }
