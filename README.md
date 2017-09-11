@@ -19,6 +19,7 @@ jDialects起初是为了jSqlBox项目而开发的，但它本身是一个独立�
 		<version>1.0.5</version>
 	</dependency>
 ```	 
+
 ### 在程序中使用   
 一. 生成跨数据库的分页SQL：  
 ```
