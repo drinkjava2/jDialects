@@ -92,17 +92,22 @@ public class DDLCreateUtils {
 		// Reserved words check
 		dialect.checkNotEmptyReservedWords(tableName, "Table name can not be empty");
 
-		List<IndexConst> l = t.getIndexConsts();// check index names
-		if (l != null && !l.isEmpty())
-			for (IndexConst index : l)
+		List<IndexConst> idexChks = t.getIndexConsts();// check index names
+		if (idexChks != null && !idexChks.isEmpty())
+			for (IndexConst index : idexChks)
 				dialect.checkReservedWords(index.getName());
 
-		List<UniqueConst> l2 = t.getUniqueConsts();// check unique names
-		if (l2 != null && !l2.isEmpty())
-			for (UniqueConst unique : l2)
+		List<UniqueConst> ukChks = t.getUniqueConsts();// check unique names
+		if (ukChks != null && !ukChks.isEmpty())
+			for (UniqueConst unique : ukChks)
 				dialect.checkReservedWords(unique.getName());
 
-		for (ColumnModel col : columns.values())
+		List<FKeyConst> fkeyChks = t.getFkeyConstraints();//check Fkey names
+		if (fkeyChks != null && !fkeyChks.isEmpty())
+			for (FKeyConst fkey : fkeyChks)
+				dialect.checkReservedWords(fkey.getFkeyName());
+
+		for (ColumnModel col : columns.values())// check column names
 			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
 
 		for (ColumnModel col : columns.values()) {

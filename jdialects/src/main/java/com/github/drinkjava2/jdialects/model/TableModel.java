@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.drinkjava2.jdialects.DialectException;
+import com.github.drinkjava2.jdialects.utils.ConvertUtils;
 
 /**
  * A TableModel definition represents a platform dependent Database Table, from
@@ -61,6 +62,10 @@ public class TableModel {
 		this.tableName = tableName;
 	}
 
+	public static TableModel fromPojo(Class<?> pojoClass) {
+		return ConvertUtils.pojo2Model(pojoClass);
+	}
+	
 	/**
 	 * Add a "create table..." DDL to generate ID, similar like JPA's TableGen
 	 */
@@ -133,10 +138,6 @@ public class TableModel {
 	public TableModel addColumn(ColumnModel column) {
 		DialectException.assureNotNull(column);
 		DialectException.assureNotEmpty(column.getColumnName(), "Column's columnName can not be empty");
-		if ((columns.get(column.getColumnName().toLowerCase()) != null)) {
-			DialectException.throwEX("Dulplicated column name \"" + column.getColumnName() + "\" found in table \""
-					+ this.getTableName() + "\"");
-		}
 		column.setTableModel(this);
 		columns.put(column.getColumnName().toLowerCase(), column); 
 		return this;

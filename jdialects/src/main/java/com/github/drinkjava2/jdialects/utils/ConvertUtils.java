@@ -120,15 +120,15 @@ public abstract class ConvertUtils {
 	 * @param pojoClass
 	 * @return TableModel
 	 */
-	public static TableModel[] pojo2Model(Class<?>... pojoClasses) {
+	public static TableModel[] pojos2Models(Class<?>... pojoClasses) {
 		List<TableModel> l = new ArrayList<TableModel>();
 		for (Class<?> clazz : pojoClasses) {
-			l.add(onePojo2Model(clazz));
+			l.add(pojo2Model(clazz));
 		}
 		return l.toArray(new TableModel[l.size()]);
 	}
 
-	private static TableModel onePojo2Model(Class<?> pojoClass) {
+	public static TableModel pojo2Model(Class<?> pojoClass) {
 		DialectException.assureNotNull(pojoClass, "pojo2Model method does not accept a null class");
 
 		// Entity
@@ -181,10 +181,9 @@ public abstract class ConvertUtils {
 		// TableGenerator
 		List<Map<String, Object>> tableGens = getPojoAnnotations(pojoClass, "TableGenerator");
 		for (Map<String, Object> map : tableGens) {
-			model.tableGenerator((String) map.get("name"), (String) map.get("table"),
-					(String) map.get("pkColumnName"), (String) map.get("valueColumnName"),
-					(String) map.get("pkColumnValue"), (Integer) map.get("initialValue"),
-					(Integer) map.get("allocationSize"));
+			model.tableGenerator((String) map.get("name"), (String) map.get("table"), (String) map.get("pkColumnName"),
+					(String) map.get("valueColumnName"), (String) map.get("pkColumnValue"),
+					(Integer) map.get("initialValue"), (Integer) map.get("allocationSize"));
 		}
 
 		// FKey
@@ -224,7 +223,10 @@ public abstract class ConvertUtils {
 						vcolumn.setScale((Integer) colMap.get("scale"));
 						vcolumn.setLengths(
 								new Integer[] { vcolumn.getLength(), vcolumn.getPrecision(), vcolumn.getScale() });
-						vcolumn.setColumnType(ColumnDef.toType((String) colMap.get("columnDefinition")));
+						if (!StrUtils.isEmpty(colMap.get("columnDefinition")))
+							vcolumn.setColumnType(ColumnDef.toType((String) colMap.get("columnDefinition")));
+						else
+							vcolumn.setColumnType(ColumnDef.toType(propertyClass));
 						vcolumn.setInsertable((Boolean) colMap.get("insertable"));
 						vcolumn.setUpdatable((Boolean) colMap.get("updatable"));
 					} else {

@@ -7,6 +7,9 @@
  */
 package com.github.drinkjava2.jdialects.model;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.Type;
 import com.github.drinkjava2.jdialects.utils.StrUtils;
@@ -204,9 +207,30 @@ public class ColumnModel {
 		return this;
 	}
 
-	/** Mark this column map to a Java POJO's field, only for JPA or ORM tool use */
+	/**
+	 * Mark this column map to a Java POJO's field, if exist other columns map to
+	 * this field, delete other columns. This method only designed for ORM tool
+	 */
 	public ColumnModel pojoField(String pojoField) {
+		DialectException.assureNotEmpty(pojoField, "pojoField can not be empty");
 		this.pojoField = pojoField;
+		if (this.tableModel != null) {
+			boolean existPojoFieldMap = false;
+			Map<String, ColumnModel> oldColumns = this.tableModel.getColumns();
+			for (ColumnModel column : oldColumns.values()) {
+				if (pojoField.equals(column.getPojoField()) && !this.getColumnName().equals(column.getColumnName())) {
+					existPojoFieldMap = true;
+					break;
+				}
+			}
+			if (existPojoFieldMap) {
+				this.tableModel.setColumns(new LinkedHashMap<String, ColumnModel>());
+				for (ColumnModel column : oldColumns.values())
+					if (!(pojoField.equals(column.getPojoField())
+							&& !this.getColumnName().equals(column.getColumnName())))
+						this.tableModel.addColumn(column);
+			}
+		}
 		return this;
 	}
 

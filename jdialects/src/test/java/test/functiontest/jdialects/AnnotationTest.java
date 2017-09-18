@@ -94,6 +94,9 @@ public class AnnotationTest extends BaseDDLTest {
 		@Transient
 		public Integer field4;
 
+		@Column()
+		public String field5;// no columnDefinition
+
 		public String getField1() {
 			return field1;
 		}
@@ -126,14 +129,21 @@ public class AnnotationTest extends BaseDDLTest {
 			this.field4 = field4;
 		}
 
+		public String getField5() {
+			return field5;
+		}
+
+		public void setField5(String field5) {
+			this.field5 = field5;
+		}
 	}
 
 	@Test
 	public void ddlOutTest() {
-		String[] dropAndCreateDDL = Dialect.H2Dialect.toCreateDDL(ConvertUtils.pojo2Model(POJO1.class, POJO2.class));
+		String[] dropAndCreateDDL = Dialect.H2Dialect.toCreateDDL(ConvertUtils.pojos2Models(POJO1.class, POJO2.class));
 		for (String ddl : dropAndCreateDDL)
 			System.out.println(ddl);
 
-		testOnCurrentRealDatabase(ConvertUtils.pojo2Model(POJO1.class, POJO2.class));
+		testOnCurrentRealDatabase(ConvertUtils.pojos2Models(POJO1.class, POJO2.class));
 	}
 }

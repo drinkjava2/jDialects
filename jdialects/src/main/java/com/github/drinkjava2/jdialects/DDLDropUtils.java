@@ -92,6 +92,11 @@ public class DDLDropUtils {
 			for (UniqueConst unique : l2)
 				dialect.checkReservedWords(unique.getName());
 
+		List<FKeyConst> fkeyChks = t.getFkeyConstraints();//check Fkey names
+		if (fkeyChks != null && !fkeyChks.isEmpty())
+			for (FKeyConst fkey : fkeyChks)
+				dialect.checkReservedWords(fkey.getFkeyName());
+
 		for (ColumnModel col : columns.values())
 			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
 
