@@ -102,7 +102,7 @@ public class DDLCreateUtils {
 			for (UniqueConst unique : ukChks)
 				dialect.checkReservedWords(unique.getName());
 
-		List<FKeyConst> fkeyChks = t.getFkeyConstraints();//check Fkey names
+		List<FKeyConst> fkeyChks = t.getFkeyConstraints();// check Fkey names
 		if (fkeyChks != null && !fkeyChks.isEmpty())
 			for (FKeyConst fkey : fkeyChks)
 				dialect.checkReservedWords(fkey.getFkeyName());
@@ -402,13 +402,20 @@ public class DDLCreateUtils {
 			if (StrUtils.isEmpty(constName))
 				constName = "fk_" + t.getTableName().toLowerCase() + "_"
 						+ StrUtils.replace(StrUtils.listToString(t.getColumnNames()), ",", "_");
-			String s = dialect.ddlFeatures.addForeignKeyConstraintString;
-			s = StrUtils.replace(s, "_FK1, _FK2", StrUtils.listToString(t.getColumnNames()));
-			s = StrUtils.replace(s, "_REF1, _REF2", StrUtils.arrayToStringButSkipFirst(t.getRefTableAndColumns()));
-			s = StrUtils.replace(s, "_REFTABLE", t.getRefTableAndColumns()[0]);
-			s = StrUtils.replace(s, "_FKEYNAME", constName);
+			String[] refTableAndColumns = t.getRefTableAndColumns();
+			DialectException.assureNotNull(refTableAndColumns);
+			String fkeyTemplate;
+			if (refTableAndColumns.length == 1)
+				fkeyTemplate = dialect.ddlFeatures.addFKeyRefPkeyString;
+			else
+				fkeyTemplate = dialect.ddlFeatures.addForeignKeyConstraintString;
+
+			fkeyTemplate = StrUtils.replace(fkeyTemplate, "_FK1, _FK2", StrUtils.listToString(t.getColumnNames()));
+			fkeyTemplate = StrUtils.replace(fkeyTemplate, "_REF1, _REF2", StrUtils.arrayToStringButSkipFirst(t.getRefTableAndColumns()));
+			fkeyTemplate = StrUtils.replace(fkeyTemplate, "_REFTABLE", t.getRefTableAndColumns()[0]);
+			fkeyTemplate = StrUtils.replace(fkeyTemplate, "_FKEYNAME", constName);
 			String tail = StrUtils.isEmpty(t.getFkeyTail()) ? "" : " " + t.getFkeyTail();
-			stringList.add("alter table " + t.getTableName() + " " + s + tail);
+			stringList.add("alter table " + t.getTableName() + " " + fkeyTemplate + tail);
 		}
 	}
 

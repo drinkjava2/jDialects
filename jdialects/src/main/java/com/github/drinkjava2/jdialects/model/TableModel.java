@@ -34,6 +34,9 @@ public class TableModel {
 	/** comment for table */
 	private String comment;
 
+	/** Optional, map to which POJO class, this is designed for ORM tool only */
+	private Class<?> pojoClass;
+
 	/**
 	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the end
 	 * of "create table..." DDL, usually used to set encode String like " DEFAULT
@@ -65,7 +68,7 @@ public class TableModel {
 	public static TableModel fromPojo(Class<?> pojoClass) {
 		return ConvertUtils.pojo2Model(pojoClass);
 	}
-	
+
 	/**
 	 * Add a "create table..." DDL to generate ID, similar like JPA's TableGen
 	 */
@@ -143,6 +146,13 @@ public class TableModel {
 		return this;
 	}
 
+	
+	/** Map to which POJO class, this is designed for ORM tool only*/
+	public TableModel pojoClass(Class<?> pojoClass) {
+		DialectException.assureNotNull(pojoClass);  
+		this.pojoClass=pojoClass;
+		return this;
+	}
  
 	/**
 	 * Start add a column definition piece in DDL, detail usage see demo
@@ -313,6 +323,14 @@ public class TableModel {
 
 	public void setUniqueConsts(List<UniqueConst> uniqueConsts) {
 		this.uniqueConsts = uniqueConsts;
+	}
+
+	public Class<?> getPojoClass() {
+		return pojoClass;
+	}
+
+	public void setPojoClass(Class<?> pojoClass) {
+		this.pojoClass = pojoClass;
 	} 
-	
+	 
 }

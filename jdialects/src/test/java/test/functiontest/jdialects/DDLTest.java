@@ -291,6 +291,7 @@ public class DDLTest extends BaseDDLTest {
 		TableModel t2 = new TableModel("master2");
 		t2.column("name").VARCHAR(20).pkey();
 		t2.column("address").VARCHAR(20).pkey();
+		t2.column("fid").INTEGER().singleFKey("master1");
 
 		TableModel t3 = new TableModel("child");
 		t3.column("id").INTEGER().pkey();
@@ -301,6 +302,7 @@ public class DDLTest extends BaseDDLTest {
 		t3.fkey().columns("masterid1").refs("master1", "id").fkeyTail("ON DELETE CASCADE ON UPDATE CASCADE");
 		;
 		t3.fkey("FKNAME1").columns("myname", "myaddress").refs("master2", "name", "address");
+		t3.fkey("FKNAME2").columns("myname", "myaddress").refs("master2");
 
 		TableModel t4 = new TableModel("child2");
 		t4.column("id").INTEGER().pkey();

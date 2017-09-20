@@ -172,8 +172,9 @@ public class ColumnModel {
 	public FKeyConst singleFKey(String... refTableAndColumns) {
 		DialectException.assureNotNull(this.tableModel,
 				"singleFKey() method only be used when tableModel is set, like tableModel.column().singleFKey() format");
-		if (refTableAndColumns == null || refTableAndColumns.length != 2)
-			throw new DialectException("singleFKey() method can only have 2 parameters like \"tablename\",\"col1\"");
+		if (refTableAndColumns == null || refTableAndColumns.length > 2)
+			throw new DialectException(
+					"singleFKey() first parameter should be table name, second parameter(optional) should be column name");
 		return this.tableModel.fkey().columns(this.columnName).refs(refTableAndColumns);
 	}
 
