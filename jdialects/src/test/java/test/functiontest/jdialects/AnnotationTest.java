@@ -29,7 +29,7 @@ import com.github.drinkjava2.jdialects.annotation.TableGenerator;
 import com.github.drinkjava2.jdialects.annotation.TableGenerator2;
 import com.github.drinkjava2.jdialects.annotation.Transient;
 import com.github.drinkjava2.jdialects.annotation.UniqueConstraint;
-import com.github.drinkjava2.jdialects.utils.ConvertUtils;
+import com.github.drinkjava2.jdialects.utils.TableModelUtils;
 
 import test.BaseDDLTest;
 
@@ -160,10 +160,10 @@ public class AnnotationTest extends BaseDDLTest {
 
 	@Test
 	public void ddlOutTest() {
-		String[] dropAndCreateDDL = Dialect.H2Dialect.toCreateDDL(ConvertUtils.pojos2Models(POJO1.class, POJO2.class));
+		String[] dropAndCreateDDL = Dialect.H2Dialect.toCreateDDL(TableModelUtils.pojos2Models(POJO1.class, POJO2.class));
 		for (String ddl : dropAndCreateDDL)
 			System.out.println(ddl);
 
-		testOnCurrentRealDatabase(ConvertUtils.pojos2Models(POJO1.class, POJO2.class));
+		testOnCurrentRealDatabase(TableModelUtils.pojos2Models(POJO1.class, POJO2.class));
 	}
 }

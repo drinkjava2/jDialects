@@ -21,6 +21,7 @@ import com.github.drinkjava2.jdialects.hibernatesrc.pagination.SQLServer2012Limi
 import com.github.drinkjava2.jdialects.hibernatesrc.utils.StringHelper;
 import com.github.drinkjava2.jdialects.model.AutoIdGen;
 import com.github.drinkjava2.jdialects.model.TableModel;
+import com.github.drinkjava2.jdialects.utils.TableModelUtils;
 import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
@@ -790,14 +791,35 @@ public enum Dialect {
 	// ===============================================
 
 	/**
-	 * Transfer tables to formatted create DDL
+	 * Transfer POJO classes to create DDL
+	 */
+	public String[] toCreateDDL(Class<?>... pojoClasses) {
+		return DDLCreateUtils.toCreateDDL(this, TableModelUtils.pojos2Models(pojoClasses));
+	} 
+	
+	/**
+	 * Transfer POJO classes to create DDL
+	 */
+	public String[] toDropDDL(Class<?>... pojoClasses) {
+		return DDLDropUtils.toDropDDL(this, TableModelUtils.pojos2Models(pojoClasses));
+	} 
+	
+	/**
+	 * Transfer tables to drop and create DDL String array
+	 */
+	public String[] toDropAndCreateDDL(Class<?>... pojoClasses) {		 
+		return toDropAndCreateDDL(TableModelUtils.pojos2Models(pojoClasses));
+	}
+	
+	/**
+	 * Transfer tables to create DDL
 	 */
 	public String[] toCreateDDL(TableModel... tables) {
 		return DDLCreateUtils.toCreateDDL(this, tables);
 	}
 
 	/**
-	 * Transfer tables to formatted drop DDL
+	 * Transfer tables to drop DDL
 	 */
 	public String[] toDropDDL(TableModel... tables) {
 		return DDLDropUtils.toDropDDL(this, tables);

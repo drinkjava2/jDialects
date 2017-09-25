@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.drinkjava2.jdialects.DialectException;
-import com.github.drinkjava2.jdialects.utils.ConvertUtils;
+import com.github.drinkjava2.jdialects.utils.TableModelUtils;
 
 /**
  * A TableModel definition represents a platform dependent Database Table, from
@@ -69,7 +69,7 @@ public class TableModel {
 	}
 
 	public static TableModel fromPojo(Class<?> pojoClass) {
-		return ConvertUtils.pojo2Model(pojoClass);
+		return TableModelUtils.pojo2Model(pojoClass);
 	}
 
 	/**

@@ -47,14 +47,14 @@ import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
  * @author Yong Zhu
  * @since 1.0.5
  */
-public abstract class ConvertUtils {
+public abstract class TableModelUtils {
 
 	private static boolean matchNameCheck(String annotationName, String cName) {
 		if (("javax.persistence." + annotationName).equals(cName))
 			return true;
 		if (("com.github.drinkjava2.jdialects.annotation." + annotationName).equals(cName))
 			return true;
-		for (int i = 1; i <= 3; i++) {// Java6 no allow repeat annotation, have to use FKey1, Fkey2, Fkey3
+		for (int i = 1; i <= 3; i++) {// Java6 no allow repeat annotation, have to use FKey1, Fkey2, Fkey3...
 			if (("com.github.drinkjava2.jdialects.annotation." + annotationName + i).equals(cName))
 				return true;
 		}
