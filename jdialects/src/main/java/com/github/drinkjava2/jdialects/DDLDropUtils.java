@@ -1,15 +1,15 @@
 /**
- * jDialects, a tiny SQL dialect tool 
+ * jDialects, a tiny SQL dialect tool
  *
- * License: GNU Lesser General Public License (LGPL), version 2.1 or later.
- * See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
+ * the lgpl.txt file in the root directory or
+ * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
 package com.github.drinkjava2.jdialects;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.github.drinkjava2.jdialects.model.AutoIdGen;
@@ -17,10 +17,10 @@ import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.FKeyConst;
 import com.github.drinkjava2.jdialects.model.IndexConst;
 import com.github.drinkjava2.jdialects.model.SequenceGen;
-import com.github.drinkjava2.jdialects.model.TableModel;
-import com.github.drinkjava2.jdialects.utils.StrUtils;
 import com.github.drinkjava2.jdialects.model.TableGen;
+import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jdialects.model.UniqueConst;
+import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
  * To transfer platform-independent model to drop DDL String array
@@ -43,7 +43,7 @@ public class DDLDropUtils {
 		List<String> stringResultList = new ArrayList<String>();
 		List<TableGen> tbGeneratorList = new ArrayList<TableGen>();
 		List<SequenceGen> sequenceList = new ArrayList<SequenceGen>();
-		List<AutoIdGen> globalIdGeneratorList = new ArrayList<AutoIdGen>(); 
+		List<AutoIdGen> globalIdGeneratorList = new ArrayList<AutoIdGen>();
 		List<FKeyConst> fKeyConstraintList = new ArrayList<FKeyConst>();
 
 		for (Object strOrObj : objectResultList) {
@@ -55,7 +55,7 @@ public class DDLDropUtils {
 				else if (strOrObj instanceof SequenceGen)
 					sequenceList.add((SequenceGen) strOrObj);
 				else if (strOrObj instanceof AutoIdGen)
-					globalIdGeneratorList.add((AutoIdGen) strOrObj); 
+					globalIdGeneratorList.add((AutoIdGen) strOrObj);
 				else if (strOrObj instanceof FKeyConst)
 					fKeyConstraintList.add((FKeyConst) strOrObj);
 			}
@@ -63,7 +63,7 @@ public class DDLDropUtils {
 
 		buildDropSequenceDDL(dialect, stringResultList, sequenceList);
 		buildDropTableGeneratorDDL(dialect, stringResultList, tbGeneratorList);
-		buildDropGolbalIDGeneratorDDL(dialect, stringResultList, globalIdGeneratorList); 
+		buildDropGolbalIDGeneratorDDL(dialect, stringResultList, globalIdGeneratorList);
 		outputDropFKeyConstraintDDL(dialect, stringResultList, fKeyConstraintList);
 
 		return stringResultList.toArray(new String[stringResultList.size()]);
@@ -77,11 +77,11 @@ public class DDLDropUtils {
 
 		StringBuilder buf = new StringBuilder();
 		String tableName = t.getTableName();
-		Map<String, ColumnModel> columns = t.getColumns();
+		List<ColumnModel> columns = t.getColumns();
 
 		// Reserved words check
 		dialect.checkNotEmptyReservedWords(tableName, "Table name can not be empty");
-		
+
 		List<IndexConst> l = t.getIndexConsts();// check index names
 		if (l != null && !l.isEmpty())
 			for (IndexConst index : l)
@@ -92,32 +92,31 @@ public class DDLDropUtils {
 			for (UniqueConst unique : l2)
 				dialect.checkReservedWords(unique.getName());
 
-		List<FKeyConst> fkeyChks = t.getFkeyConstraints();//check Fkey names
+		List<FKeyConst> fkeyChks = t.getFkeyConstraints();// check Fkey names
 		if (fkeyChks != null && !fkeyChks.isEmpty())
 			for (FKeyConst fkey : fkeyChks)
 				dialect.checkReservedWords(fkey.getFkeyName());
 
-		for (ColumnModel col : columns.values())
+		for (ColumnModel col : columns)
 			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
 
-		for (ColumnModel col : columns.values()) {
+		for (ColumnModel col : columns) {
 			// autoGenerator, only support sequence or table for "Auto" type
 			if (col.getAutoGenerator()) {// if support sequence
 				if (features.supportBasicOrPooledSequence()) {
-					objectResultList.add(
-							new SequenceGen(AutoIdGen.JDIALECTS_AUTOID, AutoIdGen.JDIALECTS_AUTOID, 1, 1));
+					objectResultList.add(new SequenceGen(AutoIdGen.JDIALECTS_AUTOID, AutoIdGen.JDIALECTS_AUTOID, 1, 1));
 				} else {// AutoIdGen
 					objectResultList.add(new AutoIdGen());
 				}
-			} 
+			}
 		}
 
 		// sequence
-		for (SequenceGen seq : t.getSequences().values())
+		for (SequenceGen seq : t.getSequences())
 			objectResultList.add(seq);
 
 		// tableGenerator
-		for (TableGen tableGenerator : t.getTableGenerators().values())
+		for (TableGen tableGenerator : t.getTableGenerators())
 			objectResultList.add(tableGenerator);
 
 		// Foreign key
@@ -202,7 +201,7 @@ public class DDLDropUtils {
 		if (globalIdGeneratorList != null && !globalIdGeneratorList.isEmpty())
 			stringResultList.add(0, dialect.dropTableDDL(AutoIdGen.JDIALECTS_AUTOID));
 	}
- 
+
 	private static void outputDropFKeyConstraintDDL(Dialect dialect, List<String> stringResultList,
 			List<FKeyConst> trueList) {
 		if (DDLFeatures.NOT_SUPPORT.equals(dialect.ddlFeatures.addForeignKeyConstraintString))
@@ -212,7 +211,7 @@ public class DDLDropUtils {
 			String constName = t.getFkeyName();
 			if (StrUtils.isEmpty(constName))
 				constName = "fk_" + t.getTableName().toLowerCase() + "_"
-						+ StrUtils.replace(StrUtils.listToString(t.getColumnNames()), ",", "_"); 
+						+ StrUtils.replace(StrUtils.listToString(t.getColumnNames()), ",", "_");
 			if (DDLFeatures.NOT_SUPPORT.equals(dropStr))
 				DialectException.throwEX("Dialect \"" + dialect
 						+ "\" does not support drop foreign key, for setting: \"" + "fk_" + constName + "\"");

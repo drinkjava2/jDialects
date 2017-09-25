@@ -8,9 +8,7 @@
 package com.github.drinkjava2.jdialects.model;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.utils.ConvertUtils;
@@ -44,17 +42,22 @@ public class TableModel {
 	 */
 	private String engineTail;
 
-	/** Columns in this table, key is lower case of column tableName */
-	private Map<String, ColumnModel> columns = new LinkedHashMap<String, ColumnModel>();
+	/** Columns in this table */
+	private List<ColumnModel> columns = new ArrayList<ColumnModel>();
 
-	/** sequences */
-	private Map<String, SequenceGen> sequences = new LinkedHashMap<String, SequenceGen>();
+	/** Sequences */
+	private List<SequenceGen> sequences = new ArrayList<SequenceGen>();
 
 	/** tableGenerators */
-	private Map<String, TableGen> tableGenerators = new LinkedHashMap<String, TableGen>();
+	private List<TableGen> tableGenerators = new ArrayList<TableGen>();
 
+	/** Foreign Keys */
 	private List<FKeyConst> fkeyConstraints = new ArrayList<FKeyConst>();
+
+	/** Indexes */
 	private List<IndexConst> indexConsts = new ArrayList<IndexConst>();
+
+	/** Unique constraints */
 	private List<UniqueConst> uniqueConsts = new ArrayList<UniqueConst>();
 
 	public TableModel() {
@@ -76,11 +79,7 @@ public class TableModel {
 		//@formatter:off
 		DialectException.assureNotNull(tableGenerator);
 		DialectException.assureNotEmpty(tableGenerator.getName(), "TableGen name can not be empty");  
-		if (  tableGenerators.get(tableGenerator.getName().toLowerCase()) != null ) {
-			DialectException.throwEX("Dulplicated TableGen name \"" + tableGenerator.getName() + "\" found in table \""
-					+ this.getTableName() + "\"");
-		} 
-		tableGenerators.put(tableGenerator.getName().toLowerCase(), tableGenerator);
+		tableGenerators.add(tableGenerator);
 	}
  
 	/**
@@ -116,7 +115,7 @@ public class TableModel {
 	public void sequenceGenerator(SequenceGen sequence) {
 		DialectException.assureNotNull(sequence);
 		DialectException.assureNotEmpty(sequence.getSequenceName(), "SequenceGen name can not be empty");
-		sequences.put(sequence.getSequenceName().toLowerCase(), sequence);
+		sequences.add( sequence);
 	}
 
 	/**
@@ -142,7 +141,7 @@ public class TableModel {
 		DialectException.assureNotNull(column);
 		DialectException.assureNotEmpty(column.getColumnName(), "Column's columnName can not be empty");
 		column.setTableModel(this);
-		columns.put(column.getColumnName().toLowerCase(), column); 
+		columns.add(column); 
 		return this;
 	}
 
@@ -161,18 +160,22 @@ public class TableModel {
 	 * @return the Column object
 	 */
 	public ColumnModel column(String columnName) {
+		DialectException.assureNotEmpty(columnName, "columnName can not be empty"); 
+		for (ColumnModel columnModel : columns)  
+			if(columnName.equals(columnModel.getColumnName()))return columnModel;  
 		ColumnModel column = new ColumnModel(columnName);
-		column.setTableModel(this);
 		addColumn(column);
 		return column;
 	}
 
 	/**
-	 * Return Column object by columnName
+	 * Return ColumnModel object by columnName, if not found, return null;
 	 */
-	public ColumnModel getColumn(String columnName) {
-		DialectException.assureNotEmpty(columnName);
-		return columns.get(columnName.toLowerCase());
+	public ColumnModel getColumn(String columnName) { 
+		for (ColumnModel columnModel : columns)  
+			if( columnModel.getColumnName()!=null && columnModel.getColumnName().equals(columnName))
+				 return columnModel;  
+		return null;
 	}
 	
 	/**
@@ -269,27 +272,28 @@ public class TableModel {
 		this.comment = comment;
 	}
 
-	public Map<String, ColumnModel> getColumns() {
+ 
+	public List<ColumnModel> getColumns() { 
 		return columns;
 	}
 
-	public void setColumns(Map<String, ColumnModel> columns) {
+	public void setColumns(List<ColumnModel> columns) {
 		this.columns = columns;
-	}
+	} 
 
-	public Map<String, SequenceGen> getSequences() {
+	public List<SequenceGen> getSequences() {
 		return sequences;
 	}
 
-	public void setSequences(Map<String, SequenceGen> sequences) {
+	public void setSequences(List<SequenceGen> sequences) {
 		this.sequences = sequences;
 	}
 
-	public Map<String, TableGen> getTableGenerators() {
+	public List<TableGen> getTableGenerators() {
 		return tableGenerators;
 	}
 
-	public void setTableGenerators(Map<String, TableGen> tableGenerators) {
+	public void setTableGenerators(List<TableGen> tableGenerators) {
 		this.tableGenerators = tableGenerators;
 	}
 

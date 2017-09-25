@@ -97,6 +97,10 @@ public class AnnotationTest extends BaseDDLTest {
 		@Column()
 		public String field5;// no columnDefinition
 
+		public Float field6;
+		
+		public Double field7;
+
 		public String getField1() {
 			return field1;
 		}
@@ -135,6 +139,22 @@ public class AnnotationTest extends BaseDDLTest {
 
 		public void setField5(String field5) {
 			this.field5 = field5;
+		}
+
+		public Float getField6() {
+			return field6;
+		}
+
+		public void setField6(Float field6) {
+			this.field6 = field6;
+		}
+
+		public Double getField7() {
+			return field7;
+		}
+
+		public void setField7(Double field7) {
+			this.field7 = field7;
 		}
 	}
 

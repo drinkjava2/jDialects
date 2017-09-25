@@ -10,17 +10,16 @@ package com.github.drinkjava2.jdialects;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.github.drinkjava2.jdialects.model.AutoIdGen;
+import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.FKeyConst;
 import com.github.drinkjava2.jdialects.model.IndexConst;
 import com.github.drinkjava2.jdialects.model.SequenceGen;
 import com.github.drinkjava2.jdialects.model.TableGen;
-import com.github.drinkjava2.jdialects.model.UniqueConst;
-import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.TableModel;
+import com.github.drinkjava2.jdialects.model.UniqueConst;
 import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
@@ -87,7 +86,7 @@ public class DDLCreateUtils {
 		boolean hasPkey = false;
 		String pkeys = "";
 		String tableName = t.getTableName();
-		Map<String, ColumnModel> columns = t.getColumns();
+		List<ColumnModel> columns = t.getColumns();
 
 		// Reserved words check
 		dialect.checkNotEmptyReservedWords(tableName, "Table name can not be empty");
@@ -107,10 +106,10 @@ public class DDLCreateUtils {
 			for (FKeyConst fkey : fkeyChks)
 				dialect.checkReservedWords(fkey.getFkeyName());
 
-		for (ColumnModel col : columns.values())// check column names
+		for (ColumnModel col : columns)// check column names
 			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
 
-		for (ColumnModel col : columns.values()) {
+		for (ColumnModel col : columns) {
 			// "Auto" type generator
 			if (col.getAutoGenerator()) {// if support sequence
 				if (features.supportBasicOrPooledSequence()) {
@@ -123,11 +122,11 @@ public class DDLCreateUtils {
 		}
 
 		// sequence
-		for (SequenceGen seq : t.getSequences().values())
+		for (SequenceGen seq : t.getSequences())
 			objectResultList.add(seq);
 
 		// tableGenerator
-		for (TableGen tableGenerator : t.getTableGenerators().values())
+		for (TableGen tableGenerator : t.getTableGenerators())
 			objectResultList.add(tableGenerator);
 
 		// Foreign key
@@ -135,7 +134,7 @@ public class DDLCreateUtils {
 			objectResultList.add(fkey);
 
 		// check and cache prime keys
-		for (ColumnModel col : columns.values()) {
+		for (ColumnModel col : columns) {
 			if (col.getPkey()) {
 				hasPkey = true;
 				if (StrUtils.isEmpty(pkeys))
@@ -149,7 +148,7 @@ public class DDLCreateUtils {
 		buf.append(hasPkey ? dialect.ddlFeatures.createTableString : dialect.ddlFeatures.createMultisetTableString)
 				.append(" ").append(tableName).append(" ( ");
 
-		for (ColumnModel c : columns.values()) {
+		for (ColumnModel c : columns) {
 			if (c.getColumnType() == null)
 				DialectException
 						.throwEX("Type not set on column \"" + c.getColumnName() + "\" at table \"" + tableName + "\"");
@@ -250,7 +249,7 @@ public class DDLCreateUtils {
 		}
 
 		// column comment on
-		for (ColumnModel c : columns.values()) {
+		for (ColumnModel c : columns) {
 			if (features.supportsCommentOn && c.getComment() != null && StrUtils.isEmpty(features.columnComment))
 				objectResultList.add(
 						"comment on column " + tableName + '.' + c.getColumnName() + " is '" + c.getComment() + "'");
@@ -411,7 +410,8 @@ public class DDLCreateUtils {
 				fkeyTemplate = dialect.ddlFeatures.addForeignKeyConstraintString;
 
 			fkeyTemplate = StrUtils.replace(fkeyTemplate, "_FK1, _FK2", StrUtils.listToString(t.getColumnNames()));
-			fkeyTemplate = StrUtils.replace(fkeyTemplate, "_REF1, _REF2", StrUtils.arrayToStringButSkipFirst(t.getRefTableAndColumns()));
+			fkeyTemplate = StrUtils.replace(fkeyTemplate, "_REF1, _REF2",
+					StrUtils.arrayToStringButSkipFirst(t.getRefTableAndColumns()));
 			fkeyTemplate = StrUtils.replace(fkeyTemplate, "_REFTABLE", t.getRefTableAndColumns()[0]);
 			fkeyTemplate = StrUtils.replace(fkeyTemplate, "_FKEYNAME", constName);
 			String tail = StrUtils.isEmpty(t.getFkeyTail()) ? "" : " " + t.getFkeyTail();

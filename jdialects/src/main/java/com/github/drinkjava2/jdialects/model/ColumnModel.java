@@ -7,8 +7,8 @@
  */
 package com.github.drinkjava2.jdialects.model;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Iterator;
+import java.util.List;
 
 import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.Type;
@@ -215,21 +215,13 @@ public class ColumnModel {
 	public ColumnModel pojoField(String pojoField) {
 		DialectException.assureNotEmpty(pojoField, "pojoField can not be empty");
 		this.pojoField = pojoField;
-		if (this.tableModel != null) {
-			boolean existPojoFieldMap = false;
-			Map<String, ColumnModel> oldColumns = this.tableModel.getColumns();
-			for (ColumnModel column : oldColumns.values()) {
-				if (pojoField.equals(column.getPojoField()) && !this.getColumnName().equals(column.getColumnName())) {
-					existPojoFieldMap = true;
-					break;
-				}
-			}
-			if (existPojoFieldMap) {
-				this.tableModel.setColumns(new LinkedHashMap<String, ColumnModel>());
-				for (ColumnModel column : oldColumns.values())
-					if (!(pojoField.equals(column.getPojoField())
-							&& !this.getColumnName().equals(column.getColumnName())))
-						this.tableModel.addColumn(column);
+		if (this.tableModel != null) { 
+			List<ColumnModel> oldColumns = this.tableModel.getColumns();
+			Iterator<ColumnModel> columnIter = oldColumns.iterator();
+			while (columnIter.hasNext()) {
+				ColumnModel column = columnIter.next();
+				if (pojoField.equals(column.getPojoField()) && !this.getColumnName().equals(column.getColumnName()))
+					columnIter.remove();
 			}
 		}
 		return this;
