@@ -29,9 +29,8 @@ import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
 /**
  * This utility tool should have below methods:
  * 
- * pojo2Model() method: Convert POJO or JPA annotated POJO classes to
- * "TableModel" Object, this method only support below JPA Annotations:
- * Entity,Column,GeneratedValue,GenerationType,Id,Index,Table,Transient,UniqueConstraint,sequenceGenerator,TableGenerator
+ * pojos2Models() method: Convert pure POJO classes or JPA annotated POJO
+ * classes to "TableModel" Object
  * 
  * TableModel2Excel() method: Convert TableModel Object to Excel CSV format text
  *
@@ -47,7 +46,7 @@ import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
  * @author Yong Zhu
  * @since 1.0.5
  */
-public abstract class TableModelUtils {
+public abstract class DialectUtils {
 
 	private static boolean matchNameCheck(String annotationName, String cName) {
 		if (("javax.persistence." + annotationName).equals(cName))
@@ -101,7 +100,7 @@ public abstract class TableModelUtils {
 		for (Method method : type.getDeclaredMethods())
 			try {
 				result.put(method.getName(), method.invoke(annotation, (Object[]) null));
-			} catch (Exception e) {
+			} catch (Exception e) {// NOSONAR
 			}
 		return result;
 	}
@@ -128,7 +127,33 @@ public abstract class TableModelUtils {
 		return l.toArray(new TableModel[l.size()]);
 	}
 
+	/**
+	 * Convert a Java POJO class or JPA annotated POJO classes to "TableModel"
+	 * Object, if this class has a "config(TableModel tableModel)" method, will also
+	 * call it
+	 */
 	public static TableModel pojo2Model(Class<?> pojoClass) {
+		TableModel model = pojo2ModelIgnoreConfigMethod(pojoClass);
+		Method method = null;
+		try {
+			method = pojoClass.getMethod("config", TableModel.class);
+		} catch (Exception e) {// NOSONAR
+		}
+		if (method != null)
+			try {
+				method.invoke(null, model);
+			} catch (Exception e) {
+				throw new DialectException(e);
+			}
+
+		return model;
+	}
+
+	/**
+	 * Convert a Java POJO class or JPA annotated POJO classes to "TableModel"
+	 * Object, ignore config method
+	 */
+	private static TableModel pojo2ModelIgnoreConfigMethod(Class<?> pojoClass) {
 		DialectException.assureNotNull(pojoClass, "pojo2Model method does not accept a null class");
 
 		// Entity

@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.drinkjava2.jdialects.DialectException;
-import com.github.drinkjava2.jdialects.utils.TableModelUtils;
 
 /**
  * A TableModel definition represents a platform dependent Database Table, from
@@ -22,7 +21,6 @@ import com.github.drinkjava2.jdialects.utils.TableModelUtils;
  * @since 1.0.2
  */
 public class TableModel {
-
 	/** The table tableName in database */
 	private String tableName;
 
@@ -67,11 +65,7 @@ public class TableModel {
 	public TableModel(String tableName) {
 		this.tableName = tableName;
 	}
-
-	public static TableModel fromPojo(Class<?> pojoClass) {
-		return TableModelUtils.pojo2Model(pojoClass);
-	}
-
+  
 	/**
 	 * Add a "create table..." DDL to generate ID, similar like JPA's TableGen
 	 */

@@ -29,7 +29,8 @@ import com.github.drinkjava2.jdialects.annotation.TableGenerator;
 import com.github.drinkjava2.jdialects.annotation.TableGenerator2;
 import com.github.drinkjava2.jdialects.annotation.Transient;
 import com.github.drinkjava2.jdialects.annotation.UniqueConstraint;
-import com.github.drinkjava2.jdialects.utils.TableModelUtils;
+import com.github.drinkjava2.jdialects.model.TableModel;
+import com.github.drinkjava2.jdialects.utils.DialectUtils;
 
 import test.BaseDDLTest;
 
@@ -43,6 +44,7 @@ import test.BaseDDLTest;
 public class AnnotationTest extends BaseDDLTest {
 
 	public static class POJO1 {
+
 		public String field1;
 		public String field2;
 
@@ -98,8 +100,12 @@ public class AnnotationTest extends BaseDDLTest {
 		public String field5;// no columnDefinition
 
 		public Float field6;
-		
+
 		public Double field7;
+
+		public static void config(TableModel tableModel) {
+			tableModel.column("field7").setColumnName("changedfield7");
+		}
 
 		public String getField1() {
 			return field1;
@@ -160,10 +166,10 @@ public class AnnotationTest extends BaseDDLTest {
 
 	@Test
 	public void ddlOutTest() {
-		String[] dropAndCreateDDL = Dialect.H2Dialect.toCreateDDL(TableModelUtils.pojos2Models(POJO1.class, POJO2.class));
+		String[] dropAndCreateDDL = Dialect.H2Dialect.toCreateDDL(DialectUtils.pojos2Models(POJO1.class, POJO2.class));
 		for (String ddl : dropAndCreateDDL)
 			System.out.println(ddl);
 
-		testOnCurrentRealDatabase(TableModelUtils.pojos2Models(POJO1.class, POJO2.class));
+		testOnCurrentRealDatabase(DialectUtils.pojos2Models(POJO1.class, POJO2.class));
 	}
 }

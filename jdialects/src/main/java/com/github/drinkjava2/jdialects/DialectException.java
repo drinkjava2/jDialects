@@ -24,6 +24,10 @@ public class DialectException extends RuntimeException {
 		super(message);
 	}
 
+	public DialectException(Throwable cause) {
+		super(cause);
+	}
+
 	public DialectException(Throwable cause, String message) {
 		super(message, cause);
 	}
