@@ -48,6 +48,13 @@ import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
  */
 public abstract class DialectUtils {
 
+	private static ThreadLocal<Map<Class<?>, TableModel>> threadLocalTableModelCache = new ThreadLocal<Map<Class<?>, TableModel>>() {
+		@Override
+		protected Map<Class<?>, TableModel> initialValue() {
+			return new HashMap<Class<?>, TableModel>();
+		}
+	};
+
 	private static boolean matchNameCheck(String annotationName, String cName) {
 		if (("javax.persistence." + annotationName).equals(cName))
 			return true;
@@ -133,7 +140,11 @@ public abstract class DialectUtils {
 	 * call it
 	 */
 	public static TableModel pojo2Model(Class<?> pojoClass) {
-		TableModel model = pojo2ModelIgnoreConfigMethod(pojoClass);
+		DialectException.assureNotNull(pojoClass, "POJO class can not be null"); 
+		 TableModel model = threadLocalTableModelCache.get().get(pojoClass);
+		if (model != null)
+			return model;
+		model = pojo2ModelIgnoreConfigMethod(pojoClass);
 		Method method = null;
 		try {
 			method = pojoClass.getMethod("config", TableModel.class);
@@ -145,7 +156,8 @@ public abstract class DialectUtils {
 			} catch (Exception e) {
 				throw new DialectException(e);
 			}
-
+		if (model != null)
+			threadLocalTableModelCache.get().put(pojoClass, model);
 		return model;
 	}
 
