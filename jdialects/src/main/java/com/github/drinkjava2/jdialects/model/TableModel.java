@@ -8,6 +8,7 @@
 package com.github.drinkjava2.jdialects.model;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.github.drinkjava2.jdialects.DialectException;
@@ -34,9 +35,9 @@ public class TableModel {
 	private Class<?> pojoClass;
 
 	/**
-	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the end
-	 * of "create table..." DDL, usually used to set encode String like " DEFAULT
-	 * CHARSET=utf8" for MySQL
+	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the
+	 * end of "create table..." DDL, usually used to set encode String like "
+	 * DEFAULT CHARSET=utf8" for MySQL
 	 */
 	private String engineTail;
 
@@ -65,7 +66,7 @@ public class TableModel {
 	public TableModel(String tableName) {
 		this.tableName = tableName;
 	}
-  
+
 	/**
 	 * Add a "create table..." DDL to generate ID, similar like JPA's TableGen
 	 */
@@ -104,7 +105,7 @@ public class TableModel {
 	}
 
 	/**
-	 * Add a sequence definition DDL 
+	 * Add a Sequence Generator, note: not all database support sequence
 	 */
 	public void sequenceGenerator(SequenceGen sequence) {
 		DialectException.assureNotNull(sequence);
@@ -113,7 +114,7 @@ public class TableModel {
 	}
 
 	/**
-	 *  Add the table check String DDL piece if support
+	 *  Add the table check, note: not all database support table check
 	 */
 	public TableModel check(String check) {
 		this.check = check;
@@ -121,7 +122,7 @@ public class TableModel {
 	}
 
 	/**
-	 *  Add the table comment String DDL piece if support
+	 *  Add the table comment, note: not all database support table comment
 	 */
 	public TableModel comment(String comment) {
 		this.comment = comment;
@@ -129,13 +130,25 @@ public class TableModel {
 	}
   
 	/**
-	 * Add a column definition piece in DDL
+	 * Add a ColumnModel
 	 */
 	public TableModel addColumn(ColumnModel column) {
 		DialectException.assureNotNull(column);
 		DialectException.assureNotEmpty(column.getColumnName(), "Column's columnName can not be empty");
 		column.setTableModel(this);
 		columns.add(column); 
+		return this;
+	}
+	
+	/**
+	 * Remove a ColumnModel by given columnName 
+	 */
+	public TableModel removeColumn(String columnName) {
+		List<ColumnModel> oldColumns = this.getColumns();
+		Iterator<ColumnModel> columnIter = oldColumns.iterator();
+		while (columnIter.hasNext())  
+			if (columnIter.next().getColumnName().equals(columnName))
+				columnIter.remove(); 
 		return this;
 	}
 
