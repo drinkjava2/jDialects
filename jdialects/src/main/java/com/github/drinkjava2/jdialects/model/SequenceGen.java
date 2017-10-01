@@ -8,7 +8,7 @@
 package com.github.drinkjava2.jdialects.model;
 
 /**
- * The platform-independent SequenceGen model, similar like JPA 
+ * The platform-independent SequenceGen model, similar like JPA
  * 
  * </pre>
  * 
@@ -18,8 +18,8 @@ package com.github.drinkjava2.jdialects.model;
 public class SequenceGen {
 
 	/**
-	 * A unique generator name that can be referenced by one or more classes to
-	 * be the generator for primary key values.
+	 * A unique generator name that can be referenced by one or more classes to be
+	 * the generator for primary key values.
 	 */
 	private String name;
 
@@ -49,6 +49,15 @@ public class SequenceGen {
 		this.sequenceName = sequenceName;
 		this.initialValue = initialValue;
 		this.allocationSize = allocationSize;
+	}
+
+	public SequenceGen newCopy() {
+		SequenceGen result = new SequenceGen();
+		result.name = name;
+		result.sequenceName = sequenceName;
+		result.initialValue = initialValue;
+		result.allocationSize = allocationSize;
+		return result;
 	}
 
 	// getter & setter==============

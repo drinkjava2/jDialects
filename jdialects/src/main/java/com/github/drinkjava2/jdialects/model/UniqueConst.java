@@ -35,6 +35,13 @@ public class UniqueConst {
 		this.name = name;
 	}
 
+	public UniqueConst newCopy() {
+		UniqueConst result = new UniqueConst();
+		result.name = name;
+		result.columnList = columnList;
+		return result;
+	}
+
 	public UniqueConst columns(String... columns) {
 		this.columnList = columns;
 		return this;

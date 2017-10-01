@@ -35,9 +35,9 @@ public class TableModel {
 	private Class<?> pojoClass;
 
 	/**
-	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the
-	 * end of "create table..." DDL, usually used to set encode String like "
-	 * DEFAULT CHARSET=utf8" for MySQL
+	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the end
+	 * of "create table..." DDL, usually used to set encode String like " DEFAULT
+	 * CHARSET=utf8" for MySQL
 	 */
 	private String engineTail;
 
@@ -65,6 +65,42 @@ public class TableModel {
 
 	public TableModel(String tableName) {
 		this.tableName = tableName;
+	}
+
+	/**
+	 * @return a copy of this TableModel
+	 */
+	public TableModel newCopy() {// NOSONAR
+		TableModel tb = new TableModel();
+		tb.tableName = this.tableName;
+		tb.check = this.check;
+		tb.comment = this.comment;
+		tb.pojoClass = this.pojoClass;
+		tb.engineTail = this.engineTail;
+		if (!columns.isEmpty())
+			for (ColumnModel item : columns)
+				tb.columns.add(item.newCopy());
+
+		if (!sequences.isEmpty())
+			for (SequenceGen item : sequences)
+				tb.sequences.add(item.newCopy());
+
+		if (!tableGenerators.isEmpty())
+			for (TableGen item : tableGenerators)
+				tb.tableGenerators.add(item.newCopy());
+
+		if (!fkeyConstraints.isEmpty())
+			for (FKeyConst item : fkeyConstraints)
+				tb.fkeyConstraints.add(item.newCopy());
+
+		if (!indexConsts.isEmpty())
+			for (IndexConst item : indexConsts)
+				tb.indexConsts.add(item.newCopy());
+
+		if (!uniqueConsts.isEmpty())
+			for (UniqueConst item : uniqueConsts)
+				tb.uniqueConsts.add(item.newCopy());
+		return tb;
 	}
 
 	/**

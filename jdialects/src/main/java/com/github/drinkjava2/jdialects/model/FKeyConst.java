@@ -45,13 +45,25 @@ public class FKeyConst {
 		this.fkeyName = fkeyName;
 	}
 
+	public FKeyConst newCopy() {
+		FKeyConst result = new FKeyConst();
+		result.fkeyName = fkeyName;
+		result.tableName = tableName;
+		result.fkeyTail = fkeyTail;
+		result.refTableAndColumns = refTableAndColumns;
+		for (String colName : columnNames) {
+			result.columnNames.add(colName);
+		}
+		return result;
+	}
+
 	public FKeyConst columns(String... columnNames) {
 		this.columnNames = Arrays.asList(columnNames);
 		return this;
 	}
-	
+
 	public FKeyConst fkeyName(String fkeyName) {
-		this.fkeyName =fkeyName;
+		this.fkeyName = fkeyName;
 		return this;
 	}
 

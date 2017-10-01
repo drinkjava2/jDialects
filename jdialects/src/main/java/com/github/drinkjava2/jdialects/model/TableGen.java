@@ -60,12 +60,24 @@ public class TableGen {
 	public TableGen(String name, String tableName, String pkColumnName, String valueColumnName, String pkColumnValue,
 			Integer initialValue, Integer allocationSize) {
 		this.name = name;
-		this.setTableName(tableName);
+		this.tableName=tableName;
 		this.pkColumnName = pkColumnName;
 		this.valueColumnName = valueColumnName;
 		this.pkColumnValue = pkColumnValue;
 		this.initialValue = initialValue;
 		this.allocationSize = allocationSize;
+	}
+
+	public TableGen newCopy() {
+		TableGen result = new TableGen();
+		result.name = name;
+		result.tableName=tableName;
+		result.pkColumnName = pkColumnName;
+		result.valueColumnName = valueColumnName;
+		result.pkColumnValue = pkColumnValue;
+		result.initialValue = initialValue;
+		result.allocationSize = allocationSize;
+		return result;
 	}
 
 	// getter && setter=====================

@@ -74,6 +74,9 @@ public class ColumnModel {
 	/** If update-able or not, for JPA or ORM tool use only */
 	private Boolean updatable = true;
 
+	/** The value of this column, for JPA or ORM tool use only */
+	private Object value = true;
+
 	public ColumnModel(String columnName) {
 		if (StrUtils.isEmpty(columnName))
 			DialectException.throwEX("columnName is not allowed empty");
@@ -90,6 +93,30 @@ public class ColumnModel {
 	public ColumnModel check(String check) {
 		this.check = check;
 		return this;
+	}
+
+	public ColumnModel newCopy() {
+		ColumnModel col = new ColumnModel(columnName); 
+		col.columnType = columnType;
+		col.pkey = pkey;
+		col.nullable = nullable;
+		col.identity = identity;
+		col.check = check;
+		col.defaultValue = defaultValue;
+		col.sequence = sequence;
+		col.tableGenerator = tableGenerator;
+		col.tail = tail;
+		col.autoGenerator = autoGenerator;
+		col.comment = comment;
+		col.lengths = lengths;
+		col.pojoField = pojoField;
+		col.length = length;
+		col.precision = precision;
+		col.scale = scale;
+		col.insertable = insertable;
+		col.updatable = updatable;
+		col.value = value;
+		return col;
 	}
 
 	/**
@@ -215,7 +242,7 @@ public class ColumnModel {
 	public ColumnModel pojoField(String pojoField) {
 		DialectException.assureNotEmpty(pojoField, "pojoField can not be empty");
 		this.pojoField = pojoField;
-		if (this.tableModel != null) { 
+		if (this.tableModel != null) {
 			List<ColumnModel> oldColumns = this.tableModel.getColumns();
 			Iterator<ColumnModel> columnIter = oldColumns.iterator();
 			while (columnIter.hasNext()) {
@@ -434,6 +461,14 @@ public class ColumnModel {
 
 	public void setTableModel(TableModel tableModel) {
 		this.tableModel = tableModel;
+	}
+
+	public Object getValue() {
+		return value;
+	}
+
+	public void setValue(Object value) {
+		this.value = value;
 	}
 
 }

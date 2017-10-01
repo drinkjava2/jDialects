@@ -41,6 +41,14 @@ public class IndexConst {
 		this.name = name;
 	}
 
+	public IndexConst newCopy() {
+		IndexConst result = new IndexConst();
+		result.name = name;
+		result.columnList = columnList;
+		result.unique = unique;
+		return result;
+	}
+
 	public IndexConst columns(String... columns) {
 		this.columnList = columns;
 		return this;
