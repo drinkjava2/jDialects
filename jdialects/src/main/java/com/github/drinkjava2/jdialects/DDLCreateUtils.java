@@ -110,6 +110,8 @@ public class DDLCreateUtils {
 			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
 
 		for (ColumnModel col : columns) {
+			if (col.getTransientable())
+				continue;
 			// "Auto" type generator
 			if (col.getAutoGenerator()) {// if support sequence
 				if (features.supportBasicOrPooledSequence()) {
@@ -135,6 +137,8 @@ public class DDLCreateUtils {
 
 		// check and cache prime keys
 		for (ColumnModel col : columns) {
+			if (col.getTransientable())
+				continue;
 			if (col.getPkey()) {
 				hasPkey = true;
 				if (StrUtils.isEmpty(pkeys))
@@ -149,6 +153,8 @@ public class DDLCreateUtils {
 				.append(" ").append(tableName).append(" ( ");
 
 		for (ColumnModel c : columns) {
+			if (c.getTransientable())
+				continue;
 			if (c.getColumnType() == null)
 				DialectException
 						.throwEX("Type not set on column \"" + c.getColumnName() + "\" at table \"" + tableName + "\"");

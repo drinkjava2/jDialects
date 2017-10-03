@@ -8,18 +8,18 @@
 package com.github.drinkjava2.jdialects;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
+import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.hibernatesrc.pagination.RowSelection;
 import com.github.drinkjava2.jdialects.hibernatesrc.pagination.SQLServer2005LimitHandler;
 import com.github.drinkjava2.jdialects.hibernatesrc.pagination.SQLServer2012LimitHandler;
 import com.github.drinkjava2.jdialects.hibernatesrc.utils.StringHelper;
-import com.github.drinkjava2.jdialects.model.AutoIdGen;
+import com.github.drinkjava2.jdialects.id.IdGenerator;
 import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jdialects.utils.DialectUtils;
 import com.github.drinkjava2.jdialects.utils.StrUtils;
@@ -84,11 +84,9 @@ public enum Dialect {
 	}
 
 	/**
-	 * Guess Dialect by given connection, note:this method does not close
-	 * connection
+	 * Guess Dialect by given connection, note:this method does not close connection
 	 * 
-	 * @param con
-	 *            The JDBC Connection
+	 * @param con The JDBC Connection
 	 * @return Dialect The Dialect intance, if can not guess out, return null
 	 */
 	public static Dialect guessDialect(Connection connection) {
@@ -106,8 +104,8 @@ public enum Dialect {
 	}
 
 	/**
-	 * Check if is current dialect or ANSI reserved word, if yes throw
-	 * exception. if is other database's reserved word, log output a warning.
+	 * Check if is current dialect or ANSI reserved word, if yes throw exception. if
+	 * is other database's reserved word, log output a warning.
 	 */
 	private void checkIfReservedWord(String word) {
 		if (ReservedDBWords.isReservedWord(word)) {
@@ -123,22 +121,22 @@ public enum Dialect {
 	}
 
 	/**
-	 * Check if a word or word array include current dialect or ANSI-SQL's reserved word, if yes
-	 * throw exception. if belong to other database's reserved word, log output a
-	 * warning. Otherwise return word itself or first word if is array
+	 * Check if a word or word array include current dialect or ANSI-SQL's reserved
+	 * word, if yes throw exception. if belong to other database's reserved word,
+	 * log output a warning. Otherwise return word itself or first word if is array
 	 */
 	public String checkReservedWords(String... words) {
 		if (words == null || words.length == 0)
 			return null;
-		for (String word : words)  
-			checkIfReservedWord(word); 
+		for (String word : words)
+			checkIfReservedWord(word);
 		return words[0];
 	}
 
 	/**
-	 * Check if a word is current dialect or ANSI-SQL's reserved word, if yes
-	 * throw exception. if is other database's reserved word, log output a
-	 * warning. Otherwise return word itself.
+	 * Check if a word is current dialect or ANSI-SQL's reserved word, if yes throw
+	 * exception. if is other database's reserved word, log output a warning.
+	 * Otherwise return word itself.
 	 */
 	public String checkNotEmptyReservedWords(String word, String... errorMSG) {
 		if (StrUtils.isEmpty(word)) {
@@ -152,8 +150,8 @@ public enum Dialect {
 	}
 
 	/**
-	 * Transfer jdialect.Type to a real dialect's ddl type, lengths is optional
-	 * for some types
+	 * Transfer jdialect.Type to a real dialect's ddl type, lengths is optional for
+	 * some types
 	 */
 	protected String translateToDDLType(Type type, Integer... lengths) {// NOSONAR
 		String value = this.typeMappings.get(type);
@@ -614,8 +612,8 @@ public enum Dialect {
 
 	/**
 	 * SQLServer is complex, don't want re-invent wheel, copy Hibernate's source
-	 * code in this project to do the dirty job, that's why this project use
-	 * LGPL license
+	 * code in this project to do the dirty job, that's why this project use LGPL
+	 * license
 	 */
 	private static String processSQLServer(Dialect dialect, int pageNumber, int pageSize, String sql) {
 		int skipRows = (pageNumber - 1) * pageSize;
@@ -654,12 +652,9 @@ public enum Dialect {
 	/**
 	 * Create a pagination SQL by given pageNumber, pageSize and SQL<br/>
 	 * 
-	 * @param pageNumber
-	 *            The page number, start from 1
-	 * @param pageSize
-	 *            The page item size
-	 * @param sql
-	 *            The original SQL
+	 * @param pageNumber The page number, start from 1
+	 * @param pageSize The page item size
+	 * @param sql The original SQL
 	 * @return The paginated SQL
 	 */
 	public String paginate(int pageNumber, int pageSize, String sql) {// NOSONAR
@@ -795,22 +790,22 @@ public enum Dialect {
 	 */
 	public String[] toCreateDDL(Class<?>... pojoClasses) {
 		return DDLCreateUtils.toCreateDDL(this, DialectUtils.pojos2Models(pojoClasses));
-	} 
-	
+	}
+
 	/**
 	 * Transfer POJO classes to create DDL
 	 */
 	public String[] toDropDDL(Class<?>... pojoClasses) {
 		return DDLDropUtils.toDropDDL(this, DialectUtils.pojos2Models(pojoClasses));
-	} 
-	
+	}
+
 	/**
 	 * Transfer tables to drop and create DDL String array
 	 */
-	public String[] toDropAndCreateDDL(Class<?>... pojoClasses) {		 
+	public String[] toDropAndCreateDDL(Class<?>... pojoClasses) {
 		return toDropAndCreateDDL(DialectUtils.pojos2Models(pojoClasses));
 	}
-	
+
 	/**
 	 * Transfer tables to create DDL
 	 */
@@ -853,8 +848,8 @@ public enum Dialect {
 	}
 
 	/**
-	 * Build a "alter table tableName drop foreign key fkeyName " like DDL
-	 * String according this dialect
+	 * Build a "alter table tableName drop foreign key fkeyName " like DDL String
+	 * according this dialect
 	 */
 	public String dropFKeyDDL(String tableName, String fkeyName) {
 		if (DDLFeatures.isValidDDLTemplate(ddlFeatures.dropForeignKeyString))
@@ -865,36 +860,10 @@ public enum Dialect {
 	}
 
 	/**
-	 * Get a Long type Auto-Generated ID from sequence or "jdialects_autoid"
-	 * table. <br/>
-	 * Note: need run inside of a transaction, because if fetch generated ID
-	 * from "jdialects_autoid" table, need run 2 SQLs: <br/>
-	 * update jdialects_autoid set next_val=next_val+1 <br/>
-	 * select next_val from jdialects_autoid <br/>
-	 * 
-	 * @throws SQLException
+	 * Return next ID by given IdGenerator and NormalJdbcStyle instance
 	 */
-	public Long getNextAutoID(Connection connection) throws SQLException {
-		Long result;
-		if (ddlFeatures.supportBasicOrPooledSequence()) {
-			String sql = StrUtils.replace(ddlFeatures.sequenceNextValString, "_SEQNAME",
-					AutoIdGen.JDIALECTS_AUTOID);
-			result = DialectJdbcUtils.hotExecuteQuery(connection, sql);
-			DialectException.assureNotNull(result, "Null value found when fetch Auto-Generated ID from sequence '"
-					+ AutoIdGen.JDIALECTS_AUTOID + "'");
-		} else {
-			String sql = "update " + AutoIdGen.JDIALECTS_AUTOID + " set " + AutoIdGen.NEXT_VAL + "=("
-					+ AutoIdGen.NEXT_VAL + "+1)";
-			int updatedCount = DialectJdbcUtils.hotExecuteUpdate(connection, sql);
-			if (updatedCount != 1)
-				throw new SQLException("When fetch Auto-Generated ID, can not read from \""
-						+ AutoIdGen.JDIALECTS_AUTOID + "\" table");
-			result = DialectJdbcUtils.hotExecuteQuery(connection,
-					"select " + AutoIdGen.NEXT_VAL + " from " + AutoIdGen.JDIALECTS_AUTOID);
-			DialectException.assureNotNull(result, "Null value found when fetch Auto-Generated ID from table \""
-					+ AutoIdGen.JDIALECTS_AUTOID + "\"");
-		}
-		return result;
+	public Object getNexID(IdGenerator idGenerator, NormalJdbcTool jdbc) {
+		return idGenerator.getNextID(jdbc, this);
 	}
 
 	// getter & setter====

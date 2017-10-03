@@ -101,6 +101,8 @@ public class DDLDropUtils {
 			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
 
 		for (ColumnModel col : columns) {
+			if (col.getTransientable())
+				continue;
 			// autoGenerator, only support sequence or table for "Auto" type
 			if (col.getAutoGenerator()) {// if support sequence
 				if (features.supportBasicOrPooledSequence()) {

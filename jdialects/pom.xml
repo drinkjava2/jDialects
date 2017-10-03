@@ -83,7 +83,7 @@
     <dependency>
        <groupId>com.github.drinkjava2</groupId>
        <artifactId>jdbpro</artifactId>
-       <version>1.7.0</version>
+       <version>1.7.0.1</version>
        <scope>test</scope>
     </dependency>
     

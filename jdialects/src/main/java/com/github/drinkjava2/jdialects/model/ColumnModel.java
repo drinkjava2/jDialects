@@ -30,24 +30,31 @@ public class ColumnModel {
 	private Type columnType;// See com.github.drinkjava2.jdialects.Type
 	private Boolean pkey = false; // if is primary key
 	private Boolean nullable = true; // if nullable
-	private Boolean identity = false; // if use native identity type
+ 
 	private String check; // DDL check string
 	private String defaultValue; // DDL default value
 
+	
+	private Boolean identity = false; // if use native identity type
 	/** bind column to a sequence */
 	private String sequence;
 
 	/** bind column to a tableGenerator */
 	private String tableGenerator;
 
-	/** Optional, put an extra tail String at end of column definition DDL */
-	private String tail;
-
 	/**
 	 * Bind column to Auto Id generator, can be SequenceGen or TableGen, determined
 	 * by jDialects
 	 */
 	private Boolean autoGenerator = false;
+	
+	
+	
+	
+	/** Optional, put an extra tail String at end of column definition DDL */
+	private String tail;
+
+ 
 
 	/** Comment of this column */
 	private String comment;
@@ -58,6 +65,9 @@ public class ColumnModel {
 	// =====Below fields are only used by JPA and ORM tools==========
 	/** Map to a Java POJO field, for JPA or ORM tool use only */
 	private String pojoField;
+
+	/** Value of Java POJO field, for JPA or ORM tool use only */
+	private Object value;
 
 	/** The column length, for JPA or ORM tool use only */
 	private Integer length = 255;
@@ -73,9 +83,9 @@ public class ColumnModel {
 
 	/** If update-able or not, for JPA or ORM tool use only */
 	private Boolean updatable = true;
-
-	/** The value of this column, for JPA or ORM tool use only */
-	private Object value = true;
+	
+	/** If this is a Transient type, for JPA or ORM tool use only */
+	private Boolean transientable=false;
 
 	public ColumnModel(String columnName) {
 		if (StrUtils.isEmpty(columnName))
@@ -96,7 +106,7 @@ public class ColumnModel {
 	}
 
 	public ColumnModel newCopy() {
-		ColumnModel col = new ColumnModel(columnName); 
+		ColumnModel col = new ColumnModel(columnName);
 		col.columnType = columnType;
 		col.pkey = pkey;
 		col.nullable = nullable;
@@ -115,7 +125,6 @@ public class ColumnModel {
 		col.scale = scale;
 		col.insertable = insertable;
 		col.updatable = updatable;
-		col.value = value;
 		return col;
 	}
 
@@ -469,6 +478,14 @@ public class ColumnModel {
 
 	public void setValue(Object value) {
 		this.value = value;
+	}
+
+	public Boolean getTransientable() {
+		return transientable;
+	}
+
+	public void setTransientable(Boolean transientable) {
+		this.transientable = transientable;
 	}
 
 }

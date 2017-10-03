@@ -140,8 +140,8 @@ public abstract class DialectUtils {
 	 * call it
 	 */
 	public static TableModel pojo2Model(Class<?> pojoClass) {
-		DialectException.assureNotNull(pojoClass, "POJO class can not be null"); 
-		 TableModel model = threadLocalTableModelCache.get().get(pojoClass);
+		DialectException.assureNotNull(pojoClass, "POJO class can not be null");
+		TableModel model = threadLocalTableModelCache.get().get(pojoClass);
 		if (model != null)
 			return model;
 		model = pojo2ModelIgnoreConfigMethod(pojoClass);
@@ -245,30 +245,36 @@ public abstract class DialectUtils {
 			if (ColumnDef.canMapToSqlType(propertyClass)) {
 				Field field = ReflectionUtils.findField(pojoClass, entityField);
 				// Transient
-				if (getFirstPojoAnnotation(field, "Transient").isEmpty()) {
-					ColumnModel vcolumn = new ColumnModel(entityField);
-					vcolumn.pojoField(entityField);
+				if (!getFirstPojoAnnotation(field, "Transient").isEmpty()) {
+					ColumnModel col = new ColumnModel(entityField);
+					col.setColumnType(ColumnDef.toType(propertyClass));
+					col.setLengths(new Integer[] { 255, 0, 0 });
+					col.setTransientable(true); 
+					model.addColumn(col);
+				} else {
+					ColumnModel col = new ColumnModel(entityField);
+					col.pojoField(entityField);
 					// Column
 					Map<String, Object> colMap = getFirstPojoAnnotation(field, "Column");
 					if (!colMap.isEmpty()) {
 						if (!(Boolean) colMap.get("nullable"))
-							vcolumn.setNullable(false);
+							col.setNullable(false);
 						if (!StrUtils.isEmpty(colMap.get("name")))
-							vcolumn.setColumnName((String) colMap.get("name"));
-						vcolumn.setLength((Integer) colMap.get("length"));
-						vcolumn.setPrecision((Integer) colMap.get("precision"));
-						vcolumn.setScale((Integer) colMap.get("scale"));
-						vcolumn.setLengths(
-								new Integer[] { vcolumn.getLength(), vcolumn.getPrecision(), vcolumn.getScale() });
+							col.setColumnName((String) colMap.get("name"));
+						col.setLength((Integer) colMap.get("length"));
+						col.setPrecision((Integer) colMap.get("precision"));
+						col.setScale((Integer) colMap.get("scale"));
+						col.setLengths(
+								new Integer[] { col.getLength(), col.getPrecision(), col.getScale() });
 						if (!StrUtils.isEmpty(colMap.get("columnDefinition")))
-							vcolumn.setColumnType(ColumnDef.toType((String) colMap.get("columnDefinition")));
+							col.setColumnType(ColumnDef.toType((String) colMap.get("columnDefinition")));
 						else
-							vcolumn.setColumnType(ColumnDef.toType(propertyClass));
-						vcolumn.setInsertable((Boolean) colMap.get("insertable"));
-						vcolumn.setUpdatable((Boolean) colMap.get("updatable"));
+							col.setColumnType(ColumnDef.toType(propertyClass));
+						col.setInsertable((Boolean) colMap.get("insertable"));
+						col.setUpdatable((Boolean) colMap.get("updatable"));
 					} else {
-						vcolumn.setColumnType(ColumnDef.toType(propertyClass));
-						vcolumn.setLengths(new Integer[] { 255, 0, 0 });
+						col.setColumnType(ColumnDef.toType(propertyClass));
+						col.setLengths(new Integer[] { 255, 0, 0 });
 					}
 
 					// SequenceGenerator
@@ -280,39 +286,40 @@ public abstract class DialectUtils {
 
 					// Id
 					if (!getFirstPojoAnnotation(field, "Id").isEmpty())
-						vcolumn.pkey();
-
-					model.addColumn(vcolumn);// Should add column first, otherwise ref() method will error
+						col.pkey();
+					
+					col.setPojoField(entityField);
+					model.addColumn(col);// Should add column first, otherwise ref() method will error
 
 					// GeneratedValue
 					Map<String, Object> gvMap = getFirstPojoAnnotation(field, "GeneratedValue");
 					if (!gvMap.isEmpty()) {
 						GenerationType typ = (GenerationType) gvMap.get("annotationType");
 						if (GenerationType.AUTO.equals(typ))
-							vcolumn.autoID();
+							col.autoID();
 						else if (GenerationType.SEQUENCE.equals(typ))
-							vcolumn.sequence((String) gvMap.get("generator"));
+							col.sequence((String) gvMap.get("generator"));
 						else if (GenerationType.IDENTITY.equals(typ))
-							vcolumn.identity();
+							col.identity();
 						else if (GenerationType.TABLE.equals(typ))
-							vcolumn.tableGenerator((String) gvMap.get("generator"));
+							col.tableGenerator((String) gvMap.get("generator"));
 					}
 
 					// SingleFKey is a shortcut format of FKey, only for 1 column
 					Map<String, Object> refMap = getFirstPojoAnnotation(field, "SingleFKey");
 					if (!refMap.isEmpty())
-						model.fkey((String) refMap.get("name")).columns(vcolumn.getColumnName())
+						model.fkey((String) refMap.get("name")).columns(col.getColumnName())
 								.refs((String[]) refMap.get("refs"));
 
 					// SingleIndex is a ShortCut format of Index, only for 1 column
 					Map<String, Object> idxMap = getFirstPojoAnnotation(field, "SingleIndex");
 					if (!idxMap.isEmpty())
-						model.index((String) idxMap.get("name")).columns(vcolumn.getColumnName());
+						model.index((String) idxMap.get("name")).columns(col.getColumnName());
 
 					// SingleUnique is a ShortCut format of Unique, only for 1 column
 					Map<String, Object> uniMap = getFirstPojoAnnotation(field, "SingleUnique");
 					if (!uniMap.isEmpty())
-						model.unique((String) uniMap.get("name")).columns(vcolumn.getColumnName());
+						model.unique((String) uniMap.get("name")).columns(col.getColumnName());
 				}
 			}
 		} // End of columns loop
