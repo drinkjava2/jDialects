@@ -18,7 +18,7 @@ package com.github.drinkjava2.jdialects.id;
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.DialectException;
-import com.github.drinkjava2.jdialects.model.AutoIdGen;
+import com.github.drinkjava2.jdialects.annotation.GenerationType;
 import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
@@ -29,28 +29,45 @@ import com.github.drinkjava2.jdialects.utils.StrUtils;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class AutoGenerator implements IdGenerator {
-	public static final AutoGenerator INSTANCE = new AutoGenerator();
+public class AutoIdGenerator implements IdGenerator {
+	public static final String JDIALECTS_AUTOID = "jdialects_autoid";
+	public static final String NEXT_VAL = "next_val";
+
+	public static final AutoIdGenerator INSTANCE = new AutoIdGenerator();
+
+	@Override
+	public GenerationType getGenerationType() {
+		return GenerationType.AUTO;
+	}
+
+	@Override
+	public String getIdGenName() {
+		return "AUTO";
+	}
+
+	@Override
+	public IdGenerator newCopy() {
+		return INSTANCE;
+	};
 
 	@Override
 	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect) {
 		Long result;
 		if (dialect.getDdlFeatures().supportBasicOrPooledSequence()) {
 			String sql = StrUtils.replace(dialect.getDdlFeatures().getSequenceNextValString(), "_SEQNAME",
-					AutoIdGen.JDIALECTS_AUTOID);
+					JDIALECTS_AUTOID);
 			result = jdbc.nQueryForObject(sql);
 			DialectException.assureNotNull(result,
-					"Null value found when fetch Auto-Generated ID from sequence '" + AutoIdGen.JDIALECTS_AUTOID + "'");
+					"Null value found when fetch Auto-Generated ID from sequence '" + JDIALECTS_AUTOID + "'");
 		} else {
-			String sql = "update " + AutoIdGen.JDIALECTS_AUTOID + " set " + AutoIdGen.NEXT_VAL + "=("
-					+ AutoIdGen.NEXT_VAL + "+1)";
+			String sql = "update " + JDIALECTS_AUTOID + " set " + NEXT_VAL + "=(" + NEXT_VAL + "+1)";
 			int updatedCount = jdbc.nUpdate(sql);
 			if (updatedCount != 1)
 				throw new DialectException(
-						"When fetch Auto-Generated ID, can not read from \"" + AutoIdGen.JDIALECTS_AUTOID + "\" table");
-			result = jdbc.nQueryForObject( "select " + AutoIdGen.NEXT_VAL + " from " + AutoIdGen.JDIALECTS_AUTOID);
+						"When fetch Auto-Generated ID, can not read from \"" + JDIALECTS_AUTOID + "\" table");
+			result = jdbc.nQueryForObject("select " + NEXT_VAL + " from " + JDIALECTS_AUTOID);
 			DialectException.assureNotNull(result,
-					"Null value found when fetch Auto-Generated ID from table \"" + AutoIdGen.JDIALECTS_AUTOID + "\"");
+					"Null value found when fetch Auto-Generated ID from table \"" + JDIALECTS_AUTOID + "\"");
 		}
 		return result;
 	}

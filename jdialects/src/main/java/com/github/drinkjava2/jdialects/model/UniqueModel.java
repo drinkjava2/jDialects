@@ -23,26 +23,26 @@ package com.github.drinkjava2.jdialects.model;
  * @author Yong Zhu
  * @since 1.0.5
  */
-public class UniqueConst {
+public class UniqueModel {
 	private String name;
 	private String[] columnList;
 
-	public UniqueConst() {
+	public UniqueModel() {
 
 	}
 
-	public UniqueConst(String name) {
+	public UniqueModel(String name) {
 		this.name = name;
 	}
 
-	public UniqueConst newCopy() {
-		UniqueConst result = new UniqueConst();
+	public UniqueModel newCopy() {
+		UniqueModel result = new UniqueModel();
 		result.name = name;
 		result.columnList = columnList;
 		return result;
 	}
 
-	public UniqueConst columns(String... columns) {
+	public UniqueModel columns(String... columns) {
 		this.columnList = columns;
 		return this;
 	}

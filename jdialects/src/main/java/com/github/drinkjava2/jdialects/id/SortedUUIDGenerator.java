@@ -18,64 +18,60 @@ package com.github.drinkjava2.jdialects.id;
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.DialectException;
+import com.github.drinkjava2.jdialects.annotation.GenerationType;
 
 /**
- * Generate Sorted UUID, it's the combination of TableGenertor and
- * UUIDAnyGenerator, start with table value, followed by radix36 random letters,
- * example: <br/>
- * 123NmpQHeGLy8eozSSq2p1B<br/>
- * 124NmpQHeGLy8eozSSq2p1B<br/>
- * 125NmpQHeGLy8eozSSq2p1B<br/>
+ * Generate a Sorted UUID, total length = sortedLength + uuidLength, <br/>
+ * for example, SortedUUIDGenerator(5,20): <br/>
+ * 10001NmpQHeGLy8eozSSq2p1B<br/>
+ * 10002DLIGkILFISKJF23KLSDF<br/>
+ * 10003LVBIFI35LDFJIA31KDSF<br/>
  * 
  * @author Yong Zhu
- * @version 1.0.0
- * @since 1.0.0
+ * @since 1.0.6
  */
 public class SortedUUIDGenerator implements IdGenerator {
-	private TableGenerator tableGenerator;
+	private int sortedLength;
+	private int uuidLength;
 
-	private UUIDAnyGenerator uuidAnyGenerator;
-
-	/**
-	 * If fixTotalLength>0, will fix total length and put "1" at beginning
-	 */
-	private Integer fixTotalLength = 0;
-
-	public SortedUUIDGenerator(TableGenerator tableGenerator, UUIDAnyGenerator uuidAnyGenerator,
-			Integer fixTotalLength) {
-		this.tableGenerator = tableGenerator;
-		this.uuidAnyGenerator = uuidAnyGenerator;
-		this.fixTotalLength = fixTotalLength;
+	public SortedUUIDGenerator(int sortedLength, int uuidLength) {
+		this.sortedLength = sortedLength;
+		this.uuidLength = uuidLength;
 	}
 
 	@Override
-	public Object getNextID(NormalJdbcTool ctx, Dialect dialect) {
-		String s = "" + tableGenerator.getNextID(ctx, dialect) + (String) uuidAnyGenerator.getNextID(ctx, dialect);
-		if (fixTotalLength <= 0)
-			return s;
-		if (fixTotalLength < s.length())
-			throw new DialectException(
-					"SortedUUIDGenerator getNextID error, fixTotalLength can not set less than " + s.length());
+	public GenerationType getGenerationType() {
+		return GenerationType.SORTED_UUID;
+	}
+
+	@Override
+	public String getIdGenName() {
+		return "SORTED_UUID";
+	}
+
+	@Override
+	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect) {
+		String s = "" + AutoIdGenerator.INSTANCE.getNextID(jdbc, dialect);
+		if (s.length() > (sortedLength - 1))
+			throw new DialectException("SortedLength should set bigger than auto generated ID length");
 		StringBuilder sb = new StringBuilder("1");
-		for (int i = 1; i < fixTotalLength - s.length(); i++)
+		for (int i = 1; i < sortedLength - s.length(); i++)
 			sb.append("0");
 		sb.append(s);
+		sb.append(UUIDAnyGenerator.getAnyLengthRadix36UUID(uuidLength));
 		return sb.toString();
 	}
 
-	/**
-	 * Get the total length of the ID
-	 */
-	public Integer getFixTotalLength() {
-		return fixTotalLength;
-	}
+	@Override
+	public IdGenerator newCopy() {
+		return new SortedUUIDGenerator(sortedLength, uuidLength);
+	};
 
-	/**
-	 * Set the total length of the ID, If >0, will fix total length and put "1" at
-	 * beginning
-	 */
-	public void setFixTotalLength(Integer fixTotalLength) {
-		this.fixTotalLength = fixTotalLength;
-	}
+	public static void main(String[] args) {
+		SortedUUIDGenerator idg = new SortedUUIDGenerator(5, 5);
+		for (int i = 0; i < 20; i++) {
+			System.out.println(idg.getNextID(null, null));
 
+		}
+	}
 }

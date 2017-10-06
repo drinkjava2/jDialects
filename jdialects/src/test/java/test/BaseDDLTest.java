@@ -56,6 +56,14 @@ public class BaseDDLTest {
 		}
 	}
 
+	public void reBuildDB(TableModel... tables) {
+		String[] ddls = guessedDialect.toDropDDL(tables);
+		quiteExecuteNoParamSqls(ddls);
+
+		ddls = guessedDialect.toCreateDDL(tables);
+		executeNoParamSqls(ddls);
+	}
+
 	protected void executeNoParamSqls(String... sqls) {
 		for (String sql : sqls)
 			db.nExecute(sql);

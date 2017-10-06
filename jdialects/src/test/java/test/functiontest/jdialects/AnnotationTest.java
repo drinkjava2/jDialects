@@ -104,7 +104,7 @@ public class AnnotationTest extends BaseDDLTest {
 		public Double field7;
 
 		public static void config(TableModel tableModel) {
-			tableModel.column("field7").setColumnName("changedfield7");
+			tableModel.getColumn("field7").setColumnName("changedfield7");
 		}
 
 		public String getField1() {

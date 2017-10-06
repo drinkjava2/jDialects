@@ -19,6 +19,7 @@ import java.security.SecureRandom;
 
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.annotation.GenerationType;
 
 /**
  * Generate any length UUID String based on radix 36, use 0-9 a-z characters
@@ -48,9 +49,24 @@ public class UUIDAnyGenerator implements IdGenerator {
 	}
 
 	@Override
-	public Object getNextID(NormalJdbcTool ctx, Dialect dialect) {
+	public GenerationType getGenerationType() {
+		return GenerationType.UUID_ANY;
+	}
+
+	@Override
+	public String getIdGenName() {
+		return "UUID_ANY";
+	}
+
+	@Override
+	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect) {
 		return getAnyLengthRadix36UUID(length);
 	}
+
+	@Override
+	public IdGenerator newCopy() {
+		return new UUIDAnyGenerator(length);
+	};
 
 	protected static String getAnyLengthRadix36UUID(Integer length) {
 		StringBuilder sb = new StringBuilder();

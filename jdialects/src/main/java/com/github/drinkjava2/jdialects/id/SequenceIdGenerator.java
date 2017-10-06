@@ -5,7 +5,13 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package com.github.drinkjava2.jdialects.model;
+package com.github.drinkjava2.jdialects.id;
+
+import com.github.drinkjava2.jdbpro.NormalJdbcTool;
+import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.DialectException;
+import com.github.drinkjava2.jdialects.annotation.GenerationType;
+import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
  * The platform-independent SequenceGen model, similar like JPA
@@ -15,11 +21,11 @@ package com.github.drinkjava2.jdialects.model;
  * @author Yong Zhu
  * @since 1.0.0
  */
-public class SequenceGen {
+public class SequenceIdGenerator implements IdGenerator {
 
 	/**
-	 * A unique generator name that can be referenced by one or more classes to be
-	 * the generator for primary key values.
+	 * A unique generator name that can be referenced by one or more classes to
+	 * be the generator for primary key values.
 	 */
 	private String name;
 
@@ -40,26 +46,40 @@ public class SequenceGen {
 	 */
 	private Integer allocationSize = 1;
 
-	public SequenceGen() {
+	public SequenceIdGenerator() {
 		// default constructor
 	}
 
-	public SequenceGen(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
+	public SequenceIdGenerator(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
 		this.name = name;
 		this.sequenceName = sequenceName;
 		this.initialValue = initialValue;
 		this.allocationSize = allocationSize;
 	}
 
-	public SequenceGen newCopy() {
-		SequenceGen result = new SequenceGen();
-		result.name = name;
-		result.sequenceName = sequenceName;
-		result.initialValue = initialValue;
-		result.allocationSize = allocationSize;
-		return result;
+ 	@Override
+	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect) {
+		DialectException.assureNotEmpty(sequenceName, "sequenceName can not be empty");
+		String sequenctSQL = dialect.getDdlFeatures().getSequenceNextValString();
+		sequenctSQL = StrUtils.replace(sequenctSQL, "_SEQNAME", sequenceName);
+		return jdbc.nQueryForObject(sequenctSQL);
+	}
+	 
+	@Override
+	public GenerationType getGenerationType() { 
+		return GenerationType.SEQUENCE;
 	}
 
+	@Override
+	public String getIdGenName() { 
+		return name;
+	}
+
+	@Override
+	public IdGenerator newCopy() {
+		return new SequenceIdGenerator(name,sequenceName,initialValue,allocationSize);
+	};
+	
 	// getter & setter==============
 	public String getName() {
 		return name;

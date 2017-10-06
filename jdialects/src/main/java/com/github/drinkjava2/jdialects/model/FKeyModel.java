@@ -28,7 +28,7 @@ import java.util.List;
  * @author Yong Zhu
  * @since 1.0.2
  */
-public class FKeyConst {
+public class FKeyModel {
 	private String fkeyName;
 	private String tableName;
 	private List<String> columnNames = new ArrayList<String>();
@@ -37,16 +37,16 @@ public class FKeyConst {
 	/** format: "reftable, refcol1, refcol2..." */
 	private String[] refTableAndColumns;
 
-	public FKeyConst() {
+	public FKeyModel() {
 		// default constructor
 	}
 
-	public FKeyConst(String fkeyName) {
+	public FKeyModel(String fkeyName) {
 		this.fkeyName = fkeyName;
 	}
 
-	public FKeyConst newCopy() {
-		FKeyConst result = new FKeyConst();
+	public FKeyModel newCopy() {
+		FKeyModel result = new FKeyModel();
 		result.fkeyName = fkeyName;
 		result.tableName = tableName;
 		result.fkeyTail = fkeyTail;
@@ -57,23 +57,23 @@ public class FKeyConst {
 		return result;
 	}
 
-	public FKeyConst columns(String... columnNames) {
+	public FKeyModel columns(String... columnNames) {
 		this.columnNames = Arrays.asList(columnNames);
 		return this;
 	}
 
-	public FKeyConst fkeyName(String fkeyName) {
+	public FKeyModel fkeyName(String fkeyName) {
 		this.fkeyName = fkeyName;
 		return this;
 	}
 
-	public FKeyConst refs(String... refTableAndColumns) {
+	public FKeyModel refs(String... refTableAndColumns) {
 		this.refTableAndColumns = refTableAndColumns;
 		return this;
 	}
 
 	/** Add a tail String at the end of Foreign key DDL */
-	public FKeyConst fkeyTail(String fkeyTail) {
+	public FKeyModel fkeyTail(String fkeyTail) {
 		this.fkeyTail = fkeyTail;
 		return this;
 	}

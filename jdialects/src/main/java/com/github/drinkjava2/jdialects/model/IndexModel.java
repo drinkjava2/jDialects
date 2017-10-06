@@ -23,7 +23,7 @@ package com.github.drinkjava2.jdialects.model;
  * @author Yong Zhu
  * @since 1.0.5
  */
-public class IndexConst {
+public class IndexModel {
 	/** (Optional) The names of the index */
 	private String name;
 
@@ -33,28 +33,28 @@ public class IndexConst {
 	/** Whether the index is unique. */
 	private Boolean unique = false;
 
-	public IndexConst() {
+	public IndexModel() {
 
 	}
 
-	public IndexConst(String name) {
+	public IndexModel(String name) {
 		this.name = name;
 	}
 
-	public IndexConst newCopy() {
-		IndexConst result = new IndexConst();
+	public IndexModel newCopy() {
+		IndexModel result = new IndexModel();
 		result.name = name;
 		result.columnList = columnList;
 		result.unique = unique;
 		return result;
 	}
 
-	public IndexConst columns(String... columns) {
+	public IndexModel columns(String... columns) {
 		this.columnList = columns;
 		return this;
 	}
 
-	public IndexConst unique() {
+	public IndexModel unique() {
 		this.unique = true;
 		return this;
 	}

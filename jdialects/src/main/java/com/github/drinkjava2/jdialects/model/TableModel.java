@@ -12,6 +12,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.github.drinkjava2.jdialects.DialectException;
+import com.github.drinkjava2.jdialects.id.IdGenerator;
+import com.github.drinkjava2.jdialects.id.SequenceIdGenerator;
+import com.github.drinkjava2.jdialects.id.TableIdGenerator;
+import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
  * A TableModel definition represents a platform dependent Database Table, from
@@ -35,29 +39,26 @@ public class TableModel {
 	private Class<?> pojoClass;
 
 	/**
-	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the end
-	 * of "create table..." DDL, usually used to set encode String like " DEFAULT
-	 * CHARSET=utf8" for MySQL
+	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the
+	 * end of "create table..." DDL, usually used to set encode String like "
+	 * DEFAULT CHARSET=utf8" for MySQL
 	 */
 	private String engineTail;
 
 	/** Columns in this table */
 	private List<ColumnModel> columns = new ArrayList<ColumnModel>();
-
-	/** Sequences */
-	private List<SequenceGen> sequences = new ArrayList<SequenceGen>();
-
-	/** tableGenerators */
-	private List<TableGen> tableGenerators = new ArrayList<TableGen>();
-
+  
+	/** IdGenerators */
+	private List<IdGenerator> idGenerators = new ArrayList<IdGenerator>();
+ 
 	/** Foreign Keys */
-	private List<FKeyConst> fkeyConstraints = new ArrayList<FKeyConst>();
+	private List<FKeyModel> fkeyConstraints = new ArrayList<FKeyModel>();
 
 	/** Indexes */
-	private List<IndexConst> indexConsts = new ArrayList<IndexConst>();
+	private List<IndexModel> indexConsts = new ArrayList<IndexModel>();
 
 	/** Unique constraints */
-	private List<UniqueConst> uniqueConsts = new ArrayList<UniqueConst>();
+	private List<UniqueModel> uniqueConsts = new ArrayList<UniqueModel>();
 
 	public TableModel() {
 		super();
@@ -79,26 +80,22 @@ public class TableModel {
 		tb.engineTail = this.engineTail;
 		if (!columns.isEmpty())
 			for (ColumnModel item : columns)
-				tb.columns.add(item.newCopy());
+				tb.columns.add(item.newCopy()); 
 
-		if (!sequences.isEmpty())
-			for (SequenceGen item : sequences)
-				tb.sequences.add(item.newCopy());
-
-		if (!tableGenerators.isEmpty())
-			for (TableGen item : tableGenerators)
-				tb.tableGenerators.add(item.newCopy());
+		if (!idGenerators.isEmpty())
+			for (IdGenerator item : idGenerators)
+				tb.idGenerators.add(item.newCopy());
 
 		if (!fkeyConstraints.isEmpty())
-			for (FKeyConst item : fkeyConstraints)
+			for (FKeyModel item : fkeyConstraints)
 				tb.fkeyConstraints.add(item.newCopy());
 
 		if (!indexConsts.isEmpty())
-			for (IndexConst item : indexConsts)
+			for (IndexModel item : indexConsts)
 				tb.indexConsts.add(item.newCopy());
 
 		if (!uniqueConsts.isEmpty())
-			for (UniqueConst item : uniqueConsts)
+			for (UniqueModel item : uniqueConsts)
 				tb.uniqueConsts.add(item.newCopy());
 		return tb;
 	}
@@ -106,11 +103,11 @@ public class TableModel {
 	/**
 	 * Add a "create table..." DDL to generate ID, similar like JPA's TableGen
 	 */
-	public void addTableGenerator(TableGen tableGenerator) {
+	public void addTableGenerator(TableIdGenerator tableGenerator) {
 		//@formatter:off
 		DialectException.assureNotNull(tableGenerator);
-		DialectException.assureNotEmpty(tableGenerator.getName(), "TableGen name can not be empty");  
-		tableGenerators.add(tableGenerator);
+		DialectException.assureNotEmpty(tableGenerator.getName(), "TableGen name can not be empty");
+		idGenerators.add(tableGenerator);  
 	}
  
 	/**
@@ -125,7 +122,7 @@ public class TableModel {
 	 */
 	public void tableGenerator(String name, String tableName, String pkColumnName, String valueColumnName,
 			String pkColumnValue, Integer initialValue, Integer allocationSize) {
-		addTableGenerator(new TableGen(name, tableName, pkColumnName, valueColumnName, pkColumnValue,
+		addTableGenerator(new TableIdGenerator(name, tableName, pkColumnName, valueColumnName, pkColumnValue,
 				initialValue, allocationSize));
 	}
 
@@ -137,16 +134,16 @@ public class TableModel {
 	 * @param allocationSize The allocationSize
 	 */
 	public void sequenceGenerator(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
-		this.sequenceGenerator(new SequenceGen(name, sequenceName, initialValue, allocationSize));
+		this.addSequenceGenerator(new SequenceIdGenerator(name, sequenceName, initialValue, allocationSize));
 	}
 
 	/**
 	 * Add a Sequence Generator, note: not all database support sequence
 	 */
-	public void sequenceGenerator(SequenceGen sequence) {
+	public void addSequenceGenerator(SequenceIdGenerator sequence) {
 		DialectException.assureNotNull(sequence);
 		DialectException.assureNotEmpty(sequence.getSequenceName(), "SequenceGen name can not be empty");
-		sequences.add( sequence);
+		idGenerators.add( sequence);
 	}
 
 	/**
@@ -205,7 +202,8 @@ public class TableModel {
 	public ColumnModel column(String columnName) {
 		DialectException.assureNotEmpty(columnName, "columnName can not be empty"); 
 		for (ColumnModel columnModel : columns)  
-			if(columnName.equals(columnModel.getColumnName()))return columnModel;  
+			if(columnName.equals(columnModel.getColumnName()))
+				throw new DialectException("ColumnModel name '"+columnName+"' already existed");
 		ColumnModel column = new ColumnModel(columnName);
 		addColumn(column);
 		return column;
@@ -224,8 +222,8 @@ public class TableModel {
 	/**
 	 *  Start add a foreign key definition in DDL, detail usage see demo
 	 */
-	public FKeyConst fkey() {
-		FKeyConst fkey=new FKeyConst();  
+	public FKeyModel fkey() {
+		FKeyModel fkey=new FKeyModel();  
 		fkey.setTableName(this.tableName);
 		this.fkeyConstraints.add(fkey);
 		return fkey;
@@ -234,8 +232,8 @@ public class TableModel {
 	/**
 	 *  Start add a foreign key definition in DDL, detail usage see demo
 	 */
-	public FKeyConst fkey(String fkeyName) {
-		FKeyConst fkey=new FKeyConst();  
+	public FKeyModel fkey(String fkeyName) {
+		FKeyModel fkey=new FKeyModel();  
 		fkey.setTableName(this.tableName);
 		fkey.setFkeyName(fkeyName);
 		this.fkeyConstraints.add(fkey);
@@ -245,8 +243,8 @@ public class TableModel {
 	/**
 	 *  Start add a Index in DDL, detail usage see demo
 	 */
-	public IndexConst index( ) {
-		IndexConst index=new IndexConst( );  
+	public IndexModel index( ) {
+		IndexModel index=new IndexModel( );  
 		this.indexConsts.add(index);
 		return index;
 	}
@@ -254,8 +252,8 @@ public class TableModel {
 	/**
 	 *  Start add a Index in DDL, detail usage see demo
 	 */
-	public IndexConst index(String indexName) {
-		IndexConst index=new IndexConst();
+	public IndexModel index(String indexName) {
+		IndexModel index=new IndexModel();
 		index.setName(indexName); 
 		this.indexConsts.add(index);  
 		return index;
@@ -264,8 +262,8 @@ public class TableModel {
 	/**
 	 *  Start add a unique constraint in DDL, detail usage see demo
 	 */
-	public UniqueConst unique( ) {
-		UniqueConst unique=new UniqueConst( );  
+	public UniqueModel unique( ) {
+		UniqueModel unique=new UniqueModel( );  
 		this.uniqueConsts.add(unique);
 		return unique;
 	}
@@ -273,8 +271,8 @@ public class TableModel {
 	/**
 	 *  Start add a unique constraint in DDL, detail usage see demo
 	 */
-	public UniqueConst unique(String uniqueName) {
-		UniqueConst unique=new UniqueConst( );  
+	public UniqueModel unique(String uniqueName) {
+		UniqueModel unique=new UniqueModel( );  
 		unique.setName(uniqueName);
 		this.uniqueConsts.add(unique);
 		return unique;
@@ -287,6 +285,17 @@ public class TableModel {
 	public TableModel engineTail(String engineTail) {
 		this.engineTail=engineTail;
 		return this;
+	}
+	
+	/**
+	 * Search and return the IdGenerator in this TableModel by its name
+	 */
+	public IdGenerator getIdGenerator(String name) {
+		if(StrUtils.isEmpty(name))return null;
+		for (IdGenerator idGenerator : idGenerators)  
+			if(name.equals(idGenerator.getIdGenName()))
+					return idGenerator;		 
+		return null;
 	}
 	
 	// getter & setter=========================
@@ -322,29 +331,13 @@ public class TableModel {
 
 	public void setColumns(List<ColumnModel> columns) {
 		this.columns = columns;
-	} 
-
-	public List<SequenceGen> getSequences() {
-		return sequences;
-	}
-
-	public void setSequences(List<SequenceGen> sequences) {
-		this.sequences = sequences;
-	}
-
-	public List<TableGen> getTableGenerators() {
-		return tableGenerators;
-	}
-
-	public void setTableGenerators(List<TableGen> tableGenerators) {
-		this.tableGenerators = tableGenerators;
-	}
-
-	public List<FKeyConst> getFkeyConstraints() {
+	}  
+ 
+	public List<FKeyModel> getFkeyConstraints() {
 		return fkeyConstraints;
 	}
 
-	public void setFkeyConstraints(List<FKeyConst> fkeyConstraints) {
+	public void setFkeyConstraints(List<FKeyModel> fkeyConstraints) {
 		this.fkeyConstraints = fkeyConstraints;
 	}
 
@@ -356,19 +349,19 @@ public class TableModel {
 		this.engineTail = engineTail;
 	}
 
-	public List<IndexConst> getIndexConsts() {
+	public List<IndexModel> getIndexConsts() {
 		return indexConsts;
 	}
 
-	public void setIndexConsts(List<IndexConst> indexConsts) {
+	public void setIndexConsts(List<IndexModel> indexConsts) {
 		this.indexConsts = indexConsts;
 	}
 
-	public List<UniqueConst> getUniqueConsts() {
+	public List<UniqueModel> getUniqueConsts() {
 		return uniqueConsts;
 	}
 
-	public void setUniqueConsts(List<UniqueConst> uniqueConsts) {
+	public void setUniqueConsts(List<UniqueModel> uniqueConsts) {
 		this.uniqueConsts = uniqueConsts;
 	}
 
@@ -378,6 +371,14 @@ public class TableModel {
 
 	public void setPojoClass(Class<?> pojoClass) {
 		this.pojoClass = pojoClass;
+	}
+
+	public List<IdGenerator> getIdGenerators() {
+		return idGenerators;
+	}
+
+	public void setIdGenerators(List<IdGenerator> idGenerators) {
+		this.idGenerators = idGenerators;
 	} 
 	 
 }

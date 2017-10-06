@@ -17,22 +17,39 @@ package com.github.drinkjava2.jdialects.id;
 
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.annotation.GenerationType;
 
 /**
- * Define an Identity type generator, supported by MySQL, SQL Server, DB2, Derby, Sybase, PostgreSQL
- * 
+ * This TimeStampGenerator return a long type value based on computer's current
+ * time
  * 
  * @author Yong Zhu
  * @version 1.0.0
  * @since 1.0.0
  */
-public class IdentityGenerator implements IdGenerator {
-	public static final IdentityGenerator INSTANCE = new IdentityGenerator();
+public class TimeStampIdGenerator implements IdGenerator {
+	public static final TimeStampIdGenerator INSTANCE = new TimeStampIdGenerator();
+	private Integer count = 1;
 
 	@Override
-	public Object getNextID(NormalJdbcTool ctx, Dialect dialect) {
-		// id is created by database, not me
-		return null;
+	public GenerationType getGenerationType() {
+		return GenerationType.TIMESTAMP;
 	}
 
+	@Override
+	public String getIdGenName() {
+		return "SIMPLE";
+	}
+
+	@Override
+	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect) {
+		if (count > 999999)
+			count = 1;
+		return System.currentTimeMillis() * 1000000 + ++count;
+	}
+
+	@Override
+	public IdGenerator newCopy() {
+		return INSTANCE;
+	};
 }

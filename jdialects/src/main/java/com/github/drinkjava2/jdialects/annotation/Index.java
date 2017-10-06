@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  * @see SecondaryTable
  * @see CollectionTable
  * @see JoinTable
- * @see TableGen
+ * @see TableIdGeneratorTest
  *
  * @since Java Persistence 2.1
  *

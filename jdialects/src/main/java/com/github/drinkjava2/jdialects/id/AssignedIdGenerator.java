@@ -17,21 +17,39 @@ package com.github.drinkjava2.jdialects.id;
 
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.DialectException;
+import com.github.drinkjava2.jdialects.annotation.GenerationType;
 
 /**
- * This SimpleGenerator is only used for testing, it simply return a count number start from 1
+ * AssignedGenerator will not create ID automatically, user should set ID
+ * manually
  * 
  * @author Yong Zhu
  * @version 1.0.0
  * @since 1.0.0
  */
-public class SimpleGenerator implements IdGenerator {
-	public static final SimpleGenerator INSTANCE = new SimpleGenerator();
-
-	private Integer count = 0;
+public class AssignedIdGenerator implements IdGenerator {
+	public static final AssignedIdGenerator INSTANCE = new AssignedIdGenerator();
 
 	@Override
-	public Object getNextID(NormalJdbcTool ctx, Dialect dialect) {
-		return "" + ++count;
+	public GenerationType getGenerationType() {
+		return GenerationType.ASSIGNED;
 	}
+
+	@Override
+	public String getIdGenName() {
+		return "ASSIGNED";
+	}
+
+	@Override
+	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect) {
+		// id is created by you, not me
+		throw new DialectException("AssignedGenerator should not call getNextID() method");
+	}
+
+	@Override
+	public IdGenerator newCopy() {
+		return INSTANCE;
+	};
+
 }

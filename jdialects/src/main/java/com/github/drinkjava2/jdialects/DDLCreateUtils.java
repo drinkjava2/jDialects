@@ -12,14 +12,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.github.drinkjava2.jdialects.model.AutoIdGen;
+import com.github.drinkjava2.jdialects.id.AutoIdGenerator;
+import com.github.drinkjava2.jdialects.id.IdGenerator;
+import com.github.drinkjava2.jdialects.id.SequenceIdGenerator;
+import com.github.drinkjava2.jdialects.id.TableIdGenerator;
 import com.github.drinkjava2.jdialects.model.ColumnModel;
-import com.github.drinkjava2.jdialects.model.FKeyConst;
-import com.github.drinkjava2.jdialects.model.IndexConst;
-import com.github.drinkjava2.jdialects.model.SequenceGen;
-import com.github.drinkjava2.jdialects.model.TableGen;
+import com.github.drinkjava2.jdialects.model.FKeyModel;
+import com.github.drinkjava2.jdialects.model.IndexModel;
 import com.github.drinkjava2.jdialects.model.TableModel;
-import com.github.drinkjava2.jdialects.model.UniqueConst;
+import com.github.drinkjava2.jdialects.model.UniqueModel;
 import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
@@ -32,8 +33,8 @@ public class DDLCreateUtils {
 	private static DialectLogger logger = DialectLogger.getLog(DDLCreateUtils.class);
 
 	/**
-	 * Transfer tables to DDL by given dialect and without format it, if want get a
-	 * formatted DDL, use DDLFormatter.format(DDLs) method to format it
+	 * Transfer tables to DDL by given dialect and without format it, if want
+	 * get a formatted DDL, use DDLFormatter.format(DDLs) method to format it
 	 */
 	public static String[] toCreateDDL(Dialect dialect, TableModel... tables) {
 		// Store mixed DDL String, TableGen Object, SequenceGen Object ...
@@ -43,23 +44,23 @@ public class DDLCreateUtils {
 			transferTableToObjectList(dialect, table, objectResultList);
 
 		List<String> stringResultList = new ArrayList<String>();
-		List<TableGen> tbGeneratorList = new ArrayList<TableGen>();
-		List<SequenceGen> sequenceList = new ArrayList<SequenceGen>();
-		List<AutoIdGen> autoIdGeneratorList = new ArrayList<AutoIdGen>();
-		List<FKeyConst> fKeyConstraintList = new ArrayList<FKeyConst>();
+		List<TableIdGenerator> tbGeneratorList = new ArrayList<TableIdGenerator>();
+		List<SequenceIdGenerator> sequenceList = new ArrayList<SequenceIdGenerator>();
+		List<AutoIdGenerator> autoIdGeneratorList = new ArrayList<AutoIdGenerator>();
+		List<FKeyModel> fKeyConstraintList = new ArrayList<FKeyModel>();
 
 		for (Object strOrObj : objectResultList) {
 			if (!StrUtils.isEmpty(strOrObj)) {
 				if (strOrObj instanceof String)
 					stringResultList.add((String) strOrObj);
-				else if (strOrObj instanceof TableGen)
-					tbGeneratorList.add((TableGen) strOrObj);
-				else if (strOrObj instanceof SequenceGen)
-					sequenceList.add((SequenceGen) strOrObj);
-				else if (strOrObj instanceof AutoIdGen)
-					autoIdGeneratorList.add((AutoIdGen) strOrObj);
-				else if (strOrObj instanceof FKeyConst)
-					fKeyConstraintList.add((FKeyConst) strOrObj);
+				else if (strOrObj instanceof TableIdGenerator)
+					tbGeneratorList.add((TableIdGenerator) strOrObj);
+				else if (strOrObj instanceof SequenceIdGenerator)
+					sequenceList.add((SequenceIdGenerator) strOrObj);
+				else if (strOrObj instanceof AutoIdGenerator)
+					autoIdGeneratorList.add((AutoIdGenerator) strOrObj);
+				else if (strOrObj instanceof FKeyModel)
+					fKeyConstraintList.add((FKeyModel) strOrObj);
 			}
 		}
 
@@ -91,19 +92,19 @@ public class DDLCreateUtils {
 		// Reserved words check
 		dialect.checkNotEmptyReservedWords(tableName, "Table name can not be empty");
 
-		List<IndexConst> idexChks = t.getIndexConsts();// check index names
+		List<IndexModel> idexChks = t.getIndexConsts();// check index names
 		if (idexChks != null && !idexChks.isEmpty())
-			for (IndexConst index : idexChks)
+			for (IndexModel index : idexChks)
 				dialect.checkReservedWords(index.getName());
 
-		List<UniqueConst> ukChks = t.getUniqueConsts();// check unique names
+		List<UniqueModel> ukChks = t.getUniqueConsts();// check unique names
 		if (ukChks != null && !ukChks.isEmpty())
-			for (UniqueConst unique : ukChks)
+			for (UniqueModel unique : ukChks)
 				dialect.checkReservedWords(unique.getName());
 
-		List<FKeyConst> fkeyChks = t.getFkeyConstraints();// check Fkey names
+		List<FKeyModel> fkeyChks = t.getFkeyConstraints();// check Fkey names
 		if (fkeyChks != null && !fkeyChks.isEmpty())
-			for (FKeyConst fkey : fkeyChks)
+			for (FKeyModel fkey : fkeyChks)
 				dialect.checkReservedWords(fkey.getFkeyName());
 
 		for (ColumnModel col : columns)// check column names
@@ -115,24 +116,21 @@ public class DDLCreateUtils {
 			// "Auto" type generator
 			if (col.getAutoGenerator()) {// if support sequence
 				if (features.supportBasicOrPooledSequence()) {
-					objectResultList.add(new SequenceGen(AutoIdGen.JDIALECTS_AUTOID, AutoIdGen.JDIALECTS_AUTOID, 1, 1));
+					objectResultList.add(new SequenceIdGenerator(AutoIdGenerator.JDIALECTS_AUTOID,
+							AutoIdGenerator.JDIALECTS_AUTOID, 1, 1));
 				} else {// AutoIdGen
-					objectResultList.add(new AutoIdGen());
+					objectResultList.add(new AutoIdGenerator());
 				}
 			}
 
 		}
 
-		// sequence
-		for (SequenceGen seq : t.getSequences())
-			objectResultList.add(seq);
-
-		// tableGenerator
-		for (TableGen tableGenerator : t.getTableGenerators())
-			objectResultList.add(tableGenerator);
+		// idGenerator
+		for (IdGenerator idGen : t.getIdGenerators())
+			objectResultList.add(idGen);
 
 		// Foreign key
-		for (FKeyConst fkey : t.getFkeyConstraints())
+		for (FKeyModel fkey : t.getFkeyConstraints())
 			objectResultList.add(fkey);
 
 		// check and cache prime keys
@@ -268,16 +266,17 @@ public class DDLCreateUtils {
 		buildUniqueDLL(dialect, objectResultList, t);
 	}
 
-	private static void buildSequenceDDL(Dialect dialect, List<String> stringList, List<SequenceGen> sequenceList) {
+	private static void buildSequenceDDL(Dialect dialect, List<String> stringList,
+			List<SequenceIdGenerator> sequenceList) {
 		DDLFeatures features = dialect.ddlFeatures;
-		for (SequenceGen seq : sequenceList) {
+		for (SequenceIdGenerator seq : sequenceList) {
 			DialectException.assureNotEmpty(seq.getName(), "SequenceGen name can not be empty");
 			DialectException.assureNotEmpty(seq.getSequenceName(),
 					"sequenceName can not be empty of \"" + seq.getName() + "\"");
 		}
 
-		for (SequenceGen seq : sequenceList) {
-			for (SequenceGen seq2 : sequenceList) {
+		for (SequenceIdGenerator seq : sequenceList) {
+			for (SequenceIdGenerator seq2 : sequenceList) {
 				if (seq != seq2 && (seq2.getAllocationSize() != 0)) {
 					if (seq.getName().equalsIgnoreCase(seq2.getName())) {
 						seq.setAllocationSize(0);// set to 0 to skip repeated
@@ -291,7 +290,7 @@ public class DDLCreateUtils {
 		}
 
 		Set<String> sequenceNameExisted = new HashSet<String>();
-		for (SequenceGen seq : sequenceList) {
+		for (SequenceIdGenerator seq : sequenceList) {
 			if (seq.getAllocationSize() != 0) {
 				String sequenceName = seq.getSequenceName().toLowerCase();
 				if (!sequenceNameExisted.contains(sequenceName)) {
@@ -324,33 +323,33 @@ public class DDLCreateUtils {
 	}
 
 	private static void buildAutoIdGeneratorDDL(Dialect dialect, List<String> stringList,
-			List<AutoIdGen> autoIdGenerator) {
+			List<AutoIdGenerator> autoIdGenerator) {
 		if (autoIdGenerator != null && !autoIdGenerator.isEmpty()) {
-			stringList.add(dialect.ddlFeatures.createTableString + " " + AutoIdGen.JDIALECTS_AUTOID + " ("
-					+ AutoIdGen.NEXT_VAL + " " + dialect.translateToDDLType(Type.BIGINT) + " )");
-			stringList.add("insert into " + AutoIdGen.JDIALECTS_AUTOID + " values ( 1 )");
+			stringList.add(dialect.ddlFeatures.createTableString + " " + AutoIdGenerator.JDIALECTS_AUTOID + " ("
+					+ AutoIdGenerator.NEXT_VAL + " " + dialect.translateToDDLType(Type.BIGINT) + " )");
+			stringList.add("insert into " + AutoIdGenerator.JDIALECTS_AUTOID + " values ( 1 )");
 		}
 	}
 
 	private static void buildTableGeneratorDDL(Dialect dialect, List<String> stringList,
-			List<TableGen> tbGeneratorList) {
-		for (TableGen tg : tbGeneratorList) {
+			List<TableIdGenerator> tbGeneratorList) {
+		for (TableIdGenerator tg : tbGeneratorList) {
 			//@formatter:off
 			DialectException.assureNotEmpty(tg.getName(), "TableGen name can not be empty"); 
-			DialectException.assureNotEmpty(tg.getTableName(), "TableGen tableName can not be empty of \""+tg.getName()+"\"");
+			DialectException.assureNotEmpty(tg.getTable(), "TableGen tableName can not be empty of \""+tg.getName()+"\"");
 			DialectException.assureNotEmpty(tg.getPkColumnName(), "TableGen pkColumnName can not be empty of \""+tg.getName()+"\"");
 			DialectException.assureNotEmpty(tg.getPkColumnValue(), "TableGen pkColumnValue can not be empty of \""+tg.getName()+"\"");
 			DialectException.assureNotEmpty(tg.getValueColumnName(), "TableGen valueColumnName can not be empty of \""+tg.getName()+"\""); 
 			//@formatter:on
 		}
 
-		for (TableGen tg : tbGeneratorList) {
-			for (TableGen tg2 : tbGeneratorList) {
+		for (TableIdGenerator tg : tbGeneratorList) {
+			for (TableIdGenerator tg2 : tbGeneratorList) {
 				if (tg != tg2 && (tg2.getAllocationSize() != 0)) {
 					if (tg.getName().equalsIgnoreCase(tg2.getName())) {
 						tg.setAllocationSize(0);// set to 0 to skip repeated
 					} else {
-						if (tg.getTableName().equalsIgnoreCase(tg2.getTableName())
+						if (tg.getTable().equalsIgnoreCase(tg2.getTable())
 								&& tg.getPkColumnName().equalsIgnoreCase(tg2.getPkColumnName())
 								&& tg.getPkColumnValue().equalsIgnoreCase(tg2.getPkColumnValue())
 								&& tg.getValueColumnName().equalsIgnoreCase(tg2.getValueColumnName()))
@@ -363,11 +362,11 @@ public class DDLCreateUtils {
 
 		Set<String> tableExisted = new HashSet<String>();
 		Set<String> columnExisted = new HashSet<String>();
-		for (TableGen tg : tbGeneratorList)
+		for (TableIdGenerator tg : tbGeneratorList)
 			if (tg.getAllocationSize() != 0) {
-				String tableName = tg.getTableName().toLowerCase();
-				String tableAndPKColumn = tg.getTableName().toLowerCase() + "..XXOO.." + tg.getPkColumnName();
-				String tableAndValColumn = tg.getTableName().toLowerCase() + "..XXOO.." + tg.getValueColumnName();
+				String tableName = tg.getTable().toLowerCase();
+				String tableAndPKColumn = tg.getTable().toLowerCase() + "..XXOO.." + tg.getPkColumnName();
+				String tableAndValColumn = tg.getTable().toLowerCase() + "..XXOO.." + tg.getValueColumnName();
 				if (!tableExisted.contains(tableName)) {
 					String s = dialect.ddlFeatures.createTableString + " " + tableName + " (";
 					s += tg.getPkColumnName() + " " + dialect.translateToDDLType(Type.VARCHAR, 100) + ",";
@@ -393,15 +392,15 @@ public class DDLCreateUtils {
 			}
 	}
 
-	private static void outputFKeyConstraintDDL(Dialect dialect, List<String> stringList, List<FKeyConst> trueList) {
+	private static void outputFKeyConstraintDDL(Dialect dialect, List<String> stringList, List<FKeyModel> trueList) {
 		if (DDLFeatures.NOT_SUPPORT.equals(dialect.ddlFeatures.addForeignKeyConstraintString)) {
 			logger.warn("Dialect \"" + dialect + "\" does not support foreign key setting, settings be ignored");
 			return;
 		}
-		for (FKeyConst t : trueList) {
+		for (FKeyModel t : trueList) {
 			/*
-			 * ADD CONSTRAINT _FKEYNAME FOREIGN KEY _FKEYNAME (_FK1, _FK2) REFERENCES
-			 * _REFTABLE (_REF1, _REF2)
+			 * ADD CONSTRAINT _FKEYNAME FOREIGN KEY _FKEYNAME (_FK1, _FK2)
+			 * REFERENCES _REFTABLE (_REF1, _REF2)
 			 */
 			String constName = t.getFkeyName();
 			if (StrUtils.isEmpty(constName))
@@ -426,7 +425,7 @@ public class DDLCreateUtils {
 	}
 
 	private static void buildIndexDLL(Dialect dialect, List<Object> objectResultList, TableModel t) {
-		List<IndexConst> l = t.getIndexConsts();
+		List<IndexModel> l = t.getIndexConsts();
 		if (l == null || l.isEmpty())
 			return;
 		String template;
@@ -434,7 +433,7 @@ public class DDLCreateUtils {
 			template = "create $ifUnique index $indexName ($indexValues) on " + t.getTableName();
 		else
 			template = "create $ifUnique index $indexName on " + t.getTableName() + " ($indexValues)";
-		for (IndexConst index : l) {
+		for (IndexModel index : l) {
 			String indexname = index.getName();
 			if (StrUtils.isEmpty(indexname))
 				indexname = "IX_" + t.getTableName() + "_" + StrUtils.arrayToString(index.getColumnList(), "_");
@@ -447,11 +446,11 @@ public class DDLCreateUtils {
 	}
 
 	private static void buildUniqueDLL(Dialect dialect, List<Object> objectResultList, TableModel t) {
-		List<UniqueConst> l = t.getUniqueConsts();
+		List<UniqueModel> l = t.getUniqueConsts();
 		if (l == null || l.isEmpty())
 			return;
 		String dialectName = "" + dialect;
-		for (UniqueConst unique : l) {
+		for (UniqueModel unique : l) {
 			boolean nullable = false;
 			String[] columns = unique.getColumnList();
 			for (String colNames : columns) {
@@ -464,7 +463,8 @@ public class DDLCreateUtils {
 				uniqueName = "UK_" + t.getTableName() + "_" + StrUtils.arrayToString(unique.getColumnList(), "_");
 
 			String template = "alter table $TABLE add constraint $UKNAME unique ($COLUMNS)";
-			if ((StrUtils.startsWithIgnoreCase(dialectName, "DB2")// DB2 and DERBY
+			if ((StrUtils.startsWithIgnoreCase(dialectName, "DB2")// DB2 and
+																	// DERBY
 					|| StrUtils.startsWithIgnoreCase(dialectName, "DERBY")) && nullable)
 				template = "create unique index $UKNAME on $TABLE ($COLUMNS)";
 			else if (StrUtils.startsWithIgnoreCase(dialectName, "Informix"))

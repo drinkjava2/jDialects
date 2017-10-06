@@ -21,8 +21,8 @@ import java.util.Map;
 import com.github.drinkjava2.jdialects.ColumnDef;
 import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.annotation.GenerationType;
+import com.github.drinkjava2.jdialects.id.SequenceIdGenerator;
 import com.github.drinkjava2.jdialects.model.ColumnModel;
-import com.github.drinkjava2.jdialects.model.SequenceGen;
 import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
 
@@ -211,7 +211,7 @@ public abstract class DialectUtils {
 		// SequenceGenerator
 		List<Map<String, Object>> sequences = getPojoAnnotations(pojoClass, "SequenceGenerator");
 		for (Map<String, Object> map : sequences) {
-			model.sequenceGenerator(new SequenceGen((String) map.get("name"), (String) map.get("sequenceName"),
+			model.addSequenceGenerator(new SequenceIdGenerator((String) map.get("name"), (String) map.get("sequenceName"),
 					(Integer) map.get("initialValue"), (Integer) map.get("allocationSize")));
 		}
 
@@ -280,8 +280,8 @@ public abstract class DialectUtils {
 					// SequenceGenerator
 					Map<String, Object> seqMap = getFirstPojoAnnotation(field, "SequenceGenerator");
 					if (!seqMap.isEmpty())
-						model.sequenceGenerator(
-								new SequenceGen((String) seqMap.get("name"), (String) seqMap.get("sequenceName"),
+						model.addSequenceGenerator(
+								new SequenceIdGenerator((String) seqMap.get("name"), (String) seqMap.get("sequenceName"),
 										(Integer) seqMap.get("initialValue"), (Integer) seqMap.get("allocationSize")));
 
 					// Id
@@ -298,11 +298,11 @@ public abstract class DialectUtils {
 						if (GenerationType.AUTO.equals(typ))
 							col.autoID();
 						else if (GenerationType.SEQUENCE.equals(typ))
-							col.sequence((String) gvMap.get("generator"));
+							col.idGenerator((String) gvMap.get("generator"));
 						else if (GenerationType.IDENTITY.equals(typ))
 							col.identity();
 						else if (GenerationType.TABLE.equals(typ))
-							col.tableGenerator((String) gvMap.get("generator"));
+							col.idGenerator((String) gvMap.get("generator"));
 					}
 
 					// SingleFKey is a shortcut format of FKey, only for 1 column

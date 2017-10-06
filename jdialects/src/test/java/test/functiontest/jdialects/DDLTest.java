@@ -226,8 +226,8 @@ public class DDLTest extends BaseDDLTest {
 		TableModel t = new TableModel("testTable");
 		t.sequenceGenerator("seq1", "seq_1", 1, 1);
 		t.sequenceGenerator("seq2", "seq_2", 1, 2);
-		t.column("i1").INTEGER().pkey().sequence("seq1");
-		t.column("i2").INTEGER().pkey().sequence("seq2");
+		t.column("i1").INTEGER().pkey().idGenerator("seq1");
+		t.column("i2").INTEGER().pkey().idGenerator("seq2");
 		return t;
 	}
 
@@ -242,8 +242,8 @@ public class DDLTest extends BaseDDLTest {
 		TableModel t = new TableModel("testTable");
 		t.tableGenerator("tbgen1", "tb1", "pkcol", "valcol", "pkval", 1, 10);
 		t.tableGenerator("tbgen2", "tb1", "pkcol2", "valcol", "pkval", 1, 10);
-		t.column("i1").INTEGER().pkey().tableGenerator("tbgen1");
-		t.column("i2").INTEGER().pkey().tableGenerator("tbgen2");
+		t.column("i1").INTEGER().pkey().idGenerator("tbgen1");
+		t.column("i2").INTEGER().pkey().idGenerator("tbgen2");
 		return t;
 	}
 
@@ -253,8 +253,8 @@ public class DDLTest extends BaseDDLTest {
 		t.tableGenerator("tbgen4", "tb1", "pkcol3", "valcol", "pkval2", 1, 10);
 		t.tableGenerator("tbgen5", "tb1", "pkcol4", "valcol", "pkval3", 1, 10);
 		t.tableGenerator("tbgen6", "tb1", "pkcol4", "valcol", "pkval4", 1, 10);
-		t.column("i1").INTEGER().pkey().tableGenerator("tbgen1");
-		t.column("i2").INTEGER().pkey().tableGenerator("tbgen2");
+		t.column("i1").INTEGER().pkey().idGenerator("tbgen1");
+		t.column("i2").INTEGER().pkey().idGenerator("tbgen2");
 		return t;
 	}
 
@@ -415,9 +415,9 @@ public class DDLTest extends BaseDDLTest {
 		TableModel t3 = new TableModel("sampletable");
 		t3.column("id").LONG().identity().pkey();
 		t3.tableGenerator("table_gen1", "tb1", "pkcol2", "valcol", "pkval", 1, 10);
-		t3.column("id1").INTEGER().tableGenerator("table_gen1");
+		t3.column("id1").INTEGER().idGenerator("table_gen1");
 		t3.sequenceGenerator("seq1", "seq_1", 1, 1);
-		t3.column("id2").INTEGER().sequence("seq1");
+		t3.column("id2").INTEGER().idGenerator("seq1");
 		t3.engineTail(" DEFAULT CHARSET=utf8");
 
 		String[] dropAndCreateDDL = Dialect.H2Dialect.toDropAndCreateDDL(t1, t2, t3);

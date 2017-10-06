@@ -20,9 +20,11 @@ import java.util.UUID;
 
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.annotation.GenerationType;
 
 /**
- * Compress JDK UUID to 25 letters based on radix 36, use 0-9 a-z characters, example: pbicz3grgu0zk3ipe1yur03h7
+ * Compress JDK UUID to 25 letters based on radix 36, use 0-9 a-z characters,
+ * example: pbicz3grgu0zk3ipe1yur03h7
  * 
  * @author Yong Zhu
  * @version 1.0.0
@@ -32,9 +34,24 @@ public class UUID25Generator implements IdGenerator {
 	public static final UUID25Generator INSTANCE = new UUID25Generator();
 
 	@Override
-	public Object getNextID(NormalJdbcTool ctx, Dialect dialect) {
+	public GenerationType getGenerationType() {
+		return GenerationType.UUID25;
+	}
+
+	@Override
+	public String getIdGenName() {
+		return "UUID25";
+	}
+
+	@Override
+	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect) {
 		return get25LettersRadix36UUID();
 	}
+
+	@Override
+	public IdGenerator newCopy() {
+		return INSTANCE;
+	};
 
 	private static String get25LettersRadix36UUID() {
 		String uuidHex = UUID.randomUUID().toString().replaceAll("-", "");

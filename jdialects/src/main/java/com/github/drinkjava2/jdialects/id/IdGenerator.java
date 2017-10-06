@@ -17,6 +17,7 @@ package com.github.drinkjava2.jdialects.id;
 
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.annotation.GenerationType;
 
 /**
  * Interface for all ID generators
@@ -30,6 +31,15 @@ public interface IdGenerator {// NOSONAR
 	/**
 	 * Return next id
 	 */
-	public Object getNextID(NormalJdbcTool ctx, Dialect dialect);
+	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect);
+
+	/** Return GenerationType */
+	public GenerationType getGenerationType();
+
+	/** Return a unique Id Generator name in this TableModel */
+	public String getIdGenName();
+
+	/** Return a newCopy (Deep Clone) instance */
+	public IdGenerator newCopy();
 
 }
