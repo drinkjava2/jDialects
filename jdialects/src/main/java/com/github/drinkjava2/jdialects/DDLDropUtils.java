@@ -15,6 +15,7 @@ import java.util.Set;
 import com.github.drinkjava2.jdialects.id.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.id.IdGenerator;
 import com.github.drinkjava2.jdialects.id.SequenceIdGenerator;
+import com.github.drinkjava2.jdialects.id.SortedUUIDGenerator;
 import com.github.drinkjava2.jdialects.id.TableIdGenerator;
 import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.FKeyModel;
@@ -44,8 +45,8 @@ public class DDLDropUtils {
 		List<String> stringResultList = new ArrayList<String>();
 		List<TableIdGenerator> tbGeneratorList = new ArrayList<TableIdGenerator>();
 		List<SequenceIdGenerator> sequenceList = new ArrayList<SequenceIdGenerator>();
-		List<AutoIdGenerator> globalIdGeneratorList = new ArrayList<AutoIdGenerator>();
 		List<FKeyModel> fKeyConstraintList = new ArrayList<FKeyModel>();
+		boolean hasAutoIdGenerator = false;
 
 		for (Object strOrObj : objectResultList) {
 			if (!StrUtils.isEmpty(strOrObj)) {
@@ -55,16 +56,27 @@ public class DDLDropUtils {
 					tbGeneratorList.add((TableIdGenerator) strOrObj);
 				else if (strOrObj instanceof SequenceIdGenerator)
 					sequenceList.add((SequenceIdGenerator) strOrObj);
-				else if (strOrObj instanceof AutoIdGenerator)
-					globalIdGeneratorList.add((AutoIdGenerator) strOrObj);
 				else if (strOrObj instanceof FKeyModel)
 					fKeyConstraintList.add((FKeyModel) strOrObj);
+				else if (strOrObj instanceof AutoIdGenerator)
+					hasAutoIdGenerator = true;
+				else if (strOrObj instanceof SortedUUIDGenerator)
+					hasAutoIdGenerator = true;
 			}
+		}
+
+		if (hasAutoIdGenerator) {
+			IdGenerator realIdGen = AutoIdGenerator.INSTANCE.getRealIdgenerator(dialect);
+			if (realIdGen instanceof TableIdGenerator)
+				tbGeneratorList.add((TableIdGenerator) realIdGen);
+			else if (realIdGen instanceof SequenceIdGenerator)
+				sequenceList.add((SequenceIdGenerator) realIdGen);
+			else
+				throw new DialectException("Unknow exception happen for realIdGen, please report this bug");
 		}
 
 		buildDropSequenceDDL(dialect, stringResultList, sequenceList);
 		buildDropTableGeneratorDDL(dialect, stringResultList, tbGeneratorList);
-		buildDropGolbalIDGeneratorDDL(dialect, stringResultList, globalIdGeneratorList);
 		outputDropFKeyConstraintDDL(dialect, stringResultList, fKeyConstraintList);
 
 		return stringResultList.toArray(new String[stringResultList.size()]);
@@ -74,8 +86,6 @@ public class DDLDropUtils {
 	 * Transfer table to a mixed DDL String or TableGen Object list
 	 */
 	private static void transferTableToObjectList(Dialect dialect, TableModel t, List<Object> objectResultList) {
-		DDLFeatures features = dialect.ddlFeatures;
-
 		StringBuilder buf = new StringBuilder();
 		String tableName = t.getTableName();
 		List<ColumnModel> columns = t.getColumns();
@@ -101,20 +111,7 @@ public class DDLDropUtils {
 		for (ColumnModel col : columns)
 			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
 
-		for (ColumnModel col : columns) {
-			if (col.getTransientable())
-				continue;
-			// autoGenerator, only support sequence or table for "Auto" type
-			if (col.getAutoGenerator()) {// if support sequence
-				if (features.supportBasicOrPooledSequence()) {
-					objectResultList.add(new SequenceIdGenerator(AutoIdGenerator.JDIALECTS_AUTOID, AutoIdGenerator.JDIALECTS_AUTOID, 1, 1));
-				} else {// AutoIdGen
-					objectResultList.add(new AutoIdGenerator());
-				}
-			}
-		}
-
-		//idGenerator
+		// idGenerator
 		for (IdGenerator idGen : t.getIdGenerators())
 			objectResultList.add(idGen);
 
@@ -193,12 +190,6 @@ public class DDLDropUtils {
 				tableExisted.add(tableName);
 			}
 		}
-	}
-
-	private static void buildDropGolbalIDGeneratorDDL(Dialect dialect, List<String> stringResultList,
-			List<AutoIdGenerator> globalIdGeneratorList) {
-		if (globalIdGeneratorList != null && !globalIdGeneratorList.isEmpty())
-			stringResultList.add(0, dialect.dropTableDDL(AutoIdGenerator.JDIALECTS_AUTOID));
 	}
 
 	private static void outputDropFKeyConstraintDDL(Dialect dialect, List<String> stringResultList,

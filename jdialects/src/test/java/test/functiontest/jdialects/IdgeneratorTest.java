@@ -18,7 +18,11 @@ package test.functiontest.jdialects;
 import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.id.AutoIdGenerator;
+import com.github.drinkjava2.jdialects.id.IdGenerator;
 import com.github.drinkjava2.jdialects.id.SortedUUIDGenerator;
+import com.github.drinkjava2.jdialects.id.UUID25Generator;
+import com.github.drinkjava2.jdialects.id.UUID32Generator;
+import com.github.drinkjava2.jdialects.id.UUID36Generator;
 import com.github.drinkjava2.jdialects.model.TableModel;
 
 import test.BaseDDLTest;
@@ -27,6 +31,29 @@ import test.BaseDDLTest;
  * Unit test for SortedUUIDGenerator
  */
 public class IdgeneratorTest extends BaseDDLTest {
+	@Test
+	public void testUUIDs() {
+		IdGenerator gen=UUID25Generator.INSTANCE;
+		for (int i = 0; i < 5; i++) {
+			System.out.println(gen.getNextID(db, guessedDialect));
+		}
+		
+		  gen=UUID32Generator.INSTANCE;
+		for (int i = 0; i < 5; i++) {
+			System.out.println(gen.getNextID(db, guessedDialect));
+		}
+		
+		  gen=UUID36Generator.INSTANCE;
+		for (int i = 0; i < 5; i++) {
+			System.out.println(gen.getNextID(db, guessedDialect));
+		}
+		
+		  gen=UUID25Generator.INSTANCE;
+		for (int i = 0; i < 5; i++) {
+			System.out.println(gen.getNextID(db, guessedDialect));
+		}
+	}
+	
 
 	@Test
 	public void testAutoIdGenerator() {
@@ -43,34 +70,40 @@ public class IdgeneratorTest extends BaseDDLTest {
 	@Test
 	public void testSortedUUIDGenerator() {
 		TableModel table = new TableModel("testSortedUUIDGenerator");
-		table.column("id").STRING(30).pkey().autoID();
+		table.sortedUUIDGenerator("sorteduuid", 10, 20);
+		table.column("id").STRING(30).pkey().idGenerator("sorteduuid");
 		reBuildDB(table);
+		
+		IdGenerator gen1 = table.getIdGenerator("sorteduuid");
+		for (int i = 0; i < 10; i++) {
+			System.out.println(gen1.getNextID(db, guessedDialect));
+		}
 
-		SortedUUIDGenerator gen = new SortedUUIDGenerator(12, 5);
-		for (int i = 0; i < 5555; i++) {
-			System.out.println(gen.getNextID(db, guessedDialect));
+		SortedUUIDGenerator gen2 = new SortedUUIDGenerator("sorted", 10, 10);
+		for (int i = 0; i < 10; i++) {
+			System.out.println(gen2.getNextID(db, guessedDialect));
 		}
 	}
 
 	@Test
 	public void testTableIdGenerator() {
-//		TableModel table = new TableModel("testTableIdGenerator");
-//		table.tableGenerator("table1", "tb1", "pkCol", "valueColname", "pkColVal", 1, 10);
-//		table.addColumn("id").STRING(30).pkey().tableGenerator("table1");
-//		reBuildDB(table);
-// 
-//		IdGenerator gen = table.getGenerator("table1");
-//		System.out.println(gen);
-//		for (int i = 0; i < 8; i++) {
-//			System.out.println(gen.getNextID(db, guessedDialect));
-//		}
-//		for (int i = 0; i < 8; i++) {
-//			System.out.println(gen.getNextID(db, guessedDialect));
-//		}
-//		
-//		for (int i = 0; i < 8; i++) {
-//			System.out.println(   );
-//		}
+		TableModel table = new TableModel("testTableIdGenerator");
+		table.tableGenerator("table1", "tb1", "pkCol", "valueColname", "pkColVal", 1, 10);
+		table.column("id").STRING(30).pkey().idGenerator("table1");
+		reBuildDB(table);
+ 
+		IdGenerator gen = table.getIdGenerator("table1");
+		System.out.println(gen);
+		for (int i = 0; i < 8; i++) {
+			System.out.println(gen.getNextID(db, guessedDialect));
+		}
+		for (int i = 0; i < 8; i++) {
+			System.out.println(gen.getNextID(db, guessedDialect));
+		}
+		
+		for (int i = 0; i < 8; i++) {
+			System.out.println(   );
+		}
 	}
 
 }

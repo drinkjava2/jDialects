@@ -12,9 +12,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.github.drinkjava2.jdialects.annotation.GenerationType;
 import com.github.drinkjava2.jdialects.id.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.id.IdGenerator;
 import com.github.drinkjava2.jdialects.id.SequenceIdGenerator;
+import com.github.drinkjava2.jdialects.id.SortedUUIDGenerator;
 import com.github.drinkjava2.jdialects.id.TableIdGenerator;
 import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.FKeyModel;
@@ -46,8 +48,8 @@ public class DDLCreateUtils {
 		List<String> stringResultList = new ArrayList<String>();
 		List<TableIdGenerator> tbGeneratorList = new ArrayList<TableIdGenerator>();
 		List<SequenceIdGenerator> sequenceList = new ArrayList<SequenceIdGenerator>();
-		List<AutoIdGenerator> autoIdGeneratorList = new ArrayList<AutoIdGenerator>();
 		List<FKeyModel> fKeyConstraintList = new ArrayList<FKeyModel>();
+		boolean hasAutoIdGenerator = false;
 
 		for (Object strOrObj : objectResultList) {
 			if (!StrUtils.isEmpty(strOrObj)) {
@@ -57,16 +59,27 @@ public class DDLCreateUtils {
 					tbGeneratorList.add((TableIdGenerator) strOrObj);
 				else if (strOrObj instanceof SequenceIdGenerator)
 					sequenceList.add((SequenceIdGenerator) strOrObj);
-				else if (strOrObj instanceof AutoIdGenerator)
-					autoIdGeneratorList.add((AutoIdGenerator) strOrObj);
 				else if (strOrObj instanceof FKeyModel)
 					fKeyConstraintList.add((FKeyModel) strOrObj);
+				else if (strOrObj instanceof AutoIdGenerator)
+					hasAutoIdGenerator = true;
+				else if (strOrObj instanceof SortedUUIDGenerator)
+					hasAutoIdGenerator = true;
 			}
+		}
+
+		if (hasAutoIdGenerator) {
+			IdGenerator realIdGen = AutoIdGenerator.INSTANCE.getRealIdgenerator(dialect);
+			if (realIdGen instanceof TableIdGenerator)
+				tbGeneratorList.add((TableIdGenerator) realIdGen);
+			else if (realIdGen instanceof SequenceIdGenerator)
+				sequenceList.add((SequenceIdGenerator) realIdGen);
+			else
+				throw new DialectException("Unknow exception happen for realIdGen, please report this bug");
 		}
 
 		buildSequenceDDL(dialect, stringResultList, sequenceList);
 		buildTableGeneratorDDL(dialect, stringResultList, tbGeneratorList);
-		buildAutoIdGeneratorDDL(dialect, stringResultList, autoIdGeneratorList);
 		outputFKeyConstraintDDL(dialect, stringResultList, fKeyConstraintList);
 
 		return stringResultList.toArray(new String[stringResultList.size()]);
@@ -110,21 +123,6 @@ public class DDLCreateUtils {
 		for (ColumnModel col : columns)// check column names
 			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
 
-		for (ColumnModel col : columns) {
-			if (col.getTransientable())
-				continue;
-			// "Auto" type generator
-			if (col.getAutoGenerator()) {// if support sequence
-				if (features.supportBasicOrPooledSequence()) {
-					objectResultList.add(new SequenceIdGenerator(AutoIdGenerator.JDIALECTS_AUTOID,
-							AutoIdGenerator.JDIALECTS_AUTOID, 1, 1));
-				} else {// AutoIdGen
-					objectResultList.add(new AutoIdGenerator());
-				}
-			}
-
-		}
-
 		// idGenerator
 		for (IdGenerator idGen : t.getIdGenerators())
 			objectResultList.add(idGen);
@@ -161,12 +159,12 @@ public class DDLCreateUtils {
 			buf.append(c.getColumnName()).append(" ");
 
 			// Identity
-			if (c.getIdentity() && !features.supportsIdentityColumns)
+			if (GenerationType.IDENTITY.equals(c.getIdGenerationType()) && !features.supportsIdentityColumns)
 				DialectException.throwEX("Unsupported identity setting for dialect \"" + dialect + "\" on column \""
 						+ c.getColumnName() + "\" at table \"" + tableName + "\"");
 
 			// Column type definition
-			if (c.getIdentity()) {
+			if (GenerationType.IDENTITY.equals(c.getIdGenerationType())) {
 				if (features.hasDataTypeInIdentityColumn)
 					buf.append(dialect.translateToDDLType(c.getColumnType(), c.getLengths()));
 				buf.append(' ');
@@ -320,15 +318,6 @@ public class DDLCreateUtils {
 			}
 		}
 
-	}
-
-	private static void buildAutoIdGeneratorDDL(Dialect dialect, List<String> stringList,
-			List<AutoIdGenerator> autoIdGenerator) {
-		if (autoIdGenerator != null && !autoIdGenerator.isEmpty()) {
-			stringList.add(dialect.ddlFeatures.createTableString + " " + AutoIdGenerator.JDIALECTS_AUTOID + " ("
-					+ AutoIdGenerator.NEXT_VAL + " " + dialect.translateToDDLType(Type.BIGINT) + " )");
-			stringList.add("insert into " + AutoIdGenerator.JDIALECTS_AUTOID + " values ( 1 )");
-		}
 	}
 
 	private static void buildTableGeneratorDDL(Dialect dialect, List<String> stringList,

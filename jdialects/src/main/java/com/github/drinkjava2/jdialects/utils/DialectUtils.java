@@ -21,7 +21,6 @@ import java.util.Map;
 import com.github.drinkjava2.jdialects.ColumnDef;
 import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.annotation.GenerationType;
-import com.github.drinkjava2.jdialects.id.SequenceIdGenerator;
 import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
@@ -211,8 +210,8 @@ public abstract class DialectUtils {
 		// SequenceGenerator
 		List<Map<String, Object>> sequences = getPojoAnnotations(pojoClass, "SequenceGenerator");
 		for (Map<String, Object> map : sequences) {
-			model.addSequenceGenerator(new SequenceIdGenerator((String) map.get("name"), (String) map.get("sequenceName"),
-					(Integer) map.get("initialValue"), (Integer) map.get("allocationSize")));
+			model.sequenceGenerator((String) map.get("name"), (String) map.get("sequenceName"),
+					(Integer) map.get("initialValue"), (Integer) map.get("allocationSize"));
 		}
 
 		// TableGenerator
@@ -280,9 +279,8 @@ public abstract class DialectUtils {
 					// SequenceGenerator
 					Map<String, Object> seqMap = getFirstPojoAnnotation(field, "SequenceGenerator");
 					if (!seqMap.isEmpty())
-						model.addSequenceGenerator(
-								new SequenceIdGenerator((String) seqMap.get("name"), (String) seqMap.get("sequenceName"),
-										(Integer) seqMap.get("initialValue"), (Integer) seqMap.get("allocationSize")));
+						model.sequenceGenerator((String) seqMap.get("name"), (String) seqMap.get("sequenceName"),
+										(Integer) seqMap.get("initialValue"), (Integer) seqMap.get("allocationSize"));
 
 					// Id
 					if (!getFirstPojoAnnotation(field, "Id").isEmpty())

@@ -17,7 +17,6 @@ package com.github.drinkjava2.jdialects.id;
 
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
-import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.annotation.GenerationType;
 
 /**
@@ -43,8 +42,8 @@ public class AssignedIdGenerator implements IdGenerator {
 
 	@Override
 	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect) {
-		// id is created by you, not me
-		throw new DialectException("AssignedGenerator should not call getNextID() method");
+		// AssignedGenerator should not call getNextID() method
+		return null;
 	}
 
 	@Override

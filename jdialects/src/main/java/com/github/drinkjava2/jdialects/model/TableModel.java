@@ -14,6 +14,7 @@ import java.util.List;
 import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.id.IdGenerator;
 import com.github.drinkjava2.jdialects.id.SequenceIdGenerator;
+import com.github.drinkjava2.jdialects.id.SortedUUIDGenerator;
 import com.github.drinkjava2.jdialects.id.TableIdGenerator;
 import com.github.drinkjava2.jdialects.utils.StrUtils;
 
@@ -47,10 +48,10 @@ public class TableModel {
 
 	/** Columns in this table */
 	private List<ColumnModel> columns = new ArrayList<ColumnModel>();
-  
+
 	/** IdGenerators */
 	private List<IdGenerator> idGenerators = new ArrayList<IdGenerator>();
- 
+
 	/** Foreign Keys */
 	private List<FKeyModel> fkeyConstraints = new ArrayList<FKeyModel>();
 
@@ -80,7 +81,7 @@ public class TableModel {
 		tb.engineTail = this.engineTail;
 		if (!columns.isEmpty())
 			for (ColumnModel item : columns)
-				tb.columns.add(item.newCopy()); 
+				tb.columns.add(item.newCopy());
 
 		if (!idGenerators.isEmpty())
 			for (IdGenerator item : idGenerators)
@@ -100,31 +101,24 @@ public class TableModel {
 		return tb;
 	}
 
+	/** Add a TableGenerator */
+	public void tableGenerator(String name, String tableName, String pkColumnName, String valueColumnName,
+			String pkColumnValue, Integer initialValue, Integer allocationSize) {
+		addGenerator(new TableIdGenerator(name, tableName, pkColumnName, valueColumnName, pkColumnValue,
+				initialValue, allocationSize));
+	}
+
 	/**
 	 * Add a "create table..." DDL to generate ID, similar like JPA's TableGen
 	 */
-	public void addTableGenerator(TableIdGenerator tableGenerator) {
+	private void addGenerator( IdGenerator tableGenerator) {
 		//@formatter:off
 		DialectException.assureNotNull(tableGenerator);
-		DialectException.assureNotEmpty(tableGenerator.getName(), "TableGen name can not be empty");
+		DialectException.assureNotEmpty(tableGenerator.getIdGenName(), "IdGenerator name can not be empty");
+		if(this.getIdGenerator(tableGenerator.getIdGenName())!=null)
+			throw new DialectException("Duplicated tableGenerator name '"+tableGenerator.getIdGenName()+"'");			
 		idGenerators.add(tableGenerator);  
-	}
- 
-	/**
-	 * Add a "create table..." DDL to generate ID, similar like JPA's TableGen 
-	 * @param name The name of TableGen Java object itself
-	 * @param tableName The name of the table will created in database to generate ID
-	 * @param pkColumnName The name of prime key column
-	 * @param valueColumnName The name of value column
-	 * @param pkColumnValue The value in prime key column
-	 * @param initialValue The initial value
-	 * @param allocationSize The allocationSize
-	 */
-	public void tableGenerator(String name, String tableName, String pkColumnName, String valueColumnName,
-			String pkColumnValue, Integer initialValue, Integer allocationSize) {
-		addTableGenerator(new TableIdGenerator(name, tableName, pkColumnName, valueColumnName, pkColumnValue,
-				initialValue, allocationSize));
-	}
+	} 
 
 	/**
 	 * Add a sequence definition DDL, note: some dialects do not support sequence
@@ -134,16 +128,18 @@ public class TableModel {
 	 * @param allocationSize The allocationSize
 	 */
 	public void sequenceGenerator(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
-		this.addSequenceGenerator(new SequenceIdGenerator(name, sequenceName, initialValue, allocationSize));
+		this.addGenerator(new SequenceIdGenerator(name, sequenceName, initialValue, allocationSize));
 	}
-
+ 
+	
 	/**
 	 * Add a Sequence Generator, note: not all database support sequence
 	 */
-	public void addSequenceGenerator(SequenceIdGenerator sequence) {
-		DialectException.assureNotNull(sequence);
-		DialectException.assureNotEmpty(sequence.getSequenceName(), "SequenceGen name can not be empty");
-		idGenerators.add( sequence);
+	public void sortedUUIDGenerator(String name, Integer sortedLength, Integer uuidLength ) {
+		DialectException.assureNotNull(name);
+		if(this.getIdGenerator(name)!=null)
+			throw new DialectException("Duplicated sortedUUIDGenerator name '"+name+"'");			
+		idGenerators.add( new SortedUUIDGenerator(name, sortedLength, uuidLength));
 	}
 
 	/**
@@ -291,13 +287,16 @@ public class TableModel {
 	 * Search and return the IdGenerator in this TableModel by its name
 	 */
 	public IdGenerator getIdGenerator(String name) {
+		return getIdGenerator(name,this.getIdGenerators());
+	}
+	
+	public static IdGenerator getIdGenerator(String name, List<IdGenerator> idGeneratorList){
 		if(StrUtils.isEmpty(name))return null;
-		for (IdGenerator idGenerator : idGenerators)  
-			if(name.equals(idGenerator.getIdGenName()))
+		for (IdGenerator idGenerator : idGeneratorList)  
+			if(name.equalsIgnoreCase(idGenerator.getIdGenName()))
 					return idGenerator;		 
 		return null;
 	}
-	
 	// getter & setter=========================
 
 	public String getTableName() {

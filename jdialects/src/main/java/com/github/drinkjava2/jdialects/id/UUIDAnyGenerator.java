@@ -35,6 +35,7 @@ public class UUIDAnyGenerator implements IdGenerator {
 	private static final SecureRandom random = new SecureRandom();
 	private static final char[] ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz".toCharArray();
 
+	private String name;
 	private Integer length = 20;
 
 	public UUIDAnyGenerator() {
@@ -44,7 +45,8 @@ public class UUIDAnyGenerator implements IdGenerator {
 	/**
 	 * Build a give length UUID Generator
 	 */
-	public UUIDAnyGenerator(Integer length) {
+	public UUIDAnyGenerator(String name, Integer length) {
+		this.name = name;
 		this.length = length;
 	}
 
@@ -55,7 +57,7 @@ public class UUIDAnyGenerator implements IdGenerator {
 
 	@Override
 	public String getIdGenName() {
-		return "UUID_ANY";
+		return name;
 	}
 
 	@Override
@@ -65,7 +67,7 @@ public class UUIDAnyGenerator implements IdGenerator {
 
 	@Override
 	public IdGenerator newCopy() {
-		return new UUIDAnyGenerator(length);
+		return new UUIDAnyGenerator(name, length);
 	};
 
 	protected static String getAnyLengthRadix36UUID(Integer length) {

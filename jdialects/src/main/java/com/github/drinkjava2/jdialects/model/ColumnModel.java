@@ -12,7 +12,9 @@ import java.util.List;
 
 import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.Type;
-import com.github.drinkjava2.jdialects.id.IdGenerator;
+import com.github.drinkjava2.jdialects.annotation.GenerationType;
+import com.github.drinkjava2.jdialects.id.AutoIdGenerator;
+import com.github.drinkjava2.jdialects.id.UUIDAnyGenerator;
 import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
@@ -27,30 +29,20 @@ import com.github.drinkjava2.jdialects.utils.StrUtils;
  */
 public class ColumnModel {
 	private String columnName;// no need explain
-	private TableModel tableModel; // not important, only used for singleXxx()
-									// shortcut methods
+
+	private TableModel tableModel; // belong to which tableModel
+
 	private Type columnType;// See com.github.drinkjava2.jdialects.Type
+
 	private Boolean pkey = false; // if is primary key
+
 	private Boolean nullable = true; // if nullable
 
-	private String check; // DDL check string
-	private String defaultValue; // DDL default value
+	/** DDL check string */
+	private String check;
 
-	private IdGenerator idGenerator = null;
-
-	private Boolean identity = false; // if use native identity type
-
-	/** bind column to a sequence */
-	private String sequence;
-
-	/** bind column to a tableGenerator */
-	private String tableGenerator;
-
-	/**
-	 * Bind column to Auto Id generator, can be SequenceGen or TableGen,
-	 * determined by jDialects
-	 */
-	private Boolean autoGenerator = false;
+	/** DDL default value */
+	private String defaultValue;
 
 	/** Optional, put an extra tail String at end of column definition DDL */
 	private String tail;
@@ -60,6 +52,12 @@ public class ColumnModel {
 
 	/** length, precision, scale all share use lengths array */
 	private Integer[] lengths = new Integer[] {};
+
+	// =======================================================================
+	private GenerationType idGenerationType;
+
+	private String idGeneratorName;
+	// =======================================================================
 
 	// =====Below fields are only used by JPA and ORM tools==========
 	/** Map to a Java POJO field, for JPA or ORM tool use only */
@@ -109,13 +107,9 @@ public class ColumnModel {
 		col.columnType = columnType;
 		col.pkey = pkey;
 		col.nullable = nullable;
-		col.identity = identity;
 		col.check = check;
 		col.defaultValue = defaultValue;
-		col.sequence = sequence;
-		col.tableGenerator = tableGenerator;
 		col.tail = tail;
-		col.autoGenerator = autoGenerator;
 		col.comment = comment;
 		col.lengths = lengths;
 		col.pojoField = pojoField;
@@ -124,8 +118,8 @@ public class ColumnModel {
 		col.scale = scale;
 		col.insertable = insertable;
 		col.updatable = updatable;
-		if (idGenerator != null)
-			col.idGenerator = idGenerator.newCopy();
+		col.idGeneratorName = idGeneratorName;
+		col.idGenerationType = idGenerationType;
 		return col;
 	}
 
@@ -134,8 +128,7 @@ public class ColumnModel {
 	 * index please use tableModel.index() method
 	 */
 	public ColumnModel singleIndex(String indexName) {
-		DialectException.assureNotNull(this.tableModel,
-				"index() shortcut method used only as tableModel.column().index() format");
+		makeSureTableModelExist();
 		DialectException.assureNotEmpty(indexName, "indexName can not be empty");
 		this.tableModel.index(indexName).columns(this.getColumnName());
 		return this;
@@ -146,8 +139,7 @@ public class ColumnModel {
 	 * index please use tableModel.index() method
 	 */
 	public ColumnModel singleIndex() {
-		DialectException.assureNotNull(this.tableModel,
-				"index() shortcut method used only as tableModel.column().index() format");
+		makeSureTableModelExist();
 		this.tableModel.index().columns(this.getColumnName());
 		return this;
 	}
@@ -157,8 +149,7 @@ public class ColumnModel {
 	 * multiple columns index please use tableModel.unique() method
 	 */
 	public ColumnModel singleUnique(String uniqueName) {
-		DialectException.assureNotNull(this.tableModel,
-				"unique() shortcut method used only as tableModel.column().index() format");
+		makeSureTableModelExist();
 		DialectException.assureNotEmpty(uniqueName, "indexName can not be empty");
 		this.tableModel.unique(uniqueName).columns(this.getColumnName());
 		return this;
@@ -169,19 +160,14 @@ public class ColumnModel {
 	 * multiple columns index please use tableModel.unique() method
 	 */
 	public ColumnModel singleUnique() {
-		DialectException.assureNotNull(this.tableModel,
-				"unique() shortcut method used only as tableModel.column().index() format");
+		makeSureTableModelExist();
 		this.tableModel.unique().columns(this.getColumnName());
 		return this;
 	}
 
-	/**
-	 * Mark a field will use database's native identity type. Note:Note all
-	 * databases support identity
-	 */
-	public ColumnModel identity() {
-		this.identity = true;
-		return this;
+	private void makeSureTableModelExist() {
+		DialectException.assureNotNull(this.tableModel,
+				"ColumnModel should belong to a TableModel, please call tableModel.column() method first.");
 	}
 
 	/** Default value for column's definition DDL */
@@ -207,32 +193,109 @@ public class ColumnModel {
 	 * multiple columns please use tableModel.fkey() method instead
 	 */
 	public FKeyModel singleFKey(String... refTableAndColumns) {
-		DialectException.assureNotNull(this.tableModel,
-				"singleFKey() method can only be called when columnModel belong to a TableModel");
+		makeSureTableModelExist();
 		if (refTableAndColumns == null || refTableAndColumns.length > 2)
 			throw new DialectException(
 					"singleFKey() first parameter should be table name, second parameter(optional) should be column name");
 		return this.tableModel.fkey().columns(this.columnName).refs(refTableAndColumns);
 	}
 
-	/** The value of this column will be generated by an idGenerator */
-	public ColumnModel idGenerator(String idGeneratorName) {
-		DialectException.assureNotNull(this.tableModel,
-				"idGenerator() method can only be called when columnModel belong to a TableModel");
-		this.idGenerator = this.tableModel.getIdGenerator(idGeneratorName);
+	// ===========id generator methods=======================
+	/** Mark a field will use database's native identity type. */
+	public ColumnModel identity() {
+		makeSureTableModelExist();
+		this.idGenerationType = GenerationType.IDENTITY;
+		this.idGeneratorName = null;
 		return this;
 	}
-  
-	/**
-	 * bind column to a global Auto Id generator, can be SequenceGen(if support)
-	 * or a Table to store maximum current ID, determined by jDialects, to get
-	 * next auto generated ID value, need run dialect.getNextAutoID(connection)
-	 * method
-	 */
+
+	public ColumnModel uuid25() {
+		makeSureTableModelExist();
+		this.idGenerationType = GenerationType.UUID25;
+		this.idGeneratorName = null;
+		return this;
+	}
+
+	public ColumnModel uuid32() {
+		makeSureTableModelExist();
+		this.idGenerationType = GenerationType.UUID32;
+		this.idGeneratorName = null;
+		return this;
+	}
+
+	public ColumnModel uuid36() {
+		makeSureTableModelExist();
+		this.idGenerationType = GenerationType.UUID36;
+		this.idGeneratorName = null;
+		return this;
+	}
+
+	public ColumnModel uuidAny(String name, Integer length) {
+		makeSureTableModelExist();
+		this.idGenerationType = GenerationType.UUID_ANY;
+		this.idGeneratorName = name;
+		if (this.tableModel.getIdGenerator(idGeneratorName) == null)
+			this.tableModel.getIdGenerators().add(new UUIDAnyGenerator(name, length));
+		return this;
+	}
+
+	public ColumnModel timeStampId(Integer length) {
+		makeSureTableModelExist();
+		this.idGenerationType = GenerationType.TIMESTAMP;
+		this.idGeneratorName = null;
+		return this;
+	}
+
+	/** Bind column to a global Auto Id generator, can be Sequence or a Table */
 	public ColumnModel autoID() {
-		this.autoGenerator = true;
+		makeSureTableModelExist();
+		this.idGenerationType = GenerationType.AUTO;
+		this.idGeneratorName = null;
+		if (this.tableModel.getIdGenerator(AutoIdGenerator.INSTANCE.getIdGenName()) == null)
+			this.tableModel.getIdGenerators().add(AutoIdGenerator.INSTANCE);
 		return this;
 	}
+
+	public ColumnModel sortedUUID(String name, Integer sortedLength, Integer uuidLength) {
+		makeSureTableModelExist();
+		this.tableModel.sortedUUIDGenerator(name, sortedLength, uuidLength);
+		this.idGenerationType = GenerationType.SORTED_UUID;
+		this.idGeneratorName = null;
+		return this;
+	}
+
+	/** The value of this column will be generated by a sequence */
+	public ColumnModel sequenceGenerator(String name, String sequenceName, Integer initialValue,
+			Integer allocationSize) {
+		makeSureTableModelExist();
+		this.tableModel.sequenceGenerator(name, sequenceName, initialValue, allocationSize);
+		this.idGenerationType = GenerationType.SEQUENCE;
+		this.idGeneratorName = name;
+		return this;
+	}
+
+	/**
+	 * The value of this column will be generated by a sequence or table
+	 * generator
+	 */
+	public ColumnModel idGenerator(String idGeneratorName) {
+		makeSureTableModelExist();
+		this.idGenerationType = null;
+		this.idGeneratorName = idGeneratorName;
+		return this;
+	}
+
+	public ColumnModel tableGenerator(String name, String tableName, String pkColumnName, String valueColumnName,
+			String pkColumnValue, Integer initialValue, Integer allocationSize) {
+		makeSureTableModelExist();
+		this.tableModel.tableGenerator(name, tableName, pkColumnName, valueColumnName, pkColumnValue, initialValue,
+				allocationSize);
+		this.idGenerationType = GenerationType.TABLE;
+		this.idGeneratorName = name;
+		return this;
+	}
+
+	// ===================================================
 
 	/**
 	 * Put an extra tail String manually at the end of column definition DDL
@@ -319,6 +382,14 @@ public class ColumnModel {
 		this.columnName = columnName;
 	}
 
+	public TableModel getTableModel() {
+		return tableModel;
+	}
+
+	public void setTableModel(TableModel tableModel) {
+		this.tableModel = tableModel;
+	}
+
 	public Type getColumnType() {
 		return columnType;
 	}
@@ -343,14 +414,6 @@ public class ColumnModel {
 		this.nullable = nullable;
 	}
 
-	public Boolean getIdentity() {
-		return identity;
-	}
-
-	public void setIdentity(Boolean identity) {
-		this.identity = identity;
-	}
-
 	public String getCheck() {
 		return check;
 	}
@@ -367,20 +430,20 @@ public class ColumnModel {
 		this.defaultValue = defaultValue;
 	}
 
-	public String getSequence() {
-		return sequence;
+	public GenerationType getIdGenerationType() {
+		return idGenerationType;
 	}
 
-	public void setSequence(String sequence) {
-		this.sequence = sequence;
+	public void setIdGenerationType(GenerationType idGenerationType) {
+		this.idGenerationType = idGenerationType;
 	}
 
-	public String getTableGenerator() {
-		return tableGenerator;
+	public String getIdGeneratorName() {
+		return idGeneratorName;
 	}
 
-	public void setTableGenerator(String tableGenerator) {
-		this.tableGenerator = tableGenerator;
+	public void setIdGeneratorName(String idGeneratorName) {
+		this.idGeneratorName = idGeneratorName;
 	}
 
 	public String getTail() {
@@ -389,14 +452,6 @@ public class ColumnModel {
 
 	public void setTail(String tail) {
 		this.tail = tail;
-	}
-
-	public Boolean getAutoGenerator() {
-		return autoGenerator;
-	}
-
-	public void setAutoGenerator(Boolean autoGenerator) {
-		this.autoGenerator = autoGenerator;
 	}
 
 	public String getComment() {
@@ -413,6 +468,22 @@ public class ColumnModel {
 
 	public void setLengths(Integer[] lengths) {
 		this.lengths = lengths;
+	}
+
+	public String getPojoField() {
+		return pojoField;
+	}
+
+	public void setPojoField(String pojoField) {
+		this.pojoField = pojoField;
+	}
+
+	public Object getValue() {
+		return value;
+	}
+
+	public void setValue(Object value) {
+		this.value = value;
 	}
 
 	public Integer getLength() {
@@ -455,30 +526,6 @@ public class ColumnModel {
 		this.updatable = updatable;
 	}
 
-	public String getPojoField() {
-		return pojoField;
-	}
-
-	public void setPojoField(String pojoField) {
-		this.pojoField = pojoField;
-	}
-
-	public TableModel getTableModel() {
-		return tableModel;
-	}
-
-	public void setTableModel(TableModel tableModel) {
-		this.tableModel = tableModel;
-	}
-
-	public Object getValue() {
-		return value;
-	}
-
-	public void setValue(Object value) {
-		this.value = value;
-	}
-
 	public Boolean getTransientable() {
 		return transientable;
 	}
@@ -486,13 +533,4 @@ public class ColumnModel {
 	public void setTransientable(Boolean transientable) {
 		this.transientable = transientable;
 	}
-
-	public IdGenerator getIdGenerator() {
-		return idGenerator;
-	}
-
-	public void setIdGenerator(IdGenerator idGenerator) {
-		this.idGenerator = idGenerator;
-	}
-
 }

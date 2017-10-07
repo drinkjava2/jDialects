@@ -31,10 +31,12 @@ import com.github.drinkjava2.jdialects.annotation.GenerationType;
  * @since 1.0.6
  */
 public class SortedUUIDGenerator implements IdGenerator {
+	private String name;
 	private int sortedLength;
 	private int uuidLength;
 
-	public SortedUUIDGenerator(int sortedLength, int uuidLength) {
+	public SortedUUIDGenerator(String name, int sortedLength, int uuidLength) {
+		this.name = name;
 		this.sortedLength = sortedLength;
 		this.uuidLength = uuidLength;
 	}
@@ -46,7 +48,7 @@ public class SortedUUIDGenerator implements IdGenerator {
 
 	@Override
 	public String getIdGenName() {
-		return "SORTED_UUID";
+		return name;
 	}
 
 	@Override
@@ -64,14 +66,19 @@ public class SortedUUIDGenerator implements IdGenerator {
 
 	@Override
 	public IdGenerator newCopy() {
-		return new SortedUUIDGenerator(sortedLength, uuidLength);
-	};
-
-	public static void main(String[] args) {
-		SortedUUIDGenerator idg = new SortedUUIDGenerator(5, 5);
-		for (int i = 0; i < 20; i++) {
-			System.out.println(idg.getNextID(null, null));
-
-		}
+		return new SortedUUIDGenerator(name, sortedLength, uuidLength);
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public int getSortedLength() {
+		return sortedLength;
+	}
+
+	public int getUuidLength() {
+		return uuidLength;
+	}
+
 }

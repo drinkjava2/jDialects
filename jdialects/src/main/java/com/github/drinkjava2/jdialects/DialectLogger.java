@@ -51,10 +51,10 @@ public class DialectLogger {
 
 		if (commonLogger == null || commonLoggerWarnMethod == null) {
 			if (firstRun)
-				System.err.println("DbProLogger failed to load org.apache.commons.logging.LogFactory. Use JDK logger.");// NOSONAR
+				System.err.println("DialectLogger failed to load org.apache.commons.logging.LogFactory. Use JDK logger.");// NOSONAR
 			jdkLogger = Logger.getLogger(targetClass.getName());// use JDK log
 		} else if (firstRun)
-			System.out.println("org.apache.commons.logging.LogFactory loaded, DbProLogger use it as logger.");// NOSONAR
+			System.out.println("org.apache.commons.logging.LogFactory loaded, DialectLogger use it as logger.");// NOSONAR
 	}
 
 	/**

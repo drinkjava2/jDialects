@@ -17,9 +17,7 @@ package com.github.drinkjava2.jdialects.id;
 
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
-import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.annotation.GenerationType;
-import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
  * AutoGenerator will depends database's id generator mechanism like MySql's
@@ -30,10 +28,17 @@ import com.github.drinkjava2.jdialects.utils.StrUtils;
  * @since 1.0.0
  */
 public class AutoIdGenerator implements IdGenerator {
-	public static final String JDIALECTS_AUTOID = "jdialects_autoid";
-	public static final String NEXT_VAL = "next_val";
+	private static final String JDIALECTS_AUTOID_NAME = "jdia_autoid";
+	private static final String JDIALECTS_AUTOID_TABLE = "jdia_autoid_tab";
+	private static final String JDIALECTS_AUTOID_SEQUENCE = "jdia_autoid_seq";
 
 	public static final AutoIdGenerator INSTANCE = new AutoIdGenerator();
+
+	private static final TableIdGenerator TABLEIDGENERATOR_INSTANCE = new TableIdGenerator(JDIALECTS_AUTOID_NAME,
+			JDIALECTS_AUTOID_TABLE, "idcolumn", "valuecolumn", "next_val", 1, 50);
+
+	private static final SequenceIdGenerator SEQUENCEIDGENERATOR_INSTANCE = new SequenceIdGenerator(
+			JDIALECTS_AUTOID_NAME, JDIALECTS_AUTOID_SEQUENCE, 1, 1);
 
 	@Override
 	public GenerationType getGenerationType() {
@@ -42,7 +47,7 @@ public class AutoIdGenerator implements IdGenerator {
 
 	@Override
 	public String getIdGenName() {
-		return "AUTO";
+		return JDIALECTS_AUTOID_NAME;
 	}
 
 	@Override
@@ -52,24 +57,20 @@ public class AutoIdGenerator implements IdGenerator {
 
 	@Override
 	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect) {
-		Long result;
-		if (dialect.getDdlFeatures().supportBasicOrPooledSequence()) {
-			String sql = StrUtils.replace(dialect.getDdlFeatures().getSequenceNextValString(), "_SEQNAME",
-					JDIALECTS_AUTOID);
-			result = jdbc.nQueryForObject(sql);
-			DialectException.assureNotNull(result,
-					"Null value found when fetch Auto-Generated ID from sequence '" + JDIALECTS_AUTOID + "'");
-		} else {
-			String sql = "update " + JDIALECTS_AUTOID + " set " + NEXT_VAL + "=(" + NEXT_VAL + "+1)";
-			int updatedCount = jdbc.nUpdate(sql);
-			if (updatedCount != 1)
-				throw new DialectException(
-						"When fetch Auto-Generated ID, can not read from \"" + JDIALECTS_AUTOID + "\" table");
-			result = jdbc.nQueryForObject("select " + NEXT_VAL + " from " + JDIALECTS_AUTOID);
-			DialectException.assureNotNull(result,
-					"Null value found when fetch Auto-Generated ID from table \"" + JDIALECTS_AUTOID + "\"");
-		}
-		return result;
+		if (dialect.getDdlFeatures().supportBasicOrPooledSequence())
+			return TABLEIDGENERATOR_INSTANCE.getNextID(jdbc, dialect);
+		else
+			return SEQUENCEIDGENERATOR_INSTANCE.getNextID(jdbc, dialect);
 	}
 
+	/**
+	 * Return a real IdGenerator, can be a TableIdGenerator or
+	 * SequenceIdGenerator determined by dialect
+	 */
+	public IdGenerator getRealIdgenerator(Dialect dialect) {
+		if (dialect.getDdlFeatures().supportBasicOrPooledSequence())
+			return TABLEIDGENERATOR_INSTANCE;
+		else
+			return SEQUENCEIDGENERATOR_INSTANCE;
+	}
 }

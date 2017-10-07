@@ -29,11 +29,12 @@ import test.DataSourceConfig.DataSourceBox;
 public class BaseDDLTest {
 	protected DataSource ds = BeanBox.getBean(DataSourceBox.class);
 	protected DbPro db = new DbPro(ds);
-	protected Dialect guessedDialect = Dialect.guessDialect(ds);;
+	protected Dialect guessedDialect = Dialect.guessDialect(ds);
 
 	@Before
 	public void initDao() {
 		System.out.println("Current guessedDialect=" + guessedDialect);
+		db.setAllowShowSQL(true);
 	}
 
 	@After

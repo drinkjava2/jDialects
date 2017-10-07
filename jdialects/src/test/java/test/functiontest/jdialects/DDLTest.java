@@ -249,6 +249,8 @@ public class DDLTest extends BaseDDLTest {
 
 	private static TableModel tableGeneratorModel2() {// tableGenerator
 		TableModel t = new TableModel("testTableGeneratorModel2");
+		t.tableGenerator("tbgen1", "tb1", "pkcol", "valcol", "pkval", 1, 10);
+		t.tableGenerator("tbgen2", "tb1", "pkcol2", "valcol", "pkval", 1, 10);
 		t.tableGenerator("tbgen3", "tb1", "pkcol3", "valcol", "pkval", 1, 10);
 		t.tableGenerator("tbgen4", "tb1", "pkcol3", "valcol", "pkval2", 1, 10);
 		t.tableGenerator("tbgen5", "tb1", "pkcol4", "valcol", "pkval3", 1, 10);
