@@ -65,6 +65,6 @@ public enum GenerationType {
 	/** A TimeStamp */
 	TIMESTAMP,
 
-	/** An unknow or customized IdGenerator */
-	UNKNOW
+	/** Unknow or Customized IdGenerators */
+	OTHER
 }

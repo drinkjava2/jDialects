@@ -7,17 +7,9 @@
  */
 package test.functiontest.jdialects;
 
-import static com.github.drinkjava2.jdbpro.inline.InlineQueryRunner.param;
-import static com.github.drinkjava2.jdbpro.inline.InlineQueryRunner.param0;
-import static com.github.drinkjava2.jdbpro.inline.InlineQueryRunner.valuesQuesions;
-
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.Dialect;
-import com.github.drinkjava2.jdialects.id.UUID25Generator;
-import com.github.drinkjava2.jdialects.id.UUID32Generator;
-import com.github.drinkjava2.jdialects.id.UUID36Generator;
 import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.TableModel;
 
@@ -352,33 +344,7 @@ public class DDLTest extends BaseDDLTest {
 		testOnCurrentRealDatabase(t);
 	}
 
-	@Test
-	public void testGetNextID() {// nextID
-		TableModel t = new TableModel("testNextIdTable");
-		t.column("id1").STRING(25).pkey();
-		t.column("id2").STRING(32);
-		t.column("id3").STRING(36);
-		db.setAllowShowSQL(true);
-		String[] ddls = guessedDialect.toDropDDL(t);
-		quiteExecuteNoParamSqls(ddls);
-
-		ddls = guessedDialect.toCreateDDL(t);
-		executeNoParamSqls(ddls);
-		for (int i = 0; i < 10; i++) {
-			Object id1 = guessedDialect.getNexID(UUID25Generator.INSTANCE, db);
-			Object id2 = guessedDialect.getNexID(UUID32Generator.INSTANCE, db);
-			Object id3 = guessedDialect.getNexID(UUID36Generator.INSTANCE, db);
-			System.out.println(id1);
-			System.out.println(id2);
-			System.out.println(id3);
-			Assert.assertTrue(("" + id1).length() == 25);
-			Assert.assertTrue(("" + id2).length() == 32);
-			Assert.assertTrue(("" + id3).length() == 36);
-			db.iExecute("insert into testNextIdTable (id1,id2,id3) ", param0(id1), param(id2), param(id3),
-					valuesQuesions());
-		}
-	}
-
+ 
 	@Test
 	public void singleXxxMethodTest() {// Test singleXxx methods
 		TableModel t1 = new TableModel("customers");

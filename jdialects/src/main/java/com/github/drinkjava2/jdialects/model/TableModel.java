@@ -12,10 +12,17 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.github.drinkjava2.jdialects.DialectException;
+import com.github.drinkjava2.jdialects.annotation.GenerationType;
+import com.github.drinkjava2.jdialects.id.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.id.IdGenerator;
+import com.github.drinkjava2.jdialects.id.IdentityIdGenerator;
 import com.github.drinkjava2.jdialects.id.SequenceIdGenerator;
 import com.github.drinkjava2.jdialects.id.SortedUUIDGenerator;
 import com.github.drinkjava2.jdialects.id.TableIdGenerator;
+import com.github.drinkjava2.jdialects.id.TimeStampIdGenerator;
+import com.github.drinkjava2.jdialects.id.UUID25Generator;
+import com.github.drinkjava2.jdialects.id.UUID32Generator;
+import com.github.drinkjava2.jdialects.id.UUID36Generator;
 import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
@@ -40,9 +47,9 @@ public class TableModel {
 	private Class<?> pojoClass;
 
 	/**
-	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the
-	 * end of "create table..." DDL, usually used to set encode String like "
-	 * DEFAULT CHARSET=utf8" for MySQL
+	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the end
+	 * of "create table..." DDL, usually used to set encode String like " DEFAULT
+	 * CHARSET=utf8" for MySQL
 	 */
 	private String engineTail;
 
@@ -104,46 +111,48 @@ public class TableModel {
 	/** Add a TableGenerator */
 	public void tableGenerator(String name, String tableName, String pkColumnName, String valueColumnName,
 			String pkColumnValue, Integer initialValue, Integer allocationSize) {
-		addGenerator(new TableIdGenerator(name, tableName, pkColumnName, valueColumnName, pkColumnValue,
-				initialValue, allocationSize));
+		addGenerator(new TableIdGenerator(name, tableName, pkColumnName, valueColumnName, pkColumnValue, initialValue,
+				allocationSize));
 	}
 
 	/**
 	 * Add a "create table..." DDL to generate ID, similar like JPA's TableGen
 	 */
-	private void addGenerator( IdGenerator tableGenerator) {
-		//@formatter:off
-		DialectException.assureNotNull(tableGenerator);
-		DialectException.assureNotEmpty(tableGenerator.getIdGenName(), "IdGenerator name can not be empty");
-		if(this.getIdGenerator(tableGenerator.getIdGenName())!=null)
-			throw new DialectException("Duplicated tableGenerator name '"+tableGenerator.getIdGenName()+"'");			
-		idGenerators.add(tableGenerator);  
-	} 
+	public void addGenerator(IdGenerator generator) {
+		DialectException.assureNotNull(generator);
+		DialectException.assureNotNull(generator.getGenerationType());
+		DialectException.assureNotEmpty(generator.getIdGenName(), "IdGenerator name can not be empty");
+		idGenerators.add(generator);
+	}
 
 	/**
 	 * Add a sequence definition DDL, note: some dialects do not support sequence
-	 * @param name The name of sequence Java object itself
-	 * @param sequenceName the name of the sequence will created in database
-	 * @param initialValue The initial value
-	 * @param allocationSize The allocationSize
+	 * 
+	 * @param name
+	 *            The name of sequence Java object itself
+	 * @param sequenceName
+	 *            the name of the sequence will created in database
+	 * @param initialValue
+	 *            The initial value
+	 * @param allocationSize
+	 *            The allocationSize
 	 */
 	public void sequenceGenerator(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
 		this.addGenerator(new SequenceIdGenerator(name, sequenceName, initialValue, allocationSize));
 	}
- 
-	
+
 	/**
 	 * Add a Sequence Generator, note: not all database support sequence
 	 */
-	public void sortedUUIDGenerator(String name, Integer sortedLength, Integer uuidLength ) {
+	public void sortedUUIDGenerator(String name, Integer sortedLength, Integer uuidLength) {
 		DialectException.assureNotNull(name);
-		if(this.getIdGenerator(name)!=null)
-			throw new DialectException("Duplicated sortedUUIDGenerator name '"+name+"'");			
-		idGenerators.add( new SortedUUIDGenerator(name, sortedLength, uuidLength));
+		if (this.getIdGenerator(GenerationType.SORTED_UUID, name) != null)
+			throw new DialectException("Duplicated sortedUUIDGenerator name '" + name + "'");
+		idGenerators.add(new SortedUUIDGenerator(name, sortedLength, uuidLength));
 	}
 
 	/**
-	 *  Add the table check, note: not all database support table check
+	 * Add the table check, note: not all database support table check
 	 */
 	public TableModel check(String check) {
 		this.check = check;
@@ -151,13 +160,13 @@ public class TableModel {
 	}
 
 	/**
-	 *  Add the table comment, note: not all database support table comment
+	 * Add the table comment, note: not all database support table comment
 	 */
 	public TableModel comment(String comment) {
 		this.comment = comment;
 		return this;
 	}
-  
+
 	/**
 	 * Add a ColumnModel
 	 */
@@ -165,41 +174,40 @@ public class TableModel {
 		DialectException.assureNotNull(column);
 		DialectException.assureNotEmpty(column.getColumnName(), "Column's columnName can not be empty");
 		column.setTableModel(this);
-		columns.add(column); 
+		columns.add(column);
 		return this;
 	}
-	
+
 	/**
-	 * Remove a ColumnModel by given columnName 
+	 * Remove a ColumnModel by given columnName
 	 */
 	public TableModel removeColumn(String columnName) {
 		List<ColumnModel> oldColumns = this.getColumns();
 		Iterator<ColumnModel> columnIter = oldColumns.iterator();
-		while (columnIter.hasNext())  
-			if (columnIter.next().getColumnName().equals(columnName))
-				columnIter.remove(); 
+		while (columnIter.hasNext())
+			if (columnIter.next().getColumnName().equalsIgnoreCase(columnName))
+				columnIter.remove();
 		return this;
 	}
 
-	
-	/** Map to which POJO class, this is designed for ORM tool only*/
+	/** Map to which POJO class, this is designed for ORM tool only */
 	public TableModel pojoClass(Class<?> pojoClass) {
-		DialectException.assureNotNull(pojoClass);  
-		this.pojoClass=pojoClass;
+		DialectException.assureNotNull(pojoClass);
+		this.pojoClass = pojoClass;
 		return this;
 	}
- 
+
 	/**
 	 * Start add a column definition piece in DDL, detail usage see demo
-	 *  
+	 * 
 	 * @param columnName
 	 * @return the Column object
 	 */
 	public ColumnModel column(String columnName) {
-		DialectException.assureNotEmpty(columnName, "columnName can not be empty"); 
-		for (ColumnModel columnModel : columns)  
-			if(columnName.equals(columnModel.getColumnName()))
-				throw new DialectException("ColumnModel name '"+columnName+"' already existed");
+		DialectException.assureNotEmpty(columnName, "columnName can not be empty");
+		for (ColumnModel columnModel : columns)
+			if (columnName.equals(columnModel.getColumnName()))
+				throw new DialectException("ColumnModel name '" + columnName + "' already existed");
 		ColumnModel column = new ColumnModel(columnName);
 		addColumn(column);
 		return column;
@@ -208,95 +216,151 @@ public class TableModel {
 	/**
 	 * Return ColumnModel object by columnName, if not found, return null;
 	 */
-	public ColumnModel getColumn(String columnName) { 
-		for (ColumnModel columnModel : columns)  
-			if( columnModel.getColumnName()!=null && columnModel.getColumnName().equals(columnName))
-				 return columnModel;  
+	public ColumnModel getColumn(String columnName) {
+		for (ColumnModel columnModel : columns)
+			if (columnModel.getColumnName() != null && columnModel.getColumnName().equals(columnName))
+				return columnModel;
 		return null;
 	}
-	
+
 	/**
-	 *  Start add a foreign key definition in DDL, detail usage see demo
+	 * Start add a foreign key definition in DDL, detail usage see demo
 	 */
 	public FKeyModel fkey() {
-		FKeyModel fkey=new FKeyModel();  
+		FKeyModel fkey = new FKeyModel();
 		fkey.setTableName(this.tableName);
 		this.fkeyConstraints.add(fkey);
 		return fkey;
 	}
-	
+
 	/**
-	 *  Start add a foreign key definition in DDL, detail usage see demo
+	 * Start add a foreign key definition in DDL, detail usage see demo
 	 */
 	public FKeyModel fkey(String fkeyName) {
-		FKeyModel fkey=new FKeyModel();  
+		FKeyModel fkey = new FKeyModel();
 		fkey.setTableName(this.tableName);
 		fkey.setFkeyName(fkeyName);
 		this.fkeyConstraints.add(fkey);
-		return fkey; 
+		return fkey;
 	}
-	
+
 	/**
-	 *  Start add a Index in DDL, detail usage see demo
+	 * Start add a Index in DDL, detail usage see demo
 	 */
-	public IndexModel index( ) {
-		IndexModel index=new IndexModel( );  
+	public IndexModel index() {
+		IndexModel index = new IndexModel();
 		this.indexConsts.add(index);
 		return index;
 	}
-	
+
 	/**
-	 *  Start add a Index in DDL, detail usage see demo
+	 * Start add a Index in DDL, detail usage see demo
 	 */
 	public IndexModel index(String indexName) {
-		IndexModel index=new IndexModel();
-		index.setName(indexName); 
-		this.indexConsts.add(index);  
+		IndexModel index = new IndexModel();
+		index.setName(indexName);
+		this.indexConsts.add(index);
 		return index;
 	}
-	
+
 	/**
-	 *  Start add a unique constraint in DDL, detail usage see demo
+	 * Start add a unique constraint in DDL, detail usage see demo
 	 */
-	public UniqueModel unique( ) {
-		UniqueModel unique=new UniqueModel( );  
+	public UniqueModel unique() {
+		UniqueModel unique = new UniqueModel();
 		this.uniqueConsts.add(unique);
 		return unique;
 	}
-	
+
 	/**
-	 *  Start add a unique constraint in DDL, detail usage see demo
+	 * Start add a unique constraint in DDL, detail usage see demo
 	 */
 	public UniqueModel unique(String uniqueName) {
-		UniqueModel unique=new UniqueModel( );  
+		UniqueModel unique = new UniqueModel();
 		unique.setName(uniqueName);
 		this.uniqueConsts.add(unique);
 		return unique;
 	}
- 
+
 	/**
-	 * If support engine like MySQL or MariaDB, add engineTail at the end of
-	 * "create table..." DDL, usually used to set encode String like " DEFAULT CHARSET=utf8" for MySQL
+	 * If support engine like MySQL or MariaDB, add engineTail at the end of "create
+	 * table..." DDL, usually used to set encode String like " DEFAULT CHARSET=utf8"
+	 * for MySQL
 	 */
 	public TableModel engineTail(String engineTail) {
-		this.engineTail=engineTail;
+		this.engineTail = engineTail;
 		return this;
 	}
-	
+
+	/**
+	 * Search and return the IdGenerator in this TableModel by its generationType
+	 * and name
+	 */
+	public IdGenerator getIdGenerator(GenerationType generationType, String name) {
+		return getIdGenerator(generationType, name, this.getIdGenerators());
+	}
+
+	/**
+	 * Get one of these IdGenerator instance by generationType:
+	 * IDENTITY,AUTO,UUID25,UUID32,UUID36,TIMESTAMP
+	 */
+	public IdGenerator getIdGenerator(GenerationType generationType) {
+		return getIdGeneratorByType(generationType);
+	}
+
 	/**
 	 * Search and return the IdGenerator in this TableModel by its name
 	 */
 	public IdGenerator getIdGenerator(String name) {
-		return getIdGenerator(name,this.getIdGenerators());
+		return getIdGenerator(null, name, this.getIdGenerators());
 	}
-	
-	public static IdGenerator getIdGenerator(String name, List<IdGenerator> idGeneratorList){
-		if(StrUtils.isEmpty(name))return null;
-		for (IdGenerator idGenerator : idGeneratorList)  
-			if(name.equalsIgnoreCase(idGenerator.getIdGenName()))
-					return idGenerator;		 
+
+	/**
+	 * Get one of these IdGenerator instance by generationType:
+	 * IDENTITY,AUTO,UUID25,UUID32,UUID36,TIMESTAMP, if not found , return null;
+	 */
+	public static IdGenerator getIdGeneratorByType(GenerationType generationType) {
+		if (generationType == null)
+			return null;
+		switch (generationType) {
+		case IDENTITY:
+			return IdentityIdGenerator.INSTANCE;
+		case AUTO:
+			return AutoIdGenerator.INSTANCE;
+		case UUID25:
+			return UUID25Generator.INSTANCE;
+		case UUID32:
+			return UUID32Generator.INSTANCE;
+		case UUID36:
+			return UUID36Generator.INSTANCE;
+		case TIMESTAMP:
+			return TimeStampIdGenerator.INSTANCE;
+		default:
+			return null;
+		}
+	}
+
+	/**
+	 * Get a IdGenerator by type, if not found, search by name
+	 */
+	public static IdGenerator getIdGenerator(GenerationType generationType, String name,
+			List<IdGenerator> idGeneratorList) {
+		// fixed idGenerators
+		IdGenerator idGen = getIdGeneratorByType(generationType);
+		if (idGen != null)
+			return idGen;
+		if (StrUtils.isEmpty(name))
+			return null;
+		for (IdGenerator idGenerator : idGeneratorList) {
+			if (generationType != null && name.equalsIgnoreCase(idGenerator.getIdGenName()))
+				return idGenerator;
+			if ((generationType == null || GenerationType.OTHER.equals(generationType))
+					&& name.equalsIgnoreCase(idGenerator.getIdGenName()))
+				return idGenerator;
+		}
 		return null;
 	}
+
 	// getter & setter=========================
 
 	public String getTableName() {
@@ -323,15 +387,14 @@ public class TableModel {
 		this.comment = comment;
 	}
 
- 
-	public List<ColumnModel> getColumns() { 
+	public List<ColumnModel> getColumns() {
 		return columns;
 	}
 
 	public void setColumns(List<ColumnModel> columns) {
 		this.columns = columns;
-	}  
- 
+	}
+
 	public List<FKeyModel> getFkeyConstraints() {
 		return fkeyConstraints;
 	}
@@ -378,6 +441,6 @@ public class TableModel {
 
 	public void setIdGenerators(List<IdGenerator> idGenerators) {
 		this.idGenerators = idGenerators;
-	} 
-	 
+	}
+
 }

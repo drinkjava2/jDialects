@@ -16,8 +16,12 @@
 package com.github.drinkjava2.jdialects.id;
 
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
+import com.github.drinkjava2.jdialects.DDLFeatures;
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.DialectException;
+import com.github.drinkjava2.jdialects.Type;
 import com.github.drinkjava2.jdialects.annotation.GenerationType;
+import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
  * Define an Identity type generator, supported by MySQL, SQL Server, DB2,
@@ -40,15 +44,28 @@ public class IdentityIdGenerator implements IdGenerator {
 	public String getIdGenName() {
 		return "IDENTITY";
 	}
+	
+	@Override
+	public Boolean dependOnAutoIdGenerator() {
+		return false;
+	}
 
 	@Override
-	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect) {
-		// id is created by database, not me
-		return null;
+	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect, Type dataType) {
+		if (!dialect.getDdlFeatures().getSupportsIdentityColumns())
+			throw new DialectException("Dialect '" + dialect + "' does not support identity type");
+		String sql = null;
+		if (Type.BIGINT.equals(dataType))
+			sql = dialect.getDdlFeatures().getIdentitySelectStringBigINT();
+		else
+			sql = dialect.getDdlFeatures().getIdentitySelectString();
+		if (StrUtils.isEmpty(sql) || DDLFeatures.NOT_SUPPORT.equals(sql))
+			throw new DialectException("Dialect '" + dialect + "' does not support identity type");
+		return jdbc.nQueryForObject(sql);
 	}
 
 	@Override
 	public IdGenerator newCopy() {
 		return INSTANCE;
-	};
+	}
 }

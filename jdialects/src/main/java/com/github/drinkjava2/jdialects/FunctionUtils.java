@@ -15,7 +15,7 @@ import com.github.drinkjava2.jdialects.utils.StrUtils;
  * @author Yong Zhu
  * @since 1.0.2
  */
-public class FunctionUtils {
+public class FunctionUtils {//NOSONAR
 
 	/**
 	 * The render method translate function template to real SQL piece

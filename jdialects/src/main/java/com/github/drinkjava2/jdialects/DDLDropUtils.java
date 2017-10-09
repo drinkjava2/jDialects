@@ -12,10 +12,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.github.drinkjava2.jdialects.annotation.GenerationType;
 import com.github.drinkjava2.jdialects.id.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.id.IdGenerator;
 import com.github.drinkjava2.jdialects.id.SequenceIdGenerator;
-import com.github.drinkjava2.jdialects.id.SortedUUIDGenerator;
 import com.github.drinkjava2.jdialects.id.TableIdGenerator;
 import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.FKeyModel;
@@ -42,11 +42,24 @@ public class DDLDropUtils {
 		for (TableModel table : tables)
 			transferTableToObjectList(dialect, table, objectResultList);
 
+		boolean hasAutoIdGenerator = false;
+		for (TableModel table : tables) {
+			for (ColumnModel column : table.getColumns())
+				if (GenerationType.AUTO.equals(column.getIdGenerationType())) {
+					hasAutoIdGenerator = true;
+					break;
+				}
+			for (IdGenerator idGens : table.getIdGenerators())
+				if (hasAutoIdGenerator || idGens.dependOnAutoIdGenerator()) {
+					hasAutoIdGenerator = true;
+					break;
+				}
+		}
+
 		List<String> stringResultList = new ArrayList<String>();
 		List<TableIdGenerator> tbGeneratorList = new ArrayList<TableIdGenerator>();
 		List<SequenceIdGenerator> sequenceList = new ArrayList<SequenceIdGenerator>();
 		List<FKeyModel> fKeyConstraintList = new ArrayList<FKeyModel>();
-		boolean hasAutoIdGenerator = false;
 
 		for (Object strOrObj : objectResultList) {
 			if (!StrUtils.isEmpty(strOrObj)) {
@@ -58,15 +71,11 @@ public class DDLDropUtils {
 					sequenceList.add((SequenceIdGenerator) strOrObj);
 				else if (strOrObj instanceof FKeyModel)
 					fKeyConstraintList.add((FKeyModel) strOrObj);
-				else if (strOrObj instanceof AutoIdGenerator)
-					hasAutoIdGenerator = true;
-				else if (strOrObj instanceof SortedUUIDGenerator)
-					hasAutoIdGenerator = true;
 			}
 		}
 
 		if (hasAutoIdGenerator) {
-			IdGenerator realIdGen = AutoIdGenerator.INSTANCE.getRealIdgenerator(dialect);
+			IdGenerator realIdGen = AutoIdGenerator.INSTANCE.getSequenceOrTableIdGenerator(dialect);
 			if (realIdGen instanceof TableIdGenerator)
 				tbGeneratorList.add((TableIdGenerator) realIdGen);
 			else if (realIdGen instanceof SequenceIdGenerator)
@@ -126,48 +135,24 @@ public class DDLDropUtils {
 
 	private static void buildDropSequenceDDL(Dialect dialect, List<String> stringResultList,
 			List<SequenceIdGenerator> sequenceList) {
+		Set<SequenceIdGenerator> notRepeatedSequences = new HashSet<SequenceIdGenerator>();
+		for (SequenceIdGenerator seq : sequenceList)
+			DDLCreateUtils.checkAndInsertToNotRepeatSeq(notRepeatedSequences, seq);
 		DDLFeatures features = dialect.ddlFeatures;
-		for (SequenceIdGenerator seq : sequenceList) {
-			DialectException.assureNotEmpty(seq.getName(), "SequenceGen name can not be empty");
-			DialectException.assureNotEmpty(seq.getSequenceName(),
-					"sequenceName can not be empty of \"" + seq.getName() + "\"");
-		}
 
-		for (SequenceIdGenerator seq : sequenceList) {
-			for (SequenceIdGenerator seq2 : sequenceList) {
-				if (seq != seq2 && (seq2.getAllocationSize() != 0)) {
-					if (seq.getName().equalsIgnoreCase(seq2.getName())) {
-						seq.setAllocationSize(0);// set to 0 to skip repeated
-					} else {
-						if (seq.getSequenceName().equalsIgnoreCase(seq2.getSequenceName()))
-							DialectException.throwEX("Dulplicated SequenceGen setting \"" + seq.getName() + "\" and \""
-									+ seq2.getName() + "\" found.");
-					}
-				}
+		for (SequenceIdGenerator seq : notRepeatedSequences) {
+			if (!features.supportBasicOrPooledSequence()) {
+				DialectException.throwEX("Dialect \"" + dialect + "\" does not support sequence setting on sequence \""
+						+ seq.getName() + "\"");
 			}
+			if (!DDLFeatures.NOT_SUPPORT.equals(features.dropSequenceStrings)
+					&& !StrUtils.isEmpty(features.dropSequenceStrings)) {
+				stringResultList.add(0,
+						StrUtils.replace(features.dropSequenceStrings, "_SEQNAME", seq.getSequenceName()));
+			} else
+				DialectException.throwEX("Dialect \"" + dialect
+						+ "\" does not support drop sequence ddl, on sequence \"" + seq.getName() + "\"");
 		}
-
-		Set<String> sequenceNameExisted = new HashSet<String>();
-		for (SequenceIdGenerator seq : sequenceList) {
-			if (seq.getAllocationSize() != 0) {
-				String sequenceName = seq.getSequenceName().toLowerCase();
-				if (!sequenceNameExisted.contains(sequenceName)) {
-					if (!features.supportBasicOrPooledSequence()) {
-						DialectException.throwEX("Dialect \"" + dialect
-								+ "\" does not support sequence setting on sequence \"" + seq.getName() + "\"");
-					}
-					if (!DDLFeatures.NOT_SUPPORT.equals(features.dropSequenceStrings)
-							&& !StrUtils.isEmpty(features.dropSequenceStrings)) {
-						stringResultList.add(0,
-								StrUtils.replace(features.dropSequenceStrings, "_SEQNAME", seq.getSequenceName()));
-					} else
-						DialectException.throwEX("Dialect \"" + dialect
-								+ "\" does not support drop sequence ddl, on sequence \"" + seq.getName() + "\"");
-					sequenceNameExisted.add(sequenceName);
-				}
-			}
-		}
-
 	}
 
 	private static void buildDropTableGeneratorDDL(Dialect dialect, List<String> stringResultList,

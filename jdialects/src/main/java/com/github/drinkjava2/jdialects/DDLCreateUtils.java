@@ -16,7 +16,6 @@ import com.github.drinkjava2.jdialects.annotation.GenerationType;
 import com.github.drinkjava2.jdialects.id.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.id.IdGenerator;
 import com.github.drinkjava2.jdialects.id.SequenceIdGenerator;
-import com.github.drinkjava2.jdialects.id.SortedUUIDGenerator;
 import com.github.drinkjava2.jdialects.id.TableIdGenerator;
 import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.FKeyModel;
@@ -31,12 +30,12 @@ import com.github.drinkjava2.jdialects.utils.StrUtils;
  * @author Yong Zhu
  * @since 1.0.2
  */
-public class DDLCreateUtils {
+public class DDLCreateUtils {// NOSONAR
 	private static DialectLogger logger = DialectLogger.getLog(DDLCreateUtils.class);
 
 	/**
-	 * Transfer tables to DDL by given dialect and without format it, if want
-	 * get a formatted DDL, use DDLFormatter.format(DDLs) method to format it
+	 * Transfer tables to DDL by given dialect and without format it, if want get a
+	 * formatted DDL, use DDLFormatter.format(DDLs) method to format it
 	 */
 	public static String[] toCreateDDL(Dialect dialect, TableModel... tables) {
 		// Store mixed DDL String, TableGen Object, SequenceGen Object ...
@@ -45,11 +44,24 @@ public class DDLCreateUtils {
 		for (TableModel table : tables)
 			transferTableToObjectList(dialect, table, objectResultList);
 
+		boolean hasAutoIdGenerator = false;
+		for (TableModel table : tables) {
+			for (ColumnModel column : table.getColumns())
+				if (GenerationType.AUTO.equals(column.getIdGenerationType())) {
+					hasAutoIdGenerator = true;
+					break;
+				}
+			for (IdGenerator idGens : table.getIdGenerators())
+				if (hasAutoIdGenerator || idGens.dependOnAutoIdGenerator()) {
+					hasAutoIdGenerator = true;
+					break;
+				}
+		}
+
 		List<String> stringResultList = new ArrayList<String>();
 		List<TableIdGenerator> tbGeneratorList = new ArrayList<TableIdGenerator>();
 		List<SequenceIdGenerator> sequenceList = new ArrayList<SequenceIdGenerator>();
 		List<FKeyModel> fKeyConstraintList = new ArrayList<FKeyModel>();
-		boolean hasAutoIdGenerator = false;
 
 		for (Object strOrObj : objectResultList) {
 			if (!StrUtils.isEmpty(strOrObj)) {
@@ -61,15 +73,11 @@ public class DDLCreateUtils {
 					sequenceList.add((SequenceIdGenerator) strOrObj);
 				else if (strOrObj instanceof FKeyModel)
 					fKeyConstraintList.add((FKeyModel) strOrObj);
-				else if (strOrObj instanceof AutoIdGenerator)
-					hasAutoIdGenerator = true;
-				else if (strOrObj instanceof SortedUUIDGenerator)
-					hasAutoIdGenerator = true;
 			}
 		}
 
 		if (hasAutoIdGenerator) {
-			IdGenerator realIdGen = AutoIdGenerator.INSTANCE.getRealIdgenerator(dialect);
+			IdGenerator realIdGen = AutoIdGenerator.INSTANCE.getSequenceOrTableIdGenerator(dialect);
 			if (realIdGen instanceof TableIdGenerator)
 				tbGeneratorList.add((TableIdGenerator) realIdGen);
 			else if (realIdGen instanceof SequenceIdGenerator)
@@ -264,90 +272,108 @@ public class DDLCreateUtils {
 		buildUniqueDLL(dialect, objectResultList, t);
 	}
 
-	private static void buildSequenceDDL(Dialect dialect, List<String> stringList,
-			List<SequenceIdGenerator> sequenceList) {
-		DDLFeatures features = dialect.ddlFeatures;
-		for (SequenceIdGenerator seq : sequenceList) {
-			DialectException.assureNotEmpty(seq.getName(), "SequenceGen name can not be empty");
-			DialectException.assureNotEmpty(seq.getSequenceName(),
-					"sequenceName can not be empty of \"" + seq.getName() + "\"");
-		}
-
-		for (SequenceIdGenerator seq : sequenceList) {
-			for (SequenceIdGenerator seq2 : sequenceList) {
-				if (seq != seq2 && (seq2.getAllocationSize() != 0)) {
-					if (seq.getName().equalsIgnoreCase(seq2.getName())) {
-						seq.setAllocationSize(0);// set to 0 to skip repeated
-					} else {
-						if (seq.getSequenceName().equalsIgnoreCase(seq2.getSequenceName()))
-							DialectException.throwEX("Dulplicated SequenceGen setting \"" + seq.getName() + "\" and \""
-									+ seq2.getName() + "\" found.");
-					}
-				}
+	/**
+	 * if name not found, add <br/>
+	 * If name same, but other fields different, throw exception </br>
+	 * If name same, and other field same, ignore </br>
+	 */
+	protected static void checkAndInsertToNotRepeatSeq(Set<SequenceIdGenerator> notRepeatedSeq,
+			SequenceIdGenerator seq) {
+		DialectException.assureNotEmpty(seq.getName(), "SequenceGen name can not be empty");
+		DialectException.assureNotEmpty(seq.getSequenceName(),
+				"sequenceName can not be empty of \"" + seq.getName() + "\"");
+		boolean canAdd = true;
+		for (SequenceIdGenerator not : notRepeatedSeq) {
+			if (seq.getName().equals(not.getName())) {
+				canAdd = false;
+				if (!(seq.getSequenceName().equals(not.getSequenceName())
+						&& seq.getInitialValue().equals(not.getInitialValue())
+						&& seq.getAllocationSize().equals(not.getAllocationSize())))
+					throw new DialectException(
+							"In one or more tableModel, duplicated SequenceIdGenerator name '" + seq.getName()
+									+ "' but different value of sequenceName/initialValue/allocationSize setting");
+			} else {
+				if (seq.getSequenceName().equals(not.getSequenceName()))
+					throw new DialectException(
+							"In one or more tableModel, duplicated SequenceName '" + seq.getSequenceName()
+									+ "' found for '" + seq.getName() + "' and '" + not.getName() + "'");
 			}
 		}
+		if (canAdd)
+			notRepeatedSeq.add(seq);
+	}
 
-		Set<String> sequenceNameExisted = new HashSet<String>();
-		for (SequenceIdGenerator seq : sequenceList) {
-			if (seq.getAllocationSize() != 0) {
-				String sequenceName = seq.getSequenceName().toLowerCase();
-				if (!sequenceNameExisted.contains(sequenceName)) {
-					if (!features.supportBasicOrPooledSequence()) {
-						DialectException.throwEX("Dialect \"" + dialect
-								+ "\" does not support sequence setting on sequence \"" + seq.getName() + "\"");
-					}
-					if (features.supportsPooledSequences) {
-						// create sequence _SEQ start with 11 increment by 33
-						String pooledSequence = StrUtils.replace(features.createPooledSequenceStrings, "_SEQ",
-								seq.getSequenceName());
-						pooledSequence = StrUtils.replace(pooledSequence, "11", "" + seq.getInitialValue());
-						pooledSequence = StrUtils.replace(pooledSequence, "33", "" + seq.getAllocationSize());
-						stringList.add(pooledSequence);
-					} else {
-						if (seq.getInitialValue() >= 2 || seq.getAllocationSize() >= 2)
-							DialectException.throwEX("Dialect \"" + dialect
-									+ "\" does not support initialValue and allocationSize setting on sequence \""
-									+ seq.getName() + "\", try set initialValue and allocationSize to 1 to fix");
-						// "create sequence _SEQ"
-						String simepleSeq = StrUtils.replace(features.createSequenceStrings, "_SEQ",
-								seq.getSequenceName());
-						stringList.add(simepleSeq);
-					}
-					sequenceNameExisted.add(sequenceName);
-				}
+	private static void buildSequenceDDL(Dialect dialect, List<String> stringList,
+			List<SequenceIdGenerator> sequenceList) {
+		Set<SequenceIdGenerator> notRepeatedSequences = new HashSet<SequenceIdGenerator>();
+		for (SequenceIdGenerator seq : sequenceList)
+			checkAndInsertToNotRepeatSeq(notRepeatedSequences, seq);
+
+		DDLFeatures features = dialect.ddlFeatures;
+		for (SequenceIdGenerator seq : notRepeatedSequences) {
+			if (!features.supportBasicOrPooledSequence()) {
+				DialectException.throwEX("Dialect \"" + dialect + "\" does not support sequence setting on sequence \""
+						+ seq.getName() + "\"");
+			}
+			if (features.supportsPooledSequences) {
+				// create sequence _SEQ start with 11 increment by 33
+				String pooledSequence = StrUtils.replace(features.createPooledSequenceStrings, "_SEQ",
+						seq.getSequenceName());
+				pooledSequence = StrUtils.replace(pooledSequence, "11", "" + seq.getInitialValue());
+				pooledSequence = StrUtils.replace(pooledSequence, "33", "" + seq.getAllocationSize());
+				stringList.add(pooledSequence);
+			} else {
+				if (seq.getInitialValue() >= 2 || seq.getAllocationSize() >= 2)
+					DialectException.throwEX("Dialect \"" + dialect
+							+ "\" does not support initialValue and allocationSize setting on sequence \""
+							+ seq.getName() + "\", try set initialValue and allocationSize to 1 to fix");
+				// "create sequence _SEQ"
+				String simepleSeq = StrUtils.replace(features.createSequenceStrings, "_SEQ", seq.getSequenceName());
+				stringList.add(simepleSeq);
 			}
 		}
 
 	}
 
-	private static void buildTableGeneratorDDL(Dialect dialect, List<String> stringList,
-			List<TableIdGenerator> tbGeneratorList) {
-		for (TableIdGenerator tg : tbGeneratorList) {
-			//@formatter:off
-			DialectException.assureNotEmpty(tg.getName(), "TableGen name can not be empty"); 
-			DialectException.assureNotEmpty(tg.getTable(), "TableGen tableName can not be empty of \""+tg.getName()+"\"");
-			DialectException.assureNotEmpty(tg.getPkColumnName(), "TableGen pkColumnName can not be empty of \""+tg.getName()+"\"");
-			DialectException.assureNotEmpty(tg.getPkColumnValue(), "TableGen pkColumnValue can not be empty of \""+tg.getName()+"\"");
-			DialectException.assureNotEmpty(tg.getValueColumnName(), "TableGen valueColumnName can not be empty of \""+tg.getName()+"\""); 
-			//@formatter:on
-		}
-
-		for (TableIdGenerator tg : tbGeneratorList) {
-			for (TableIdGenerator tg2 : tbGeneratorList) {
-				if (tg != tg2 && (tg2.getAllocationSize() != 0)) {
-					if (tg.getName().equalsIgnoreCase(tg2.getName())) {
-						tg.setAllocationSize(0);// set to 0 to skip repeated
-					} else {
-						if (tg.getTable().equalsIgnoreCase(tg2.getTable())
-								&& tg.getPkColumnName().equalsIgnoreCase(tg2.getPkColumnName())
-								&& tg.getPkColumnValue().equalsIgnoreCase(tg2.getPkColumnValue())
-								&& tg.getValueColumnName().equalsIgnoreCase(tg2.getValueColumnName()))
-							DialectException.throwEX("Dulplicated tableGenerator setting \"" + tg.getName()
-									+ "\" and \"" + tg2.getName() + "\" found.");
-					}
-				}
+	/**
+	 * if name not found, add <br/>
+	 * If name same, but other fields different, throw exception </br>
+	 * If name same, and other field same, ignore </br>
+	 */
+	protected static void checkAndInsertToNotRepeatTable(Set<TableIdGenerator> notRepeatedSeq, TableIdGenerator tab) {
+		DialectException.assureNotEmpty(tab.getName(), "TableGen name can not be empty");
+		DialectException.assureNotEmpty(tab.getTable(),
+				"TableGen tableName can not be empty of \"" + tab.getName() + "\"");
+		DialectException.assureNotEmpty(tab.getPkColumnName(),
+				"TableGen pkColumnName can not be empty of \"" + tab.getName() + "\"");
+		DialectException.assureNotEmpty(tab.getPkColumnValue(),
+				"TableGen pkColumnValue can not be empty of \"" + tab.getName() + "\"");
+		DialectException.assureNotEmpty(tab.getValueColumnName(),
+				"TableGen valueColumnName can not be empty of \"" + tab.getName() + "\"");
+		boolean canAdd = true;
+		for (TableIdGenerator not : notRepeatedSeq) {
+			if (tab.getName().equals(not.getName())) {
+				canAdd = false;
+				if (!(tab.getTable().equals(not.getTable()) && tab.getPkColumnName().equals(not.getPkColumnName())
+						&& tab.getPkColumnValue().equals(not.getPkColumnValue())
+						&& tab.getValueColumnName().equals(not.getValueColumnName())
+						&& tab.getInitialValue().equals(not.getInitialValue())
+						&& tab.getAllocationSize().equals(not.getAllocationSize())))
+					throw new DialectException("In one or more tableModel, duplicated TableIdGenerator name '"
+							+ tab.getName()
+							+ "' but different value of table/pKColumnName/pkColumnValue/valueColumnName/initialValue/allocationSize setting");
 			}
 		}
+		if (canAdd)
+			notRepeatedSeq.add(tab);
+	}
+
+	private static void buildTableGeneratorDDL(Dialect dialect, List<String> stringList,
+			List<TableIdGenerator> tbGeneratorList) {
+		Set<TableIdGenerator> notRepeatedTab = new HashSet<TableIdGenerator>();
+
+		for (TableIdGenerator tab : tbGeneratorList)
+			checkAndInsertToNotRepeatTable(notRepeatedTab, tab);
 
 		Set<String> tableExisted = new HashSet<String>();
 		Set<String> columnExisted = new HashSet<String>();
@@ -388,8 +414,8 @@ public class DDLCreateUtils {
 		}
 		for (FKeyModel t : trueList) {
 			/*
-			 * ADD CONSTRAINT _FKEYNAME FOREIGN KEY _FKEYNAME (_FK1, _FK2)
-			 * REFERENCES _REFTABLE (_REF1, _REF2)
+			 * ADD CONSTRAINT _FKEYNAME FOREIGN KEY _FKEYNAME (_FK1, _FK2) REFERENCES
+			 * _REFTABLE (_REF1, _REF2)
 			 */
 			String constName = t.getFkeyName();
 			if (StrUtils.isEmpty(constName))

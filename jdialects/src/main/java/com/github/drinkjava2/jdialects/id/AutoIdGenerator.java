@@ -17,6 +17,7 @@ package com.github.drinkjava2.jdialects.id;
 
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.Type;
 import com.github.drinkjava2.jdialects.annotation.GenerationType;
 
 /**
@@ -29,16 +30,16 @@ import com.github.drinkjava2.jdialects.annotation.GenerationType;
  */
 public class AutoIdGenerator implements IdGenerator {
 	private static final String JDIALECTS_AUTOID_NAME = "jdia_autoid";
-	private static final String JDIALECTS_AUTOID_TABLE = "jdia_autoid_tab";
-	private static final String JDIALECTS_AUTOID_SEQUENCE = "jdia_autoid_seq";
+	private static final String JDIALECTS_AUTOID_TABLE = "jdia_table_autoid";
+	private static final String JDIALECTS_AUTOID_SEQUENCE = "jdia_seq_autoid";
 
 	public static final AutoIdGenerator INSTANCE = new AutoIdGenerator();
 
-	private static final TableIdGenerator TABLEIDGENERATOR_INSTANCE = new TableIdGenerator(JDIALECTS_AUTOID_NAME,
+	public static final TableIdGenerator TABLE_AUTOID_INSTANCE = new TableIdGenerator(JDIALECTS_AUTOID_NAME,
 			JDIALECTS_AUTOID_TABLE, "idcolumn", "valuecolumn", "next_val", 1, 50);
 
-	private static final SequenceIdGenerator SEQUENCEIDGENERATOR_INSTANCE = new SequenceIdGenerator(
-			JDIALECTS_AUTOID_NAME, JDIALECTS_AUTOID_SEQUENCE, 1, 1);
+	public static final SequenceIdGenerator SEQ_AUTOID_INSTANCE = new SequenceIdGenerator(JDIALECTS_AUTOID_NAME,
+			JDIALECTS_AUTOID_SEQUENCE, 1, 1);
 
 	@Override
 	public GenerationType getGenerationType() {
@@ -53,24 +54,29 @@ public class AutoIdGenerator implements IdGenerator {
 	@Override
 	public IdGenerator newCopy() {
 		return INSTANCE;
-	};
+	}
+	
+	@Override
+	public Boolean dependOnAutoIdGenerator() {
+		return true;
+	}
 
 	@Override
-	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect) {
+	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect, Type dataType) {
 		if (dialect.getDdlFeatures().supportBasicOrPooledSequence())
-			return TABLEIDGENERATOR_INSTANCE.getNextID(jdbc, dialect);
+			return SEQ_AUTOID_INSTANCE.getNextID(jdbc, dialect, dataType);
 		else
-			return SEQUENCEIDGENERATOR_INSTANCE.getNextID(jdbc, dialect);
+			return TABLE_AUTOID_INSTANCE.getNextID(jdbc, dialect, dataType);
 	}
 
 	/**
-	 * Return a real IdGenerator, can be a TableIdGenerator or
-	 * SequenceIdGenerator determined by dialect
+	 * If dialect support sequence, return a SequenceIdGenerator, otherwise return a
+	 * TableIdGenerator
 	 */
-	public IdGenerator getRealIdgenerator(Dialect dialect) {
+	public IdGenerator getSequenceOrTableIdGenerator(Dialect dialect) {
 		if (dialect.getDdlFeatures().supportBasicOrPooledSequence())
-			return TABLEIDGENERATOR_INSTANCE;
+			return SEQ_AUTOID_INSTANCE;
 		else
-			return SEQUENCEIDGENERATOR_INSTANCE;
+			return TABLE_AUTOID_INSTANCE;
 	}
 }

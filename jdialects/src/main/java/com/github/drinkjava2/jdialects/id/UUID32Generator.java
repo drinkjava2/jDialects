@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.Type;
 import com.github.drinkjava2.jdialects.annotation.GenerationType;
 
 /**
@@ -43,13 +44,17 @@ public class UUID32Generator implements IdGenerator {
 	}
 
 	@Override
-	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect) {
+	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect, Type dataType) {
 		return UUID.randomUUID().toString().replaceAll("-", "");
+	}
+
+	@Override
+	public Boolean dependOnAutoIdGenerator() {
+		return false;
 	}
 
 	@Override
 	public IdGenerator newCopy() {
 		return INSTANCE;
-	};
-
+	}
 }

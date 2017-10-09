@@ -19,6 +19,7 @@ import java.security.SecureRandom;
 
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.Type;
 import com.github.drinkjava2.jdialects.annotation.GenerationType;
 
 /**
@@ -61,14 +62,19 @@ public class UUIDAnyGenerator implements IdGenerator {
 	}
 
 	@Override
-	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect) {
+	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect, Type dataType) {
 		return getAnyLengthRadix36UUID(length);
+	}
+
+	@Override
+	public Boolean dependOnAutoIdGenerator() {
+		return false;
 	}
 
 	@Override
 	public IdGenerator newCopy() {
 		return new UUIDAnyGenerator(name, length);
-	};
+	}
 
 	protected static String getAnyLengthRadix36UUID(Integer length) {
 		StringBuilder sb = new StringBuilder();

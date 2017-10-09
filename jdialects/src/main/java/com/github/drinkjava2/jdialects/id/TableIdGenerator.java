@@ -9,6 +9,7 @@ package com.github.drinkjava2.jdialects.id;
 
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.Type;
 import com.github.drinkjava2.jdialects.annotation.GenerationType;
 
 /**
@@ -94,13 +95,18 @@ public class TableIdGenerator implements IdGenerator {
 		return name;
 	}
 
+	@Override
+	public Boolean dependOnAutoIdGenerator() {
+		return false;
+	}
+	
 	/**
 	 * Get the next Table Generator ID
 	 */
 	@Override
-	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect) {
+	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect, Type dataType) {
 		if (lastValue == -1) {
-			int countOfRec = ((Number) jdbc
+			int countOfRec = ((Number) jdbc //NOSONAR
 					.nQueryForObject("select count(*) from " + table + " where " + pkColumnName + "=?", pkColumnValue))
 							.intValue();
 			if (countOfRec == 0) {
@@ -110,7 +116,7 @@ public class TableIdGenerator implements IdGenerator {
 				return lastValue;
 			} else {
 				// 70 or 99 or 100 or 101
-				int last = ((Number) jdbc.nQueryForObject(
+				int last = ((Number) jdbc.nQueryForObject( //NOSONAR
 						"select " + valueColumnName + " from " + table + " where " + pkColumnName + "=?",
 						pkColumnValue)).intValue();
 				// 101 or 101 or 101 or 151

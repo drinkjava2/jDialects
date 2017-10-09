@@ -19,10 +19,8 @@ import org.apache.commons.dbutils.OutParameter;
 import org.apache.commons.dbutils.ResultSetHandler;
 
 /**
- * Interface of Normal JDBC methods, this interface is used for other projects
- * like jDialects to eliminate jar dependency, other projects need copy this
- * interface into there source code folder but always use name
- * "com.github.drinkjava2.jdbpro.NormalJdbcTool"
+ * Interface of Normal JDBC methods, when call idGenerator.getNextID() method,
+ * need give a implementation of this interface to access database
  * 
  * @author Yong Zhu
  * @since 1.7.0.1

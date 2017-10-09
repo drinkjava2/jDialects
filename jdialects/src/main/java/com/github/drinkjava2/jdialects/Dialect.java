@@ -35,6 +35,7 @@ import com.github.drinkjava2.jdialects.utils.StrUtils;
  * @version 1.0.5
  * @since 1.0.0
  */
+@SuppressWarnings("all")
 public enum Dialect {
 	// below found on Internet
 	SQLiteDialect, AccessDialect, ExcelDialect, TextDialect, ParadoxDialect, CobolDialect, XMLDialect, DbfDialect, // NOSONAR
@@ -862,8 +863,8 @@ public enum Dialect {
 	/**
 	 * Return next ID by given IdGenerator and NormalJdbcStyle instance
 	 */
-	public Object getNexID(IdGenerator idGenerator, NormalJdbcTool jdbc) {
-		return idGenerator.getNextID(jdbc, this);
+	public Object getNexID(IdGenerator idGenerator, NormalJdbcTool jdbc, Type dataType) {
+		return idGenerator.getNextID(jdbc, this, dataType);
 	}
 
 	// getter & setter====

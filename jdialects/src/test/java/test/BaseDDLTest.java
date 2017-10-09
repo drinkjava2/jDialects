@@ -34,7 +34,7 @@ public class BaseDDLTest {
 	@Before
 	public void initDao() {
 		System.out.println("Current guessedDialect=" + guessedDialect);
-		db.setAllowShowSQL(true);
+		//db.setAllowShowSQL(true);
 	}
 
 	@After

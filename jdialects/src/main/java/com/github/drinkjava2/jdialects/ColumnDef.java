@@ -19,7 +19,7 @@ import java.util.Map;
  * @author Yong Zhu
  * @since 1.0.0
  */
-public abstract class ColumnDef {
+public abstract class ColumnDef {//NOSONAR
 	public static final String BIGINT = "BIGINT";
 	public static final String BINARY = "BINARY";
 	public static final String BIT = "BIT";
