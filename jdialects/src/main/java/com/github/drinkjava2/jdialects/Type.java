@@ -41,6 +41,5 @@ public enum Type {
 	, TIMESTAMP//
 	, TINYINT//
 	, VARBINARY//
-	//, ENGINE//
-	, VARCHAR;//
+	, VARCHAR;
 }

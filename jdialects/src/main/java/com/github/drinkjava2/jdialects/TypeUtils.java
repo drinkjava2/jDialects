@@ -19,7 +19,7 @@ import java.util.Map;
  * @author Yong Zhu
  * @since 1.0.0
  */
-public abstract class ColumnDef {//NOSONAR
+public abstract class TypeUtils {//NOSONAR
 	public static final String BIGINT = "BIGINT";
 	public static final String BINARY = "BINARY";
 	public static final String BIT = "BIT";
@@ -116,5 +116,52 @@ public abstract class ColumnDef {//NOSONAR
 		if ("VARCHAR".equalsIgnoreCase(columnDef))return Type.VARCHAR;
 		// @formatter:on 
 		throw new DialectException("'" + columnDef + "' is not a legal SQL column definition name");
+	}
+	
+	// @formatter:off shut off eclipse's formatter
+	public static Type javaSqlTypeToDialectType(int javaSqlType) {
+		switch (javaSqlType) {
+		case java.sql.Types.BIT:return Type.BIT;
+		case java.sql.Types.TINYINT:return Type.TINYINT;
+		case java.sql.Types.SMALLINT:return Type.SMALLINT;
+		case java.sql.Types.INTEGER:return Type.INTEGER;
+		case java.sql.Types.BIGINT:return Type.BIGINT;
+		case java.sql.Types.FLOAT:return Type.FLOAT;
+		case java.sql.Types.REAL:return Type.REAL;
+		case java.sql.Types.DOUBLE:return Type.DOUBLE;
+		case java.sql.Types.NUMERIC:return Type.NUMERIC;
+		case java.sql.Types.DECIMAL:return Type.DECIMAL;
+		case java.sql.Types.CHAR:return Type.CHAR;
+		case java.sql.Types.VARCHAR:return Type.VARCHAR;
+		case java.sql.Types.LONGVARCHAR:return Type.LONGVARCHAR;
+		case java.sql.Types.DATE:return Type.DATE;
+		case java.sql.Types.TIME:return Type.TIME;
+		case java.sql.Types.TIMESTAMP:return Type.TIMESTAMP;
+		case java.sql.Types.BINARY:return Type.BINARY;
+		case java.sql.Types.VARBINARY:return Type.VARBINARY;
+		case java.sql.Types.LONGVARBINARY:return Type.LONGVARBINARY;
+ 
+		case java.sql.Types.OTHER:return Type.OTHER;
+		case java.sql.Types.JAVA_OBJECT:return Type.JAVA_OBJECT;
+ 
+		case java.sql.Types.BLOB:return Type.BLOB;
+		case java.sql.Types.CLOB:return Type.CLOB;
+ 
+		case java.sql.Types.BOOLEAN:return Type.BOOLEAN;
+ 
+		case java.sql.Types.NCHAR:return Type.NCHAR;
+		case java.sql.Types.NVARCHAR:return Type.NVARCHAR;
+		case java.sql.Types.LONGNVARCHAR:return Type.LONGNVARCHAR;
+		case java.sql.Types.NCLOB:return Type.NCLOB; 
+//		case java.sql.Types.SQLXML:return Type.UNSUPPORT; 		
+//		case java.sql.Types.NULL:return Type.UNSUPPORT;
+//		case java.sql.Types.ROWID:return Type.UNSUPPORT;
+//		case java.sql.Types.DISTINCT:return Type.UNSUPPORT;
+//		case java.sql.Types.STRUCT:return Type.UNSUPPORT;
+//		case java.sql.Types.ARRAY:return Type.UNSUPPORT;
+//		case java.sql.Types.REF:return Type.UNSUPPORT;
+//		case java.sql.Types.DATALINK:return Type.UNSUPPORT;
+		default: throw new DialectException("Not supported java.sql.Types value:"+javaSqlType);
+		} 
 	}
 }

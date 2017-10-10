@@ -9,7 +9,7 @@ package test.functiontest.jdialects;
 
 import org.junit.Test;
 
-import com.github.drinkjava2.jdialects.ColumnDef;
+import com.github.drinkjava2.jdialects.TypeUtils;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.annotation.Column;
 import com.github.drinkjava2.jdialects.annotation.Entity;
@@ -80,14 +80,14 @@ public class AnnotationTest extends BaseDDLTest {
 	@FKey1(columns = { "field2", "field3" }, refs = { "POJO1", "field1", "field2" })
 	public static class POJO2 {
 		@Id
-		@Column(columnDefinition = ColumnDef.VARCHAR, length = 20)
+		@Column(columnDefinition = TypeUtils.VARCHAR, length = 20)
 		public String field1;
 
-		@Column(name = "field2", nullable = false, columnDefinition = ColumnDef.BIGINT)
+		@Column(name = "field2", nullable = false, columnDefinition = TypeUtils.BIGINT)
 		public String field2;
 
 		@GeneratedValue(strategy = GenerationType.TABLE, generator = "CUST_GEN")
-		@Column(name = "field3", nullable = false, columnDefinition = ColumnDef.BIGINT)
+		@Column(name = "field3", nullable = false, columnDefinition = TypeUtils.BIGINT)
 		@SingleFKey(name = "singleFkey1", refs = { "POJO1", "field1" })
 		@SingleIndex
 		@SingleUnique

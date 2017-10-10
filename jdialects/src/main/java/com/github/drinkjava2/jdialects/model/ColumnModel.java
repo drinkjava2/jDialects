@@ -7,6 +7,7 @@
  */
 package com.github.drinkjava2.jdialects.model;
 
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
 
@@ -59,29 +60,32 @@ public class ColumnModel {
 	private String idGeneratorName;
 	// =======================================================================
 
-	// =====Below fields are only used by JPA and ORM tools==========
-	/** Map to a Java POJO field, for JPA or ORM tool use only */
+	// =====Below fields are designed only for ORM tools ==========
+	/** Map to a Java POJO field, for ORM tool use only */
 	private String pojoField;
 
-	/** Value of Java POJO field, for JPA or ORM tool use only */
-	private Object value;
+	/** Map to a Java POJO field's read method, for ORM tool use only */
+	private Method pojoReadMethod;
 
-	/** The column length, for JPA or ORM tool use only */
+	/** Map to a Java POJO field's write method, for ORM tool use only */
+	private Method pojoWriteMethod;
+
+	/** The column length, for ORM tool use only */
 	private Integer length = 255;
 
-	/** The numeric precision, for JPA or ORM tool use only */
+	/** The numeric precision, for ORM tool use only */
 	private Integer precision = 0;
 
-	/** The numeric scale, for JPA or ORM tool use only */
+	/** The numeric scale, for ORM tool use only */
 	private Integer scale = 0;
 
-	/** If insert-able or not, for JPA or ORM tool use only */
+	/** If insert-able or not, for ORM tool use only */
 	private Boolean insertable = true;
 
-	/** If update-able or not, for JPA or ORM tool use only */
+	/** If update-able or not, for ORM tool use only */
 	private Boolean updatable = true;
 
-	/** If this is a Transient type, for JPA or ORM tool use only */
+	/** If this is a Transient type, for ORM tool use only */
 	private Boolean transientable = false;
 
 	public ColumnModel(String columnName) {
@@ -477,15 +481,7 @@ public class ColumnModel {
 
 	public void setPojoField(String pojoField) {
 		this.pojoField = pojoField;
-	}
-
-	public Object getValue() {
-		return value;
-	}
-
-	public void setValue(Object value) {
-		this.value = value;
-	}
+	} 
 
 	public Integer getLength() {
 		return length;
@@ -533,6 +529,22 @@ public class ColumnModel {
 
 	public void setTransientable(Boolean transientable) {
 		this.transientable = transientable;
+	}
+
+	public Method getPojoReadMethod() {
+		return pojoReadMethod;
+	}
+
+	public void setPojoReadMethod(Method pojoReadMethod) {
+		this.pojoReadMethod = pojoReadMethod;
+	}
+
+	public Method getPojoWriteMethod() {
+		return pojoWriteMethod;
+	}
+
+	public void setPojoWriteMethod(Method pojoWriteMethod) {
+		this.pojoWriteMethod = pojoWriteMethod;
 	}
 
 }

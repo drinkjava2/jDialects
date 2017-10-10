@@ -198,12 +198,20 @@ public class TableModel {
 	}
 
 	/**
+	 * @deprecated (Use addColumn method )
+	 */
+	@Deprecated
+	public ColumnModel column(String columnName) {// NOSONAR
+		return addColumn(columnName);
+	}
+
+	/**
 	 * Start add a column definition piece in DDL, detail usage see demo
 	 * 
 	 * @param columnName
 	 * @return the Column object
 	 */
-	public ColumnModel column(String columnName) {
+	public ColumnModel addColumn(String columnName) {
 		DialectException.assureNotEmpty(columnName, "columnName can not be empty");
 		for (ColumnModel columnModel : columns)
 			if (columnName.equals(columnModel.getColumnName()))

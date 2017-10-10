@@ -41,9 +41,9 @@ public class IdgeneratorTest extends BaseDDLTest {
 	@Test
 	public void testUUIDs() {// nextID
 		TableModel t = new TableModel("testNextIdTable");
-		t.column("id1").STRING(25).pkey();
-		t.column("id2").STRING(32);
-		t.column("id3").STRING(36);
+		t.addColumn("id1").STRING(25).pkey();
+		t.addColumn("id2").STRING(32);
+		t.addColumn("id3").STRING(36);
 		String[] ddls = guessedDialect.toDropDDL(t);
 		quiteExecuteNoParamSqls(ddls);
 
@@ -67,7 +67,7 @@ public class IdgeneratorTest extends BaseDDLTest {
 	@Test
 	public void testAutoIdGenerator() {
 		TableModel table = new TableModel("testAutoIdGenerator");
-		table.column("id").STRING(30).pkey().autoID();
+		table.addColumn("id").STRING(30).pkey().autoID();
 		reBuildDB(table);
 
 		IdGenerator gen = table.getColumn("id").getIdGenerator();
@@ -84,8 +84,8 @@ public class IdgeneratorTest extends BaseDDLTest {
 		TableModel table = new TableModel("testSortedUUIDGenerator");
 		table.sortedUUIDGenerator("sorteduuid", 8, 8);
 		table.addGenerator(new SortedUUIDGenerator("sorteduuid2", 10, 10));
-		table.column("id").STRING(30).pkey().idGenerator("sorteduuid");
-		table.column("id2").STRING(30).pkey().idGenerator("sorteduuid2");
+		table.addColumn("id").STRING(30).pkey().idGenerator("sorteduuid");
+		table.addColumn("id2").STRING(30).pkey().idGenerator("sorteduuid2");
 		reBuildDB(table);
 
 		IdGenerator gen1 = table.getIdGenerator("sorteduuid");
@@ -103,13 +103,13 @@ public class IdgeneratorTest extends BaseDDLTest {
 			return;
 		TableModel table1 = new TableModel("testTableIdGenerator");
 		table1.sequenceGenerator("seq1", "seq1", 1, 10);
-		table1.column("id").STRING(30).pkey().idGenerator("seq1");
-		table1.column("id2").STRING(30).pkey().sequenceGenerator("seq2", "seq2", 1, 20);
+		table1.addColumn("id").STRING(30).pkey().idGenerator("seq1");
+		table1.addColumn("id2").STRING(30).pkey().sequenceGenerator("seq2", "seq2", 1, 20);
 
 		TableModel table2 = new TableModel("testTableIdGenerator2");
 		table2.sequenceGenerator("seq3", "seq3", 1, 10);
-		table2.column("id").STRING(30).pkey().idGenerator("seq3");
-		table2.column("id2").STRING(30).pkey().sequenceGenerator("seq2", "seq2", 1, 20);
+		table2.addColumn("id").STRING(30).pkey().idGenerator("seq3");
+		table2.addColumn("id2").STRING(30).pkey().sequenceGenerator("seq2", "seq2", 1, 20);
 
 		reBuildDB(table1, table2);
 
@@ -132,14 +132,14 @@ public class IdgeneratorTest extends BaseDDLTest {
 	public void testTableIdGenerator() {
 		TableModel table1 = new TableModel("testTableIdGenerator");
 		table1.tableGenerator("tab1", "tb1", "pkCol", "valueColname", "pkColVal", 1, 10);
-		table1.column("id").STRING(30).pkey().idGenerator("tab1");
-		table1.column("id2").STRING(30).pkey().tableGenerator("tab2", "tb1", "pkCol", "valueColname", "pkColVal", 1,
+		table1.addColumn("id").STRING(30).pkey().idGenerator("tab1");
+		table1.addColumn("id2").STRING(30).pkey().tableGenerator("tab2", "tb1", "pkCol", "valueColname", "pkColVal", 1,
 				10);
 
 		TableModel table2 = new TableModel("testTableIdGenerator2");
 		table2.tableGenerator("tab3", "tb1", "pkCol", "valueColname", "pkColVal", 1, 10);
-		table2.column("id").STRING(30).pkey().idGenerator("tab3");
-		table2.column("id2").STRING(30).pkey().tableGenerator("tab2", "tb1", "pkCol", "valueColname", "pkColVal", 1,
+		table2.addColumn("id").STRING(30).pkey().idGenerator("tab3");
+		table2.addColumn("id2").STRING(30).pkey().tableGenerator("tab2", "tb1", "pkCol", "valueColname", "pkColVal", 1,
 				10);
 
 		reBuildDB(table1, table2);
@@ -162,8 +162,8 @@ public class IdgeneratorTest extends BaseDDLTest {
 	@Test
 	public void testIdentityGenerator() {
 		TableModel table = new TableModel("testIdentity");
-		table.column("id").INTEGER().identity();
-		table.column("name").STRING(30);
+		table.addColumn("id").INTEGER().identity();
+		table.addColumn("name").STRING(30);
 		reBuildDB(table);
 
 		db.nExecute("insert into testIdentity (name) values(?)", "Tom");
