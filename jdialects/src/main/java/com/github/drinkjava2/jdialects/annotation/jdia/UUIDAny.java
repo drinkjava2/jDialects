@@ -7,8 +7,9 @@
  */
 package com.github.drinkjava2.jdialects.annotation.jdia;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -31,7 +32,7 @@ import com.github.drinkjava2.jdialects.annotation.jpa.GeneratedValue;
  *
  * @since Java Persistence 1.0
  */
-@Target(FIELD)
+@Target({TYPE, FIELD}) 
 @Retention(RUNTIME)
 public @interface UUIDAny {
 	/**
@@ -43,5 +44,5 @@ public @interface UUIDAny {
 	/**
 	 * The length of the UUID
 	 */
-	String sequenceName() default "";
+	int length() default 20;
 }

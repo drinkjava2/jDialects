@@ -37,7 +37,7 @@ public class UUIDAnyGenerator implements IdGenerator {
 	private static final char[] ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz".toCharArray();
 
 	private String name;
-	private Integer length = 20;
+	private Integer length = 36;
 
 	public UUIDAnyGenerator() {
 		// default constructor

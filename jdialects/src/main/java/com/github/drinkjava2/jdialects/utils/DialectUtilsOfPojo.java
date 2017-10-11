@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.TypeUtils;
@@ -30,14 +31,9 @@ import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
  * @author Yong Zhu
  * @since 1.0.6
  */
-public abstract class DialectUtilsOfPojo {
+public abstract class DialectUtilsOfPojo {// NOSONAR
 
-	private static ThreadLocal<Map<Class<?>, TableModel>> threadLocalTableModelCache = new ThreadLocal<Map<Class<?>, TableModel>>() {
-		@Override
-		protected Map<Class<?>, TableModel> initialValue() {
-			return new HashMap<Class<?>, TableModel>();
-		}
-	};
+	private static Map<Class<?>, TableModel> tableModelCache = new ConcurrentHashMap<Class<?>, TableModel>();
 
 	private static boolean matchNameCheck(String annotationName, String cName) {
 		if (("javax.persistence." + annotationName).equals(cName))
@@ -46,11 +42,6 @@ public abstract class DialectUtilsOfPojo {
 			return true;
 		if (("com.github.drinkjava2.jdialects.annotation.jdia." + annotationName).equals(cName))
 			return true;
-		// Java6 does not support repeat annotation, so use FKey1, Fkey2...
-		for (int i = 1; i <= 3; i++) {
-			if (("com.github.drinkjava2.jdialects.annotation.jdia." + annotationName + i).equals(cName))
-				return true;
-		}
 		return false;
 	}
 
@@ -88,7 +79,7 @@ public abstract class DialectUtilsOfPojo {
 
 	private static boolean existPojoAnnotation(Object targetClass, String annotationName) {
 		Map<String, Object> annotion = getFirstPojoAnnotation(targetClass, annotationName);
-		return annotion != null && annotion.size() == 1;
+		return annotion.size() == 1;
 	}
 
 	/** Change Annotation fields values into a Map */
@@ -128,14 +119,14 @@ public abstract class DialectUtilsOfPojo {
 
 	/**
 	 * Convert a Java POJO class or JPA annotated POJO classes to "TableModel"
-	 * Object, if this class has a "config(TableModel tableModel)" method, will
-	 * also call it
+	 * Object, if this class has a "config(TableModel tableModel)" method, will also
+	 * call it
 	 */
 	public static TableModel pojo2Model(Class<?> pojoClass) {
 		DialectException.assureNotNull(pojoClass, "POJO class can not be null");
-		TableModel model = threadLocalTableModelCache.get().get(pojoClass);
+		TableModel model = tableModelCache.get(pojoClass);
 		if (model != null)
-			return model;
+			return model.newCopy();
 		model = pojo2ModelIgnoreConfigMethod(pojoClass);
 		Method method = null;
 		try {
@@ -148,9 +139,10 @@ public abstract class DialectUtilsOfPojo {
 			} catch (Exception e) {
 				throw new DialectException(e);
 			}
+
 		if (model != null)
-			threadLocalTableModelCache.get().put(pojoClass, model);
-		return model;
+			tableModelCache.put(pojoClass, model);
+		return model.newCopy();
 	}
 
 	/**
@@ -201,18 +193,25 @@ public abstract class DialectUtilsOfPojo {
 		}
 
 		// SequenceGenerator
-		List<Map<String, Object>> sequences = getPojoAnnotations(pojoClass, "SequenceGenerator");
-		for (Map<String, Object> map : sequences) {
-			model.sequenceGenerator((String) map.get("name"), (String) map.get("sequenceName"),
-					(Integer) map.get("initialValue"), (Integer) map.get("allocationSize"));
+		Map<String, Object> seqMap = getFirstPojoAnnotation(pojoClass, "SequenceGenerator");
+		if (!seqMap.isEmpty()) {
+			model.sequenceGenerator((String) seqMap.get("name"), (String) seqMap.get("sequenceName"),
+					(Integer) seqMap.get("initialValue"), (Integer) seqMap.get("allocationSize"));
 		}
 
 		// TableGenerator
-		List<Map<String, Object>> tableGens = getPojoAnnotations(pojoClass, "TableGenerator");
-		for (Map<String, Object> map : tableGens) {
-			model.tableGenerator((String) map.get("name"), (String) map.get("table"), (String) map.get("pkColumnName"),
-					(String) map.get("valueColumnName"), (String) map.get("pkColumnValue"),
-					(Integer) map.get("initialValue"), (Integer) map.get("allocationSize"));
+		Map<String, Object> tableGenMap = getFirstPojoAnnotation(pojoClass, "TableGenerator");
+		if (!tableGenMap.isEmpty()) {
+			model.tableGenerator((String) tableGenMap.get("name"), (String) tableGenMap.get("table"),
+					(String) tableGenMap.get("pkColumnName"), (String) tableGenMap.get("valueColumnName"),
+					(String) tableGenMap.get("pkColumnValue"), (Integer) tableGenMap.get("initialValue"),
+					(Integer) tableGenMap.get("allocationSize"));
+		}
+
+		// UUIDAny
+		Map<String, Object> uuidAnyMp = getFirstPojoAnnotation(pojoClass, "UUIDAny");
+		if (!uuidAnyMp.isEmpty()) {
+			model.uuidAny((String) uuidAnyMp.get("name"), (Integer) uuidAnyMp.get("length"));
 		}
 
 		// FKey
@@ -233,11 +232,18 @@ public abstract class DialectUtilsOfPojo {
 
 		for (PropertyDescriptor pd : pds) {
 			String pojofieldName = pd.getName();
+			if ("class".equals(pojofieldName) || "simpleName".equals(pojofieldName)
+					|| "canonicalName".equals(pojofieldName))
+				continue;
 			Class<?> propertyClass = pd.getPropertyType();
 
 			if (TypeUtils.canMapToSqlType(propertyClass)) {
 				Field field = ReflectionUtils.findField(pojoClass, pojofieldName);
-				// Transient
+				if (field == null)
+					continue;
+				// DialectException.assureNotNull(field, "Pojo field '" + pojofieldName + "'
+				// found a null value");
+
 				if (!getFirstPojoAnnotation(field, "Transient").isEmpty()) {
 					ColumnModel col = new ColumnModel(pojofieldName);
 					col.setColumnType(TypeUtils.toType(propertyClass));
@@ -246,6 +252,29 @@ public abstract class DialectUtilsOfPojo {
 					col.setTableModel(model);
 					model.addColumn(col);
 				} else {
+
+					// SequenceGenerator
+					Map<String, Object> map = getFirstPojoAnnotation(field, "SequenceGenerator");
+					if (!map.isEmpty()) {
+						model.sequenceGenerator((String) map.get("name"), (String) map.get("sequenceName"),
+								(Integer) map.get("initialValue"), (Integer) map.get("allocationSize"));
+					}
+
+					// TableGenerator
+					map = getFirstPojoAnnotation(field, "TableGenerator");
+					if (!map.isEmpty()) {
+						model.tableGenerator((String) map.get("name"), (String) map.get("table"),
+								(String) map.get("pkColumnName"), (String) map.get("valueColumnName"),
+								(String) map.get("pkColumnValue"), (Integer) map.get("initialValue"),
+								(Integer) map.get("allocationSize"));
+					}
+
+					// UUIDAny
+					map = getFirstPojoAnnotation(field, "UUIDAny");
+					if (!map.isEmpty()) {
+						model.uuidAny((String) map.get("name"), (Integer) map.get("length"));
+					}
+
 					ColumnModel col = new ColumnModel(pojofieldName);
 					col.pojoField(pojofieldName);
 					// Column
@@ -269,12 +298,6 @@ public abstract class DialectUtilsOfPojo {
 						col.setColumnType(TypeUtils.toType(propertyClass));
 						col.setLengths(new Integer[] { 255, 0, 0 });
 					}
-
-					// SequenceGenerator
-					Map<String, Object> seqMap = getFirstPojoAnnotation(field, "SequenceGenerator");
-					if (!seqMap.isEmpty())
-						model.sequenceGenerator((String) seqMap.get("name"), (String) seqMap.get("sequenceName"),
-								(Integer) seqMap.get("initialValue"), (Integer) seqMap.get("allocationSize"));
 
 					// Id
 					if (!getFirstPojoAnnotation(field, "Id").isEmpty()
@@ -305,24 +328,25 @@ public abstract class DialectUtilsOfPojo {
 					if (!gvMap.isEmpty()) {
 						Object strategy = gvMap.get("strategy");
 						if (strategy != null) {
-							String typ = strategy.getClass().getSimpleName();
-							if ("AUTO".equals(typ))
+							String strategyStr = strategy.toString();
+
+							if ("AUTO".equals(strategyStr))
 								col.autoId();
-							else if ("IDENTITY".equals(typ))
+							else if ("IDENTITY".equals(strategyStr))
 								col.identityId();
-							else if ("UUID25".equals(typ))
+							else if ("UUID25".equals(strategyStr))
 								col.uuid25();
-							else if ("UUID32".equals(typ))
+							else if ("UUID32".equals(strategyStr))
 								col.uuid32();
-							else if ("UUID36".equals(typ))
+							else if ("UUID36".equals(strategyStr))
 								col.uuid36();
-							else if ("TIMESTAMP_ID".equals(typ))
+							else if ("TIMESTAMP".equals(strategyStr))
 								col.timeStampId();
 							else {
 								String generator = (String) gvMap.get("generator");
 								if (StrUtils.isEmpty(generator))
 									throw new DialectException(
-											"GeneratedValue strategy '" + strategy + "' can not find a generator");
+											"GeneratedValue strategy '" + strategyStr + "' can not find a generator");
 								col.idGenerator(generator);
 							}
 						}

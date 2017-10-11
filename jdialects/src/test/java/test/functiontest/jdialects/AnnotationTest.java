@@ -13,11 +13,9 @@ import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.TypeUtils;
 import com.github.drinkjava2.jdialects.annotation.jdia.FKey;
 import com.github.drinkjava2.jdialects.annotation.jdia.FKey1;
-import com.github.drinkjava2.jdialects.annotation.jdia.SequenceGenerator1;
 import com.github.drinkjava2.jdialects.annotation.jdia.SingleFKey;
 import com.github.drinkjava2.jdialects.annotation.jdia.SingleIndex;
 import com.github.drinkjava2.jdialects.annotation.jdia.SingleUnique;
-import com.github.drinkjava2.jdialects.annotation.jdia.TableGenerator2;
 import com.github.drinkjava2.jdialects.annotation.jdia.UUID36;
 import com.github.drinkjava2.jdialects.annotation.jpa.Column;
 import com.github.drinkjava2.jdialects.annotation.jpa.Entity;
@@ -33,7 +31,7 @@ import com.github.drinkjava2.jdialects.annotation.jpa.UniqueConstraint;
 import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jdialects.utils.DialectUtils;
 
-import test.BaseDDLTest;
+import test.TestBase;
 
 /**
  * Annotation Test
@@ -42,7 +40,7 @@ import test.BaseDDLTest;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class AnnotationTest extends BaseDDLTest {
+public class AnnotationTest extends TestBase {
 
 	public static class POJO1 {
 
@@ -74,12 +72,12 @@ public class AnnotationTest extends BaseDDLTest {
 					@Index(name = "index_cons2", columnList = "field1,field2", unique = false) }//
 	)
 	@SequenceGenerator(name = "seqID1", sequenceName = "seqName1", initialValue = 1, allocationSize = 10)
-	@SequenceGenerator1(name = "seqID2", sequenceName = "seqName2", initialValue = 2, allocationSize = 20)
 	@TableGenerator(name = "tableID1", table = "table1", pkColumnName = "pkCol1", valueColumnName = "vcol1", pkColumnValue = "pkcolval1", initialValue = 2, allocationSize = 20)
-	@TableGenerator2(name = "tableID2", table = "table2", pkColumnName = "pkCol1", valueColumnName = "vcol1", pkColumnValue = "pkcolval1", initialValue = 2, allocationSize = 20)
 	@FKey(name = "fk1", columns = { "field1", "field2" }, refs = { "POJO1", "field1", "field2" })
 	@FKey1(columns = { "field2", "field3" }, refs = { "POJO1", "field1", "field2" })
 	public static class POJO2 {
+		@SequenceGenerator(name = "seqID2", sequenceName = "seqName2", initialValue = 2, allocationSize = 20) 
+		@TableGenerator(name = "tableID2", table = "table2", pkColumnName = "pkCol1", valueColumnName = "vcol1", pkColumnValue = "pkcolval1", initialValue = 2, allocationSize = 20)
 		@Id
 		@Column(columnDefinition = TypeUtils.VARCHAR, length = 20)
 		public String field1;
@@ -107,7 +105,7 @@ public class AnnotationTest extends BaseDDLTest {
 
 		public static void config(TableModel tableModel) {
 			tableModel.getColumn("field7").setColumnName("changedfield7");
-			tableModel.addColumn("newField9").STRING(10);
+			tableModel.column("newField9").STRING(10);
 		}
 
 		public String getField1() {

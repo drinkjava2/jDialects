@@ -26,15 +26,15 @@ import test.DataSourceConfig.DataSourceBox;
  * @since 1.0.2
  *
  */
-public class BaseDDLTest {
+public class TestBase {
 	protected DataSource ds = BeanBox.getBean(DataSourceBox.class);
-	protected DbPro db = new DbPro(ds);
+	protected DbPro dbPro = new DbPro(ds);
 	protected Dialect guessedDialect = Dialect.guessDialect(ds);
 
 	@Before
 	public void initDao() {
 		System.out.println("Current guessedDialect=" + guessedDialect);
-		//db.setAllowShowSQL(true);
+		// db.setAllowShowSQL(true);
 	}
 
 	@After
@@ -48,26 +48,26 @@ public class BaseDDLTest {
 		}
 	}
 
-	protected void quiteExecuteNoParamSqls(String... sqls) {
-		for (String sql : sqls) {
+	protected void quietExecuteDDLs(String... ddls) {
+		for (String sql : ddls) {
 			try {
-				db.nExecute(sql);
+				dbPro.nExecute(sql);
 			} catch (Exception e) {
 			}
 		}
 	}
 
-	public void reBuildDB(TableModel... tables) {
-		String[] ddls = guessedDialect.toDropDDL(tables);
-		quiteExecuteNoParamSqls(ddls);
-
-		ddls = guessedDialect.toCreateDDL(tables);
-		executeNoParamSqls(ddls);
+	protected void executeDDLs(String... sqls) {
+		for (String sql : sqls)
+			dbPro.nExecute(sql);
 	}
 
-	protected void executeNoParamSqls(String... sqls) {
-		for (String sql : sqls)
-			db.nExecute(sql);
+	public void reBuildDB(TableModel... tables) {
+		String[] ddls = guessedDialect.toDropDDL(tables);
+		quietExecuteDDLs(ddls);
+
+		ddls = guessedDialect.toCreateDDL(tables);
+		executeDDLs(ddls);
 	}
 
 	protected void testOnCurrentRealDatabase(TableModel... tables) {
@@ -75,16 +75,16 @@ public class BaseDDLTest {
 
 		String[] ddls = guessedDialect.toDropDDL(tables);
 
-		quiteExecuteNoParamSqls(ddls);
+		quietExecuteDDLs(ddls);
 
 		ddls = guessedDialect.toCreateDDL(tables);
-		executeNoParamSqls(ddls);
+		executeDDLs(ddls);
 
 		ddls = guessedDialect.toDropAndCreateDDL(tables);
-		executeNoParamSqls(ddls);
+		executeDDLs(ddls);
 
 		ddls = guessedDialect.toDropDDL(tables);
-		executeNoParamSqls(ddls);
+		executeDDLs(ddls);
 	}
 
 	protected static void printOneDialectsDDLs(Dialect dialect, TableModel... tables) {

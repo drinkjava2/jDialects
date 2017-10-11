@@ -70,7 +70,7 @@ public abstract class DialectUtilsOfDb {
 				TableModel oneTable = new TableModel(dbTableName);
 				while (rs.next()) {// NOSONAR
 					String colName = rs.getString("COLUMN_NAME");
-					oneTable.addColumn(colName);
+					oneTable.column(colName);
 					ColumnModel col = oneTable.getColumn(colName);
 					int javaSqlType = rs.getInt("DATA_TYPE");
 					// col.setPropertyTypeName(rs.getString("TYPE_NAME"));

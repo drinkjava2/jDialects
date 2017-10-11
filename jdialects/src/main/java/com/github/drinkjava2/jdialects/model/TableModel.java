@@ -23,6 +23,7 @@ import com.github.drinkjava2.jdialects.id.TimeStampIdGenerator;
 import com.github.drinkjava2.jdialects.id.UUID25Generator;
 import com.github.drinkjava2.jdialects.id.UUID32Generator;
 import com.github.drinkjava2.jdialects.id.UUID36Generator;
+import com.github.drinkjava2.jdialects.id.UUIDAnyGenerator;
 import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
@@ -47,9 +48,9 @@ public class TableModel {
 	private Class<?> pojoClass;
 
 	/**
-	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the
-	 * end of "create table..." DDL, usually used to set encode String like "
-	 * DEFAULT CHARSET=utf8" for MySQL
+	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the end
+	 * of "create table..." DDL, usually used to set encode String like " DEFAULT
+	 * CHARSET=utf8" for MySQL
 	 */
 	private String engineTail;
 
@@ -118,6 +119,11 @@ public class TableModel {
 				allocationSize));
 	}
 
+	/** Add a UUIDAnyGenerator */
+	public void uuidAny(String name, Integer length) {
+		addGenerator(new UUIDAnyGenerator(name, length));
+	}
+
 	/**
 	 * Add a "create table..." DDL to generate ID, similar like JPA's TableGen
 	 */
@@ -129,17 +135,12 @@ public class TableModel {
 	}
 
 	/**
-	 * Add a sequence definition DDL, note: some dialects do not support
-	 * sequence
+	 * Add a sequence definition DDL, note: some dialects do not support sequence
 	 * 
-	 * @param name
-	 *            The name of sequence Java object itself
-	 * @param sequenceName
-	 *            the name of the sequence will created in database
-	 * @param initialValue
-	 *            The initial value
-	 * @param allocationSize
-	 *            The allocationSize
+	 * @param name The name of sequence Java object itself
+	 * @param sequenceName the name of the sequence will created in database
+	 * @param initialValue The initial value
+	 * @param allocationSize The allocationSize
 	 */
 	public void sequenceGenerator(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
 		this.addGenerator(new SequenceIdGenerator(name, sequenceName, initialValue, allocationSize));
@@ -202,15 +203,18 @@ public class TableModel {
 	}
 
 	/**
-	 * @deprecated (Use addColumn method )
+	 * find column in tableModel by given columnName, if not found, add a new column
+	 * with columnName
 	 */
-	@Deprecated
 	public ColumnModel column(String columnName) {// NOSONAR
+		ColumnModel col = getColumn(columnName);
+		if (col != null)
+			return col;
 		return addColumn(columnName);
 	}
 
 	/**
-	 * Start add a column definition piece in DDL, detail usage see demo
+	 * Add a column with given columnName to tableModel
 	 * 
 	 * @param columnName
 	 * @return the Column object
@@ -295,9 +299,9 @@ public class TableModel {
 	}
 
 	/**
-	 * If support engine like MySQL or MariaDB, add engineTail at the end of
-	 * "create table..." DDL, usually used to set encode String like " DEFAULT
-	 * CHARSET=utf8" for MySQL
+	 * If support engine like MySQL or MariaDB, add engineTail at the end of "create
+	 * table..." DDL, usually used to set encode String like " DEFAULT CHARSET=utf8"
+	 * for MySQL
 	 */
 	public TableModel engineTail(String engineTail) {
 		this.engineTail = engineTail;
@@ -305,8 +309,8 @@ public class TableModel {
 	}
 
 	/**
-	 * Search and return the IdGenerator in this TableModel by its
-	 * generationType and name
+	 * Search and return the IdGenerator in this TableModel by its generationType
+	 * and name
 	 */
 	public IdGenerator getIdGenerator(GenerationType generationType, String name) {
 		return getIdGenerator(generationType, name, this.getIdGenerators());

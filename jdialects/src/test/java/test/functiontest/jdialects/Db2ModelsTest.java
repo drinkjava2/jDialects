@@ -23,39 +23,39 @@ import org.junit.Test;
 import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jdialects.utils.DialectUtils;
 
-import test.BaseDDLTest;
+import test.TestBase;
 
 /**
  * Unit test for SortedUUIDGenerator
  */
-public class Db2ModelsTest extends BaseDDLTest {
+public class Db2ModelsTest extends TestBase {
 
 	@Test
 	public void testDb2Model() {
 		TableModel t = new TableModel("testTable");
-		t.addColumn("id").LONG().pkey();
-		t.addColumn("b1").BOOLEAN();
-		t.addColumn("d2").DOUBLE();
-		t.addColumn("f3").FLOAT(5);
-		t.addColumn("i4").INTEGER();
-		t.addColumn("l5").LONG();
-		t.addColumn("s6").SHORT();
-		t.addColumn("b7").BIGDECIMAL(10, 2);
-		t.addColumn("s8").STRING(20);
-		t.addColumn("d9").DATE();
-		t.addColumn("t10").TIME();
-		t.addColumn("t11").TIMESTAMP();
-		t.addColumn("v12").VARCHAR(300);
+		t.column("id").LONG().pkey();
+		t.column("b1").BOOLEAN();
+		t.column("d2").DOUBLE();
+		t.column("f3").FLOAT(5);
+		t.column("i4").INTEGER();
+		t.column("l5").LONG();
+		t.column("s6").SHORT();
+		t.column("b7").BIGDECIMAL(10, 2);
+		t.column("s8").STRING(20);
+		t.column("d9").DATE();
+		t.column("t10").TIME();
+		t.column("t11").TIMESTAMP();
+		t.column("v12").VARCHAR(300);
 	
 		String[] ddls = guessedDialect.toDropDDL(t);
-		quiteExecuteNoParamSqls(ddls);
+		quietExecuteDDLs(ddls);
 		ddls = guessedDialect.toCreateDDL(t);
-		executeNoParamSqls(ddls);
+		executeDDLs(ddls);
 
 		Connection con = null;
 		TableModel[] tableModels=null;
 		try {
-			con = db.prepareConnection();
+			con = dbPro.prepareConnection();
 			tableModels=DialectUtils.db2Models(con, guessedDialect);
 			System.out.println(tableModels[0]);
 			System.out.println(tableModels[0]);
@@ -63,7 +63,7 @@ public class Db2ModelsTest extends BaseDDLTest {
 			e.printStackTrace();
 		} finally {
 			try {
-				db.close(con);
+				dbPro.close(con);
 			} catch (SQLException e) { 
 				e.printStackTrace();
 			}
