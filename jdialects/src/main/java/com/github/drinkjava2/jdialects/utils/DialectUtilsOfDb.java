@@ -33,8 +33,8 @@ public abstract class DialectUtilsOfDb {
 	/**
 	 * Convert JDBC connected database structure to TableModels, note: <br/>
 	 * 1)This method does not close connection <br/>
-	 * 2)This method does not support sequence, foreign keys, primary keys..., but
-	 * will improve later.
+	 * 2)This method does not support sequence, foreign keys, primary keys...,
+	 * but will improve later.
 	 */
 	public static TableModel[] db2Models(Connection con, Dialect dialect) {// NOSONAR
 		List<String> tableNames = new ArrayList<String>();
@@ -86,15 +86,16 @@ public abstract class DialectUtilsOfDb {
 					col.setPrecision(rs.getInt("DECIMAL_DIGITS"));
 					try {
 						if (((Boolean) (true)).equals(rs.getBoolean("IS_AUTOINCREMENT")))
-							col.identity();
+							col.identityId();
 					} catch (Exception e) {
 					}
 
 					try {
 						if ("YES".equalsIgnoreCase(rs.getString("IS_AUTOINCREMENT")))
-							col.identity();
+							col.identityId();
 					} catch (Exception e) {
 					}
+
 				}
 				tableModels.add(oneTable);
 				rs.close();

@@ -31,10 +31,15 @@ public class TableModelTest {
 		t1.addColumn("age").INTEGER().notNull().check("'>0'");
 		t1.index("idx3").columns("address", "phoneNumber").unique();
 
+		Assert.assertNotNull(t1.getColumn("name").getTableModel());
+
 		TableModel t2 = t1.newCopy();
 		System.out.println(t1);
 		System.out.println(t2);
 		Assert.assertNotEquals(t1, t2);
+		Assert.assertNotNull(t2.getColumn("name").getTableModel());
+		
+		
 		System.out.println("================");
 		for (ColumnModel item : t1.getColumns()) {
 			System.out.println(item);

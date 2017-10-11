@@ -5,7 +5,7 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package com.github.drinkjava2.jdialects.annotation;
+package com.github.drinkjava2.jdialects.annotation.jpa;
 
 import java.lang.annotation.Target;
 import java.lang.annotation.Retention;
@@ -32,7 +32,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  */
 @Target({TYPE, METHOD, FIELD}) 
 @Retention(RUNTIME)
-public @interface SequenceGenerator1 {
+public @interface SequenceGenerator {
 
     /** 
      * (Required) A unique generator name that can be referenced 

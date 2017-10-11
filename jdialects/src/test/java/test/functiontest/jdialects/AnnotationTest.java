@@ -9,26 +9,27 @@ package test.functiontest.jdialects;
 
 import org.junit.Test;
 
-import com.github.drinkjava2.jdialects.TypeUtils;
 import com.github.drinkjava2.jdialects.Dialect;
-import com.github.drinkjava2.jdialects.annotation.Column;
-import com.github.drinkjava2.jdialects.annotation.Entity;
-import com.github.drinkjava2.jdialects.annotation.FKey;
-import com.github.drinkjava2.jdialects.annotation.FKey1;
-import com.github.drinkjava2.jdialects.annotation.GeneratedValue;
-import com.github.drinkjava2.jdialects.annotation.GenerationType;
-import com.github.drinkjava2.jdialects.annotation.Id;
-import com.github.drinkjava2.jdialects.annotation.Index;
-import com.github.drinkjava2.jdialects.annotation.SequenceGenerator;
-import com.github.drinkjava2.jdialects.annotation.SequenceGenerator1;
-import com.github.drinkjava2.jdialects.annotation.SingleFKey;
-import com.github.drinkjava2.jdialects.annotation.SingleIndex;
-import com.github.drinkjava2.jdialects.annotation.SingleUnique;
-import com.github.drinkjava2.jdialects.annotation.Table;
-import com.github.drinkjava2.jdialects.annotation.TableGenerator;
-import com.github.drinkjava2.jdialects.annotation.TableGenerator2;
-import com.github.drinkjava2.jdialects.annotation.Transient;
-import com.github.drinkjava2.jdialects.annotation.UniqueConstraint;
+import com.github.drinkjava2.jdialects.TypeUtils;
+import com.github.drinkjava2.jdialects.annotation.jdia.FKey;
+import com.github.drinkjava2.jdialects.annotation.jdia.FKey1;
+import com.github.drinkjava2.jdialects.annotation.jdia.SequenceGenerator1;
+import com.github.drinkjava2.jdialects.annotation.jdia.SingleFKey;
+import com.github.drinkjava2.jdialects.annotation.jdia.SingleIndex;
+import com.github.drinkjava2.jdialects.annotation.jdia.SingleUnique;
+import com.github.drinkjava2.jdialects.annotation.jdia.TableGenerator2;
+import com.github.drinkjava2.jdialects.annotation.jdia.UUID36;
+import com.github.drinkjava2.jdialects.annotation.jpa.Column;
+import com.github.drinkjava2.jdialects.annotation.jpa.Entity;
+import com.github.drinkjava2.jdialects.annotation.jpa.GeneratedValue;
+import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
+import com.github.drinkjava2.jdialects.annotation.jpa.Id;
+import com.github.drinkjava2.jdialects.annotation.jpa.Index;
+import com.github.drinkjava2.jdialects.annotation.jpa.SequenceGenerator;
+import com.github.drinkjava2.jdialects.annotation.jpa.Table;
+import com.github.drinkjava2.jdialects.annotation.jpa.TableGenerator;
+import com.github.drinkjava2.jdialects.annotation.jpa.Transient;
+import com.github.drinkjava2.jdialects.annotation.jpa.UniqueConstraint;
 import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jdialects.utils.DialectUtils;
 
@@ -97,6 +98,7 @@ public class AnnotationTest extends BaseDDLTest {
 		public Integer field4;
 
 		@Column()
+		@UUID36
 		public String field5;// no columnDefinition
 
 		public Float field6;
@@ -105,6 +107,7 @@ public class AnnotationTest extends BaseDDLTest {
 
 		public static void config(TableModel tableModel) {
 			tableModel.getColumn("field7").setColumnName("changedfield7");
+			tableModel.addColumn("newField9").STRING(10);
 		}
 
 		public String getField1() {

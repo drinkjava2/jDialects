@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.github.drinkjava2.jdialects.annotation.GenerationType;
+import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
 import com.github.drinkjava2.jdialects.id.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.id.IdGenerator;
 import com.github.drinkjava2.jdialects.id.SequenceIdGenerator;

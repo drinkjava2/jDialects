@@ -20,7 +20,7 @@ import java.security.SecureRandom;
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.Type;
-import com.github.drinkjava2.jdialects.annotation.GenerationType;
+import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
 
 /**
  * Generate any length UUID String based on radix 36, use 0-9 a-z characters

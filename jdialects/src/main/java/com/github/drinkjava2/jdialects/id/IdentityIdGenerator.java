@@ -20,7 +20,7 @@ import com.github.drinkjava2.jdialects.DDLFeatures;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.Type;
-import com.github.drinkjava2.jdialects.annotation.GenerationType;
+import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
 import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**

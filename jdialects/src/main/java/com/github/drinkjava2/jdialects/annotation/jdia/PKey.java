@@ -5,9 +5,13 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package com.github.drinkjava2.jdialects.annotation;
+package com.github.drinkjava2.jdialects.annotation.jdia;
 
 import java.lang.annotation.Target;
+
+import com.github.drinkjava2.jdialects.annotation.jpa.Column;
+import com.github.drinkjava2.jdialects.annotation.jpa.GeneratedValue;
+
 import java.lang.annotation.Retention;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -15,7 +19,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Specifies the primary key of an entity.
- * The field or property to which the <code>Id</code> annotation is applied 
+ * The field or property to which the <code>PKey</code> annotation is applied 
  * should be one of the following types: any Java primitive type; 
  * any primitive wrapper type; 
  * <code>String</code>; 
@@ -32,16 +36,15 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * <pre>
  *   Example:
  *
- *   &#064;Id
+ *   &#064;Pkey
  *   public Long getId() { return id; }
  * </pre>
  *
  * @see Column
  * @see GeneratedValue
- *
- * @since Java Persistence 1.0
+ * 
  */
 @Target({METHOD, FIELD})
 @Retention(RUNTIME)
 
-public @interface Id {}
+public @interface PKey {}

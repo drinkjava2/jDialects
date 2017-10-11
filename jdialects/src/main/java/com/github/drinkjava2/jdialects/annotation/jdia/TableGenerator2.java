@@ -5,7 +5,7 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package com.github.drinkjava2.jdialects.annotation;
+package com.github.drinkjava2.jdialects.annotation.jdia;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -14,6 +14,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+
+import com.github.drinkjava2.jdialects.annotation.jpa.GeneratedValue;
+import com.github.drinkjava2.jdialects.annotation.jpa.Index;
+import com.github.drinkjava2.jdialects.annotation.jpa.UniqueConstraint;
 
 /**
  * Defines a primary key generator that may be 
@@ -64,7 +68,7 @@ import java.lang.annotation.Target;
  */
 @Target({TYPE, METHOD, FIELD}) 
 @Retention(RUNTIME)
-public @interface TableGenerator1 {
+public @interface TableGenerator2 {
 
     /** 
      * (Required) A unique generator name that can be referenced 

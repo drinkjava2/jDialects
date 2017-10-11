@@ -5,7 +5,7 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package com.github.drinkjava2.jdialects.annotation;
+package com.github.drinkjava2.jdialects.annotation.jpa;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -64,7 +64,7 @@ import java.lang.annotation.Target;
  */
 @Target({TYPE, METHOD, FIELD}) 
 @Retention(RUNTIME)
-public @interface TableGenerator2 {
+public @interface TableGenerator {
 
     /** 
      * (Required) A unique generator name that can be referenced 

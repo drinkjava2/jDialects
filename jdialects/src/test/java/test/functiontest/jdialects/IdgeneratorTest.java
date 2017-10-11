@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.Type;
-import com.github.drinkjava2.jdialects.annotation.GenerationType;
+import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
 import com.github.drinkjava2.jdialects.id.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.id.IdGenerator;
 import com.github.drinkjava2.jdialects.id.SortedUUIDGenerator;
@@ -67,7 +67,7 @@ public class IdgeneratorTest extends BaseDDLTest {
 	@Test
 	public void testAutoIdGenerator() {
 		TableModel table = new TableModel("testAutoIdGenerator");
-		table.addColumn("id").STRING(30).pkey().autoID();
+		table.addColumn("id").STRING(30).pkey().autoId();
 		reBuildDB(table);
 
 		IdGenerator gen = table.getColumn("id").getIdGenerator();
@@ -162,7 +162,7 @@ public class IdgeneratorTest extends BaseDDLTest {
 	@Test
 	public void testIdentityGenerator() {
 		TableModel table = new TableModel("testIdentity");
-		table.addColumn("id").INTEGER().identity();
+		table.addColumn("id").INTEGER().identityId();
 		table.addColumn("name").STRING(30);
 		reBuildDB(table);
 

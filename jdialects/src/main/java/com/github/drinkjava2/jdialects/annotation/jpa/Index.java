@@ -5,7 +5,7 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package com.github.drinkjava2.jdialects.annotation;
+package com.github.drinkjava2.jdialects.annotation.jpa;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;

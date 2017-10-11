@@ -18,7 +18,7 @@ package com.github.drinkjava2.jdialects.id;
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.Type;
-import com.github.drinkjava2.jdialects.annotation.GenerationType;
+import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
 
 /**
  * This TimeStampGenerator return a long type value based on computer's current
@@ -39,7 +39,7 @@ public class TimeStampIdGenerator implements IdGenerator {
 
 	@Override
 	public String getIdGenName() {
-		return "TimeStamp";
+		return "TimeStampId";
 	}
 
 	@Override

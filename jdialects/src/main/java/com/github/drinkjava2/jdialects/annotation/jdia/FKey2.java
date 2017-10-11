@@ -5,7 +5,7 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package com.github.drinkjava2.jdialects.annotation;
+package com.github.drinkjava2.jdialects.annotation.jdia;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
  */
 @Target(TYPE) 
 @Retention(RUNTIME)
-public @interface FKey3 {
+public @interface FKey2 {
     /**
      * (Optional) The name of the foreign key. 
      */

@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.github.drinkjava2.jdialects.DialectException;
-import com.github.drinkjava2.jdialects.annotation.GenerationType;
+import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
 import com.github.drinkjava2.jdialects.id.AutoIdGenerator;
 import com.github.drinkjava2.jdialects.id.IdGenerator;
 import com.github.drinkjava2.jdialects.id.IdentityIdGenerator;
@@ -47,9 +47,9 @@ public class TableModel {
 	private Class<?> pojoClass;
 
 	/**
-	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the end
-	 * of "create table..." DDL, usually used to set encode String like " DEFAULT
-	 * CHARSET=utf8" for MySQL
+	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the
+	 * end of "create table..." DDL, usually used to set encode String like "
+	 * DEFAULT CHARSET=utf8" for MySQL
 	 */
 	private String engineTail;
 
@@ -87,8 +87,11 @@ public class TableModel {
 		tb.pojoClass = this.pojoClass;
 		tb.engineTail = this.engineTail;
 		if (!columns.isEmpty())
-			for (ColumnModel item : columns)
-				tb.columns.add(item.newCopy());
+			for (ColumnModel item : columns) {
+				ColumnModel newItem = item.newCopy();
+				newItem.setTableModel(tb);
+				tb.columns.add(newItem);
+			}
 
 		if (!idGenerators.isEmpty())
 			for (IdGenerator item : idGenerators)
@@ -126,7 +129,8 @@ public class TableModel {
 	}
 
 	/**
-	 * Add a sequence definition DDL, note: some dialects do not support sequence
+	 * Add a sequence definition DDL, note: some dialects do not support
+	 * sequence
 	 * 
 	 * @param name
 	 *            The name of sequence Java object itself
@@ -291,9 +295,9 @@ public class TableModel {
 	}
 
 	/**
-	 * If support engine like MySQL or MariaDB, add engineTail at the end of "create
-	 * table..." DDL, usually used to set encode String like " DEFAULT CHARSET=utf8"
-	 * for MySQL
+	 * If support engine like MySQL or MariaDB, add engineTail at the end of
+	 * "create table..." DDL, usually used to set encode String like " DEFAULT
+	 * CHARSET=utf8" for MySQL
 	 */
 	public TableModel engineTail(String engineTail) {
 		this.engineTail = engineTail;
@@ -301,8 +305,8 @@ public class TableModel {
 	}
 
 	/**
-	 * Search and return the IdGenerator in this TableModel by its generationType
-	 * and name
+	 * Search and return the IdGenerator in this TableModel by its
+	 * generationType and name
 	 */
 	public IdGenerator getIdGenerator(GenerationType generationType, String name) {
 		return getIdGenerator(generationType, name, this.getIdGenerators());

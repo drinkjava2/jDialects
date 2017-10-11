@@ -172,7 +172,7 @@ public class DDLTest extends BaseDDLTest {
 	private static TableModel IdentityModel() {// Identity
 		TableModel t = new TableModel("testTable");
 		t.check("s2>10");
-		t.addColumn("s1").INTEGER().notNull().identity().pkey();
+		t.addColumn("s1").INTEGER().notNull().identityId().pkey();
 		t.addColumn("s2").LONG().check("s2>10");
 		t.addColumn("s3").BIGINT();
 		return t;
@@ -193,7 +193,7 @@ public class DDLTest extends BaseDDLTest {
 
 	private static TableModel CommentModel() {// Comment
 		TableModel t = new TableModel("testTable").comment("table_comment");
-		t.addColumn("s1").INTEGER().notNull().identity().pkey();
+		t.addColumn("s1").INTEGER().notNull().identityId().pkey();
 		t.addColumn("s2").LONG().comment("column_comment1");
 		t.addColumn("s3").BIGINT().comment("column_comment2");
 		return t;
@@ -260,17 +260,17 @@ public class DDLTest extends BaseDDLTest {
 
 	private static TableModel autoGeneratorModel() {// autoGenerator
 		TableModel t = new TableModel("testTable1");
-		t.addColumn("i1").INTEGER().pkey().autoID();
-		t.addColumn("i2").INTEGER().autoID();
+		t.addColumn("i1").INTEGER().pkey().autoId();
+		t.addColumn("i2").INTEGER().autoId();
 		return t;
 	}
 
 	private static TableModel autoGeneratorModel2() {// autoGenerator
 		TableModel t = new TableModel("testTable2");
 		t.tableGenerator("tbgen7", "tb1", "pkcol4", "valcol", "pkval5", 1, 10);
-		t.addColumn("i1").INTEGER().pkey().autoID();
-		t.addColumn("i2").INTEGER().autoID();
-		t.addColumn("i3").INTEGER().autoID();
+		t.addColumn("i1").INTEGER().pkey().autoId();
+		t.addColumn("i2").INTEGER().autoId();
+		t.addColumn("i3").INTEGER().autoId();
 		return t;
 	}
 
@@ -371,7 +371,7 @@ public class DDLTest extends BaseDDLTest {
 		t1.index("idx3").columns("address", "phoneNumber").unique();
 
 		TableModel t2 = new TableModel("orders").comment("order comment");
-		t2.addColumn("id").LONG().autoID().pkey();
+		t2.addColumn("id").LONG().autoId().pkey();
 		t2.addColumn("name").STRING(20);
 		t2.addColumn("email").STRING(20);
 		t2.addColumn("name2").STRING(20).pkey().tail(" default 'Sam'");
@@ -381,7 +381,7 @@ public class DDLTest extends BaseDDLTest {
 		t2.unique("uk1").columns("name2", "email2");
 
 		TableModel t3 = new TableModel("sampletable");
-		t3.addColumn("id").LONG().identity().pkey();
+		t3.addColumn("id").LONG().identityId().pkey();
 		t3.tableGenerator("table_gen1", "tb1", "pkcol2", "valcol", "pkval", 1, 10);
 		t3.addColumn("id1").INTEGER().idGenerator("table_gen1");
 		t3.sequenceGenerator("seq1", "seq_1", 1, 1);

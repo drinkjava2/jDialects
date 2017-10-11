@@ -18,9 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.github.drinkjava2.jdialects.TypeUtils;
 import com.github.drinkjava2.jdialects.DialectException;
-import com.github.drinkjava2.jdialects.annotation.GenerationType;
+import com.github.drinkjava2.jdialects.TypeUtils;
 import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
@@ -43,10 +42,13 @@ public abstract class DialectUtilsOfPojo {
 	private static boolean matchNameCheck(String annotationName, String cName) {
 		if (("javax.persistence." + annotationName).equals(cName))
 			return true;
-		if (("com.github.drinkjava2.jdialects.annotation." + annotationName).equals(cName))
+		if (("com.github.drinkjava2.jdialects.annotation.jpa." + annotationName).equals(cName))
 			return true;
-		for (int i = 1; i <= 3; i++) {// Java6 no allow repeat annotation, have to use FKey1, Fkey2, Fkey3...
-			if (("com.github.drinkjava2.jdialects.annotation." + annotationName + i).equals(cName))
+		if (("com.github.drinkjava2.jdialects.annotation.jdia." + annotationName).equals(cName))
+			return true;
+		// Java6 does not support repeat annotation, so use FKey1, Fkey2...
+		for (int i = 1; i <= 3; i++) {
+			if (("com.github.drinkjava2.jdialects.annotation.jdia." + annotationName + i).equals(cName))
 				return true;
 		}
 		return false;
@@ -82,6 +84,11 @@ public abstract class DialectUtilsOfPojo {
 				return changeAnnotationValuesToMap(annotation, type);
 		}
 		return new HashMap<String, Object>();
+	}
+
+	private static boolean existPojoAnnotation(Object targetClass, String annotationName) {
+		Map<String, Object> annotion = getFirstPojoAnnotation(targetClass, annotationName);
+		return annotion != null && annotion.size() == 1;
 	}
 
 	/** Change Annotation fields values into a Map */
@@ -121,8 +128,8 @@ public abstract class DialectUtilsOfPojo {
 
 	/**
 	 * Convert a Java POJO class or JPA annotated POJO classes to "TableModel"
-	 * Object, if this class has a "config(TableModel tableModel)" method, will also
-	 * call it
+	 * Object, if this class has a "config(TableModel tableModel)" method, will
+	 * also call it
 	 */
 	public static TableModel pojo2Model(Class<?> pojoClass) {
 		DialectException.assureNotNull(pojoClass, "POJO class can not be null");
@@ -236,12 +243,11 @@ public abstract class DialectUtilsOfPojo {
 					col.setColumnType(TypeUtils.toType(propertyClass));
 					col.setLengths(new Integer[] { 255, 0, 0 });
 					col.setTransientable(true);
+					col.setTableModel(model);
 					model.addColumn(col);
 				} else {
 					ColumnModel col = new ColumnModel(pojofieldName);
 					col.pojoField(pojofieldName);
-					col.setPojoReadMethod(pd.getReadMethod());
-					col.setPojoWriteMethod(pd.getWriteMethod());
 					// Column
 					Map<String, Object> colMap = getFirstPojoAnnotation(field, "Column");
 					if (!colMap.isEmpty()) {
@@ -271,38 +277,72 @@ public abstract class DialectUtilsOfPojo {
 								(Integer) seqMap.get("initialValue"), (Integer) seqMap.get("allocationSize"));
 
 					// Id
-					if (!getFirstPojoAnnotation(field, "Id").isEmpty())
+					if (!getFirstPojoAnnotation(field, "Id").isEmpty()
+							|| !getFirstPojoAnnotation(field, "PKey").isEmpty())
 						col.pkey();
 
 					col.setPojoField(pojofieldName);
-					model.addColumn(col);// Should add column first, otherwise ref() method will error
+					col.setTableModel(model);
+					// col will also set TableModel field point to its owner
+					model.addColumn(col);
+
+					// shortcut Id generator annotations
+					if (existPojoAnnotation(field, "AutoId"))
+						col.autoId();
+					if (existPojoAnnotation(field, "IdentityId"))
+						col.identityId();
+					if (existPojoAnnotation(field, "TimeStampId"))
+						col.timeStampId();
+					if (existPojoAnnotation(field, "UUID25"))
+						col.uuid25();
+					if (existPojoAnnotation(field, "UUID32"))
+						col.uuid32();
+					if (existPojoAnnotation(field, "UUID36"))
+						col.uuid36();
 
 					// GeneratedValue
 					Map<String, Object> gvMap = getFirstPojoAnnotation(field, "GeneratedValue");
 					if (!gvMap.isEmpty()) {
-						GenerationType typ = (GenerationType) gvMap.get("annotationType");
-						if (GenerationType.AUTO.equals(typ))
-							col.autoID();
-						else if (GenerationType.SEQUENCE.equals(typ))
-							col.idGenerator((String) gvMap.get("generator"));
-						else if (GenerationType.IDENTITY.equals(typ))
-							col.identity();
-						else if (GenerationType.TABLE.equals(typ))
-							col.idGenerator((String) gvMap.get("generator"));
+						Object strategy = gvMap.get("strategy");
+						if (strategy != null) {
+							String typ = strategy.getClass().getSimpleName();
+							if ("AUTO".equals(typ))
+								col.autoId();
+							else if ("IDENTITY".equals(typ))
+								col.identityId();
+							else if ("UUID25".equals(typ))
+								col.uuid25();
+							else if ("UUID32".equals(typ))
+								col.uuid32();
+							else if ("UUID36".equals(typ))
+								col.uuid36();
+							else if ("TIMESTAMP_ID".equals(typ))
+								col.timeStampId();
+							else {
+								String generator = (String) gvMap.get("generator");
+								if (StrUtils.isEmpty(generator))
+									throw new DialectException(
+											"GeneratedValue strategy '" + strategy + "' can not find a generator");
+								col.idGenerator(generator);
+							}
+						}
 					}
 
-					// SingleFKey is a shortcut format of FKey, only for 1 column
+					// SingleFKey is a shortcut format of FKey, only for 1
+					// column
 					Map<String, Object> refMap = getFirstPojoAnnotation(field, "SingleFKey");
 					if (!refMap.isEmpty())
 						model.fkey((String) refMap.get("name")).columns(col.getColumnName())
 								.refs((String[]) refMap.get("refs"));
 
-					// SingleIndex is a ShortCut format of Index, only for 1 column
+					// SingleIndex is a ShortCut format of Index, only for 1
+					// column
 					Map<String, Object> idxMap = getFirstPojoAnnotation(field, "SingleIndex");
 					if (!idxMap.isEmpty())
 						model.index((String) idxMap.get("name")).columns(col.getColumnName());
 
-					// SingleUnique is a ShortCut format of Unique, only for 1 column
+					// SingleUnique is a ShortCut format of Unique, only for 1
+					// column
 					Map<String, Object> uniMap = getFirstPojoAnnotation(field, "SingleUnique");
 					if (!uniMap.isEmpty())
 						model.unique((String) uniMap.get("name")).columns(col.getColumnName());

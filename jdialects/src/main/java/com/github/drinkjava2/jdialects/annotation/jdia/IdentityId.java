@@ -5,22 +5,19 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package com.github.drinkjava2.jdialects.annotation;
+package com.github.drinkjava2.jdialects.annotation.jdia;
 
-import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static java.lang.annotation.ElementType.FIELD;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * A shortcut annotation of Index, only for one column
+ * A shortcut annotation equal to
+ * &#064;GenertedValue(strategy=GenerationType.IDENTITY)
  */
 @Target(FIELD)
 @Retention(RUNTIME)
-public @interface SingleIndex {
-
-    /**
-     * (Optional) The name of the index; defaults to a provider-generated name.
-     */
-    String name() default ""; 
+public @interface IdentityId {
 }

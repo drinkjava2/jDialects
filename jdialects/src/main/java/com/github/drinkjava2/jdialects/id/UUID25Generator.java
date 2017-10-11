@@ -21,7 +21,7 @@ import java.util.UUID;
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.Type;
-import com.github.drinkjava2.jdialects.annotation.GenerationType;
+import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
 
 /**
  * Compress JDK UUID to 25 letters based on radix 36, use 0-9 a-z characters,

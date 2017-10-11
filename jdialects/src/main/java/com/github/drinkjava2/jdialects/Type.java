@@ -42,4 +42,5 @@ public enum Type {
 	, TINYINT//
 	, VARBINARY//
 	, VARCHAR;
+
 }
