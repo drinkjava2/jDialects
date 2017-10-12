@@ -57,10 +57,7 @@ public enum GenerationType {
 	UUID_ANY,
 
 	/** A sorted UUID */
-	SORTED_UUID,
-
-	/** A Assigned UUID */
-	ASSIGNED,
+	SORTED_UUID, 
 	
 	/** A TimeStamp */
 	TIMESTAMP,
