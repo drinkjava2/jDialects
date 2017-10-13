@@ -37,7 +37,15 @@ import test.TestBase;
 /**
  * Unit test for SortedUUIDGenerator
  */
-public class IdgeneratorTest extends TestBase {
+public class IdgeneratorTest extends TestBase { 
+	
+	@Test
+	public void testPKey() {// nextID
+		TableModel t = new TableModel("testPKey");
+		t.column("id1").STRING(25).pkey();
+		Assert.assertTrue(t.column("id1").getPkey());
+	}
+
 	@Test
 	public void testUUIDs() {// nextID
 		TableModel t = new TableModel("testNextIdTable");

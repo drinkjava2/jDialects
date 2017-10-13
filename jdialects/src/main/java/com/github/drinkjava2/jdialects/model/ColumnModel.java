@@ -102,7 +102,7 @@ public class ColumnModel {
 	public ColumnModel newCopy() {
 		ColumnModel col = new ColumnModel(columnName);
 		col.columnType = columnType;
-		col.pkey = pkey;
+		col.pkey = pkey.booleanValue();
 		col.nullable = nullable;
 		col.check = check;
 		col.defaultValue = defaultValue;

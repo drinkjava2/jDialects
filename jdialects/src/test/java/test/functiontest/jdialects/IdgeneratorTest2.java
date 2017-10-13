@@ -15,11 +15,14 @@
  */
 package test.functiontest.jdialects;
 
+import org.junit.Assert;
 import org.junit.Test;
 
+import com.github.drinkjava2.jdialects.annotation.jdia.PKey;
 import com.github.drinkjava2.jdialects.annotation.jdia.UUID25;
 import com.github.drinkjava2.jdialects.annotation.jpa.GeneratedValue;
 import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
+import com.github.drinkjava2.jdialects.annotation.jpa.Id;
 import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jdialects.utils.DialectUtils;
 
@@ -29,6 +32,37 @@ import test.TestBase;
  * Unit test for SortedUUIDGenerator
  */
 public class IdgeneratorTest2 extends TestBase {
+
+	public static class pkeyPOJO {
+		@Id
+		private String id1;
+
+		@PKey
+		private String id2;
+
+		public String getId2() {
+			return id2;
+		}
+
+		public void setId2(String id2) {
+			this.id2 = id2;
+		}
+
+		public String getId1() {
+			return id1;
+		}
+
+		public void setId1(String id1) {
+			this.id1 = id1;
+		}
+	}
+
+	@Test
+	public void testPKey() {// nextID
+		TableModel t = DialectUtils.pojo2Model(pkeyPOJO.class);
+		Assert.assertTrue(t.column("id1").getPkey());
+		Assert.assertTrue(t.column("id2").getPkey());
+	}
 
 	public static class uuid25Pojo {
 		@GeneratedValue(strategy = GenerationType.UUID25)
