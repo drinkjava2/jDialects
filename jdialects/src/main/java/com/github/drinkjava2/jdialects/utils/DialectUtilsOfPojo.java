@@ -233,7 +233,7 @@ public abstract class DialectUtilsOfPojo {// NOSONAR
 		for (PropertyDescriptor pd : pds) {
 			String pojofieldName = pd.getName();
 			if ("class".equals(pojofieldName) || "simpleName".equals(pojofieldName)
-					|| "canonicalName".equals(pojofieldName))
+					|| "canonicalName".equals(pojofieldName) || "box".equals(pojofieldName))
 				continue;
 			Class<?> propertyClass = pd.getPropertyType();
 
