@@ -43,10 +43,7 @@ public class TableModel {
 
 	/** comment for table */
 	private String comment;
-
-	/** Optional, map to which POJO class, this is designed for ORM tool only */
-	private Class<?> pojoClass;
-
+ 
 	/**
 	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the end
 	 * of "create table..." DDL, usually used to set encode String like " DEFAULT
@@ -84,8 +81,7 @@ public class TableModel {
 		TableModel tb = new TableModel();
 		tb.tableName = this.tableName;
 		tb.check = this.check;
-		tb.comment = this.comment;
-		tb.pojoClass = this.pojoClass;
+		tb.comment = this.comment; 
 		tb.engineTail = this.engineTail;
 		if (!columns.isEmpty())
 			for (ColumnModel item : columns) {
@@ -194,14 +190,7 @@ public class TableModel {
 				columnIter.remove();
 		return this;
 	}
-
-	/** Map to which POJO class, this is designed for ORM tool only */
-	public TableModel pojoClass(Class<?> pojoClass) {
-		DialectException.assureNotNull(pojoClass);
-		this.pojoClass = pojoClass;
-		return this;
-	}
-
+   
 	/**
 	 * find column in tableModel by given columnName, if not found, add a new column
 	 * with columnName
@@ -443,13 +432,13 @@ public class TableModel {
 		this.uniqueConsts = uniqueConsts;
 	}
 
-	public Class<?> getPojoClass() {
-		return pojoClass;
-	}
-
-	public void setPojoClass(Class<?> pojoClass) {
-		this.pojoClass = pojoClass;
-	}
+//	public Class<?> getPojoClass() {
+//		return pojoClass;
+//	}
+//
+//	public void setPojoClass(Class<?> pojoClass) {
+//		this.pojoClass = pojoClass;
+//	}
 
 	public List<IdGenerator> getIdGenerators() {
 		return idGenerators;
