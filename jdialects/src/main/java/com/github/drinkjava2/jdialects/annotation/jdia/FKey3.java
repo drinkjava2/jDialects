@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
  * <pre>
  *   Example:
  *
- *   &#064;FKey1(name="fk_1", columns="field1,field2", ref="OtherTable, field1, field2")
+ *   &#064;FKey3(name="fk_1", columns="field1,field2", ref="OtherTable, field1, field2")
  *   public class SomeClass()
  * </pre> 
  *

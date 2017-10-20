@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.github.drinkjava2.jdialects.utils.StrUtils;
+import com.github.drinkjava2.jdialects.StrUtils;
 
 /**
  * StrUtils Unit Test

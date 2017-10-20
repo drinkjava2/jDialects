@@ -22,7 +22,6 @@ import com.github.drinkjava2.jdialects.model.FKeyModel;
 import com.github.drinkjava2.jdialects.model.IndexModel;
 import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jdialects.model.UniqueModel;
-import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
  * To transfer platform-independent model to create DDL String array

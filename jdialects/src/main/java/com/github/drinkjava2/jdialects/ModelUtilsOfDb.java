@@ -5,7 +5,7 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package com.github.drinkjava2.jdialects.utils;
+package com.github.drinkjava2.jdialects;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -15,19 +15,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.drinkjava2.jdialects.Dialect;
-import com.github.drinkjava2.jdialects.DialectException;
-import com.github.drinkjava2.jdialects.TypeUtils;
 import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.TableModel;
 
 /**
- * The tool to convert JDBC connected database structure to TableModels
+ * The tool to convert database structure(meta data) to TableModels
  * 
  * @author Yong Zhu
  * @since 1.0.6
  */
-public abstract class DialectUtilsOfDb {
+public abstract class ModelUtilsOfDb {
 	private static final String TABLE_NAME = "TABLE_NAME";
 
 	/**
@@ -36,7 +33,7 @@ public abstract class DialectUtilsOfDb {
 	 * 2)This method does not support sequence, foreign keys, primary keys...,
 	 * but will improve later.
 	 */
-	public static TableModel[] db2Models(Connection con, Dialect dialect) {// NOSONAR
+	public static TableModel[] db2Model(Connection con, Dialect dialect) {// NOSONAR
 		List<String> tableNames = new ArrayList<String>();
 		List<TableModel> tableModels = new ArrayList<TableModel>();
 		SQLException sqlException = null;

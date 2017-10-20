@@ -18,13 +18,13 @@ package test.functiontest.jdialects;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.github.drinkjava2.jdialects.ModelUtils;
 import com.github.drinkjava2.jdialects.annotation.jdia.PKey;
 import com.github.drinkjava2.jdialects.annotation.jdia.UUID25;
 import com.github.drinkjava2.jdialects.annotation.jpa.GeneratedValue;
 import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
 import com.github.drinkjava2.jdialects.annotation.jpa.Id;
 import com.github.drinkjava2.jdialects.model.TableModel;
-import com.github.drinkjava2.jdialects.utils.DialectUtils;
 
 import test.TestBase;
 
@@ -33,7 +33,7 @@ import test.TestBase;
  */
 public class IdgeneratorTest2 extends TestBase {
 
-	public static class pkeyPOJO {
+	public static class pkeyEntity {
 		@Id
 		private String id1;
 
@@ -59,12 +59,12 @@ public class IdgeneratorTest2 extends TestBase {
 
 	@Test
 	public void testPKey() {// nextID
-		TableModel t = DialectUtils.pojo2Model(pkeyPOJO.class);
+		TableModel t = ModelUtils.oneEntity2Model(pkeyEntity.class);
 		Assert.assertTrue(t.column("id1").getPkey());
 		Assert.assertTrue(t.column("id2").getPkey());
 	}
 
-	public static class uuid25Pojo {
+	public static class uuid25Entity {
 		@GeneratedValue(strategy = GenerationType.UUID25)
 		private String id1;
 		@UUID25
@@ -105,8 +105,8 @@ public class IdgeneratorTest2 extends TestBase {
 	@Test
 	public void testUUID25() {
 		dbPro.setAllowShowSQL(true);
-		reBuildDB(DialectUtils.pojos2Models(uuid25Pojo.class));
-		testOnCurrentRealDatabase(DialectUtils.pojos2Models(uuid25Pojo.class));
+		reBuildDB(ModelUtils.entity2Model(uuid25Entity.class));
+		testOnCurrentRealDatabase(ModelUtils.entity2Model(uuid25Entity.class));
 	}
 
 }

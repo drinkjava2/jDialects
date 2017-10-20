@@ -5,7 +5,7 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package com.github.drinkjava2.jdialects.utils;
+package com.github.drinkjava2.jdialects;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -19,19 +19,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.github.drinkjava2.jdialects.DialectException;
-import com.github.drinkjava2.jdialects.TypeUtils;
 import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
 
 /**
- * The tool to convert POJO classes to TableModels
+ * The tool to convert entity classes to TableModels
  * 
  * @author Yong Zhu
  * @since 1.0.6
  */
-public abstract class DialectUtilsOfPojo {// NOSONAR
+public abstract class ModelUtilsOfEntity {// NOSONAR
 
 	private static Map<Class<?>, TableModel> tableModelCache = new ConcurrentHashMap<Class<?>, TableModel>();
 
@@ -45,7 +43,7 @@ public abstract class DialectUtilsOfPojo {// NOSONAR
 		return false;
 	}
 
-	private static List<Map<String, Object>> getPojoAnnotations(Object targetClass, String annotationName) {
+	private static List<Map<String, Object>> getEntityAnnos(Object targetClass, String annotationName) {
 		Annotation[] anno = null;
 		if (targetClass instanceof Field)
 			anno = ((Field) targetClass).getAnnotations();
@@ -62,7 +60,7 @@ public abstract class DialectUtilsOfPojo {// NOSONAR
 		return l;
 	}
 
-	private static Map<String, Object> getFirstPojoAnnotation(Object targetClass, String annotationName) {
+	private static Map<String, Object> getFirstEntityAnno(Object targetClass, String annotationName) {
 		Annotation[] anno = null;
 		if (targetClass instanceof Field)
 			anno = ((Field) targetClass).getAnnotations();
@@ -77,8 +75,8 @@ public abstract class DialectUtilsOfPojo {// NOSONAR
 		return new HashMap<String, Object>();
 	}
 
-	private static boolean existPojoAnnotation(Object targetClass, String annotationName) {
-		Map<String, Object> annotion = getFirstPojoAnnotation(targetClass, annotationName);
+	private static boolean existEntityAnno(Object targetClass, String annotationName) {
+		Map<String, Object> annotion = getFirstEntityAnno(targetClass, annotationName);
 		return annotion.size() == 1;
 	}
 
@@ -96,7 +94,7 @@ public abstract class DialectUtilsOfPojo {// NOSONAR
 	}
 
 	/**
-	 * Convert POJO or JPA annotated POJO classes to "TableModel" Object,
+	 * Convert entity or JPA annotated entity classes to "TableModel" Object,
 	 * 
 	 * <pre>
 	 * This method support below JPA Annotations:  
@@ -106,31 +104,31 @@ public abstract class DialectUtilsOfPojo {// NOSONAR
 	 * FKey, FKey1, FKey2, FKey3, Ref
 	 * </pre>
 	 * 
-	 * @param pojoClass
+	 * @param entityClasses
 	 * @return TableModel
 	 */
-	public static TableModel[] pojos2Models(Class<?>... pojoClasses) {
+	public static TableModel[] entity2Model(Class<?>... entityClasses) {
 		List<TableModel> l = new ArrayList<TableModel>();
-		for (Class<?> clazz : pojoClasses) {
-			l.add(pojo2Model(clazz));
+		for (Class<?> clazz : entityClasses) {
+			l.add(oneEntity2Model(clazz));
 		}
 		return l.toArray(new TableModel[l.size()]);
 	}
 
 	/**
-	 * Convert a Java POJO class or JPA annotated POJO classes to "TableModel"
+	 * Convert a Java entity class or JPA annotated entity classes to "TableModel"
 	 * Object, if this class has a "config(TableModel tableModel)" method, will also
 	 * call it
 	 */
-	public static TableModel pojo2Model(Class<?> pojoClass) {
-		DialectException.assureNotNull(pojoClass, "POJO class can not be null");
-		TableModel model = tableModelCache.get(pojoClass);
+	public static TableModel oneEntity2Model(Class<?> entityClass) {
+		DialectException.assureNotNull(entityClass, "Entity class can not be null");
+		TableModel model = tableModelCache.get(entityClass);
 		if (model != null)
 			return model.newCopy();
-		model = pojo2ModelIgnoreConfigMethod(pojoClass);
+		model = entity2ModelIgnoreConfigMethod(entityClass);
 		Method method = null;
 		try {
-			method = pojoClass.getMethod("config", TableModel.class);
+			method = entityClass.getMethod("config", TableModel.class);
 		} catch (Exception e) {// NOSONAR
 		}
 		if (method != null)
@@ -141,28 +139,28 @@ public abstract class DialectUtilsOfPojo {// NOSONAR
 			}
 
 		if (model != null)
-			tableModelCache.put(pojoClass, model);
+			tableModelCache.put(entityClass, model);
 		return model.newCopy();
 	}
 
 	/**
-	 * Convert a Java POJO class or JPA annotated POJO classes to "TableModel"
+	 * Convert a Java entity class or JPA annotated entity classes to "TableModel"
 	 * Object, ignore config method
 	 */
-	private static TableModel pojo2ModelIgnoreConfigMethod(Class<?> pojoClass) {
-		DialectException.assureNotNull(pojoClass, "pojo2Model method does not accept a null class");
+	private static TableModel entity2ModelIgnoreConfigMethod(Class<?> entityClass) {
+		DialectException.assureNotNull(entityClass, "entity2Model method does not accept a null class");
 
 		// Entity
 		String tableName = null;
-		Map<String, Object> entityMap = getFirstPojoAnnotation(pojoClass, "Entity");
+		Map<String, Object> entityMap = getFirstEntityAnno(entityClass, "Entity");
 		tableName = (String) entityMap.get("name");
 
 		// Table
-		Map<String, Object> tableMap = getFirstPojoAnnotation(pojoClass, "Table");
+		Map<String, Object> tableMap = getFirstEntityAnno(entityClass, "Table");
 		if (!StrUtils.isEmpty(tableMap.get("name")))
 			tableName = (String) tableMap.get("name");
 		if (StrUtils.isEmpty(tableName))
-			tableName = pojoClass.getSimpleName();
+			tableName = entityClass.getSimpleName();
 		TableModel model = new TableModel(tableName); // Build the tableModel
 
 		if (!tableMap.isEmpty()) {
@@ -193,14 +191,14 @@ public abstract class DialectUtilsOfPojo {// NOSONAR
 		}
 
 		// SequenceGenerator
-		Map<String, Object> seqMap = getFirstPojoAnnotation(pojoClass, "SequenceGenerator");
+		Map<String, Object> seqMap = getFirstEntityAnno(entityClass, "SequenceGenerator");
 		if (!seqMap.isEmpty()) {
 			model.sequenceGenerator((String) seqMap.get("name"), (String) seqMap.get("sequenceName"),
 					(Integer) seqMap.get("initialValue"), (Integer) seqMap.get("allocationSize"));
 		}
 
 		// TableGenerator
-		Map<String, Object> tableGenMap = getFirstPojoAnnotation(pojoClass, "TableGenerator");
+		Map<String, Object> tableGenMap = getFirstEntityAnno(entityClass, "TableGenerator");
 		if (!tableGenMap.isEmpty()) {
 			model.tableGenerator((String) tableGenMap.get("name"), (String) tableGenMap.get("table"),
 					(String) tableGenMap.get("pkColumnName"), (String) tableGenMap.get("valueColumnName"),
@@ -209,13 +207,13 @@ public abstract class DialectUtilsOfPojo {// NOSONAR
 		}
 
 		// UUIDAny
-		Map<String, Object> uuidAnyMp = getFirstPojoAnnotation(pojoClass, "UUIDAny");
+		Map<String, Object> uuidAnyMp = getFirstEntityAnno(entityClass, "UUIDAny");
 		if (!uuidAnyMp.isEmpty()) {
 			model.uuidAny((String) uuidAnyMp.get("name"), (Integer) uuidAnyMp.get("length"));
 		}
 
 		// FKey
-		List<Map<String, Object>> fkeys = getPojoAnnotations(pojoClass, "FKey");
+		List<Map<String, Object>> fkeys = getEntityAnnos(entityClass, "FKey");
 		for (Map<String, Object> map : fkeys) {
 			model.fkey((String) map.get("name")).columns((String[]) map.get("columns"))
 					.refs((String[]) map.get("refs"));
@@ -224,28 +222,28 @@ public abstract class DialectUtilsOfPojo {// NOSONAR
 		BeanInfo beanInfo = null;
 		PropertyDescriptor[] pds = null;
 		try {
-			beanInfo = Introspector.getBeanInfo(pojoClass);
+			beanInfo = Introspector.getBeanInfo(entityClass);
 			pds = beanInfo.getPropertyDescriptors();
 		} catch (Exception e) {
-			DialectException.throwEX(e, "pojo2Model can not get bean info");
+			DialectException.throwEX(e, "entity2Model can not get bean info");
 		}
 
 		for (PropertyDescriptor pd : pds) {
-			String pojofieldName = pd.getName();
-			if ("class".equals(pojofieldName) || "simpleName".equals(pojofieldName)
-					|| "canonicalName".equals(pojofieldName) || "box".equals(pojofieldName))
+			String entityfieldName = pd.getName();
+			if ("class".equals(entityfieldName) || "simpleName".equals(entityfieldName)
+					|| "canonicalName".equals(entityfieldName) || "box".equals(entityfieldName))
 				continue;
 			Class<?> propertyClass = pd.getPropertyType();
 
 			if (TypeUtils.canMapToSqlType(propertyClass)) {
-				Field field = ReflectionUtils.findField(pojoClass, pojofieldName);
+				Field field = ReflectionUtils.findField(entityClass, entityfieldName);
 				if (field == null)
 					continue;
-				// DialectException.assureNotNull(field, "Pojo field '" + pojofieldName + "'
+				// DialectException.assureNotNull(field, "Entity field '" + entityfieldName + "'
 				// found a null value");
 
-				if (!getFirstPojoAnnotation(field, "Transient").isEmpty()) {
-					ColumnModel col = new ColumnModel(pojofieldName);
+				if (!getFirstEntityAnno(field, "Transient").isEmpty()) {
+					ColumnModel col = new ColumnModel(entityfieldName);
 					col.setColumnType(TypeUtils.toType(propertyClass));
 					col.setLengths(new Integer[] { 255, 0, 0 });
 					col.setTransientable(true);
@@ -254,14 +252,14 @@ public abstract class DialectUtilsOfPojo {// NOSONAR
 				} else {
 
 					// SequenceGenerator
-					Map<String, Object> map = getFirstPojoAnnotation(field, "SequenceGenerator");
+					Map<String, Object> map = getFirstEntityAnno(field, "SequenceGenerator");
 					if (!map.isEmpty()) {
 						model.sequenceGenerator((String) map.get("name"), (String) map.get("sequenceName"),
 								(Integer) map.get("initialValue"), (Integer) map.get("allocationSize"));
 					}
 
 					// TableGenerator
-					map = getFirstPojoAnnotation(field, "TableGenerator");
+					map = getFirstEntityAnno(field, "TableGenerator");
 					if (!map.isEmpty()) {
 						model.tableGenerator((String) map.get("name"), (String) map.get("table"),
 								(String) map.get("pkColumnName"), (String) map.get("valueColumnName"),
@@ -270,15 +268,15 @@ public abstract class DialectUtilsOfPojo {// NOSONAR
 					}
 
 					// UUIDAny
-					map = getFirstPojoAnnotation(field, "UUIDAny");
+					map = getFirstEntityAnno(field, "UUIDAny");
 					if (!map.isEmpty()) {
 						model.uuidAny((String) map.get("name"), (Integer) map.get("length"));
 					}
 
-					ColumnModel col = new ColumnModel(pojofieldName);
-					col.pojoField(pojofieldName);
+					ColumnModel col = new ColumnModel(entityfieldName);
+					col.entityField(entityfieldName);
 					// Column
-					Map<String, Object> colMap = getFirstPojoAnnotation(field, "Column");
+					Map<String, Object> colMap = getFirstEntityAnno(field, "Column");
 					if (!colMap.isEmpty()) {
 						if (!(Boolean) colMap.get("nullable"))
 							col.setNullable(false);
@@ -300,31 +298,31 @@ public abstract class DialectUtilsOfPojo {// NOSONAR
 					}
 
 					// Id
-					if (!getFirstPojoAnnotation(field, "Id").isEmpty()
-							|| !getFirstPojoAnnotation(field, "PKey").isEmpty())
+					if (!getFirstEntityAnno(field, "Id").isEmpty()
+							|| !getFirstEntityAnno(field, "PKey").isEmpty())
 						col.pkey();
 
-					col.setPojoField(pojofieldName);
+					col.setEntityField(entityfieldName);
 					col.setTableModel(model);
 					// col will also set TableModel field point to its owner
 					model.addColumn(col);
 
 					// shortcut Id generator annotations
-					if (existPojoAnnotation(field, "AutoId"))
+					if (existEntityAnno(field, "AutoId"))
 						col.autoId();
-					if (existPojoAnnotation(field, "IdentityId"))
+					if (existEntityAnno(field, "IdentityId"))
 						col.identityId();
-					if (existPojoAnnotation(field, "TimeStampId"))
+					if (existEntityAnno(field, "TimeStampId"))
 						col.timeStampId();
-					if (existPojoAnnotation(field, "UUID25"))
+					if (existEntityAnno(field, "UUID25"))
 						col.uuid25();
-					if (existPojoAnnotation(field, "UUID32"))
+					if (existEntityAnno(field, "UUID32"))
 						col.uuid32();
-					if (existPojoAnnotation(field, "UUID36"))
+					if (existEntityAnno(field, "UUID36"))
 						col.uuid36();
 
 					// GeneratedValue
-					Map<String, Object> gvMap = getFirstPojoAnnotation(field, "GeneratedValue");
+					Map<String, Object> gvMap = getFirstEntityAnno(field, "GeneratedValue");
 					if (!gvMap.isEmpty()) {
 						Object strategy = gvMap.get("strategy");
 						if (strategy != null) {
@@ -354,20 +352,20 @@ public abstract class DialectUtilsOfPojo {// NOSONAR
 
 					// SingleFKey is a shortcut format of FKey, only for 1
 					// column
-					Map<String, Object> refMap = getFirstPojoAnnotation(field, "SingleFKey");
+					Map<String, Object> refMap = getFirstEntityAnno(field, "SingleFKey");
 					if (!refMap.isEmpty())
 						model.fkey((String) refMap.get("name")).columns(col.getColumnName())
 								.refs((String[]) refMap.get("refs"));
 
 					// SingleIndex is a ShortCut format of Index, only for 1
 					// column
-					Map<String, Object> idxMap = getFirstPojoAnnotation(field, "SingleIndex");
+					Map<String, Object> idxMap = getFirstEntityAnno(field, "SingleIndex");
 					if (!idxMap.isEmpty())
 						model.index((String) idxMap.get("name")).columns(col.getColumnName());
 
 					// SingleUnique is a ShortCut format of Unique, only for 1
 					// column
-					Map<String, Object> uniMap = getFirstPojoAnnotation(field, "SingleUnique");
+					Map<String, Object> uniMap = getFirstEntityAnno(field, "SingleUnique");
 					if (!uniMap.isEmpty())
 						model.unique((String) uniMap.get("name")).columns(col.getColumnName());
 				}

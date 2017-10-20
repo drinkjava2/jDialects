@@ -11,11 +11,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.github.drinkjava2.jdialects.DialectException;
+import com.github.drinkjava2.jdialects.StrUtils;
 import com.github.drinkjava2.jdialects.Type;
 import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
 import com.github.drinkjava2.jdialects.id.IdGenerator;
 import com.github.drinkjava2.jdialects.id.UUIDAnyGenerator;
-import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
  * A ColumnModel definition represents a platform dependent column in a Database
@@ -60,8 +60,8 @@ public class ColumnModel {
 	// =======================================================================
 
 	// =====Below fields are designed only for ORM tools ==========
-	/** Map to a Java POJO field, for ORM tool use only */
-	private String pojoField;
+	/** Map to a Java entity field, for ORM tool use only */
+	private String entityField;
 
 	/** The column length, for ORM tool use only */
 	private Integer length = 255;
@@ -109,7 +109,7 @@ public class ColumnModel {
 		col.tail = tail;
 		col.comment = comment;
 		col.lengths = lengths;
-		col.pojoField = pojoField;
+		col.entityField = entityField;
 		col.length = length;
 		col.precision = precision;
 		col.scale = scale;
@@ -313,19 +313,19 @@ public class ColumnModel {
 	}
 
 	/**
-	 * Mark this column map to a Java POJO's field, if exist other columns map
+	 * Mark this column map to a Java entity field, if exist other columns map
 	 * to this field, delete other columns. This method only designed for ORM
 	 * tool
 	 */
-	public ColumnModel pojoField(String pojoField) {
-		DialectException.assureNotEmpty(pojoField, "pojoField can not be empty");
-		this.pojoField = pojoField;
+	public ColumnModel entityField(String entityFieldName) {
+		DialectException.assureNotEmpty(entityFieldName, "entityFieldName can not be empty");
+		this.entityField = entityFieldName;
 		if (this.tableModel != null) {
 			List<ColumnModel> oldColumns = this.tableModel.getColumns();
 			Iterator<ColumnModel> columnIter = oldColumns.iterator();
 			while (columnIter.hasNext()) {
 				ColumnModel column = columnIter.next();
-				if (pojoField.equals(column.getPojoField()) && !this.getColumnName().equals(column.getColumnName()))
+				if (entityFieldName.equals(column.getEntityField()) && !this.getColumnName().equals(column.getColumnName()))
 					columnIter.remove();
 			}
 		}
@@ -477,12 +477,12 @@ public class ColumnModel {
 		this.lengths = lengths;
 	}
 
-	public String getPojoField() {
-		return pojoField;
+	public String getEntityField() {
+		return entityField;
 	}
 
-	public void setPojoField(String pojoField) {
-		this.pojoField = pojoField;
+	public void setEntityField(String entityField) {
+		this.entityField = entityField;
 	}
 
 	public Integer getLength() {

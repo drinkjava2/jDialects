@@ -21,8 +21,6 @@ import com.github.drinkjava2.jdialects.hibernatesrc.pagination.SQLServer2012Limi
 import com.github.drinkjava2.jdialects.hibernatesrc.utils.StringHelper;
 import com.github.drinkjava2.jdialects.id.IdGenerator;
 import com.github.drinkjava2.jdialects.model.TableModel;
-import com.github.drinkjava2.jdialects.utils.DialectUtils;
-import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
  * jDialects is a small Java tool collect all databases' dialect, most data are
@@ -787,24 +785,24 @@ public enum Dialect {
 	// ===============================================
 
 	/**
-	 * Transfer POJO classes to create DDL
+	 * Transfer entity classes to create DDL
 	 */
-	public String[] toCreateDDL(Class<?>... pojoClasses) {
-		return DDLCreateUtils.toCreateDDL(this, DialectUtils.pojos2Models(pojoClasses));
+	public String[] toCreateDDL(Class<?>... entityClasses) {
+		return DDLCreateUtils.toCreateDDL(this, ModelUtils.entity2Model(entityClasses));
 	}
 
 	/**
-	 * Transfer POJO classes to create DDL
+	 * Transfer entity classes to create DDL
 	 */
-	public String[] toDropDDL(Class<?>... pojoClasses) {
-		return DDLDropUtils.toDropDDL(this, DialectUtils.pojos2Models(pojoClasses));
+	public String[] toDropDDL(Class<?>... entityClasses) {
+		return DDLDropUtils.toDropDDL(this, ModelUtils.entity2Model(entityClasses));
 	}
 
 	/**
-	 * Transfer tables to drop and create DDL String array
+	 * Transfer entity classes to drop and create DDL String array
 	 */
-	public String[] toDropAndCreateDDL(Class<?>... pojoClasses) {
-		return toDropAndCreateDDL(DialectUtils.pojos2Models(pojoClasses));
+	public String[] toDropAndCreateDDL(Class<?>... entityClasses) {
+		return toDropAndCreateDDL(ModelUtils.entity2Model(entityClasses));
 	}
 
 	/**

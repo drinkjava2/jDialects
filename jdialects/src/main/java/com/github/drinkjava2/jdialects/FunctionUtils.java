@@ -7,8 +7,6 @@
  */
 package com.github.drinkjava2.jdialects;
 
-import com.github.drinkjava2.jdialects.utils.StrUtils;
-
 /**
  * Function features Utils
  * 

@@ -20,8 +20,8 @@ import java.sql.SQLException;
 
 import org.junit.Test;
 
+import com.github.drinkjava2.jdialects.ModelUtils;
 import com.github.drinkjava2.jdialects.model.TableModel;
-import com.github.drinkjava2.jdialects.utils.DialectUtils;
 
 import test.TestBase;
 
@@ -56,7 +56,7 @@ public class Db2ModelsTest extends TestBase {
 		TableModel[] tableModels=null;
 		try {
 			con = dbPro.prepareConnection();
-			tableModels=DialectUtils.db2Models(con, guessedDialect);
+			tableModels=ModelUtils.db2Model(con, guessedDialect);
 			System.out.println(tableModels[0]);
 			System.out.println(tableModels[0]);
 		} catch (SQLException e) {

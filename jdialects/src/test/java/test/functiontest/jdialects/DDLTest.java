@@ -364,7 +364,7 @@ public class DDLTest extends TestBase {
 	public void sampleTest() {// An example used to put on README.md
 		TableModel t1 = new TableModel("customers");
 		t1.column("name").STRING(20).pkey();
-		t1.column("email").STRING(20).pkey().pojoField("email").updatable(true).insertable(false);
+		t1.column("email").STRING(20).pkey().entityField("email").updatable(true).insertable(false);
 		t1.column("address").VARCHAR(50).defaultValue("'Beijing'").comment("address comment");
 		t1.column("phoneNumber").VARCHAR(50).singleIndex("IDX2");
 		t1.column("age").INTEGER().notNull().check("'>0'");

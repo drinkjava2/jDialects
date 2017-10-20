@@ -5,13 +5,11 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package com.github.drinkjava2.jdialects.utils;
+package com.github.drinkjava2.jdialects;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.github.drinkjava2.jdialects.DialectException;
 
 /**
  * String Utilities usually used inside of framework

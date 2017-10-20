@@ -10,8 +10,6 @@ package com.github.drinkjava2.jdialects;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.github.drinkjava2.jdialects.utils.StrUtils;
-
 /**
  * Collect reserved words of all databases, keywords not included
  * 

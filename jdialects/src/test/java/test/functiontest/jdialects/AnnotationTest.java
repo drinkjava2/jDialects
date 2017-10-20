@@ -10,6 +10,7 @@ package test.functiontest.jdialects;
 import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.ModelUtils;
 import com.github.drinkjava2.jdialects.TypeUtils;
 import com.github.drinkjava2.jdialects.annotation.jdia.FKey;
 import com.github.drinkjava2.jdialects.annotation.jdia.FKey1;
@@ -29,7 +30,6 @@ import com.github.drinkjava2.jdialects.annotation.jpa.TableGenerator;
 import com.github.drinkjava2.jdialects.annotation.jpa.Transient;
 import com.github.drinkjava2.jdialects.annotation.jpa.UniqueConstraint;
 import com.github.drinkjava2.jdialects.model.TableModel;
-import com.github.drinkjava2.jdialects.utils.DialectUtils;
 
 import test.TestBase;
 
@@ -42,7 +42,7 @@ import test.TestBase;
  */
 public class AnnotationTest extends TestBase {
 
-	public static class POJO1 {
+	public static class Entity1 {
 
 		public String field1;
 		public String field2;
@@ -73,9 +73,9 @@ public class AnnotationTest extends TestBase {
 	)
 	@SequenceGenerator(name = "seqID1", sequenceName = "seqName1", initialValue = 1, allocationSize = 10)
 	@TableGenerator(name = "tableID1", table = "table1", pkColumnName = "pkCol1", valueColumnName = "vcol1", pkColumnValue = "pkcolval1", initialValue = 2, allocationSize = 20)
-	@FKey(name = "fk1", columns = { "field1", "field2" }, refs = { "POJO1", "field1", "field2" })
-	@FKey1(columns = { "field2", "field3" }, refs = { "POJO1", "field1", "field2" })
-	public static class POJO2 {
+	@FKey(name = "fk1", columns = { "field1", "field2" }, refs = { "Entity1", "field1", "field2" })
+	@FKey1(columns = { "field2", "field3" }, refs = { "Entity1", "field1", "field2" })
+	public static class Entity2 {
 		@SequenceGenerator(name = "seqID2", sequenceName = "seqName2", initialValue = 2, allocationSize = 20) 
 		@TableGenerator(name = "tableID2", table = "table2", pkColumnName = "pkCol1", valueColumnName = "vcol1", pkColumnValue = "pkcolval1", initialValue = 2, allocationSize = 20)
 		@Id
@@ -87,7 +87,7 @@ public class AnnotationTest extends TestBase {
 
 		@GeneratedValue(strategy = GenerationType.TABLE, generator = "CUST_GEN")
 		@Column(name = "field3", nullable = false, columnDefinition = TypeUtils.BIGINT)
-		@SingleFKey(name = "singleFkey1", refs = { "POJO1", "field1" })
+		@SingleFKey(name = "singleFkey1", refs = { "Entity1", "field1" })
 		@SingleIndex
 		@SingleUnique
 		public Integer field3;
@@ -167,10 +167,10 @@ public class AnnotationTest extends TestBase {
 
 	@Test
 	public void ddlOutTest() {
-		String[] dropAndCreateDDL = Dialect.H2Dialect.toCreateDDL(DialectUtils.pojos2Models(POJO1.class, POJO2.class));
+		String[] dropAndCreateDDL = Dialect.H2Dialect.toCreateDDL(ModelUtils.entity2Model(Entity1.class, Entity2.class));
 		for (String ddl : dropAndCreateDDL)
 			System.out.println(ddl);
 
-		testOnCurrentRealDatabase(DialectUtils.pojos2Models(POJO1.class, POJO2.class));
+		testOnCurrentRealDatabase(ModelUtils.entity2Model(Entity1.class, Entity2.class));
 	}
 }

@@ -11,9 +11,9 @@ import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.DDLFeatures;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.DialectException;
+import com.github.drinkjava2.jdialects.StrUtils;
 import com.github.drinkjava2.jdialects.Type;
 import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
-import com.github.drinkjava2.jdialects.utils.StrUtils;
 
 /**
  * Define an Identity type generator, supported by MySQL, SQL Server, DB2,
