@@ -92,14 +92,6 @@
     	<version>2.4.3</version>
     	<scope>test</scope>
 	</dependency>  
-	
-    <!-- jDbPro is a JDBC tool depends on Apache Commons DbUtils but made some improvements -->
-    <dependency>
-       <groupId>com.github.drinkjava2</groupId>
-       <artifactId>jdbpro</artifactId>
-       <version>1.7.0.1</version>
-       <scope>test</scope>
-    </dependency>
     
    <!-- HikariCP is a dataSource pool quicker than c3p0 -->
     <dependency>

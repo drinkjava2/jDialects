@@ -103,8 +103,7 @@ public class IdgeneratorTest2 extends TestBase {
 	}
 
 	@Test
-	public void testUUID25() {
-		dbPro.setAllowShowSQL(true);
+	public void testUUID25() { 
 		reBuildDB(ModelUtils.entity2Model(uuid25Entity.class));
 		testOnCurrentRealDatabase(ModelUtils.entity2Model(uuid25Entity.class));
 	}

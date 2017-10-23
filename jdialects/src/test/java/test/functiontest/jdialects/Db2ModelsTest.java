@@ -46,25 +46,25 @@ public class Db2ModelsTest extends TestBase {
 		t.column("t10").TIME();
 		t.column("t11").TIMESTAMP();
 		t.column("v12").VARCHAR(300);
-	
+
 		String[] ddls = guessedDialect.toDropDDL(t);
 		quietExecuteDDLs(ddls);
 		ddls = guessedDialect.toCreateDDL(t);
 		executeDDLs(ddls);
 
 		Connection con = null;
-		TableModel[] tableModels=null;
+		TableModel[] tableModels = null;
 		try {
-			con = dbPro.prepareConnection();
-			tableModels=ModelUtils.db2Model(con, guessedDialect);
-			System.out.println(tableModels[0]);
-			System.out.println(tableModels[0]);
+			con = ds.getConnection();
+			tableModels = ModelUtils.db2Model(con, guessedDialect);
+			System.out.println(tableModels[0]); 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
 			try {
-				dbPro.close(con);
-			} catch (SQLException e) { 
+				if (con != null)
+					con.close();
+			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 		}

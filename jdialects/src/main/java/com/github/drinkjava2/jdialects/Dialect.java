@@ -34,7 +34,7 @@ import com.github.drinkjava2.jdialects.model.TableModel;
  * @since 1.0.0
  */
 @SuppressWarnings("all")
-public enum Dialect {
+public enum Dialect implements PaginateSupport {
 	// below found on Internet
 	SQLiteDialect, AccessDialect, ExcelDialect, TextDialect, ParadoxDialect, CobolDialect, XMLDialect, DbfDialect, // NOSONAR
 	// below are from Hibernate
@@ -656,6 +656,7 @@ public enum Dialect {
 	 * @param sql The original SQL
 	 * @return The paginated SQL
 	 */
+	@Override
 	public String paginate(int pageNumber, int pageSize, String sql) {// NOSONAR
 		DialectException.assureNotNull(sql, "sql string can not be null");
 		String trimedSql = sql.trim();

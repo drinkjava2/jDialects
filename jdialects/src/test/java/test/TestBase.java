@@ -13,11 +13,11 @@ import org.junit.After;
 import org.junit.Before;
 
 import com.github.drinkjava2.jbeanbox.BeanBox;
-import com.github.drinkjava2.jdbpro.DbPro;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.model.TableModel;
 
 import test.DataSourceConfig.DataSourceBox;
+import test.utils.tinyjdbc.TinyJdbc;
 
 /**
  * This base test class in charge of configure and close data sources.
@@ -28,7 +28,7 @@ import test.DataSourceConfig.DataSourceBox;
  */
 public class TestBase {
 	protected DataSource ds = BeanBox.getBean(DataSourceBox.class);
-	protected DbPro dbPro = new DbPro(ds);
+	protected TinyJdbc dbPro = new TinyJdbc(ds);
 	protected Dialect guessedDialect = Dialect.guessDialect(ds);
 
 	@Before

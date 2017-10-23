@@ -15,10 +15,6 @@
  */
 package test.functiontest.jdialects;
 
-import static com.github.drinkjava2.jdbpro.inline.InlineQueryRunner.param;
-import static com.github.drinkjava2.jdbpro.inline.InlineQueryRunner.param0;
-import static com.github.drinkjava2.jdbpro.inline.InlineQueryRunner.valuesQuesions;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,8 +33,8 @@ import test.TestBase;
 /**
  * Unit test for SortedUUIDGenerator
  */
-public class IdgeneratorTest extends TestBase { 
-	
+public class IdgeneratorTest extends TestBase {
+
 	@Test
 	public void testPKey() {// nextID
 		TableModel t = new TableModel("testPKey");
@@ -67,8 +63,7 @@ public class IdgeneratorTest extends TestBase {
 			Assert.assertTrue(("" + id1).length() == 25);
 			Assert.assertTrue(("" + id2).length() == 32);
 			Assert.assertTrue(("" + id3).length() == 36);
-			dbPro.iExecute("insert into testNextIdTable (id1,id2,id3) ", param0(id1), param(id2), param(id3),
-					valuesQuesions());
+			dbPro.nExecute("insert into testNextIdTable (id1,id2,id3) values(?,?,?) ", id1, id2, id3);
 		}
 	}
 
