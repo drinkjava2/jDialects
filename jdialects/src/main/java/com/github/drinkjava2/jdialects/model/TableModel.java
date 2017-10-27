@@ -65,6 +65,9 @@ public class TableModel {
 
 	/** Unique constraints */
 	private List<UniqueModel> uniqueConsts = new ArrayList<UniqueModel>();
+	
+	/** Map to which entityClass, this field is designed to ORM tool like jSqlBox use */
+	private Class<?> entityClass;
 
 	public TableModel() {
 		super();
@@ -438,6 +441,14 @@ public class TableModel {
 
 	public void setIdGenerators(List<IdGenerator> idGenerators) {
 		this.idGenerators = idGenerators;
+	}
+
+	public Class<?> getEntityClass() {
+		return entityClass;
+	}
+
+	public void setEntityClass(Class<?> entityClass) {
+		this.entityClass = entityClass;
 	}
 
 }
