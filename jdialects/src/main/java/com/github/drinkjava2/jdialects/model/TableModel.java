@@ -43,11 +43,11 @@ public class TableModel {
 
 	/** comment for table */
 	private String comment;
- 
+
 	/**
-	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the end
-	 * of "create table..." DDL, usually used to set encode String like " DEFAULT
-	 * CHARSET=utf8" for MySQL
+	 * Optional, If support engine like MySQL or MariaDB, add engineTail at the
+	 * end of "create table..." DDL, usually used to set encode String like "
+	 * DEFAULT CHARSET=utf8" for MySQL
 	 */
 	private String engineTail;
 
@@ -65,9 +65,18 @@ public class TableModel {
 
 	/** Unique constraints */
 	private List<UniqueModel> uniqueConsts = new ArrayList<UniqueModel>();
-	
-	/** Map to which entityClass, this field is designed to ORM tool like jSqlBox use */
+
+	/**
+	 * Map to which entityClass, this field is designed to ORM tool like jSqlBox
+	 * use
+	 */
 	private Class<?> entityClass;
+
+	/**
+	 * The alias name for this table, this field is designed to ORM tool like
+	 * jSqlBox use
+	 */
+	private String alias;
 
 	public TableModel() {
 		super();
@@ -84,7 +93,7 @@ public class TableModel {
 		TableModel tb = new TableModel();
 		tb.tableName = this.tableName;
 		tb.check = this.check;
-		tb.comment = this.comment; 
+		tb.comment = this.comment;
 		tb.engineTail = this.engineTail;
 		if (!columns.isEmpty())
 			for (ColumnModel item : columns) {
@@ -134,12 +143,17 @@ public class TableModel {
 	}
 
 	/**
-	 * Add a sequence definition DDL, note: some dialects do not support sequence
+	 * Add a sequence definition DDL, note: some dialects do not support
+	 * sequence
 	 * 
-	 * @param name The name of sequence Java object itself
-	 * @param sequenceName the name of the sequence will created in database
-	 * @param initialValue The initial value
-	 * @param allocationSize The allocationSize
+	 * @param name
+	 *            The name of sequence Java object itself
+	 * @param sequenceName
+	 *            the name of the sequence will created in database
+	 * @param initialValue
+	 *            The initial value
+	 * @param allocationSize
+	 *            The allocationSize
 	 */
 	public void sequenceGenerator(String name, String sequenceName, Integer initialValue, Integer allocationSize) {
 		this.addGenerator(new SequenceIdGenerator(name, sequenceName, initialValue, allocationSize));
@@ -193,10 +207,10 @@ public class TableModel {
 				columnIter.remove();
 		return this;
 	}
-   
+
 	/**
-	 * find column in tableModel by given columnName, if not found, add a new column
-	 * with columnName
+	 * find column in tableModel by given columnName, if not found, add a new
+	 * column with columnName
 	 */
 	public ColumnModel column(String columnName) {// NOSONAR
 		ColumnModel col = getColumn(columnName);
@@ -291,9 +305,9 @@ public class TableModel {
 	}
 
 	/**
-	 * If support engine like MySQL or MariaDB, add engineTail at the end of "create
-	 * table..." DDL, usually used to set encode String like " DEFAULT CHARSET=utf8"
-	 * for MySQL
+	 * If support engine like MySQL or MariaDB, add engineTail at the end of
+	 * "create table..." DDL, usually used to set encode String like " DEFAULT
+	 * CHARSET=utf8" for MySQL
 	 */
 	public TableModel engineTail(String engineTail) {
 		this.engineTail = engineTail;
@@ -301,8 +315,8 @@ public class TableModel {
 	}
 
 	/**
-	 * Search and return the IdGenerator in this TableModel by its generationType
-	 * and name
+	 * Search and return the IdGenerator in this TableModel by its
+	 * generationType and name
 	 */
 	public IdGenerator getIdGenerator(GenerationType generationType, String name) {
 		return getIdGenerator(generationType, name, this.getIdGenerators());
@@ -434,7 +448,7 @@ public class TableModel {
 	public void setUniqueConsts(List<UniqueModel> uniqueConsts) {
 		this.uniqueConsts = uniqueConsts;
 	}
-  
+
 	public List<IdGenerator> getIdGenerators() {
 		return idGenerators;
 	}
@@ -449,6 +463,14 @@ public class TableModel {
 
 	public void setEntityClass(Class<?> entityClass) {
 		this.entityClass = entityClass;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
 	}
 
 }
