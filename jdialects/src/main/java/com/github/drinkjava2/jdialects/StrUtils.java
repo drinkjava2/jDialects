@@ -280,6 +280,32 @@ public class StrUtils {
 	}
 
 	/**
+	 * Replace first occurrences of a substring within a string with another string.
+	 * 
+	 * @param originString The original String
+	 * @param oldPattern old String Pattern to replace
+	 * @param newPattern new String pattern to insert
+	 * @return a String with the replacements
+	 */
+	public static String replaceFirst(String originString, String oldPattern, String newPattern) {
+		if (!hasLength(originString) || !hasLength(oldPattern) || newPattern == null) {
+			return originString;
+		}
+		StringBuilder sb = new StringBuilder();
+		int pos = 0;
+		int index = originString.indexOf(oldPattern);
+		int patLen = oldPattern.length();
+		if (index >= 0) {
+			sb.append(originString.substring(pos, index));
+			sb.append(newPattern);
+			pos = index + patLen;
+			index = originString.indexOf(oldPattern, pos);
+		}
+		sb.append(originString.substring(pos));
+		return sb.toString();
+	}
+	
+	/**
 	 * Replace all sub strings ignore case <br/>
 	 * replaceIgnoreCase("AbcDECd", "Cd", "FF") = "AbFFEFF"
 	 * 
