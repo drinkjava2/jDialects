@@ -412,6 +412,8 @@ public class DDLCreateUtils {// NOSONAR
 			return;
 		}
 		for (FKeyModel t : trueList) {
+			if(!t.getDdl()) 
+				continue; //if ddl is false, skip
 			/*
 			 * ADD CONSTRAINT _FKEYNAME FOREIGN KEY _FKEYNAME (_FK1, _FK2) REFERENCES
 			 * _REFTABLE (_REF1, _REF2)

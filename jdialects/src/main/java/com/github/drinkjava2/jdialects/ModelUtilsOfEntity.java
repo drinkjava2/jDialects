@@ -40,6 +40,12 @@ public abstract class ModelUtilsOfEntity {// NOSONAR
 			return true;
 		if (("com.github.drinkjava2.jdialects.annotation.jdia." + annotationName).equals(cName))
 			return true;
+		if (("com.github.drinkjava2.jdialects.annotation.jdia." + annotationName + "1").equals(cName))
+			return true;
+		if (("com.github.drinkjava2.jdialects.annotation.jdia." + annotationName + "2").equals(cName))
+			return true;
+		if (("com.github.drinkjava2.jdialects.annotation.jdia." + annotationName + "3").equals(cName))
+			return true;
 		return false;
 	}
 
@@ -116,9 +122,9 @@ public abstract class ModelUtilsOfEntity {// NOSONAR
 	}
 
 	/**
-	 * Convert a Java entity class or JPA annotated entity classes to "TableModel"
-	 * Object, if this class has a "config(TableModel tableModel)" method, will also
-	 * call it
+	 * Convert a Java entity class or JPA annotated entity classes to
+	 * "TableModel" Object, if this class has a "config(TableModel tableModel)"
+	 * method, will also call it
 	 */
 	public static TableModel oneEntity2Model(Class<?> entityClass) {
 		DialectException.assureNotNull(entityClass, "Entity class can not be null");
@@ -144,8 +150,8 @@ public abstract class ModelUtilsOfEntity {// NOSONAR
 	}
 
 	/**
-	 * Convert a Java entity class or JPA annotated entity classes to "TableModel"
-	 * Object, ignore config method
+	 * Convert a Java entity class or JPA annotated entity classes to
+	 * "TableModel" Object, ignore config method
 	 */
 	private static TableModel entity2ModelIgnoreConfigMethod(Class<?> entityClass) {
 		DialectException.assureNotNull(entityClass, "entity2Model method does not accept a null class");
@@ -215,8 +221,11 @@ public abstract class ModelUtilsOfEntity {// NOSONAR
 		// FKey
 		List<Map<String, Object>> fkeys = getEntityAnnos(entityClass, "FKey");
 		for (Map<String, Object> map : fkeys) {
-			model.fkey((String) map.get("name")).columns((String[]) map.get("columns"))
-					.refs((String[]) map.get("refs"));
+			Boolean ddl = (Boolean) map.get("ddl");
+			if (ddl == null)
+				ddl = true;
+			model.fkey((String) map.get("name")).columns((String[]) map.get("columns")).refs((String[]) map.get("refs"))
+					.ddl(ddl);
 		}
 
 		BeanInfo beanInfo = null;
@@ -239,7 +248,8 @@ public abstract class ModelUtilsOfEntity {// NOSONAR
 				Field field = ReflectionUtils.findField(entityClass, entityfieldName);
 				if (field == null)
 					continue;
-				// DialectException.assureNotNull(field, "Entity field '" + entityfieldName + "'
+				// DialectException.assureNotNull(field, "Entity field '" +
+				// entityfieldName + "'
 				// found a null value");
 
 				if (!getFirstEntityAnno(field, "Transient").isEmpty()) {
@@ -298,8 +308,7 @@ public abstract class ModelUtilsOfEntity {// NOSONAR
 					}
 
 					// Id
-					if (!getFirstEntityAnno(field, "Id").isEmpty()
-							|| !getFirstEntityAnno(field, "PKey").isEmpty())
+					if (!getFirstEntityAnno(field, "Id").isEmpty() || !getFirstEntityAnno(field, "PKey").isEmpty())
 						col.pkey();
 
 					col.setEntityField(entityfieldName);
@@ -353,9 +362,13 @@ public abstract class ModelUtilsOfEntity {// NOSONAR
 					// SingleFKey is a shortcut format of FKey, only for 1
 					// column
 					Map<String, Object> refMap = getFirstEntityAnno(field, "SingleFKey");
-					if (!refMap.isEmpty())
+					if (!refMap.isEmpty()) {
+						Boolean ddl = (Boolean) refMap.get("ddl");
+						if (ddl == null)
+							ddl = true;
 						model.fkey((String) refMap.get("name")).columns(col.getColumnName())
-								.refs((String[]) refMap.get("refs"));
+								.refs((String[]) refMap.get("refs")).ddl(ddl);
+					}
 
 					// SingleIndex is a ShortCut format of Index, only for 1
 					// column

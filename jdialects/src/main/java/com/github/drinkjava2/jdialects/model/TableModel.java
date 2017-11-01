@@ -207,6 +207,20 @@ public class TableModel {
 				columnIter.remove();
 		return this;
 	}
+	
+
+	/**
+	 * Remove a FKey by given fkeyName
+	 */
+	public TableModel removeFKey(String fkeyName) {
+		List<FKeyModel> fkeys = this.getFkeyConstraints();
+		Iterator<FKeyModel> fkeyIter = fkeys.iterator();
+		while (fkeyIter.hasNext())
+			if (fkeyIter.next().getFkeyName().equalsIgnoreCase(fkeyName))
+				fkeyIter.remove();
+		return this;
+	}
+	 
 
 	/**
 	 * find column in tableModel by given columnName, if not found, add a new
@@ -264,6 +278,16 @@ public class TableModel {
 		fkey.setFkeyName(fkeyName);
 		this.fkeyConstraints.add(fkey);
 		return fkey;
+	}
+
+	/**
+	 * Get a FKeyModel by given fkeyName
+	 */
+	public FKeyModel getFkey(String fkeyName) {
+		for (FKeyModel fkey : fkeyConstraints)
+			if (!StrUtils.isEmpty(fkeyName) && fkeyName.equalsIgnoreCase(fkey.getFkeyName()))
+				return fkey;
+		return null;
 	}
 
 	/**

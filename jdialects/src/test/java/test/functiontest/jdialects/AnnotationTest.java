@@ -73,7 +73,7 @@ public class AnnotationTest extends TestBase {
 	)
 	@SequenceGenerator(name = "seqID1", sequenceName = "seqName1", initialValue = 1, allocationSize = 10)
 	@TableGenerator(name = "tableID1", table = "table1", pkColumnName = "pkCol1", valueColumnName = "vcol1", pkColumnValue = "pkcolval1", initialValue = 2, allocationSize = 20)
-	@FKey(name = "fk1", columns = { "field1", "field2" }, refs = { "Entity1", "field1", "field2" })
+	@FKey(name = "fkey1", ddl=true, columns = { "field1", "field2" }, refs = { "Entity1", "field1", "field2" })
 	@FKey1(columns = { "field2", "field3" }, refs = { "Entity1", "field1", "field2" })
 	public static class Entity2 {
 		@SequenceGenerator(name = "seqID2", sequenceName = "seqName2", initialValue = 2, allocationSize = 20) 
@@ -87,7 +87,7 @@ public class AnnotationTest extends TestBase {
 
 		@GeneratedValue(strategy = GenerationType.TABLE, generator = "CUST_GEN")
 		@Column(name = "field3", nullable = false, columnDefinition = TypeUtils.BIGINT)
-		@SingleFKey(name = "singleFkey1", refs = { "Entity1", "field1" })
+		@SingleFKey(name = "singleFkey1", ddl=true, refs = { "Entity1", "field1" })
 		@SingleIndex
 		@SingleUnique
 		public Integer field3;
@@ -167,7 +167,7 @@ public class AnnotationTest extends TestBase {
 
 	@Test
 	public void ddlOutTest() {
-		String[] dropAndCreateDDL = Dialect.H2Dialect.toCreateDDL(ModelUtils.entity2Model(Entity1.class, Entity2.class));
+		String[] dropAndCreateDDL = Dialect.H2Dialect.toDropAndCreateDDL(ModelUtils.entity2Model(Entity1.class, Entity2.class));
 		for (String ddl : dropAndCreateDDL)
 			System.out.println(ddl);
 

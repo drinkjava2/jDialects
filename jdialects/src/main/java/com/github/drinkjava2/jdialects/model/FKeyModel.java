@@ -34,6 +34,12 @@ public class FKeyModel {
 	private List<String> columnNames = new ArrayList<String>();
 	private String fkeyTail;
 
+	/*
+	 * if ddl set to false, will not create DDL when call ModelUtils's
+	 * entity2Model() and oneEntity2Model methods
+	 */
+	private Boolean ddl = true;
+
 	/** format: "reftable, refcol1, refcol2..." */
 	private String[] refTableAndColumns;
 
@@ -51,6 +57,7 @@ public class FKeyModel {
 		result.tableName = tableName;
 		result.fkeyTail = fkeyTail;
 		result.refTableAndColumns = refTableAndColumns;
+		result.ddl=ddl;
 		for (String colName : columnNames) {
 			result.columnNames.add(colName);
 		}
@@ -64,6 +71,11 @@ public class FKeyModel {
 
 	public FKeyModel fkeyName(String fkeyName) {
 		this.fkeyName = fkeyName;
+		return this;
+	}
+
+	public FKeyModel ddl(Boolean ddl) {
+		this.ddl = ddl;
 		return this;
 	}
 
@@ -117,6 +129,14 @@ public class FKeyModel {
 
 	public void setFkeyTail(String tail) {
 		this.fkeyTail = tail;
+	}
+
+	public Boolean getDdl() {
+		return ddl;
+	}
+
+	public void setDdl(Boolean ddl) {
+		this.ddl = ddl;
 	}
 
 }

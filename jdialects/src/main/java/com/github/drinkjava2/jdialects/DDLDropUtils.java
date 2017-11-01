@@ -181,6 +181,8 @@ public class DDLDropUtils {
 		if (DDLFeatures.NOT_SUPPORT.equals(dialect.ddlFeatures.addForeignKeyConstraintString))
 			return;
 		for (FKeyModel t : trueList) {
+			if(!t.getDdl()) 
+				continue; //if ddl is false, skip
 			String dropStr = dialect.ddlFeatures.dropForeignKeyString;
 			String constName = t.getFkeyName();
 			if (StrUtils.isEmpty(constName))

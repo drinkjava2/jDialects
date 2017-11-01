@@ -39,8 +39,14 @@ public @interface FKey {
 	String[] columns() default {};
 
 	/**
-	 * Referenced table name and columns, first is table name, followed by column
-	 * names, like "table1, col1, col2..."
+	 * Referenced table name and columns, first is table name, followed by
+	 * column names, like "table1, col1, col2..."
 	 */
 	String[] refs() default {};
+
+	/**
+	 * if ddl set to false, will not output DDL when call ModelUtils's
+	 * entity2Model() and oneEntity2Model methods
+	 */
+	boolean ddl() default true;
 }

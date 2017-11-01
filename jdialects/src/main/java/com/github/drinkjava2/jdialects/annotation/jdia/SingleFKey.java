@@ -30,4 +30,10 @@ public @interface SingleFKey {
 	 * names, like "table1, col1, col2..."
 	 */
 	String[] refs() default {};
+	
+	/**
+	 * if ddl set to false, will not output DDL when call ModelUtils's
+	 * entity2Model() and oneEntity2Model methods
+	 */
+	boolean ddl() default true;
 }
