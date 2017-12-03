@@ -64,10 +64,10 @@ public enum Dialect implements PaginateSupport {
 	static {
 		for (Dialect d : Dialect.values()) {
 			d.sqlTemplate = DialectPaginationTemplate.initializePaginSQLTemplate(d);
-			d.topLimitTemplate = DialectPaginationTemplate.initializeTopLimitSqlTemplate(d);
-			DialectTypeMappingTemplate.initializeTypeMappings(d);
+			d.topLimitTemplate = DialectPaginationTemplate.initializeTopLimitSqlTemplate(d);			 
 			DDLFeatures.initDDLFeatures(d, d.ddlFeatures);
 		}
+		DialectTypeMappingTemplate.initTypeMappings();
 		DialectFunctionTemplate.initFunctionTemplates();
 	}
 
