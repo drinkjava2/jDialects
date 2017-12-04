@@ -23,8 +23,8 @@ jDialects起初是为了jSqlBox项目而开发的，但它本身是一个独立�
 ### 在程序中使用   
 一. 生成跨数据库的分页SQL：  
 ```
-       Dialect d=guessDialect(dataSource);  //根据数据源判断方言类型,  
-       //Dialect d=guessDialect(connection);  //或根据连接来判断方言类型  
+       Dialect d=Dialect.guessDialect(dataSource);  //根据数据源判断方言类型,  
+       //Dialect d=Dialect.guessDialect(connection);  //或根据连接来判断方言类型  
        //Dialect d=Dialect.MySQL5Dialect;     //或手工指定数据库方言类型 
        String result=d.paginate(3, 10, "select * from users where age>?");  //创建分页SQL 
      
