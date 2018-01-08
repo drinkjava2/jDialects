@@ -13,7 +13,14 @@ package com.github.drinkjava2.jdialects;
  * @author Yong Zhu
  * @since 1.0.2
  */
-public class FunctionUtils {//NOSONAR
+public class FunctionUtils {// NOSONAR
+
+	/**
+	 * Translate a universal SQL to native SQL
+	 */
+	protected static String translate(Dialect d, String... sql) {
+		return null;
+	}
 
 	/**
 	 * The render method translate function template to real SQL piece
