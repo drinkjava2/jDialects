@@ -51,7 +51,6 @@ public class TranslateUtil {
 		public Object value;
 
 		SqlItem[] subItems;
-		SqlItem[] oldSubItems;
 
 		void setTypeAndValue(char type, Object value) {
 			this.type = type;
@@ -95,10 +94,14 @@ public class TranslateUtil {
 	/**
 	 * Parse a expression String, return an object result
 	 * 
-	 * @param bean Expression allow direct use only 1 bean's fields
-	 * @param keyWords The preset key words key-value map
-	 * @param expression The expression
-	 * @param params The expression parameter array
+	 * @param bean
+	 *            Expression allow direct use only 1 bean's fields
+	 * @param keyWords
+	 *            The preset key words key-value map
+	 * @param expression
+	 *            The expression
+	 * @param params
+	 *            The expression parameter array
 	 * @return an object result
 	 */
 	public String doParse(Dialect d, String expression) {
@@ -112,7 +115,7 @@ public class TranslateUtil {
 		if (debugMode)
 			for (SqlItem item : items)
 				System.out.print(item.getDebugInfo(0));// NOSONAR
-		return join(false, items);
+		return join(true, null, items);
 	}
 
 	/** Separate chars to Items list */
@@ -151,7 +154,8 @@ public class TranslateUtil {
 	}
 
 	/**
-	 * Find first item and store left start and left end position in SearchResult
+	 * Find first item and store left start and left end position in
+	 * SearchResult
 	 */
 	SearchResult findFirstResult(char[] chars, int start, int end) {
 		if (start > end)
@@ -160,12 +164,22 @@ public class TranslateUtil {
 		StringBuilder sb = new StringBuilder();
 		for (int i = start; i <= end; i++) {
 			if (!letters) {// no letters found
+
+				if (chars[i] == ' ') {
+					SqlItem item = new SqlItem();
+					item.type = 'S';
+					item.value = " ";
+					return new SearchResult(item, i + 1, end);
+				}
+
 				if (chars[i] == '?') {
 					SqlItem item = new SqlItem();
 					item.type = 'S';
 					item.value = "?";
 					return new SearchResult(item, i + 1, end);
-				} else if (chars[i] == '\'') {
+				}
+
+				if (chars[i] == '\'') {
 					for (int j = i + 1; j <= end; j++) {
 						if (chars[j] == '\'' && chars[j - 1] != '\\') {
 							SqlItem item = new SqlItem();
@@ -207,7 +221,7 @@ public class TranslateUtil {
 					sb.append(chars[i]);
 				}
 			} else {// letters found
-				if (chars[i] == '?' || chars[i] == '\'' || chars[i] == '(' || chars[i] <= ' '
+				if (chars[i] == '?' || chars[i] == '\'' || chars[i] == '(' || chars[i] < ' '
 						|| isLetterNumber(chars[i]) != isLetterNumber(chars[i - 1])) {
 					SqlItem item = new SqlItem();
 					item.type = 'U';
@@ -227,72 +241,61 @@ public class TranslateUtil {
 			return null;
 	}
 
-	/** Join items list into one String */
-	String join(boolean asFunctionParam, SqlItem[] items) {//TODO work at here
+	/**
+	 * Join items list into one String, if function is null, join as String,
+	 * otherwise treat as function parameters
+	 */
+	String join(boolean isTopLevel, SqlItem function, SqlItem[] items) {
+		int pos = 0;
 		for (SqlItem item : items) {
 			if (item.subItems != null) {
-				String value = join(item.subItems);//TODO work at here
+				String value;
+				if (pos > 0 && items[pos - 1] != null && items[pos - 1].type == 'F')
+					// join as parameters
+					value = join(false, items[pos - 1], item.subItems);
+				else
+					value = join(false, null, item.subItems); // join as string
 				item.type = 'S';
 				item.value = value;
-				item.subItems = null; 
+				item.subItems = null;
 			}
+			pos++;
 		} // now there is no subItems
 
-		// find first function
-		int functionPos = -1;
-		for (int i = 0; i < items.length; i++)
-			if (items[i].type == 'F')
-				functionPos = i;
-		while (functionPos != -1) {
-			doCalculate(items, functionPos);
-			functionPos = -1;
-			for (int i = 0; i < items.length; i++)
-				if (items[i].type == 'F')
-					functionPos = i;
-			
-		} // until all function be calculated
- 
-		StringBuilder sb = new StringBuilder();
-		for (SqlItem item : items) {
-			if (item.type == 'S')
-				sb.append(item.value);
-			if (item.type != 'S')
-				throw new DialectException("Unexcepted SQL parse result found, please submit this bug");
+		if (function != null) {
+			List<String> l = new ArrayList<String>();
+			for (SqlItem item : items) {
+				if (item.type != '0')
+					l.add((String) item.value);
+			}
+			return doFunction(function, l.toArray(new String[l.size()]));
 		}
+
+		StringBuilder sb = new StringBuilder();
+		if (!isTopLevel)
+			sb.append("(");
+		for (SqlItem item : items)
+			if (item.type != '0') {
+				sb.append(item.value);
+			}
+		if (!isTopLevel)
+			sb.append(")");
 		return sb.toString();
 	}
 
-	/** Execute the function and mark some items to '0' means deleted it */
-	void doCalculate(SqlItem[] items, int functionPos) {
-		SqlItem lastItem = null;
-		SqlItem nextItem = null;
-		for (int i = functionPos - 1; i >= 0; i--) {
-			if (items[i].type != '0') {
-				lastItem = items[i];
-				break;
-			}
+	private static String doFunction(SqlItem function, String... params) {
+		function.type = '0';
+		StringBuilder sb = new StringBuilder();
+		sb.append("#");
+		sb.append(function.value);
+		sb.append("(");
+		boolean first = true;
+		for (int i = 0; i < params.length; i++) {
+			 
+			sb.append( params[i]); 
 		}
-		for (int i = functionPos + 1; i < items.length; i++) {
-			if (items[i].type != '0') {
-				nextItem = items[i];
-				break;
-			}
-		}
-		doTheMath(items[functionPos], lastItem, nextItem);
-	}
-
-	// ==================================================================================
-	/**
-	 * Explain functions, functions can have 1 or 2 parameters, function items is in
-	 * the middle of 2 parameters
-	 */
-	public static void doTheMath(SqlItem func, SqlItem last, SqlItem next) {
-		String f = (String) func.value;
-		char lastType = (last == null) ? '0' : last.type;
-		char nextType = (next == null) ? '0' : next.type;
-		if ("+".equals(f)) {
-		} else
-			throw new DialectException("Un-parsed expression function: '" + f + "'");
+		sb.append(")");
+		return sb.toString();
 	}
 
 	public static void deleteItem(SqlItem item) {
@@ -311,7 +314,7 @@ public class TranslateUtil {
 
 	public static boolean isLetterNumber(char c) {
 		return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || c == '_' || c == '.'
-				|| c == '@' || c == '#' || c == '$';
+				|| c == '@' || c == '#' || c == '$' || c == '+' || c == '-';
 	}
 
 }
