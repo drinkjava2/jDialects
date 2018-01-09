@@ -23,8 +23,8 @@ public class FunctionTranslateTest {
 	@Test
 	public void doTest() {
 		TranslateUtil trans = new TranslateUtil();
-		String result = (String) trans.doParse(Dialect.SQLiteDialect,
-				"select abc(1,2),b, c as d, date() as 3, cos(3),e, #concat(#year(1998),'sdfasd', true, sin('b',3,?)    ,c), #second((199.8)+20), secon(34+(3*5)-6) from user as u");
+		String result = (String) trans.doParse(Dialect.MySQL55Dialect,
+				"Select username, #year(#current_date() ), #concat('a', b, c) as b from usertable as tb");
 		System.out.println("\r======================");
 		System.out.println(result);
 	}

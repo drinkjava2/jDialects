@@ -7,6 +7,8 @@
  */
 package com.github.drinkjava2.jdialects;
 
+import com.github.drinkjava2.jdialects.translate.TranslateUtil;
+
 /**
  * Function features Utils
  * 
@@ -18,8 +20,11 @@ public class FunctionUtils {// NOSONAR
 	/**
 	 * Translate a universal SQL to native SQL
 	 */
-	protected static String translate(Dialect d, String... sql) {
-		return null;
+	public static String translate(Dialect d, String... sql) {
+		StringBuilder sb = new StringBuilder();
+		for (String str : sql)  
+			sb.append(str); 
+		return TranslateUtil.instance.doParse(d, sb.toString());
 	}
 
 	/**
@@ -49,12 +54,14 @@ public class FunctionUtils {// NOSONAR
 	 * @param args function parameters
 	 * @return A SQL function piece
 	 */
-	protected static String render(Dialect d, String functionName, Object... args) {
+	public static String render(Dialect d, String functionName, String... args) {
 		String template = d.functions.get(functionName);
 		DialectException.assureNotEmpty(template, "Dialect \"" + d + "\" does not support \"" + functionName
 				+ "\" function, a full list of supported functions of this dialect can see \"DatabaseDialects.xls\"");
 		if ("*".equals(template))
 			template = functionName + "($Params)";
+		System.out.println("Template="+template);
+		System.out.println("args.length="+args.length);
 		char c = template.charAt(1);
 		if (c != '=') {
 			if (template.indexOf("$Params") >= 0) {
