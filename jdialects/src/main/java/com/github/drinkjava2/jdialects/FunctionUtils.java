@@ -55,7 +55,7 @@ public class FunctionUtils {// NOSONAR
 	 * @return A SQL function piece
 	 */
 	public static String render(Dialect d, String functionName, String... args) {
-		String template = d.functions.get(functionName);
+		String template = d.functions.get(functionName.toLowerCase());
 		DialectException.assureNotEmpty(template, "Dialect \"" + d + "\" does not support \"" + functionName
 				+ "\" function, a full list of supported functions of this dialect can see \"DatabaseDialects.xls\"");
 		if ("*".equals(template))

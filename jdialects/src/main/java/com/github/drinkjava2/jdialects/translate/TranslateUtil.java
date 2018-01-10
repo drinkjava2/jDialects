@@ -19,8 +19,7 @@ import java.util.Map;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.FunctionUtils;
-import com.github.drinkjava2.jdialects.StrUtils;
-import com.mysql.fabric.xmlrpc.base.Array;
+import com.github.drinkjava2.jdialects.StrUtils; 
 
 /**
  * TranslateUtil parse a Sql, translate all universal functions like fn_sin() to
