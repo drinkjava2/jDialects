@@ -285,6 +285,15 @@ public class ReservedDBWords {
 		// hide default constructor
 	}
 
+	static {
+		String db = null;
+		for (String word : RESERV_WD)
+			if (word.startsWith("#"))
+				db = word.substring(1);
+			else
+				addWord(word, db);
+	}
+
 	/**
 	 * Check if is a dialect reserved word of ANSI-SQL reserved word
 	 * 
@@ -324,15 +333,6 @@ public class ReservedDBWords {
 			if (value.indexOf(databaseName) < 0)
 				RESERVED_WORDS.put(word.toUpperCase(), value + "/" + databaseName);
 		}
-	}
-
-	static { 
-		String db = null;
-		for (String word : RESERV_WD)
-			if (word.startsWith("#"))
-				db = word.substring(1);
-			else
-				addWord(word, db);
 	}
 
 }

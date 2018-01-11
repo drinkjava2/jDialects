@@ -7,8 +7,6 @@
  */
 package com.github.drinkjava2.jdialects;
 
-import com.github.drinkjava2.jdialects.translate.TranslateUtil;
-
 /**
  * Function features Utils
  * 
@@ -16,17 +14,7 @@ import com.github.drinkjava2.jdialects.translate.TranslateUtil;
  * @since 1.0.2
  */
 public class FunctionUtils {// NOSONAR
-
-	/**
-	 * Translate a universal SQL to native SQL
-	 */
-	public static String translate(Dialect d, String... sql) {
-		StringBuilder sb = new StringBuilder();
-		for (String str : sql)  
-			sb.append(str); 
-		return TranslateUtil.instance.doParse(d, sb.toString());
-	}
-
+ 
 	/**
 	 * The render method translate function template to real SQL piece
 	 * 
@@ -60,8 +48,6 @@ public class FunctionUtils {// NOSONAR
 				+ "\" function, a full list of supported functions of this dialect can see \"DatabaseDialects.xls\"");
 		if ("*".equals(template))
 			template = functionName + "($Params)";
-		System.out.println("Template="+template);
-		System.out.println("args.length="+args.length);
 		char c = template.charAt(1);
 		if (c != '=') {
 			if (template.indexOf("$Params") >= 0) {
