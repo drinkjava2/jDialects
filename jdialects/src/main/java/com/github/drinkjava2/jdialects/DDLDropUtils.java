@@ -87,7 +87,11 @@ public class DDLDropUtils {
 		buildDropTableGeneratorDDL(dialect, stringResultList, tbGeneratorList);
 		outputDropFKeyConstraintDDL(dialect, stringResultList, fKeyConstraintList);
 
-		return stringResultList.toArray(new String[stringResultList.size()]);
+		String[] result = stringResultList.toArray(new String[stringResultList.size()]); 
+		if (Dialect.allowLogOutput)			
+			Dialect.logger.info("Drop DDL:\r"+StrUtils.arrayToString(result, "\r")); 
+		return result;
+		
 	}
 
 	/**

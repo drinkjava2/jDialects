@@ -27,7 +27,7 @@ import java.util.Map;
 public class DialectFunctionTranslator {
 	public static DialectFunctionTranslator instance = new DialectFunctionTranslator();
 	private Map<String, Integer> functionMap = new HashMap<String, Integer>();
-	private static boolean debugMode = false;
+	private static boolean debugMode = false; 
 
 	public DialectFunctionTranslator() {
 		// key is function name, value is percentage of dialects have this
@@ -289,8 +289,8 @@ public class DialectFunctionTranslator {
 		if (StrUtils.isEmpty(sql))
 			return sql;
 		// if prefix not empty and SQL not include prefix, directly return
-		if (!StrUtils.isEmpty(Dialect.getSqlFunctionPrefix())
-				&& !StrUtils.containsIgnoreCase(sql, Dialect.getSqlFunctionPrefix()))
+		if (!StrUtils.isEmpty(Dialect.sqlFunctionPrefix)
+				&& !StrUtils.containsIgnoreCase(sql, Dialect.sqlFunctionPrefix))
 			return sql;
 		char[] chars = (" " + sql + " ").toCharArray();
 		SqlItem[] items = seperateCharsToItems(chars, 1, chars.length - 2);
@@ -300,7 +300,10 @@ public class DialectFunctionTranslator {
 		if (debugMode)
 			for (SqlItem item : items)
 				System.out.print(item.getDebugInfo(0));// NOSONAR
-		return join(d, true, null, items);
+		String result = join(d, true, null, items);
+		if (Dialect.allowLogOutput)
+			Dialect.logger.info("Translated sql:\r" + result);
+		return result;
 	}
 
 	/** Separate chars to Items list */
@@ -320,7 +323,7 @@ public class DialectFunctionTranslator {
 			String valueStr = (String) item.value;
 			String valueUpcase = valueStr.toUpperCase();
 			// check is function
-			String funPrefix = Dialect.getSqlFunctionPrefix();
+			String funPrefix = Dialect.sqlFunctionPrefix;
 			if (!StrUtils.isEmpty(valueUpcase)) {
 				if (!StrUtils.isEmpty(funPrefix) && StrUtils.startsWithIgnoreCase(valueUpcase, funPrefix)
 						&& functionMap.containsKey(valueUpcase.substring(funPrefix.length()))) {
@@ -346,8 +349,7 @@ public class DialectFunctionTranslator {
 	}
 
 	/**
-	 * Find first item and store left start and left end position in
-	 * SearchResult
+	 * Find first item and store left start and left end position in SearchResult
 	 */
 	SearchResult findFirstResult(char[] chars, int start, int end) {
 		if (start > end)

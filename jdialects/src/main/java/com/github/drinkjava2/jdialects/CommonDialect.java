@@ -13,8 +13,8 @@ package com.github.drinkjava2.jdialects;
  * @author Yong Zhu
  * @since 1.0.0
  */
-public interface PaginateSupport {
-	
+public interface CommonDialect {
+
 	/**
 	 * Create a pagination SQL by given pageNumber, pageSize and SQL<br/>
 	 * 
@@ -24,4 +24,26 @@ public interface PaginateSupport {
 	 * @return The paginated SQL
 	 */
 	public String paginate(int pageNumber, int pageSize, String sql);
+	
+	/**
+	 * Translate a SQL to native SQL, i.e., all functions written by universal
+	 * function format will be transfer to a native SQL function, for example,
+	 * concat('a','b') in some dialects will be changed to 'a'+'b'
+	 * 
+	 * @param sql array
+	 * @return the translated SQL
+	 */
+	public String translate(String... sql);
+
+	/**
+	 * Paginate and Translate a SQL
+	 * 
+	 * @param The page number, start from 1
+	 * @param pageSize The page item size
+	 * @param sql The original SQL
+	 * @return The paginated and translated SQL
+	 */
+	public String paginAndTrans(int pageNumber, int pageSize, String... sql);
+
+ 
 }

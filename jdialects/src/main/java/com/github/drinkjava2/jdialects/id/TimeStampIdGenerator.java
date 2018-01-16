@@ -22,7 +22,7 @@ import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
  */
 public class TimeStampIdGenerator implements IdGenerator {
 	public static final TimeStampIdGenerator INSTANCE = new TimeStampIdGenerator();
-	private Integer count = 1;
+	private static long count = 1;
 
 	@Override
 	public GenerationType getGenerationType() {
@@ -34,11 +34,17 @@ public class TimeStampIdGenerator implements IdGenerator {
 		return "TimeStampId";
 	}
 
+	private static synchronized long getNextCount() {
+		if (count > 999999)
+			count = 1;
+		return ++count;
+	}
+
 	@Override
 	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect, Type dataType) {
 		if (count > 999999)
 			count = 1;
-		return System.currentTimeMillis() * 1000000 + ++count;
+		return System.currentTimeMillis() * 1000000 + getNextCount();
 	}
 
 	@Override

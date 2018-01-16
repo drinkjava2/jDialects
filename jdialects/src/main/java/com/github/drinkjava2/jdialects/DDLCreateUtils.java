@@ -88,8 +88,10 @@ public class DDLCreateUtils {// NOSONAR
 		buildSequenceDDL(dialect, stringResultList, sequenceList);
 		buildTableGeneratorDDL(dialect, stringResultList, tbGeneratorList);
 		outputFKeyConstraintDDL(dialect, stringResultList, fKeyConstraintList);
-
-		return stringResultList.toArray(new String[stringResultList.size()]);
+		String[] result= stringResultList.toArray(new String[stringResultList.size()]);
+		if (Dialect.allowLogOutput)			
+			Dialect.logger.info("Create DDL:\r"+StrUtils.arrayToString(result, "\r")); 
+		return result;
 	}
 
 	/**

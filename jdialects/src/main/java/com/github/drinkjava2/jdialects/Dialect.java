@@ -42,7 +42,7 @@ import com.github.drinkjava2.jdialects.model.TableModel;
  * @since 1.7.0
  */
 @SuppressWarnings("all")
-public enum Dialect implements PaginateSupport {
+public enum Dialect implements CommonDialect {
 	// Below dialects found on Internet
 	SQLiteDialect, AccessDialect, ExcelDialect, TextDialect, ParadoxDialect, CobolDialect, XMLDialect, DbfDialect, // NOSONAR
 
@@ -57,11 +57,18 @@ public enum Dialect implements PaginateSupport {
 	@Deprecated
 	Oracle9Dialect, Cache71Dialect, CUBRIDDialect, DerbyTenFiveDialect, DataDirectOracle9Dialect, DB2Dialect, DB2390Dialect, DB2400Dialect, DerbyTenSevenDialect, DerbyTenSixDialect, FirebirdDialect, FrontBaseDialect, H2Dialect, HANAColumnStoreDialect, HANARowStoreDialect, HSQLDialect, InformixDialect, Informix10Dialect, IngresDialect, Ingres10Dialect, Ingres9Dialect, InterbaseDialect, JDataStoreDialect, MariaDBDialect, MariaDB53Dialect, MckoiDialect, MimerSQLDialect, MySQLDialect, MySQL5Dialect, MySQL55Dialect, MySQL57Dialect, MySQL57InnoDBDialect, MySQL5InnoDBDialect, MySQLInnoDBDialect, MySQLMyISAMDialect, Oracle8iDialect, Oracle9iDialect, Oracle10gDialect, Oracle12cDialect, PointbaseDialect, PostgresPlusDialect, PostgreSQLDialect, PostgreSQL81Dialect, PostgreSQL82Dialect, PostgreSQL9Dialect, PostgreSQL91Dialect, PostgreSQL92Dialect, PostgreSQL93Dialect, PostgreSQL94Dialect, PostgreSQL95Dialect, ProgressDialect, RDMSOS2200Dialect, SAPDBDialect, SQLServerDialect, SQLServer2005Dialect, SQLServer2008Dialect, SQLServer2012Dialect, SybaseDialect, Sybase11Dialect, SybaseAnywhereDialect, SybaseASE15Dialect, SybaseASE157Dialect, TeradataDialect, Teradata14Dialect, TimesTenDialect;// NOSONAR
 
-	/** If allow use reserved words in DDL */
-	private static Boolean allowReservedWords = false;
+	/** If set true will allow use reserved words in DDL, default value is false */
+	public static Boolean allowReservedWords = false;
 
-	/** The SQL function prefix */
-	private static String sqlFunctionPrefix = null;
+	/**
+	 * If set true will output log for each paginate, translate, paginAndTranslate,
+	 * toCreateDDL, toDropAndCreateDDL, toDropDDL method call, default value is
+	 * false
+	 */
+	public static Boolean allowLogOutput = false;
+
+	/** The SQL function prefix String, default value is null */
+	public static String sqlFunctionPrefix = null;
 
 	public static final String NOT_SUPPORT = "NOT_SUPPORT";
 	private static final String SKIP_ROWS = "$SKIP_ROWS";
@@ -70,7 +77,7 @@ public enum Dialect implements PaginateSupport {
 	private static final String SKIP_ROWS_PLUS1 = "$SKIP_ROWS_PLUS1";
 	private static final String TOTAL_ROWS_PLUS1 = "$TOTAL_ROWS_PLUS1";
 	private static final String DISTINCT_TAG = "($DISTINCT)";
-	private static DialectLogger logger = DialectLogger.getLog(Dialect.class);
+	protected static DialectLogger logger = DialectLogger.getLog(Dialect.class);
 	private String sqlTemplate = null;
 	private String topLimitTemplate = null;
 	protected final Map<Type, String> typeMappings = new EnumMap<Type, String>(Type.class);
@@ -99,11 +106,9 @@ public enum Dialect implements PaginateSupport {
 	}
 
 	/**
-	 * Guess Dialect by given connection, note:this method does not close
-	 * connection
+	 * Guess Dialect by given connection, note:this method does not close connection
 	 * 
-	 * @param con
-	 *            The JDBC Connection
+	 * @param con The JDBC Connection
 	 * @return Dialect The Dialect intance, if can not guess out, return null
 	 */
 	public static Dialect guessDialect(Connection connection) {
@@ -121,14 +126,14 @@ public enum Dialect implements PaginateSupport {
 	}
 
 	/**
-	 * Check if is current dialect or ANSI reserved word, if yes throw
-	 * exception. if is other database's reserved word, log output a warning.
+	 * Check if is current dialect or ANSI reserved word, if yes throw exception. if
+	 * is other database's reserved word, log output a warning.
 	 */
 	private void checkIfReservedWord(String word) {
 		if (ReservedDBWords.isReservedWord(word)) {
 			String reservedForDB = ReservedDBWords.reservedForDB(word);
 			if (ReservedDBWords.isReservedWord(this, word)) {
-				if (Dialect.getAllowReservedWords())
+				if (Dialect.allowReservedWords)
 					logger.warn("\"" + word + "\" is a reserved word of \"" + reservedForDB
 							+ "\", should not use it as table, column, unique or index name");
 				else
@@ -143,10 +148,9 @@ public enum Dialect implements PaginateSupport {
 	}
 
 	/**
-	 * Check if a word or word array include current dialect or ANSI-SQL's
-	 * reserved word, if yes throw exception. if belong to other database's
-	 * reserved word, log output a warning. Otherwise return word itself or
-	 * first word if is array
+	 * Check if a word or word array include current dialect or ANSI-SQL's reserved
+	 * word, if yes throw exception. if belong to other database's reserved word,
+	 * log output a warning. Otherwise return word itself or first word if is array
 	 */
 	public String checkReservedWords(String... words) {
 		if (words == null || words.length == 0)
@@ -157,9 +161,9 @@ public enum Dialect implements PaginateSupport {
 	}
 
 	/**
-	 * Check if a word is current dialect or ANSI-SQL's reserved word, if yes
-	 * throw exception. if is other database's reserved word, log output a
-	 * warning. Otherwise return word itself.
+	 * Check if a word is current dialect or ANSI-SQL's reserved word, if yes throw
+	 * exception. if is other database's reserved word, log output a warning.
+	 * Otherwise return word itself.
 	 */
 	public String checkNotEmptyReservedWords(String word, String... errorMSG) {
 		if (StrUtils.isEmpty(word)) {
@@ -242,8 +246,8 @@ public enum Dialect implements PaginateSupport {
 
 	/**
 	 * SQLServer is complex, don't want re-invent wheel, copy Hibernate's source
-	 * code in this project to do the dirty job, that's why this project use
-	 * LGPL license
+	 * code in this project to do the dirty job, that's why this project use LGPL
+	 * license
 	 */
 	private static String processSQLServer(Dialect dialect, int pageNumber, int pageSize, String sql) {
 		int skipRows = (pageNumber - 1) * pageSize;
@@ -279,10 +283,8 @@ public enum Dialect implements PaginateSupport {
 	// ====================================================
 	// ====================================================
 
-	/**
-	 * Translate a universal SQL to native SQL, and paginate
-	 */
-	public String paginAndTranslate(int pageNumber, int pageSize, String... sql) {
+	/** Paginate and Translate a SQL */
+	public String paginAndTrans(int pageNumber, int pageSize, String... sql) {
 		return paginate(pageNumber, pageSize, translate(sql));
 	}
 
@@ -295,28 +297,22 @@ public enum Dialect implements PaginateSupport {
 			sb.append(str);
 		return DialectFunctionTranslator.instance.doTranslate(this, sb.toString());
 	}
-
-	/**
-	 * Create a pagination SQL by given pageNumber, pageSize and SQL<br/>
-	 * 
-	 * @param pageNumber
-	 *            The page number, start from 1
-	 * @param pageSize
-	 *            The page item size
-	 * @param sql
-	 *            The original SQL
-	 * @return The paginated SQL
-	 */
+ 
 	@Override
 	public String paginate(int pageNumber, int pageSize, String sql) {// NOSONAR
+		String result = null;
 		DialectException.assureNotNull(sql, "sql string can not be null");
 		String trimedSql = sql.trim();
 		DialectException.assureNotEmpty(trimedSql, "sql string can not be empty");
 		switch (this) {
 		case SQLServer2005Dialect:
 		case SQLServer2008Dialect:
-		case SQLServer2012Dialect:
-			return processSQLServer(this, pageNumber, pageSize, trimedSql);
+		case SQLServer2012Dialect: {
+			result = processSQLServer(this, pageNumber, pageSize, trimedSql);
+			if (allowLogOutput)
+				logger.info("Paginated sql:\r" + result);
+			return result;
+		}
 		default:
 		}
 
@@ -355,7 +351,7 @@ public enum Dialect implements PaginateSupport {
 		}
 
 		// if have $XXX tag, replaced by real values
-		String result = StrUtils.replaceIgnoreCase(useTemplate, SKIP_ROWS, String.valueOf(skipRows));
+		result = StrUtils.replaceIgnoreCase(useTemplate, SKIP_ROWS, String.valueOf(skipRows));
 		result = StrUtils.replaceIgnoreCase(result, PAGESIZE, String.valueOf(pageSize));
 		result = StrUtils.replaceIgnoreCase(result, TOTAL_ROWS, String.valueOf(totalRows));
 		result = StrUtils.replaceIgnoreCase(result, SKIP_ROWS_PLUS1, String.valueOf(skipRowsPlus1));
@@ -366,6 +362,8 @@ public enum Dialect implements PaginateSupport {
 
 		// or only insert the body without "select "
 		result = StrUtils.replace(result, "$BODY", body);
+		if (allowLogOutput)
+			logger.info("Paginated sql:\r" + result);
 		return result;
 	}
 
@@ -499,8 +497,8 @@ public enum Dialect implements PaginateSupport {
 	}
 
 	/**
-	 * Build a "alter table tableName drop foreign key fkeyName " like DDL
-	 * String according this dialect
+	 * Build a "alter table tableName drop foreign key fkeyName " like DDL String
+	 * according this dialect
 	 */
 	public String dropFKeyDDL(String tableName, String fkeyName) {
 		if (DDLFeatures.isValidDDLTemplate(ddlFeatures.dropForeignKeyString))
@@ -522,43 +520,15 @@ public enum Dialect implements PaginateSupport {
 	public Map<Type, String> getTypeMappings() {
 		return typeMappings;
 	}
-	
+
 	/** Get DDL features of current dialect */
 	public Map<String, String> getFunctions() {
 		return functions;
 	}
-	
+
 	/** Get DDL features of current dialect */
 	public DDLFeatures getDdlFeatures() {
 		return ddlFeatures;
-	}
-	
- 
-
-	/**
-	 * Get if allow reserved words in DDL, if true, when reserved words found in
-	 * DDL will not throw Exception
-	 */
-	public static Boolean getAllowReservedWords() {
-		return allowReservedWords;
-	}
-
-	/**
-	 * Set if allow reserved words in DDL, if set true, when reserved words
-	 * found in DDL will not throw Exception
-	 */
-	public static void setAllowReservedWords(Boolean allowReservedWords) {
-		Dialect.allowReservedWords = allowReservedWords;
-	}
-
-	/** Get SQL function prefix */
-	public static String getSqlFunctionPrefix() {
-		return sqlFunctionPrefix;
-	}
-
-	/** Set SQL function prefix */
-	public static void setSqlFunctionPrefix(String sqlFunctionPrefix) {
-		Dialect.sqlFunctionPrefix = sqlFunctionPrefix;
 	}
 
 }
