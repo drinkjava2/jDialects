@@ -1,3 +1,5 @@
+package com.github.drinkjava2.demo;
+
 import java.util.List;
 import java.util.Map;
 

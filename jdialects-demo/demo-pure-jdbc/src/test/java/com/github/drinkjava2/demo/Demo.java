@@ -1,3 +1,5 @@
+package com.github.drinkjava2.demo;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -139,7 +141,7 @@ public class Demo {
 		// ds.setPassword("root888");
 
 		Dialect dialect = Dialect.guessDialect(ds);
-		Dialect.allowLogOutput = true;
+		//Dialect.setAllowShowDialectLog(true);
 
 		Connection conn = null;
 		try {

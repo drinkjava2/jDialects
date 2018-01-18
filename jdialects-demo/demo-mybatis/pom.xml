@@ -37,7 +37,7 @@
       <scope>test</scope> 
     </dependency> 
     
-    <!-- Seems MyBatis used slf4j, to avoid warning, put below 2 libs-->
+    <!-- Some dependency use slf4j, so here add the slf4j & slf4j adapter  -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -99,6 +99,22 @@
       <version>6.1.0.jre8</version>
       <scope>test</scope>
     </dependency>
+    
+    	<!-- ojdbc6.jar example -->
+	<!-- dependency>
+		<groupId>com.oracle</groupId>
+		<artifactId>ojdbc6</artifactId>
+		<version>11.2.0</version>
+		<scope>test</scope>
+	</dependency-->
+
+	<!-- ojdbc7.jar example -->
+	<dependency>
+		<groupId>com.oracle</groupId>
+		<artifactId>ojdbc7</artifactId>
+		<version>12.1.0</version>
+		<scope>test</scope>
+	</dependency> 
     
 </dependencies> 
   

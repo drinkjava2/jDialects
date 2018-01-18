@@ -38,8 +38,7 @@ import com.github.drinkjava2.jsqlbox.SqlBoxContext;
 import com.zaxxer.hikari.HikariDataSource;
 
 public class Demo {
-	protected static ThreadLocal<Integer> pageNo = new ThreadLocal<Integer>();
-	protected static ThreadLocal<Integer> pageSize = new ThreadLocal<Integer>();
+	protected static ThreadLocal<Object[]> paginInfo = new ThreadLocal<Object[]>();
 
 	@Table(name = "users")
 	public static class User extends ActiveRecord {
@@ -87,9 +86,6 @@ public class Demo {
 	}
 
 	public static interface UserMapper {
-		@Select("SELECT count(*) FROM users")
-		Integer countUsers();
-
 		@Select("select concat(firstName, ' ', lastName) as USERNAME, age as AGE from users where age>#{age}")
 		List<Map<String, Object>> getOlderThan(int age);
 	}
@@ -122,11 +118,6 @@ public class Demo {
 			@Signature(type = Executor.class, method = "query", args = { MappedStatement.class, Object.class,
 					RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class }), })
 	public class JDialectsPlugin implements Interceptor {
-		Dialect dialect;
-
-		JDialectsPlugin(Dialect dialect) {
-			this.dialect = dialect;
-		}
 
 		@Override
 		public Object intercept(Invocation invocation) throws Throwable {
@@ -139,18 +130,17 @@ public class Demo {
 			Executor executor = (Executor) invocation.getTarget();
 			CacheKey cacheKey;
 			BoundSql boundSql;
-			// 由于逻辑关系，只会进入一次
 			if (args.length == 4) {
 				boundSql = ms.getBoundSql(parameter);
 				cacheKey = executor.createCacheKey(ms, parameter, rowBounds, boundSql);
-			} else { // 6 个参数时
+			} else {
 				cacheKey = (CacheKey) args[4];
 				boundSql = (BoundSql) args[5];
 			}
-			if (pageNo.get() != null) {
+			if (paginInfo.get() != null) {// if paginInfo exist in threadlocal
 				Configuration configuration = ms.getConfiguration();
-				String pageSql = dialect.paginAndTrans(pageNo.get(), pageSize.get(), boundSql.getSql()); 
-
+				String pageSql = ((Dialect) paginInfo.get()[0]).paginAndTrans((int) paginInfo.get()[1],
+						(int) paginInfo.get()[2], boundSql.getSql());
 				BoundSql pageBoundSql = new BoundSql(configuration, pageSql, boundSql.getParameterMappings(),
 						parameter);
 				return executor.query(ms, parameter, RowBounds.DEFAULT, resultHandler, cacheKey, pageBoundSql);
@@ -174,16 +164,16 @@ public class Demo {
 		HikariDataSource dataSource = new HikariDataSource();// DataSource
 
 		// H2 is a memory database
-		 dataSource.setDriverClassName("org.h2.Driver");
-		 dataSource.setJdbcUrl("jdbc:h2:mem:DBName;MODE=MYSQL;DB_CLOSE_DELAY=-1;TRACE_LEVEL_SYSTEM_OUT=0");
-		 dataSource.setUsername("sa");
-		 dataSource.setPassword("");
+		dataSource.setDriverClassName("org.h2.Driver");
+		dataSource.setJdbcUrl("jdbc:h2:mem:DBName;MODE=MYSQL;DB_CLOSE_DELAY=-1;TRACE_LEVEL_SYSTEM_OUT=0");
+		dataSource.setUsername("sa");
+		dataSource.setPassword("");
 
 		// MySQL
-		// dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-		// dataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/test?rewriteBatchedStatements=true&useSSL=false");
-		// dataSource.setUsername("root");
-		// dataSource.setPassword("root888");
+//		 dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+//		 dataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/test?rewriteBatchedStatements=true&useSSL=false");
+//		 dataSource.setUsername("root");
+//		 dataSource.setPassword("root888");
 
 		// MS-SqlServer
 		// dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -211,38 +201,33 @@ public class Demo {
 			u.setAge(i);
 			u.insert();
 		}
-		 
 
 		TransactionFactory transactionFactory = new JdbcTransactionFactory();
 		Environment environment = new Environment("demo", transactionFactory, dataSource);
 		Configuration configuration = new Configuration(environment);
 		configuration.addMapper(UserMapper.class);
 		SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
-		configuration.addInterceptor(new JDialectsPlugin(dialect));
+		configuration.addInterceptor(new JDialectsPlugin());
 
 		SqlSession session = null;
 		try {
 			session = sqlSessionFactory.openSession();
-			Connection conn=session.getConnection();
+			Connection conn = session.getConnection();
 			Assert.assertEquals(100, ctx.nQueryForLongValue(conn, "select count(*) from users"));
-			
-			Assert.assertEquals((Object) 100, session.getMapper(UserMapper.class).countUsers());
+
 			List<Map<String, Object>> users;
 			try {
-				pageNo.set(5);
-				pageSize.set(10);
+				paginInfo.set(new Object[] { dialect, 3, 10 });
 				users = session.getMapper(UserMapper.class).getOlderThan(50);
 			} finally {
-				pageNo.remove();
-				pageSize.remove();
+				paginInfo.remove();
 			}
 			Assert.assertEquals(10, users.size());
 			for (Map<String, Object> map : users)
-				System.out.println("UserName=" + map.get("USERNAME") + ", age=" + map.get("AGE")); 
+				System.out.println("UserName=" + map.get("USERNAME") + ", age=" + map.get("AGE"));
 		} finally {
 			session.close();
 		}
- 
 		dataSource.close();
 	}
 }
