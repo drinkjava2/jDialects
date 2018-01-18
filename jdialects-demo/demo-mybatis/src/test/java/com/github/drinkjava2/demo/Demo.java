@@ -1,6 +1,5 @@
 package com.github.drinkjava2.demo;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,6 @@ import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.annotation.jdia.UUID25;
 import com.github.drinkjava2.jdialects.annotation.jpa.Id;
 import com.github.drinkjava2.jdialects.annotation.jpa.Table;
-import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
 import com.github.drinkjava2.jsqlbox.ActiveRecord;
 import com.github.drinkjava2.jsqlbox.SqlBoxContext;
 import com.zaxxer.hikari.HikariDataSource;
@@ -90,27 +88,7 @@ public class Demo {
 		List<Map<String, Object>> getOlderThan(int age);
 	}
 
-	public static Object getFieldValue(Object obj, String fieldname) {
-		try {
-			Field field = ReflectionUtils.findField(obj.getClass(), fieldname);
-			field.setAccessible(true);
-			Object o = field.get(obj);
-			return o;
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	public static void setFieldValue(Object obj, String fieldname, Object value) {
-		try {
-			Field field = ReflectionUtils.findField(obj.getClass(), fieldname);
-			field.setAccessible(true);
-			field.set(obj, value);
-		} catch (Exception e) {
-		}
-	}
-
-	// copied from
+	// See
 	// https://github.com/pagehelper/Mybatis-PageHelper/blob/master/wikis/zh/Interceptor.md
 	@Intercepts({
 			@Signature(type = Executor.class, method = "query", args = { MappedStatement.class, Object.class,
@@ -170,10 +148,10 @@ public class Demo {
 		dataSource.setPassword("");
 
 		// MySQL
-//		 dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-//		 dataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/test?rewriteBatchedStatements=true&useSSL=false");
-//		 dataSource.setUsername("root");
-//		 dataSource.setPassword("root888");
+		// dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+		// dataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/test?rewriteBatchedStatements=true&useSSL=false");
+		// dataSource.setUsername("root");
+		// dataSource.setPassword("root888");
 
 		// MS-SqlServer
 		// dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -190,17 +168,11 @@ public class Demo {
 		SqlBoxContext ctx = new SqlBoxContext(dataSource);
 		SqlBoxContext.setDefaultContext(ctx);
 		ctx.setAllowShowSQL(true);
-		Dialect dialect = ctx.getDialect();
-		String[] ddlArray = dialect.toDropAndCreateDDL(User.class);
+		String[] ddlArray = ctx.toDropAndCreateDDL(User.class);
 		for (String ddl : ddlArray)
 			ctx.quiteExecute(ddl);
-		for (int i = 1; i <= 100; i++) {
-			User u = new User();
-			u.setFirstName("Foo" + i);
-			u.setLastName("Bar" + i);
-			u.setAge(i);
-			u.insert();
-		}
+		for (int i = 1; i <= 100; i++)
+			new User().put("firstName", "Foo" + i, "lastName", "Bar" + i, "age", i).insert();
 
 		TransactionFactory transactionFactory = new JdbcTransactionFactory();
 		Environment environment = new Environment("demo", transactionFactory, dataSource);
@@ -217,7 +189,7 @@ public class Demo {
 
 			List<Map<String, Object>> users;
 			try {
-				paginInfo.set(new Object[] { dialect, 3, 10 });
+				paginInfo.set(new Object[] { ctx.getDialect(), 3, 10 });
 				users = session.getMapper(UserMapper.class).getOlderThan(50);
 			} finally {
 				paginInfo.remove();
