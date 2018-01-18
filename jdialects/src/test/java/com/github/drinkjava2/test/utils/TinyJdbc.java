@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package test.utils.tinyjdbc;
+package com.github.drinkjava2.test.utils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

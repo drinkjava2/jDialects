@@ -13,17 +13,18 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package test.functiontest.jdialects;
+package com.github.drinkjava2.test.function;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.ModelUtils;
+import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.TableModel;
-
-import test.TestBase;
+import com.github.drinkjava2.test.TestBase;
 
 /**
  * Unit test for SortedUUIDGenerator
@@ -57,7 +58,19 @@ public class Db2ModelsTest extends TestBase {
 		try {
 			con = ds.getConnection();
 			tableModels = ModelUtils.db2Model(con, guessedDialect);
-			System.out.println(tableModels[0]); 
+			for (TableModel tableModel : tableModels) {
+				List<ColumnModel> columns = tableModel.getColumns();
+				System.out.println(tableModel.getTableName());
+				for (ColumnModel columnModel : columns) {
+					System.out.print(columnModel.getColumnName()+",");
+					System.out.print(columnModel.getColumnType()+",");
+					System.out.print(columnModel.getLength()+",");
+					System.out.print(columnModel.getPrecision()+",");
+					System.out.print(columnModel.getScale()+"\r");
+				}
+				System.out.println();
+			}
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {

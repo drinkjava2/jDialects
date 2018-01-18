@@ -88,7 +88,7 @@ public class DDLDropUtils {
 		outputDropFKeyConstraintDDL(dialect, stringResultList, fKeyConstraintList);
 
 		String[] result = stringResultList.toArray(new String[stringResultList.size()]); 
-		if (Dialect.allowLogOutput)			
+		if (Dialect.getAllowShowDialectLog() )			
 			Dialect.logger.info("Drop DDL:\r"+StrUtils.arrayToString(result, "\r")); 
 		return result;
 		

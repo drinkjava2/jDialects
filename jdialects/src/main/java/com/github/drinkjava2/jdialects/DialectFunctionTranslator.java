@@ -289,8 +289,8 @@ public class DialectFunctionTranslator {
 		if (StrUtils.isEmpty(sql))
 			return sql;
 		// if prefix not empty and SQL not include prefix, directly return
-		if (!StrUtils.isEmpty(Dialect.sqlFunctionPrefix)
-				&& !StrUtils.containsIgnoreCase(sql, Dialect.sqlFunctionPrefix))
+		if (!StrUtils.isEmpty(Dialect.getAllowReservedWords())
+				&& !StrUtils.containsIgnoreCase(sql, Dialect.getSqlFunctionPrefix()))
 			return sql;
 		char[] chars = (" " + sql + " ").toCharArray();
 		SqlItem[] items = seperateCharsToItems(chars, 1, chars.length - 2);
@@ -301,7 +301,7 @@ public class DialectFunctionTranslator {
 			for (SqlItem item : items)
 				System.out.print(item.getDebugInfo(0));// NOSONAR
 		String result = join(d, true, null, items);
-		if (Dialect.allowLogOutput)
+		if (Dialect.getAllowShowDialectLog() )
 			Dialect.logger.info("Translated sql:\r" + result);
 		return result;
 	}
@@ -323,7 +323,7 @@ public class DialectFunctionTranslator {
 			String valueStr = (String) item.value;
 			String valueUpcase = valueStr.toUpperCase();
 			// check is function
-			String funPrefix = Dialect.sqlFunctionPrefix;
+			String funPrefix = Dialect.getSqlFunctionPrefix();
 			if (!StrUtils.isEmpty(valueUpcase)) {
 				if (!StrUtils.isEmpty(funPrefix) && StrUtils.startsWithIgnoreCase(valueUpcase, funPrefix)
 						&& functionMap.containsKey(valueUpcase.substring(funPrefix.length()))) {

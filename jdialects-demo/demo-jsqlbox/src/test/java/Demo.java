@@ -1,7 +1,6 @@
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -88,16 +87,13 @@ public class Demo {
 		// ds.setPassword("root888");
 
 		SqlBoxContext ctx = new SqlBoxContext(ds);
+		SqlBoxContext.setDefaultContext(ctx);
 		ctx.setAllowShowSQL(true);
 
-		String[] ddlArray = ctx.getDialect().toDropAndCreateDDL(User.class);
+		String[] ddlArray = ctx.toDropAndCreateDDL(User.class);
 		for (String ddl : ddlArray)
-			try {
-				ctx.nExecute(ddl);
-			} catch (Exception e) {
-			}
+			ctx.quiteExecute(ddl);
 
-		ctx.nBatchBegin();
 		for (int i = 1; i <= 100; i++) {
 			User u = new User();
 			u.setFirstName("Foo" + i);
@@ -105,11 +101,9 @@ public class Demo {
 			u.setAge(i);
 			u.insert();
 		}
-		ctx.nBatchEnd();
+		Assert.assertEquals(100, ctx.nQueryForLongValue("select count(*) from users"));
 
-		Assert.assertEquals(100L, ((Number) ctx.nQueryForObject("select count(*) from users")).longValue());
-
-		List<Map<String, Object>> users = ctx.nQuery(new MapListHandler(),
+		List<Map<String, Object>> users = ctx.nQueryForMapList(
 				ctx.paginate(2, 10, "select concat(firstName, ' ', lastName) as UserName, age from users where age>?"),
 				50);
 

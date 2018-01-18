@@ -5,7 +5,7 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package test.coveragetest;
+package com.github.drinkjava2.test.coverage;
 
 import org.junit.Assert;
 import org.junit.Test;

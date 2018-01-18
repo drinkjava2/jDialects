@@ -7,7 +7,7 @@
  <packaging>jar</packaging> 
  
  <name>demo-mybatis</name>
- <description>jDialects demo for use in MyBatis</description>  
+ <description>jDialects demo for use in mybatis, this demo need JDK8+</description>  
  
     <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
@@ -15,24 +15,65 @@
       <maven.compiler.encoding>UTF-8</maven.compiler.encoding> 
     </properties> 
 	  
-<dependencies> 
-    <dependency>
-        <groupId>com.github.drinkjava2</groupId>
-        <artifactId>jdialects</artifactId>
-        <version>1.0.7</version> 
-    </dependency>  
-
+<dependencies>  
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.2</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>  
+      <groupId>log4j</groupId>  
+      <artifactId>log4j</artifactId>  
+      <version>1.2.17</version> 
+      <scope>test</scope> 
     </dependency> 
+    
+    <!-- Seems MyBatis used slf4j, to avoid warning, put below 2 libs-->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.25</version>
+      <scope>test</scope> 
+    </dependency> 
+    <dependency>
+       <groupId>org.slf4j</groupId>
+       <artifactId>slf4j-log4j12</artifactId>
+       <version>1.7.25</version>
+       <scope>test</scope> 
+     </dependency>
+    
+    <!-- MyBatis 3.4.5 -->
+    <dependency>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis</artifactId>
+        <version>3.4.5</version>
+        <scope>test</scope>
+    </dependency>
  
+    <!-- In this demo use jSqlBox as the plugin for MyBatis, jSqlBox is a micro scale ORM 
+         tool, it already has dependency of jDialects, so no need add jDialects dependency. -->
+    <dependency>
+        <groupId>com.github.drinkjava2</groupId>
+        <artifactId>jsqlbox</artifactId>
+        <version>1.0.7</version>
+        <scope>test</scope> 
+    </dependency>   
+  
    <!-- HikariCP is a dataSource pool quicker than c3p0 -->
     <dependency>
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP-java6</artifactId>
         <version>2.3.13</version>
+        <scope>test</scope>
     </dependency>
  
     <!-- H2Database memory database for unit test -->
@@ -40,6 +81,7 @@
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <version>1.3.176</version>
+      <scope>test</scope>
     </dependency> 
     
     <!-- MySql Database driver for unit test --> 
@@ -47,6 +89,7 @@
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
         <version>5.1.43</version>
+        <scope>test</scope>
     </dependency>    
     
     <!-- MS-SQLServer JDBC driver for unit test -->  
@@ -54,6 +97,7 @@
       <groupId>com.microsoft.sqlserver</groupId>
       <artifactId>mssql-jdbc</artifactId>
       <version>6.1.0.jre8</version>
+      <scope>test</scope>
     </dependency>
     
 </dependencies> 

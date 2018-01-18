@@ -48,13 +48,13 @@ public abstract class ModelUtilsOfDb {
 					tableNames.add(rs.getString(TABLE_NAME));
 				rs.close();
 				pst.close();
-			} else if (dialect.isSQLServerFamily()) {
-				pst = con.prepareStatement("select name from sysobjects where xtype='U'");
-				rs = pst.executeQuery();
-				while (rs.next())
-					tableNames.add(rs.getString(TABLE_NAME));
-				rs.close();
-				pst.close();
+//			} else if (dialect.isSQLServerFamily()) {
+//				pst = con.prepareStatement("select name from sysobjects where xtype='U'");
+//				rs = pst.executeQuery();
+//				while (rs.next())
+//					tableNames.add(rs.getString(TABLE_NAME));
+//				rs.close();
+//				pst.close();
 			} else {
 				rs = meta.getTables(null, null, null, new String[] { "TABLE" });
 				while (rs.next())
@@ -98,6 +98,7 @@ public abstract class ModelUtilsOfDb {
 				rs.close();
 			}
 		} catch (SQLException e) {
+			e.printStackTrace();
 			sqlException = e;
 		} finally {
 			if (pst != null)

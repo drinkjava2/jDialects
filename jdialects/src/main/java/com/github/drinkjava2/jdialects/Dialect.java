@@ -58,17 +58,17 @@ public enum Dialect implements CommonDialect {
 	Oracle9Dialect, Cache71Dialect, CUBRIDDialect, DerbyTenFiveDialect, DataDirectOracle9Dialect, DB2Dialect, DB2390Dialect, DB2400Dialect, DerbyTenSevenDialect, DerbyTenSixDialect, FirebirdDialect, FrontBaseDialect, H2Dialect, HANAColumnStoreDialect, HANARowStoreDialect, HSQLDialect, InformixDialect, Informix10Dialect, IngresDialect, Ingres10Dialect, Ingres9Dialect, InterbaseDialect, JDataStoreDialect, MariaDBDialect, MariaDB53Dialect, MckoiDialect, MimerSQLDialect, MySQLDialect, MySQL5Dialect, MySQL55Dialect, MySQL57Dialect, MySQL57InnoDBDialect, MySQL5InnoDBDialect, MySQLInnoDBDialect, MySQLMyISAMDialect, Oracle8iDialect, Oracle9iDialect, Oracle10gDialect, Oracle12cDialect, PointbaseDialect, PostgresPlusDialect, PostgreSQLDialect, PostgreSQL81Dialect, PostgreSQL82Dialect, PostgreSQL9Dialect, PostgreSQL91Dialect, PostgreSQL92Dialect, PostgreSQL93Dialect, PostgreSQL94Dialect, PostgreSQL95Dialect, ProgressDialect, RDMSOS2200Dialect, SAPDBDialect, SQLServerDialect, SQLServer2005Dialect, SQLServer2008Dialect, SQLServer2012Dialect, SybaseDialect, Sybase11Dialect, SybaseAnywhereDialect, SybaseASE15Dialect, SybaseASE157Dialect, TeradataDialect, Teradata14Dialect, TimesTenDialect;// NOSONAR
 
 	/** If set true will allow use reserved words in DDL, default value is false */
-	public static Boolean allowReservedWords = false;
+	private static Boolean allowReservedWords = false;
 
 	/**
 	 * If set true will output log for each paginate, translate, paginAndTranslate,
 	 * toCreateDDL, toDropAndCreateDDL, toDropDDL method call, default value is
 	 * false
 	 */
-	public static Boolean allowLogOutput = false;
+	private static Boolean allowShowDialectLog = false;
 
 	/** The SQL function prefix String, default value is null */
-	public static String sqlFunctionPrefix = null;
+	private static String sqlFunctionPrefix = null;
 
 	public static final String NOT_SUPPORT = "NOT_SUPPORT";
 	private static final String SKIP_ROWS = "$SKIP_ROWS";
@@ -142,7 +142,7 @@ public enum Dialect implements CommonDialect {
 							+ "if you really want use this reserved word, set Dialect.ALLOW_RESERVED_WORDS=true.");
 			} else {
 				logger.warn("\"" + word + "\" is a reserved word of other database \"" + reservedForDB
-						+ "\", not recommended to be used as table, column, unique or index name");
+						+ "\", not recommend be used as table, column, unique or index name");
 			}
 		}
 	}
@@ -297,7 +297,7 @@ public enum Dialect implements CommonDialect {
 			sb.append(str);
 		return DialectFunctionTranslator.instance.doTranslate(this, sb.toString());
 	}
- 
+
 	@Override
 	public String paginate(int pageNumber, int pageSize, String sql) {// NOSONAR
 		String result = null;
@@ -309,7 +309,7 @@ public enum Dialect implements CommonDialect {
 		case SQLServer2008Dialect:
 		case SQLServer2012Dialect: {
 			result = processSQLServer(this, pageNumber, pageSize, trimedSql);
-			if (allowLogOutput)
+			if (getAllowShowDialectLog())
 				logger.info("Paginated sql:\r" + result);
 			return result;
 		}
@@ -362,7 +362,7 @@ public enum Dialect implements CommonDialect {
 
 		// or only insert the body without "select "
 		result = StrUtils.replace(result, "$BODY", body);
-		if (allowLogOutput)
+		if (getAllowShowDialectLog())
 			logger.info("Paginated sql:\r" + result);
 		return result;
 	}
@@ -529,6 +529,33 @@ public enum Dialect implements CommonDialect {
 	/** Get DDL features of current dialect */
 	public DDLFeatures getDdlFeatures() {
 		return ddlFeatures;
+	}
+
+	public static Boolean getAllowReservedWords() {
+		return allowReservedWords;
+	}
+
+	/** Note! this is a global method to set allowReservedWords */
+	public static void setAllowReservedWords(Boolean allowReservedWords) {
+		Dialect.allowReservedWords = allowReservedWords;
+	}
+
+	public static Boolean getAllowShowDialectLog() {
+		return allowShowDialectLog;
+	}
+
+	/** Note! this is a global method to set allowShowDialectLog */
+	public static void setAllowShowDialectLog(Boolean allowShowDialectLog) {
+		Dialect.allowShowDialectLog = allowShowDialectLog;
+	}
+
+	public static String getSqlFunctionPrefix() {
+		return sqlFunctionPrefix;
+	}
+
+	/** Note! this is a global method to set sqlFunctionPrefix */
+	public static void setSqlFunctionPrefix(String sqlFunctionPrefix) {
+		Dialect.sqlFunctionPrefix = sqlFunctionPrefix;
 	}
 
 }

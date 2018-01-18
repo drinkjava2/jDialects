@@ -5,7 +5,7 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package test;
+package com.github.drinkjava2.test;
 
 import javax.sql.DataSource;
 
@@ -15,9 +15,8 @@ import org.junit.Before;
 import com.github.drinkjava2.jbeanbox.BeanBox;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.model.TableModel;
-
-import test.DataSourceConfig.DataSourceBox;
-import test.utils.tinyjdbc.TinyJdbc;
+import com.github.drinkjava2.test.DataSourceConfig.DataSourceBox;
+import com.github.drinkjava2.test.utils.TinyJdbc;
 
 /**
  * This base test class in charge of configure and close data sources.

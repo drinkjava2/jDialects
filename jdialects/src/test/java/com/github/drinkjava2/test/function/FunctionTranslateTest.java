@@ -5,7 +5,7 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package test.functiontest.jdialects;
+package com.github.drinkjava2.test.function;
 
 import org.junit.Test;
 
@@ -19,7 +19,7 @@ import com.github.drinkjava2.jdialects.Dialect;
  */
 public class FunctionTranslateTest {
 	{
-		 // Dialect.allowLogOutput=true;
+		// Dialect.allowLogOutput=true;
 	}
 
 	@Test
@@ -43,8 +43,8 @@ public class FunctionTranslateTest {
 
 		System.out.println("============================================");
 
-		System.out.println(Dialect.MySQL55Dialect.paginAndTrans(3, 10,
-				"select concat('a','b','c'), current_time() from user_tb"));
+		System.out.println(
+				Dialect.MySQL55Dialect.paginAndTrans(3, 10, "select concat('a','b','c'), current_time() from user_tb"));
 		System.out.println(Dialect.Oracle12cDialect.paginAndTrans(3, 10,
 				"select concat('a','b','c'), current_time() from user_tb"));
 		System.out.println(Dialect.SQLServer2005Dialect.paginAndTrans(1, 10,
@@ -53,7 +53,8 @@ public class FunctionTranslateTest {
 
 	@Test
 	public void doPrefixTest() {
-		Dialect.sqlFunctionPrefix = "#"; // Default is null
+		// Default is null, here change to "#" only for test
+		Dialect.setSqlFunctionPrefix("#");
 		String result = Dialect.MySQL55Dialect.translate(
 				"Select username, #concat(#second(#second(99)),'a', #second(20) ), #current_time(), #PI(), #concat('a', b, c) as b from usertable as tb");
 		System.out.println(result);
@@ -90,7 +91,8 @@ public class FunctionTranslateTest {
 
 		System.out.println("============================================");
 
-		Dialect.sqlFunctionPrefix = "$fn_";
+		// Default is null, here change to "#" only for test
+		Dialect.setSqlFunctionPrefix("$fn_");
 		result = Dialect.MySQL55Dialect.translate(
 				"Select username, $fn_concat($fn_second($fn_second(99)),'a', $fn_second(20) ), $fn_current_time(), $fn_PI(), $fn_concat('a', b, c) as b from usertable as tb");
 		System.out.println(result);
@@ -109,7 +111,7 @@ public class FunctionTranslateTest {
 
 		System.out.println("============================================");
 
-		Dialect.sqlFunctionPrefix = null;
+		Dialect.setSqlFunctionPrefix(null);
 		result = Dialect.MySQL55Dialect.translate(
 				"Select username, concat(second(second(99)),'a', second(20) ), current_time(), PI(), concat('a', b, c) as b from usertable as tb");
 		System.out.println(result);

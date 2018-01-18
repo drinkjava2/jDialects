@@ -5,7 +5,7 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package test.functiontest.jdialects;
+package com.github.drinkjava2.test.function;
 
 import org.junit.Test;
 
@@ -30,8 +30,7 @@ import com.github.drinkjava2.jdialects.annotation.jpa.TableGenerator;
 import com.github.drinkjava2.jdialects.annotation.jpa.Transient;
 import com.github.drinkjava2.jdialects.annotation.jpa.UniqueConstraint;
 import com.github.drinkjava2.jdialects.model.TableModel;
-
-import test.TestBase;
+import com.github.drinkjava2.test.TestBase;
 
 /**
  * Annotation Test

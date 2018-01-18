@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package test.functiontest.jdialects;
+package com.github.drinkjava2.test.function;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,8 +27,7 @@ import com.github.drinkjava2.jdialects.id.UUID25Generator;
 import com.github.drinkjava2.jdialects.id.UUID32Generator;
 import com.github.drinkjava2.jdialects.id.UUID36Generator;
 import com.github.drinkjava2.jdialects.model.TableModel;
-
-import test.TestBase;
+import com.github.drinkjava2.test.TestBase;
 
 /**
  * Unit test for SortedUUIDGenerator

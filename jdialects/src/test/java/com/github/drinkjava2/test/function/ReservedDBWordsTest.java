@@ -5,7 +5,7 @@
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
  */
-package test.functiontest.jdialects;
+package com.github.drinkjava2.test.function;
 
 import org.junit.Assert;
 import org.junit.Test;
