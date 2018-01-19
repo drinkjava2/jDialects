@@ -27,25 +27,27 @@ import java.util.Map;
 public class DialectFunctionTranslator {
 	public static DialectFunctionTranslator instance = new DialectFunctionTranslator();
 	private Map<String, Integer> functionMap = new HashMap<String, Integer>();
-	private static boolean debugMode = false; 
+	private static boolean debugMode = false;// for debug only
 
+	/**
+	 * Register functions names need translated, values is percentage of dialects
+	 * support this function, value not used for this project
+	 */
 	public DialectFunctionTranslator() {
-		// key is function name, value is percentage of dialects have this
-		// function, value not used for this project
-		functionMap.put("ABS", 100);// Not necessary, all dialects are same
+		// functionMap.put("ABS", 100);// Not necessary, all dialects are same
 		functionMap.put("AVG", 100);
 		functionMap.put("BIT_LENGTH", 100);
-		functionMap.put("CAST", 100);// Not necessary
+		// functionMap.put("CAST", 100);// Not necessary
 		functionMap.put("COALESCE", 100);
-		functionMap.put("COUNT", 100);// Not necessary
+		// functionMap.put("COUNT", 100);// Not necessary
 		functionMap.put("DAY", 100);
 		functionMap.put("EXTRACT", 100);
 		functionMap.put("HOUR", 100);
 		functionMap.put("LENGTH", 100);
 		functionMap.put("LOCATE", 100);
-		functionMap.put("LOWER", 100);// Not necessary
-		functionMap.put("MAX", 100);// Not necessary
-		functionMap.put("MIN", 100);// Not necessary
+		// functionMap.put("LOWER", 100);// Not necessary
+		// functionMap.put("MAX", 100);// Not necessary
+		// functionMap.put("MIN", 100);// Not necessary
 		functionMap.put("MINUTE", 100);
 		functionMap.put("MOD", 100);
 		functionMap.put("MONTH", 100);
@@ -54,9 +56,9 @@ public class DialectFunctionTranslator {
 		functionMap.put("SQRT", 100);
 		functionMap.put("STR", 100);
 		functionMap.put("SUBSTRING", 100);
-		functionMap.put("SUM", 100);// Not necessary
+		// functionMap.put("SUM", 100);// Not necessary
 		functionMap.put("TRIM", 100);
-		functionMap.put("UPPER", 100);// Not necessary
+		// functionMap.put("UPPER", 100);// Not necessary
 		functionMap.put("YEAR", 100);
 		functionMap.put("CONCAT", 93);
 		functionMap.put("COS", 83);
@@ -237,8 +239,8 @@ public class DialectFunctionTranslator {
 	 * @since 1.7.0
 	 */
 	public static class SqlItem {
-		public char type;
-		public Object value;
+		public char type;// NOSONAR
+		public Object value;// NOSONAR
 
 		SqlItem[] subItems;
 
@@ -289,7 +291,7 @@ public class DialectFunctionTranslator {
 		if (StrUtils.isEmpty(sql))
 			return sql;
 		// if prefix not empty and SQL not include prefix, directly return
-		if (!StrUtils.isEmpty(Dialect.getAllowReservedWords())
+		if (!StrUtils.isEmpty(Dialect.getSqlFunctionPrefix())
 				&& !StrUtils.containsIgnoreCase(sql, Dialect.getSqlFunctionPrefix()))
 			return sql;
 		char[] chars = (" " + sql + " ").toCharArray();
@@ -301,7 +303,7 @@ public class DialectFunctionTranslator {
 			for (SqlItem item : items)
 				System.out.print(item.getDebugInfo(0));// NOSONAR
 		String result = join(d, true, null, items);
-		if (Dialect.getAllowShowDialectLog() )
+		if (Dialect.getAllowShowDialectLog())
 			Dialect.logger.info("Translated sql:\r" + result);
 		return result;
 	}
@@ -492,7 +494,7 @@ public class DialectFunctionTranslator {
 		String lastValue = current.trim();
 		if (lastValue.length() > 0)
 			l.add(current);
-		return FunctionUtils.render(d, (String) function.value, l.toArray(new String[l.size()]));
+		return DialectFunctionUtils.render(d, (String) function.value, l.toArray(new String[l.size()]));
 	}
 
 	public static void deleteItem(SqlItem item) {

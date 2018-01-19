@@ -18,8 +18,14 @@ import com.github.drinkjava2.jdialects.Dialect;
  *
  */
 public class FunctionTranslateTest {
+
 	{
-		// Dialect.allowLogOutput=true;
+		//Dialect.setAllowShowDialectLog(true);
+	}
+
+	public static void main(String[] args) {
+		System.out.println(Dialect.Oracle12cDialect.paginAndTrans(3, 10,
+				"select concat('a','b','c') as a, current_time() from user_tb"));
 	}
 
 	@Test

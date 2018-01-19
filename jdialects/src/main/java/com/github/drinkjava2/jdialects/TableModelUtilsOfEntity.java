@@ -29,7 +29,7 @@ import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
  * @author Yong Zhu
  * @since 1.0.6
  */
-public abstract class ModelUtilsOfEntity {// NOSONAR
+public abstract class TableModelUtilsOfEntity {// NOSONAR
 
 	private static Map<Class<?>, TableModel> tableModelCache = new ConcurrentHashMap<Class<?>, TableModel>();
 

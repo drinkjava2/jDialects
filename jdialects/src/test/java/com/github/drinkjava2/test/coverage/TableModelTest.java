@@ -10,6 +10,7 @@ package com.github.drinkjava2.test.coverage;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.TableModel;
 
@@ -21,7 +22,7 @@ import com.github.drinkjava2.jdialects.model.TableModel;
  */
 public class TableModelTest {
 
-	@Test
+ 	@Test
 	public void cloneTest() {
 		TableModel t1 = new TableModel("customers");
 		t1.column("name").STRING(20).pkey();
@@ -38,8 +39,7 @@ public class TableModelTest {
 		System.out.println(t2);
 		Assert.assertNotEquals(t1, t2);
 		Assert.assertNotNull(t2.getColumn("name").getTableModel());
-		
-		
+
 		System.out.println("================");
 		for (ColumnModel item : t1.getColumns()) {
 			System.out.println(item);

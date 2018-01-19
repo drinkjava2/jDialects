@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.github.drinkjava2.jdialects.ModelUtils;
+import com.github.drinkjava2.jdialects.TableModelUtils;
 import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.test.TestBase;
@@ -57,7 +57,7 @@ public class Db2ModelsTest extends TestBase {
 		TableModel[] tableModels = null;
 		try {
 			con = ds.getConnection();
-			tableModels = ModelUtils.db2Model(con, guessedDialect);
+			tableModels = TableModelUtils.db2Models(con, guessedDialect);
 			for (TableModel tableModel : tableModels) {
 				List<ColumnModel> columns = tableModel.getColumns();
 				System.out.println(tableModel.getTableName());

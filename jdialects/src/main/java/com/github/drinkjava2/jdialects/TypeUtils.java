@@ -77,6 +77,7 @@ public abstract class TypeUtils {//NOSONAR
 		return SQL_MAP_ABLE_TYPES.containsKey(clazz);
 	}
 
+	/** Convert a Class type to Dialect's Type */
 	public static Type toType(Class<?> clazz) {
 		Type t = SQL_MAP_ABLE_TYPES.get(clazz);
 		if (t == null)
@@ -85,6 +86,9 @@ public abstract class TypeUtils {//NOSONAR
 	}
 
 	// @formatter:off shut off eclipse's formatter
+	/**
+	 * Convert column definition String to Dialect's Type
+	 */
 	public static Type toType(String columnDef) { 
 		if ("BIGINT".equalsIgnoreCase(columnDef))return Type.BIGINT;
 		if ("BINARY".equalsIgnoreCase(columnDef))return Type.BINARY;
@@ -119,6 +123,9 @@ public abstract class TypeUtils {//NOSONAR
 	}
 	
 	// @formatter:off shut off eclipse's formatter
+	/** 
+	 *  Convert java.sql.Types.xxx type to Dialect's Type
+	 */
 	public static Type javaSqlTypeToDialectType(int javaSqlType) {
 		switch (javaSqlType) {
 		case java.sql.Types.BIT:return Type.BIT;

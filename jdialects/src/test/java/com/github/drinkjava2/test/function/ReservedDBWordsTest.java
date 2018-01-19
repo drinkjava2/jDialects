@@ -30,11 +30,17 @@ public class ReservedDBWordsTest {
 		Assert.assertTrue(ReservedDBWords.isReservedWord(Dialect.H2Dialect, "CURRENT_TIMESTAMP"));
 		Assert.assertFalse(ReservedDBWords.isReservedWord(Dialect.H2Dialect, "CURRENT_TIMESTAMP___"));
 		Assert.assertTrue(ReservedDBWords.isReservedWord(Dialect.H2Dialect, "AUTHORIZATION"));
-
 	}
 
 	@Test(expected = DialectException.class)
 	public void doTestExceptionThrow() {
 		Dialect.MySQL55Dialect.toCreateDDL(ReservedDBWordsTest.class);
+	}
+
+	@Test
+	public void doTestNoExceptionThrow() {
+		Dialect.setAllowReservedWords(true);
+		System.out.println(Dialect.MySQL55Dialect.toCreateDDL(ReservedDBWordsTest.class)[0]);
+		Dialect.setAllowReservedWords(false);// remember to restore this global setting!
 	}
 }

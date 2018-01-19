@@ -8,7 +8,8 @@
 package com.github.drinkjava2.jdialects;
 
 /**
- * Interface which has a paginate method
+ * Interface for Dialect, usually used to eliminate POM dependency for other
+ * projects
  * 
  * @author Yong Zhu
  * @since 1.0.0
@@ -24,7 +25,7 @@ public interface CommonDialect {
 	 * @return The paginated SQL
 	 */
 	public String paginate(int pageNumber, int pageSize, String sql);
-	
+
 	/**
 	 * Translate a SQL to native SQL, i.e., all functions written by universal
 	 * function format will be transfer to a native SQL function, for example,
@@ -45,5 +46,4 @@ public interface CommonDialect {
 	 */
 	public String paginAndTrans(int pageNumber, int pageSize, String... sql);
 
- 
 }

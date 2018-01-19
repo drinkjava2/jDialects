@@ -10,7 +10,7 @@ package com.github.drinkjava2.test.function;
 import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.Dialect;
-import com.github.drinkjava2.jdialects.ModelUtils;
+import com.github.drinkjava2.jdialects.TableModelUtils;
 import com.github.drinkjava2.jdialects.TypeUtils;
 import com.github.drinkjava2.jdialects.annotation.jdia.FKey;
 import com.github.drinkjava2.jdialects.annotation.jdia.FKey1;
@@ -166,10 +166,10 @@ public class AnnotationTest extends TestBase {
 
 	@Test
 	public void ddlOutTest() {
-		String[] dropAndCreateDDL = Dialect.H2Dialect.toDropAndCreateDDL(ModelUtils.entity2Model(Entity1.class, Entity2.class));
+		String[] dropAndCreateDDL = Dialect.H2Dialect.toDropAndCreateDDL(TableModelUtils.entity2Models(Entity1.class, Entity2.class));
 		for (String ddl : dropAndCreateDDL)
 			System.out.println(ddl);
 
-		testOnCurrentRealDatabase(ModelUtils.entity2Model(Entity1.class, Entity2.class));
+		testOnCurrentRealDatabase(TableModelUtils.entity2Models(Entity1.class, Entity2.class));
 	}
 }

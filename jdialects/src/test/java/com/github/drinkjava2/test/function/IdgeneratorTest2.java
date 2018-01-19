@@ -18,7 +18,7 @@ package com.github.drinkjava2.test.function;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.github.drinkjava2.jdialects.ModelUtils;
+import com.github.drinkjava2.jdialects.TableModelUtils;
 import com.github.drinkjava2.jdialects.annotation.jdia.PKey;
 import com.github.drinkjava2.jdialects.annotation.jdia.UUID25;
 import com.github.drinkjava2.jdialects.annotation.jpa.GeneratedValue;
@@ -58,7 +58,7 @@ public class IdgeneratorTest2 extends TestBase {
 
 	@Test
 	public void testPKey() {// nextID
-		TableModel t = ModelUtils.oneEntity2Model(pkeyEntity.class);
+		TableModel t = TableModelUtils.entity2Model(pkeyEntity.class);
 		Assert.assertTrue(t.column("id1").getPkey());
 		Assert.assertTrue(t.column("id2").getPkey());
 	}
@@ -103,8 +103,8 @@ public class IdgeneratorTest2 extends TestBase {
 
 	@Test
 	public void testUUID25() { 
-		reBuildDB(ModelUtils.entity2Model(uuid25Entity.class));
-		testOnCurrentRealDatabase(ModelUtils.entity2Model(uuid25Entity.class));
+		reBuildDB(TableModelUtils.entity2Models(uuid25Entity.class));
+		testOnCurrentRealDatabase(TableModelUtils.entity2Models(uuid25Entity.class));
 	}
 
 }

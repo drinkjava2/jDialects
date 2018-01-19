@@ -35,7 +35,7 @@ public class FKeyModel {
 	private String fkeyTail;
 
 	/*
-	 * if ddl set to false, will not create DDL when call ModelUtils's
+	 * if ddl set to false, will not create DDL when call TableModelUtils's
 	 * entity2Model() and oneEntity2Model methods
 	 */
 	private Boolean ddl = true;

@@ -8,13 +8,13 @@
 package com.github.drinkjava2.jdialects;
 
 /**
- * Function features Utils
+ * Dialect function Utils, detail see render method
  * 
  * @author Yong Zhu
  * @since 1.0.2
  */
-public class FunctionUtils {// NOSONAR
- 
+public class DialectFunctionUtils {// NOSONAR
+
 	/**
 	 * The render method translate function template to real SQL piece
 	 * 
@@ -42,7 +42,7 @@ public class FunctionUtils {// NOSONAR
 	 * @param args function parameters
 	 * @return A SQL function piece
 	 */
-	public static String render(Dialect d, String functionName, String... args) {
+	protected static String render(Dialect d, String functionName, String... args) {
 		String template = d.functions.get(functionName.toLowerCase());
 		DialectException.assureNotEmpty(template, "Dialect \"" + d + "\" does not support \"" + functionName
 				+ "\" function, a full list of supported functions of this dialect can see \"DatabaseDialects.xls\"");
@@ -89,7 +89,7 @@ public class FunctionUtils {// NOSONAR
 			String searchStr = Integer.toString(argsCount) + "=";
 			if (template.indexOf(searchStr) < 0)
 				DialectException.throwEX("Dialect " + d + "'s function \"" + functionName + "\" only support "
-						+ allowedParameterCounts(template) + " parameters");
+						+ allowedParameterQTY(template) + " parameters");
 			String result = StrUtils.substringBetween(template + "|", searchStr, "|");
 			for (int i = 0; args != null && i < args.length; i++) {
 				result = StrUtils.replace(result, "$P" + (i + 1), "" + args[i]);
@@ -98,7 +98,7 @@ public class FunctionUtils {// NOSONAR
 		}
 	}
 
-	private static String allowedParameterCounts(String template) {
+	private static String allowedParameterQTY(String template) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < 5; i++) {
 			if (template.indexOf(Integer.toString(i) + "=") >= 0)

@@ -90,7 +90,7 @@ public class Demo {
 
 		SqlBoxContext ctx = new SqlBoxContext(ds);
 		SqlBoxContext.setDefaultContext(ctx);
-		ctx.setAllowShowSQL(true);
+		// ctx.setAllowShowSQL(true);
 
 		String[] ddlArray = ctx.toDropAndCreateDDL(User.class);
 		for (String ddl : ddlArray)
@@ -99,15 +99,14 @@ public class Demo {
 		for (int i = 1; i <= 100; i++) {
 			User u = new User();
 			u.setFirstName("Foo" + i);
-			u.setFirstName("Bar" + i);
+			u.setLastName("Bar" + i);
 			u.setAge(i);
 			u.insert();
 		}
 		Assert.assertEquals(100, ctx.nQueryForLongValue("select count(*) from users"));
 
-		List<Map<String, Object>> users = ctx.nQueryForMapList(
-				ctx.paginate(2, 10, "select concat(firstName, ' ', lastName) as UserName, age from users where age>?"),
-				50);
+		List<Map<String, Object>> users = ctx.nQueryForMapList(ctx.paginate(2, 10,
+				"select concat(firstName, ' ', lastName) as USERNAME, age from users where age>?"), 50);
 
 		Assert.assertEquals(10, users.size());
 
