@@ -35,16 +35,17 @@ jDialects 支持多达75种数据库方言的DDL创建、分页、函数变换�
 
 # 文档 | Documentation
 
-[用户手册](../../wiki)
-[JavaDoc](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22jdialects%22)(选javadoc.jar下载后解压)
+[用户手册](../../wiki)  |  [English](../../wiki)
+
+[JavaDoc](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22jdialects%22)
 
 # 应用示例 | Demo
 
-[在纯JDBC中使用](../../tree/master/jdialects-demo/demo-pure-jdbc)
+[在纯JDBC中使用](../../wiki/在纯JDBC项目中使用)
 
-[在jSqlBox中使用](../../tree/master/jdialects-demo/demo-jsqlbox)
+[在jSqlBox中使用](../../wiki/在jSqlBox项目中使用)
 
-[在MyBatis中使用](../../tree/master/jdialects-demo/demo-mybatis)
+[在MyBatis中使用](../../wiki/在MyBatis中使用)
 
 # 下载地址 | Download
 
@@ -58,11 +59,11 @@ jDialects 支持多达75种数据库方言的DDL创建、分页、函数变换�
 </dependency>
 ```
 
-# 其他开源项目 | Other Project
+# 相关开源项目 | Other Projects
 
 - [基于DbUtils和jDialects的持久层工具 jSqlBox](https://gitee.com/drinkjava2/jSqlBox)
-- [基于Java初始化块配置的IOC/AOP工具 jBeanBox](https://gitee.com/drinkjava2/jBeanBox)
 - [一个独立的声明式事务工具 jTransactions](https://gitee.com/drinkjava2/jTransactions)
+- [基于Java初始化块配置的IOC/AOP工具 jBeanBox](https://gitee.com/drinkjava2/jBeanBox)
 
 # 期望 | Futures
 
@@ -70,7 +71,7 @@ jDialects 支持多达75种数据库方言的DDL创建、分页、函数变换�
 
 # 版权 | License
 
-[LGPL 3.0](https://www.gnu.org/licenses/lgpl-3.0)
+[LGPL 2.1](https://www.gnu.org/licenses/lgpl-2.1)
 
 # 捐赠 | Donate
 
