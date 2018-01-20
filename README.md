@@ -8,16 +8,6 @@
   一个通用的数据库方言工具
 </p>
 
-<p align="center">
-  <a href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.github.drinkjava2%22%20AND%20a%3A%22jdialects%22">
-    <img alt="maven" src="https://img.shields.io/maven-central/v/com.github.drinkjava2/jdialects.svg?style=flat-square">
-  </a>
-
-  <a href="https://www.gnu.org/licenses/lgpl-3.0">
-    <img alt="code style" src="https://img.shields.io/badge/License-LGPL%20v3-blue.svg?style=flat-square">
-  </a>
-</p>
-
 # 简介 | Intro
 
 jDialects 支持多达75种数据库方言的DDL创建、分页、函数变换、主键生成。
@@ -29,13 +19,13 @@ jDialects 支持多达75种数据库方言的DDL创建、分页、函数变换�
 - **从Annotation创建DDL**：提供对主要JPA注解的支持，且无需添加JPA库依赖。
 - **从Java方法创建DDL**：提供Java链式方法配置以创建DDL，Java方法的配置可以在运行期修改。
 - **主键生成器**：支持十种主键生成器，并可方便地自定义。
-- **分页**：提供分页方法。
-- **函数解析**：对不同的数据库解析成对应方言的函数，尽量做到写一次SQL到处运行。
+- **分页**：提供跨数据库的分页方法。
+- **函数解析**：对不同的数据库解析成对应方言的函数，尽量做到一次SQL到处运行。
 - **JPA解析**：提供对主要JPA注解的解析。
 
 # 文档 | Documentation
 
-[用户手册](../../wiki)  |  [English](../../wiki)
+[中文](../../wiki)  |  [English](../../wiki)
 
 [JavaDoc](http://search.maven.org/#search%7Cga%7C1%7Ca%3A%22jdialects%22)
 
