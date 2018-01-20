@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  一个通用的数据库方言工具
+  一个通用数据库方言工具
 </p>
 
 # 简介 | Intro
@@ -15,13 +15,13 @@ jDialects 支持多达75种数据库方言的DDL创建、分页、函数变换�
 # 优点 | Advantages
 
 - **无侵入**：jDialects只对SQL文本进行变换，不会对您现有的持久层工具产生任何影响。
-- **依赖少**：仅依赖jdialects-x.x.x.jar(约260k)。
+- **依赖少**：仅依赖单个文件约260k。
 - **从Annotation创建DDL**：提供对主要JPA注解的支持，且无需添加JPA库依赖。
-- **从Java方法创建DDL**：提供Java链式方法配置以创建DDL，Java方法的配置可以在运行期修改。
+- **从Java方法创建DDL**：提供Java方法配置来创建DDL，同样的语法也可以在运行期修改配置。
 - **主键生成器**：支持十种主键生成器，并可方便地自定义。
-- **分页**：提供跨数据库的分页方法。
+- **分页**：提供跨数据库的物理分页方法。
 - **函数解析**：对不同的数据库解析成对应方言的函数，尽量做到一次SQL到处运行。
-- **JPA解析**：提供对主要JPA注解的解析。
+- **保留字检查**：提供数据库保留字检查功能。
 
 # 文档 | Documentation
 
@@ -57,15 +57,11 @@ jDialects 支持多达75种数据库方言的DDL创建、分页、函数变换�
 
 # 期望 | Futures
 
-欢迎发issue提出更好的意见，帮助完善 jDialects
+欢迎发issue提出更好的意见或提交PR，帮助完善 jDialects
 
 # 版权 | License
 
 [LGPL 2.1](https://www.gnu.org/licenses/lgpl-2.1)
-
-# 捐赠 | Donate
-
-提交意见就是对这个项目最好的捐赠。
 
 # 关注我 | About Me
 [Github](https://github.com/drinkjava2)  
