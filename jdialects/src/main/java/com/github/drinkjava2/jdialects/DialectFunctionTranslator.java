@@ -34,20 +34,20 @@ public class DialectFunctionTranslator {
 	 * support this function, value not used for this project
 	 */
 	public DialectFunctionTranslator() {
-		// functionMap.put("ABS", 100);// Not necessary, all dialects are same
+		functionMap.put("ABS", 100);// Not necessary, all dialects are same
 		functionMap.put("AVG", 100);
 		functionMap.put("BIT_LENGTH", 100);
-		// functionMap.put("CAST", 100);// Not necessary
+		functionMap.put("CAST", 100);// Not necessary
 		functionMap.put("COALESCE", 100);
-		// functionMap.put("COUNT", 100);// Not necessary
+		functionMap.put("COUNT", 100);// Not necessary
 		functionMap.put("DAY", 100);
 		functionMap.put("EXTRACT", 100);
 		functionMap.put("HOUR", 100);
 		functionMap.put("LENGTH", 100);
 		functionMap.put("LOCATE", 100);
-		// functionMap.put("LOWER", 100);// Not necessary
-		// functionMap.put("MAX", 100);// Not necessary
-		// functionMap.put("MIN", 100);// Not necessary
+		functionMap.put("LOWER", 100);// Not necessary
+		functionMap.put("MAX", 100);// Not necessary
+		functionMap.put("MIN", 100);// Not necessary
 		functionMap.put("MINUTE", 100);
 		functionMap.put("MOD", 100);
 		functionMap.put("MONTH", 100);
@@ -56,9 +56,9 @@ public class DialectFunctionTranslator {
 		functionMap.put("SQRT", 100);
 		functionMap.put("STR", 100);
 		functionMap.put("SUBSTRING", 100);
-		// functionMap.put("SUM", 100);// Not necessary
+		functionMap.put("SUM", 100);// Not necessary
 		functionMap.put("TRIM", 100);
-		// functionMap.put("UPPER", 100);// Not necessary
+		functionMap.put("UPPER", 100);// Not necessary
 		functionMap.put("YEAR", 100);
 		functionMap.put("CONCAT", 93);
 		functionMap.put("COS", 83);
