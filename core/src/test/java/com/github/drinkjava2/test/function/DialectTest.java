@@ -62,28 +62,28 @@ public class DialectTest {
 			String result = "";
 			try {
 				System.out.println(dialect);
-				result = dialect.paginate(1, 10, sql1);
+				result = dialect.pagin(1, 10, sql1);
 				System.out.println(result);
 			} catch (DialectException e) {
 				System.out.println("Error:" + e.getMessage());
 			}
 			Assert.assertFalse(result.contains("$"));
 			try {
-				result = dialect.paginate(3, 10, sql1);
+				result = dialect.pagin(3, 10, sql1);
 				System.out.println(result);
 			} catch (DialectException e) {
 				System.out.println("Error:" + e.getMessage());
 			}
 			Assert.assertFalse(result.contains("$"));
 			try {
-				result = dialect.paginate(1, 10, sql2);
+				result = dialect.pagin(1, 10, sql2);
 				System.out.println(result);
 			} catch (DialectException e) {
 				System.out.println("Error:" + e.getMessage());
 			}
 			Assert.assertFalse(result.contains("$"));
 			try {
-				result = dialect.paginate(3, 10, sql2);
+				result = dialect.pagin(3, 10, sql2);
 				System.out.println(result);
 			} catch (DialectException e) {
 				System.out.println("Error:" + e.getMessage());
@@ -99,7 +99,7 @@ public class DialectTest {
 			System.out.println("=========" + dialect + "==========");
 			String result = "";
 			try {
-				result = dialect.paginate(1, 10, sql3);
+				result = dialect.pagin(1, 10, sql3);
 				System.out.println(result);
 			} catch (DialectException e) {
 				System.out.println("Error:" + e.getMessage());
@@ -107,7 +107,7 @@ public class DialectTest {
 			Assert.assertFalse(result.contains("$"));
 			Assert.assertTrue(StrUtils.isEmpty(result) || 1 == StrUtils.countMatches(result, '?'));
 			try {
-				result = dialect.paginate(3, 10, sql4);
+				result = dialect.pagin(3, 10, sql4);
 				System.out.println(result);
 			} catch (DialectException e) {
 				System.out.println("Error:" + e.getMessage());
@@ -115,7 +115,7 @@ public class DialectTest {
 			Assert.assertFalse(result.contains("$"));
 			Assert.assertTrue(StrUtils.isEmpty(result) || 1 == StrUtils.countMatches(result, '?'));
 			try {
-				result = dialect.paginate(1, 10, sql3);
+				result = dialect.pagin(1, 10, sql3);
 				System.out.println(result);
 			} catch (DialectException e) {
 				System.out.println("Error:" + e.getMessage());
@@ -123,7 +123,7 @@ public class DialectTest {
 			Assert.assertFalse(result.contains("$"));
 			Assert.assertTrue(StrUtils.isEmpty(result) || 1 == StrUtils.countMatches(result, '?'));
 			try {
-				result = dialect.paginate(3, 10, sql4);
+				result = dialect.pagin(3, 10, sql4);
 				System.out.println(result);
 			} catch (DialectException e) {
 				System.out.println("Error:" + e.getMessage());

@@ -24,7 +24,7 @@ public interface CommonDialect {
 	 * @param sql The original SQL
 	 * @return The paginated SQL
 	 */
-	public String paginate(int pageNumber, int pageSize, String sql);
+	public String pagin(int pageNumber, int pageSize, String sql);
 
 	/**
 	 * Translate a SQL to native SQL, i.e., all functions written by universal
@@ -34,7 +34,7 @@ public interface CommonDialect {
 	 * @param sql array
 	 * @return the translated SQL
 	 */
-	public String translate(String... sql);
+	public String trans(String... sql);
 
 	/**
 	 * Paginate and Translate a SQL

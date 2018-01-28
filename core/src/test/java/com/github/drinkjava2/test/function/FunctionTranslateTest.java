@@ -32,20 +32,20 @@ public class FunctionTranslateTest {
 	public void doDialectTest() {
 
 		System.out.println(
-				Dialect.MySQL55Dialect.paginate(3, 10, "select concat('a','b','c'), current_time() from user_tb"));
+				Dialect.MySQL55Dialect.pagin(3, 10, "select concat('a','b','c'), current_time() from user_tb"));
 		System.out.println(
-				Dialect.Oracle12cDialect.paginate(3, 10, "select concat('a','b','c'), current_time() from user_tb"));
-		System.out.println(Dialect.SQLServer2005Dialect.paginate(1, 10,
+				Dialect.Oracle12cDialect.pagin(3, 10, "select concat('a','b','c'), current_time() from user_tb"));
+		System.out.println(Dialect.SQLServer2005Dialect.pagin(1, 10,
 				"select concat('a','b','c'), current_time() from user_tb"));
 
 		System.out.println("============================================");
 
 		System.out
-				.println(Dialect.MySQL55Dialect.translate("select concat('a','b','c'), current_time()   from user_tb"));
+				.println(Dialect.MySQL55Dialect.trans("select concat('a','b','c'), current_time()   from user_tb"));
 		System.out.println(
-				Dialect.Oracle12cDialect.translate("select concat('a','b','c'), current_time()  from user_tb"));
+				Dialect.Oracle12cDialect.trans("select concat('a','b','c'), current_time()  from user_tb"));
 		System.out.println(
-				Dialect.SQLServer2008Dialect.translate("select concat('a','b','c'), current_time()  from user_tb"));
+				Dialect.SQLServer2008Dialect.trans("select concat('a','b','c'), current_time()  from user_tb"));
 
 		System.out.println("============================================");
 
@@ -61,11 +61,11 @@ public class FunctionTranslateTest {
 	public void doPrefixTest() {
 		// Default is null, here change to "#" only for test
 		Dialect.setSqlFunctionPrefix("#");
-		String result = Dialect.MySQL55Dialect.translate(
+		String result = Dialect.MySQL55Dialect.trans(
 				"Select username, #concat(#second(#second(99)),'a', #second(20) ), #current_time(), #PI(), #concat('a', b, c) as b from usertable as tb");
 		System.out.println(result);
 
-		result = Dialect.SQLiteDialect.translate(
+		result = Dialect.SQLiteDialect.trans(
 				"Select username, #concat(#second(#second(99)),'a', #second(20) ),   #concat('a', b, c) as b from usertable as tb");
 		System.out.println(result);
 
@@ -79,11 +79,11 @@ public class FunctionTranslateTest {
 
 		System.out.println("============================================");
 
-		result = Dialect.MySQL55Dialect.translate(
+		result = Dialect.MySQL55Dialect.trans(
 				"Select username, concat(second(second(99)),'a', second(20) ), current_time(), PI(), concat('a', b, c) as b from usertable as tb");
 		System.out.println(result);
 
-		result = Dialect.SQLiteDialect.translate(
+		result = Dialect.SQLiteDialect.trans(
 				"Select username, concat(second(second(99)),'a', second(20) ),   concat('a', b, c) as b from usertable as tb");
 		System.out.println(result);
 
@@ -99,11 +99,11 @@ public class FunctionTranslateTest {
 
 		// Default is null, here change to "#" only for test
 		Dialect.setSqlFunctionPrefix("$fn_");
-		result = Dialect.MySQL55Dialect.translate(
+		result = Dialect.MySQL55Dialect.trans(
 				"Select username, $fn_concat($fn_second($fn_second(99)),'a', $fn_second(20) ), $fn_current_time(), $fn_PI(), $fn_concat('a', b, c) as b from usertable as tb");
 		System.out.println(result);
 
-		result = Dialect.SQLiteDialect.translate(
+		result = Dialect.SQLiteDialect.trans(
 				"Select username, $fn_concat($fn_second($fn_second(99)),'a', $fn_second(20) ),   $fn_concat('a', b, c) as b from usertable as tb");
 		System.out.println(result);
 
@@ -118,11 +118,11 @@ public class FunctionTranslateTest {
 		System.out.println("============================================");
 
 		Dialect.setSqlFunctionPrefix(null);
-		result = Dialect.MySQL55Dialect.translate(
+		result = Dialect.MySQL55Dialect.trans(
 				"Select username, concat(second(second(99)),'a', second(20) ), current_time(), PI(), concat('a', b, c) as b from usertable as tb");
 		System.out.println(result);
 
-		result = Dialect.SQLiteDialect.translate(
+		result = Dialect.SQLiteDialect.trans(
 				"Select username, concat(second(second(99)),'a', second(20) ),   concat('a', b, c) as b from usertable as tb");
 		System.out.println(result);
 

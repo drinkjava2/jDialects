@@ -285,13 +285,11 @@ public enum Dialect implements CommonDialect {
 
 	/** Paginate and Translate a SQL */
 	public String paginAndTrans(int pageNumber, int pageSize, String... sql) {
-		return paginate(pageNumber, pageSize, translate(sql));
+		return pagin(pageNumber, pageSize, trans(sql));
 	}
-
-	/**
-	 * Translate a universal SQL to native SQL
-	 */
-	public String translate(String... sql) {
+ 
+	@Override
+	public String trans(String... sql) {
 		StringBuilder sb = new StringBuilder();
 		for (String str : sql)
 			sb.append(str);
@@ -299,7 +297,7 @@ public enum Dialect implements CommonDialect {
 	}
 
 	@Override
-	public String paginate(int pageNumber, int pageSize, String sql) {// NOSONAR
+	public String pagin(int pageNumber, int pageSize, String sql) {// NOSONAR
 		String result = null;
 		DialectException.assureNotNull(sql, "sql string can not be null");
 		String trimedSql = sql.trim();
@@ -310,7 +308,7 @@ public enum Dialect implements CommonDialect {
 		case SQLServer2012Dialect: {
 			result = processSQLServer(this, pageNumber, pageSize, trimedSql);
 			if (getAllowShowDialectLog())
-				logger.info("Paginated sql:\r" + result);
+				logger.info("Paginated sql: " + result);
 			return result;
 		}
 		default:
@@ -363,7 +361,7 @@ public enum Dialect implements CommonDialect {
 		// or only insert the body without "select "
 		result = StrUtils.replace(result, "$BODY", body);
 		if (getAllowShowDialectLog())
-			logger.info("Paginated sql:\r" + result);
+			logger.info("Paginated sql: " + result);
 		return result;
 	}
 

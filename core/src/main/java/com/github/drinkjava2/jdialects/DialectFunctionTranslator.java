@@ -304,7 +304,7 @@ public class DialectFunctionTranslator {
 				System.out.print(item.getDebugInfo(0));// NOSONAR
 		String result = join(d, true, null, items);
 		if (Dialect.getAllowShowDialectLog())
-			Dialect.logger.info("Translated sql:\r" + result);
+			Dialect.logger.info("Translated sql: " + result);
 		return result;
 	}
 
