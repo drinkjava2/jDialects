@@ -43,7 +43,8 @@ public class StrUtils {
 	 * StrUtils.hasLength("Hello") = true
 	 * </pre>
 	 * 
-	 * @param str the CharSequence to check (may be {@code null})
+	 * @param str
+	 *            the CharSequence to check (may be {@code null})
 	 * @return {@code true} if the CharSequence is not null and has length
 	 * @see #hasText(String)
 	 */
@@ -55,7 +56,8 @@ public class StrUtils {
 	 * Check that the given String is neither {@code null} nor of length 0. Note:
 	 * Will return {@code true} for a String that purely consists of whitespace.
 	 * 
-	 * @param str the String to check (may be {@code null})
+	 * @param str
+	 *            the String to check (may be {@code null})
 	 * @return {@code true} if the String is not null and has length
 	 * @see #hasLength(CharSequence)
 	 */
@@ -66,7 +68,8 @@ public class StrUtils {
 	/**
 	 * Check whether the given CharSequence contains any whitespace characters.
 	 * 
-	 * @param str the CharSequence to check (may be {@code null})
+	 * @param str
+	 *            the CharSequence to check (may be {@code null})
 	 * @return {@code true} if the CharSequence is not empty and contains at least 1
 	 *         whitespace character
 	 * @see Character#isWhitespace
@@ -87,7 +90,8 @@ public class StrUtils {
 	/**
 	 * Check whether the given String contains any whitespace characters.
 	 * 
-	 * @param str the String to check (may be {@code null})
+	 * @param str
+	 *            the String to check (may be {@code null})
 	 * @return {@code true} if the String is not empty and contains at least 1
 	 *         whitespace character
 	 * @see #containsWhitespace(CharSequence)
@@ -99,7 +103,8 @@ public class StrUtils {
 	/**
 	 * Trim leading and trailing whitespace from the given String.
 	 * 
-	 * @param str the String to check
+	 * @param str
+	 *            the String to check
 	 * @return the trimmed String
 	 * @see java.lang.Character#isWhitespace
 	 */
@@ -121,7 +126,8 @@ public class StrUtils {
 	 * Trim <i>all</i> whitespace from the given String: leading, trailing, and in
 	 * between characters.
 	 * 
-	 * @param str the String to check
+	 * @param str
+	 *            the String to check
 	 * @return the trimmed String
 	 * @see java.lang.Character#isWhitespace
 	 */
@@ -144,7 +150,8 @@ public class StrUtils {
 	/**
 	 * Trim leading whitespace from the given String.
 	 * 
-	 * @param str the String to check
+	 * @param str
+	 *            the String to check
 	 * @return the trimmed String
 	 * @see java.lang.Character#isWhitespace
 	 */
@@ -162,7 +169,8 @@ public class StrUtils {
 	/**
 	 * Trim trailing whitespace from the given String.
 	 * 
-	 * @param str the String to check
+	 * @param str
+	 *            the String to check
 	 * @return the trimmed String
 	 * @see java.lang.Character#isWhitespace
 	 */
@@ -180,8 +188,10 @@ public class StrUtils {
 	/**
 	 * Trim all occurrences of the supplied leading character from the given String.
 	 * 
-	 * @param str the String to check
-	 * @param leadingCharacter the leading character to be trimmed
+	 * @param str
+	 *            the String to check
+	 * @param leadingCharacter
+	 *            the leading character to be trimmed
 	 * @return the trimmed String
 	 */
 	public static String trimLeadingCharacter(String str, char leadingCharacter) {
@@ -199,8 +209,10 @@ public class StrUtils {
 	 * Trim all occurrences of the supplied trailing character from the given
 	 * String.
 	 * 
-	 * @param str the String to check
-	 * @param trailingCharacter the trailing character to be trimmed
+	 * @param str
+	 *            the String to check
+	 * @param trailingCharacter
+	 *            the trailing character to be trimmed
 	 * @return the trimmed String
 	 */
 	public static String trimTrailingCharacter(String str, char trailingCharacter) {
@@ -218,8 +230,10 @@ public class StrUtils {
 	 * Test if the given String starts with the specified prefix, ignoring
 	 * upper/lower case.
 	 * 
-	 * @param str the String to check
-	 * @param prefix the prefix to look for
+	 * @param str
+	 *            the String to check
+	 * @param prefix
+	 *            the prefix to look for
 	 * @see java.lang.String#startsWith
 	 */
 	public static boolean startsWithIgnoreCase(String str, String prefix) {
@@ -256,9 +270,12 @@ public class StrUtils {
 	/**
 	 * Replace all occurrences of a substring within a string with another string.
 	 * 
-	 * @param originString The original String
-	 * @param oldPattern old String Pattern to replace
-	 * @param newPattern new String pattern to insert
+	 * @param originString
+	 *            The original String
+	 * @param oldPattern
+	 *            old String Pattern to replace
+	 * @param newPattern
+	 *            new String pattern to insert
 	 * @return a String with the replacements
 	 */
 	public static String replace(String originString, String oldPattern, String newPattern) {
@@ -282,9 +299,12 @@ public class StrUtils {
 	/**
 	 * Replace first occurrences of a substring within a string with another string.
 	 * 
-	 * @param originString The original String
-	 * @param oldPattern old String Pattern to replace
-	 * @param newPattern new String pattern to insert
+	 * @param originString
+	 *            The original String
+	 * @param oldPattern
+	 *            old String Pattern to replace
+	 * @param newPattern
+	 *            new String pattern to insert
 	 * @return a String with the replacements
 	 */
 	public static String replaceFirst(String originString, String oldPattern, String newPattern) {
@@ -304,7 +324,7 @@ public class StrUtils {
 		sb.append(originString.substring(pos));
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Replace all sub strings ignore case <br/>
 	 * replaceIgnoreCase("AbcDECd", "Cd", "FF") = "AbFFEFF"
@@ -373,23 +393,151 @@ public class StrUtils {
 	}
 
 	/**
-	 * Return all sub-Strings between 1 tags
+	 * <p>
+	 * Splits the provided text into an array, separator specified. This is an
+	 * alternative to using StringTokenizer.
+	 * </p>
+	 *
+	 * <p>
+	 * The separator is not included in the returned String array. Adjacent
+	 * separators are treated as one separator. For more control over the split use
+	 * the StrTokenizer class.
+	 * </p>
+	 *
+	 * <p>
+	 * A {@code null} input String returns {@code null}.
+	 * </p>
+	 *
+	 * <pre>
+	 * StringUtils.split(null, *)         = null
+	 * StringUtils.split("", *)           = []
+	 * StringUtils.split("a.b.c", '.')    = ["a", "b", "c"]
+	 * StringUtils.split("a..b.c", '.')   = ["a", "b", "c"]
+	 * StringUtils.split("a:b:c", '.')    = ["a:b:c"]
+	 * StringUtils.split("a b c", ' ')    = ["a", "b", "c"]
+	 * </pre>
+	 *
+	 * @param str
+	 *            the String to parse, may be null
+	 * @param separatorChar
+	 *            the character used as the delimiter
+	 * @return an array of parsed Strings, {@code null} if null String input
+	 * @since 2.0
 	 */
-	public static List<String> substringsBetween(String txt, String tag) {
-		List<String> l = new ArrayList<String>();
-		int index = -1;
-		while (true) {
-			int i = txt.indexOf(tag, index + 1);
-			if (i == -1)
-				break;
-			if (index == -1) {
-				index = i;
-			} else {
-				l.add(txt.substring(index + tag.length(), i));
-				index = i;
-			}
+	public static String[] split(final String str, final char separatorChar) {
+		return splitWorker(str, separatorChar, false);
+	}
+
+	/**
+	 * Performs the logic for the {@code split} and {@code splitPreserveAllTokens}
+	 * methods that do not return a maximum array length.
+	 *
+	 * @param str
+	 *            the String to parse, may be {@code null}
+	 * @param separatorChar
+	 *            the separate character
+	 * @param preserveAllTokens
+	 *            if {@code true}, adjacent separators are treated as empty token
+	 *            separators; if {@code false}, adjacent separators are treated as
+	 *            one separator.
+	 * @return an array of parsed Strings, {@code null} if null String input
+	 */
+	private static String[] splitWorker(final String str, final char separatorChar, final boolean preserveAllTokens) {
+		// Performance tuned for 2.0 (JDK1.4)
+
+		if (str == null) {
+			return new String[0];
 		}
-		return l;
+		final int len = str.length();
+		if (len == 0) {
+			return new String[0];
+		}
+		final List<String> list = new ArrayList<String>();
+		int i = 0;
+		int start = 0;
+		boolean match = false;
+		boolean lastMatch = false;
+		while (i < len) {
+			if (str.charAt(i) == separatorChar) {
+				if (match || preserveAllTokens) {
+					list.add(str.substring(start, i));
+					match = false;
+					lastMatch = true;
+				}
+				start = ++i;
+				continue;
+			}
+			lastMatch = false;
+			match = true;
+			i++;
+		}
+		if (match || preserveAllTokens && lastMatch) {
+			list.add(str.substring(start, i));
+		}
+		return list.toArray(new String[list.size()]);
+	}
+
+	/**
+	 * <p>
+	 * Searches a String for substrings delimited by a start and end tag, returning
+	 * all matching substrings in an array.
+	 * </p>
+	 *
+	 * <p>
+	 * A {@code null} input String returns {@code null}. A {@code null} open/close
+	 * returns {@code null} (no match). An empty ("") open/close returns
+	 * {@code null} (no match).
+	 * </p>
+	 *
+	 * <pre>
+	 * StringUtils.substringsBetween("[a][b][c]", "[", "]") = ["a","b","c"]
+	 * StringUtils.substringsBetween(null, *, *)            = null
+	 * StringUtils.substringsBetween(*, null, *)            = null
+	 * StringUtils.substringsBetween(*, *, null)            = null
+	 * StringUtils.substringsBetween("", "[", "]")          = []
+	 * </pre>
+	 *
+	 * @param str
+	 *            the String containing the substrings, null returns null, empty
+	 *            returns empty
+	 * @param open
+	 *            the String identifying the start of the substring, empty returns
+	 *            null
+	 * @param close
+	 *            the String identifying the end of the substring, empty returns
+	 *            null
+	 * @return a String Array of substrings, or {@code null} if no match
+	 * @since 2.3
+	 */
+	public static String[] substringsBetween(final String str, final String open, final String close) {
+		if (str == null || isEmpty(open) || isEmpty(close)) {
+			return new String[0];
+		}
+		final int strLen = str.length();
+		if (strLen == 0) {
+			return new String[0];
+		}
+		final int closeLen = close.length();
+		final int openLen = open.length();
+		final List<String> list = new ArrayList<String>();
+		int pos = 0;
+		while (pos < strLen - closeLen) {
+			int start = str.indexOf(open, pos);
+			if (start < 0) {
+				break;
+			}
+			start += openLen;
+			final int end = str.indexOf(close, start);
+			if (end < 0) {
+				break;
+			}
+			list.add(str.substring(start, end));
+			pos = end + closeLen;
+		}
+		if (list.isEmpty()) {
+			return new String[0];
+		}
+		return list.toArray(new String[list.size()]);
 	}
 
 	/**
@@ -413,9 +561,12 @@ public class StrUtils {
 	 * StringUtils.substringBetween("yabczyabcz", "y", "z")   = "abc"
 	 * </pre>
 	 *
-	 * @param str the String containing the substring, may be null
-	 * @param open the String before the substring, may be null
-	 * @param close the String after the substring, may be null
+	 * @param str
+	 *            the String containing the substring, may be null
+	 * @param open
+	 *            the String before the substring, may be null
+	 * @param close
+	 *            the String after the substring, may be null
 	 * @return the substring, <code>null</code> if no match
 	 * @since 2.0
 	 */
@@ -432,18 +583,17 @@ public class StrUtils {
 		}
 		return null;
 	}
-	
-	
+
 	/**
 	 * <p>
-	 * Gets the substring before the first occurrence of a separator. The
-	 * separator is not returned.
+	 * Gets the substring before the first occurrence of a separator. The separator
+	 * is not returned.
 	 * </p>
 	 *
 	 * <p>
-	 * A {@code null} string input will return {@code null}. An empty ("")
-	 * string input will return the empty string. A {@code null} separator will
-	 * return the input string.
+	 * A {@code null} string input will return {@code null}. An empty ("") string
+	 * input will return the empty string. A {@code null} separator will return the
+	 * input string.
 	 * </p>
 	 *
 	 * <p>
@@ -481,17 +631,17 @@ public class StrUtils {
 		}
 		return str.substring(0, pos);
 	}
-	 
+
 	/**
 	 * <p>
-	 * Gets the substring after the first occurrence of a separator. The
-	 * separator is not returned.
+	 * Gets the substring after the first occurrence of a separator. The separator
+	 * is not returned.
 	 * </p>
 	 *
 	 * <p>
-	 * A {@code null} string input will return {@code null}. An empty ("")
-	 * string input will return the empty string. A {@code null} separator will
-	 * return the empty string if the input string is not {@code null}.
+	 * A {@code null} string input will return {@code null}. An empty ("") string
+	 * input will return the empty string. A {@code null} separator will return the
+	 * empty string if the input string is not {@code null}.
 	 * </p>
 	 *
 	 * <p>
@@ -529,51 +679,101 @@ public class StrUtils {
 		}
 		return str.substring(pos + separator.length());
 	}
-	
-	
-    /**
-     * <p>Gets the substring after the last occurrence of a separator.
-     * The separator is not returned.</p>
-     *
-     * <p>A {@code null} string input will return {@code null}.
-     * An empty ("") string input will return the empty string.
-     * An empty or {@code null} separator will return the empty string if
-     * the input string is not {@code null}.</p>
-     *
-     * <p>If nothing is found, the empty string is returned.</p>
-     *
-     * <pre>
-     * StringUtils.substringAfterLast(null, *)      = null
-     * StringUtils.substringAfterLast("", *)        = ""
-     * StringUtils.substringAfterLast(*, "")        = ""
-     * StringUtils.substringAfterLast(*, null)      = ""
-     * StringUtils.substringAfterLast("abc", "a")   = "bc"
-     * StringUtils.substringAfterLast("abcba", "b") = "a"
-     * StringUtils.substringAfterLast("abc", "c")   = ""
-     * StringUtils.substringAfterLast("a", "a")     = ""
-     * StringUtils.substringAfterLast("a", "z")     = ""
-     * </pre>
-     *
-     * @param str  the String to get a substring from, may be null
-     * @param separator  the String to search for, may be null
-     * @return the substring after the last occurrence of the separator,
-     *  {@code null} if null String input
-     * @since 2.0
-     */
-    public static String substringAfterLast(final String str, final String separator) {
-        if (isEmpty(str)) {
-            return str;
-        }
-        if (isEmpty(separator)) {
-            return "";
-        }
-        final int pos = str.lastIndexOf(separator);
-        if (pos == -1 || pos == str.length() - separator.length()) {
-            return "";
-        }
-        return str.substring(pos + separator.length());
-    }
-	
+
+	/**
+	 * <p>
+	 * Gets the substring after the last occurrence of a separator. The separator is
+	 * not returned.
+	 * </p>
+	 *
+	 * <p>
+	 * A {@code null} string input will return {@code null}. An empty ("") string
+	 * input will return the empty string. An empty or {@code null} separator will
+	 * return the empty string if the input string is not {@code null}.
+	 * </p>
+	 *
+	 * <p>
+	 * If nothing is found, the empty string is returned.
+	 * </p>
+	 *
+	 * <pre>
+	 * StringUtils.substringAfterLast(null, *)      = null
+	 * StringUtils.substringAfterLast("", *)        = ""
+	 * StringUtils.substringAfterLast(*, "")        = ""
+	 * StringUtils.substringAfterLast(*, null)      = ""
+	 * StringUtils.substringAfterLast("abc", "a")   = "bc"
+	 * StringUtils.substringAfterLast("abcba", "b") = "a"
+	 * StringUtils.substringAfterLast("abc", "c")   = ""
+	 * StringUtils.substringAfterLast("a", "a")     = ""
+	 * StringUtils.substringAfterLast("a", "z")     = ""
+	 * </pre>
+	 *
+	 * @param str
+	 *            the String to get a substring from, may be null
+	 * @param separator
+	 *            the String to search for, may be null
+	 * @return the substring after the last occurrence of the separator,
+	 *         {@code null} if null String input
+	 * @since 2.0
+	 */
+	public static String substringAfterLast(final String str, final String separator) {
+		if (isEmpty(str)) {
+			return str;
+		}
+		if (isEmpty(separator)) {
+			return "";
+		}
+		final int pos = str.lastIndexOf(separator);
+		if (pos == -1 || pos == str.length() - separator.length()) {
+			return "";
+		}
+		return str.substring(pos + separator.length());
+	}
+
+	/**
+	 * <p>
+	 * Gets the substring before the last occurrence of a separator. The separator
+	 * is not returned.
+	 * </p>
+	 *
+	 * <p>
+	 * A {@code null} string input will return {@code null}. An empty ("") string
+	 * input will return the empty string. An empty or {@code null} separator will
+	 * return the input string.
+	 * </p>
+	 *
+	 * <p>
+	 * If nothing is found, the string input is returned.
+	 * </p>
+	 *
+	 * <pre>
+	 * StringUtils.substringBeforeLast(null, *)      = null
+	 * StringUtils.substringBeforeLast("", *)        = ""
+	 * StringUtils.substringBeforeLast("abcba", "b") = "abc"
+	 * StringUtils.substringBeforeLast("abc", "c")   = "ab"
+	 * StringUtils.substringBeforeLast("a", "a")     = ""
+	 * StringUtils.substringBeforeLast("a", "z")     = "a"
+	 * StringUtils.substringBeforeLast("a", null)    = "a"
+	 * StringUtils.substringBeforeLast("a", "")      = "a"
+	 * </pre>
+	 *
+	 * @param str
+	 *            the String to get a substring from, may be null
+	 * @param separator
+	 *            the String to search for, may be null
+	 * @return the substring before the last occurrence of the separator,
+	 *         {@code null} if null String input
+	 * @since 2.0
+	 */
+	public static String substringBeforeLast(final String str, final String separator) {
+		if (isEmpty(str) || isEmpty(separator))
+			return str;
+		final int pos = str.lastIndexOf(separator);
+		if (pos == -1)
+			return str;
+		return str.substring(0, pos);
+	}
+
 	/**
 	 * <p>
 	 * Counts how many times the char appears in the given string.
@@ -592,8 +792,10 @@ public class StrUtils {
 	 * StringUtils.countMatches("abba", 'x') = 0
 	 * </pre>
 	 *
-	 * @param str the CharSequence to check, may be null
-	 * @param ch the char to count
+	 * @param str
+	 *            the CharSequence to check, may be null
+	 * @param ch
+	 *            the char to count
 	 * @return the number of occurrences, 0 if the CharSequence is {@code null}
 	 * @since 3.4
 	 */
@@ -716,4 +918,5 @@ public class StrUtils {
 		char c = str.substring(0, 1).toCharArray()[0];
 		return c >= 'A' && c <= 'Z';
 	}
+
 }
