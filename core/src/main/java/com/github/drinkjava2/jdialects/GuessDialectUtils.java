@@ -10,6 +10,8 @@ package com.github.drinkjava2.jdialects;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
@@ -21,9 +23,11 @@ import javax.sql.DataSource;
  */
 @SuppressWarnings("all")
 public class GuessDialectUtils {
+	private static final Map<DataSource, Dialect> dataSourceDialectCache = new ConcurrentHashMap<DataSource, Dialect>();
+
 	/**
-	 * Guess dialect based on given JDBC connection instance, Note: this method
-	 * does not close connection
+	 * Guess dialect based on given JDBC connection instance, Note: this method does
+	 * not close connection
 	 * 
 	 * @param jdbcConnection
 	 *            The connection
@@ -52,10 +56,16 @@ public class GuessDialectUtils {
 	 * @return dialect or null if can not guess out which dialect
 	 */
 	public static Dialect guessDialect(DataSource dataSource) {
+		Dialect result=dataSourceDialectCache.get(dataSource);
+		if(result!=null)return result;
 		Connection con = null;
 		try {
 			con = dataSource.getConnection();
-			return guessDialect(con);
+			result= guessDialect(con);
+			if(result==null)
+				return (Dialect) DialectException.throwEX("Can not get dialect from DataSource, please submit this bug.");
+			dataSourceDialectCache.put(dataSource, result);
+			return result;
 		} catch (SQLException e) {
 			return (Dialect) DialectException.throwEX(e, e.getMessage());
 		} finally {

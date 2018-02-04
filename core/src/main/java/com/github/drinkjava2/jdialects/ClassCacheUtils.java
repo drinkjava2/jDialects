@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.github.drinkjava2.jdialects.DialectException;
 import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
 
 /**
@@ -36,37 +35,68 @@ import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
  * @author Yong Zhu (Yong9981@gmail.com)
  * @since 1.0.0
  */
-public abstract class ClassCacheUtils {
+public abstract class ClassCacheUtils {// NOSONAR
 	// To check if a class exist, if exist, cache it to avoid check again
-	private static ConcurrentHashMap<String, Integer> classExistCache = new ConcurrentHashMap<String, Integer>();
-	private static Map<Class<?>, Map<String, Method>> classReadMethods = new ConcurrentHashMap<Class<?>, Map<String, Method>>();
-	private static Map<Class<?>, Map<String, Method>> classWriteMethods = new ConcurrentHashMap<Class<?>, Map<String, Method>>();
-	private static Map<Class<?>, Field> boxFieldCache = new ConcurrentHashMap<Class<?>, Field>();
+	protected static ConcurrentHashMap<String, Class<?>> classExistCache = new ConcurrentHashMap<String, Class<?>>();
+	protected static Map<Class<?>, Map<String, Object>> uniqueMethodCache = new ConcurrentHashMap<Class<?>, Map<String, Object>>();
+	protected static Map<Class<?>, Map<String, Method>> classReadMethods = new ConcurrentHashMap<Class<?>, Map<String, Method>>();
+	protected static Map<Class<?>, Map<String, Method>> classWriteMethods = new ConcurrentHashMap<Class<?>, Map<String, Method>>();
+	protected static Map<Class<?>, Field> boxFieldCache = new ConcurrentHashMap<Class<?>, Field>();
+
+	protected static class ClassOrMethodNotExist {// NOSONAR
+	}
 
 	/** * Check class if exist */
 	public static Class<?> checkClassExist(String className) {
-		Integer i = classExistCache.get(className);
-		if (i == null)
-			try {
-				Class<?> clazz = Class.forName(className);
-				if (clazz != null) {
-					classExistCache.put(className, 1);
-					return clazz;
-				}
-				classExistCache.put(className, 0);
+		Class<?> result = classExistCache.get(className);
+		if (result != null) {
+			if (ClassOrMethodNotExist.class.equals(result))
 				return null;
-			} catch (Exception e) {
-				DialectException.eatException(e);
-				classExistCache.put(className, 0);
-				return null;
-			}
-		if (1 == i) {
-			try {
-				return Class.forName(className);
-			} catch (Exception e) {
-				DialectException.eatException(e);
+			else
+				return result;
+		}
+		try {
+			result = Class.forName(className);
+			if (result != null)
+				classExistCache.put(className, result);
+			else
+				classExistCache.put(className, ClassOrMethodNotExist.class);
+			return result;
+		} catch (Exception e) {
+			DialectException.eatException(e);
+			classExistCache.put(className, ClassOrMethodNotExist.class);
+			return null;
+		}
+	}
+
+	/**
+	 * Check if a unique method name exists in class, if exist return the method,
+	 * otherwise return null
+	 */
+	public static Method checkMethodExist(Class<?> clazz, String uniqueMethodName) {
+		if (clazz == null || StrUtils.isEmpty(uniqueMethodName))
+			return null;
+		Map<String, Object> methodMap = uniqueMethodCache.get(clazz);
+		if (methodMap != null && !methodMap.isEmpty()) {
+			Object result = methodMap.get(uniqueMethodName);
+			if (result != null) {
+				if (ClassOrMethodNotExist.class.equals(result))
+					return null;
+				else
+					return (Method) result;
 			}
 		}
+		if (methodMap == null) {
+			methodMap = new HashMap<String, Object>();
+			uniqueMethodCache.put(clazz, methodMap);
+		}
+		Method[] methods = clazz.getMethods();
+		for (Method method : methods)
+			if (uniqueMethodName != null && uniqueMethodName.equals(method.getName())) {
+				methodMap.put(uniqueMethodName, method);
+				return method;
+			}
+		methodMap.put(uniqueMethodName, ClassOrMethodNotExist.class);
 		return null;
 	}
 
