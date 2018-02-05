@@ -30,15 +30,6 @@ import com.github.drinkjava2.jdialects.model.TableModel;
  * above.
  * 
  * @author Yong Zhu
- * @version 1.0.5
- * @since 1.0.0
- */
-/**
- * @author Yong Zhu
- * @since 1.7.0
- */
-/**
- * @author Yong Zhu
  * @since 1.7.0
  */
 @SuppressWarnings("all")
@@ -47,28 +38,33 @@ public enum Dialect implements CommonDialect {
 	SQLiteDialect, AccessDialect, ExcelDialect, TextDialect, ParadoxDialect, CobolDialect, XMLDialect, DbfDialect, // NOSONAR
 
 	// Below dialects found in Hibernate 5.2.9
+
 	/** Use Derby instead */
 	@Deprecated
 	DerbyDialect,
+
 	/** Use Oracle8iDialect instead */
 	@Deprecated
 	OracleDialect,
+
 	/** Use Oracle9i instead */
 	@Deprecated
-	Oracle9Dialect, Cache71Dialect, CUBRIDDialect, DerbyTenFiveDialect, DataDirectOracle9Dialect, DB2Dialect, DB2390Dialect, DB2400Dialect, DerbyTenSevenDialect, DerbyTenSixDialect, FirebirdDialect, FrontBaseDialect, H2Dialect, HANAColumnStoreDialect, HANARowStoreDialect, HSQLDialect, InformixDialect, Informix10Dialect, IngresDialect, Ingres10Dialect, Ingres9Dialect, InterbaseDialect, JDataStoreDialect, MariaDBDialect, MariaDB53Dialect, MckoiDialect, MimerSQLDialect, MySQLDialect, MySQL5Dialect, MySQL55Dialect, MySQL57Dialect, MySQL57InnoDBDialect, MySQL5InnoDBDialect, MySQLInnoDBDialect, MySQLMyISAMDialect, Oracle8iDialect, Oracle9iDialect, Oracle10gDialect, Oracle12cDialect, PointbaseDialect, PostgresPlusDialect, PostgreSQLDialect, PostgreSQL81Dialect, PostgreSQL82Dialect, PostgreSQL9Dialect, PostgreSQL91Dialect, PostgreSQL92Dialect, PostgreSQL93Dialect, PostgreSQL94Dialect, PostgreSQL95Dialect, ProgressDialect, RDMSOS2200Dialect, SAPDBDialect, SQLServerDialect, SQLServer2005Dialect, SQLServer2008Dialect, SQLServer2012Dialect, SybaseDialect, Sybase11Dialect, SybaseAnywhereDialect, SybaseASE15Dialect, SybaseASE157Dialect, TeradataDialect, Teradata14Dialect, TimesTenDialect;// NOSONAR
+	Oracle9Dialect, //
+
+	Cache71Dialect, CUBRIDDialect, DerbyTenFiveDialect, DataDirectOracle9Dialect, DB2Dialect, DB2390Dialect, DB2400Dialect, DerbyTenSevenDialect, DerbyTenSixDialect, FirebirdDialect, FrontBaseDialect, H2Dialect, HANAColumnStoreDialect, HANARowStoreDialect, HSQLDialect, InformixDialect, Informix10Dialect, IngresDialect, Ingres10Dialect, Ingres9Dialect, InterbaseDialect, JDataStoreDialect, MariaDBDialect, MariaDB53Dialect, MckoiDialect, MimerSQLDialect, MySQLDialect, MySQL5Dialect, MySQL55Dialect, MySQL57Dialect, MySQL57InnoDBDialect, MySQL5InnoDBDialect, MySQLInnoDBDialect, MySQLMyISAMDialect, Oracle8iDialect, Oracle9iDialect, Oracle10gDialect, Oracle12cDialect, PointbaseDialect, PostgresPlusDialect, PostgreSQLDialect, PostgreSQL81Dialect, PostgreSQL82Dialect, PostgreSQL9Dialect, PostgreSQL91Dialect, PostgreSQL92Dialect, PostgreSQL93Dialect, PostgreSQL94Dialect, PostgreSQL95Dialect, ProgressDialect, RDMSOS2200Dialect, SAPDBDialect, SQLServerDialect, SQLServer2005Dialect, SQLServer2008Dialect, SQLServer2012Dialect, SybaseDialect, Sybase11Dialect, SybaseAnywhereDialect, SybaseASE15Dialect, SybaseASE157Dialect, TeradataDialect, Teradata14Dialect, TimesTenDialect;
 
 	/** If set true will allow use reserved words in DDL, default value is false */
-	private static Boolean allowReservedWords = false;
+	private static Boolean globalAllowReservedWords = false;
 
 	/**
 	 * If set true will output log for each paginate, translate, paginAndTranslate,
 	 * toCreateDDL, toDropAndCreateDDL, toDropDDL method call, default value is
 	 * false
 	 */
-	private static Boolean allowShowDialectLog = false;
+	private static Boolean globalAllowShowSql = false;
 
 	/** The SQL function prefix String, default value is null */
-	private static String sqlFunctionPrefix = null;
+	private static String globalSqlFunctionPrefix = null;
 
 	public static final String NOT_SUPPORT = "NOT_SUPPORT";
 	private static final String SKIP_ROWS = "$SKIP_ROWS";
@@ -77,7 +73,7 @@ public enum Dialect implements CommonDialect {
 	private static final String SKIP_ROWS_PLUS1 = "$SKIP_ROWS_PLUS1";
 	private static final String TOTAL_ROWS_PLUS1 = "$TOTAL_ROWS_PLUS1";
 	private static final String DISTINCT_TAG = "($DISTINCT)";
-	protected static DialectLogger logger = DialectLogger.getLog(Dialect.class);
+	protected static final DialectLogger logger = DialectLogger.getLog(Dialect.class);
 	private String sqlTemplate = null;
 	private String topLimitTemplate = null;
 	protected final Map<Type, String> typeMappings = new EnumMap<Type, String>(Type.class);
@@ -108,7 +104,8 @@ public enum Dialect implements CommonDialect {
 	/**
 	 * Guess Dialect by given connection, note:this method does not close connection
 	 * 
-	 * @param con The JDBC Connection
+	 * @param con
+	 *            The JDBC Connection
 	 * @return Dialect The Dialect intance, if can not guess out, return null
 	 */
 	public static Dialect guessDialect(Connection connection) {
@@ -133,7 +130,7 @@ public enum Dialect implements CommonDialect {
 		if (ReservedDBWords.isReservedWord(word)) {
 			String reservedForDB = ReservedDBWords.reservedForDB(word);
 			if (ReservedDBWords.isReservedWord(this, word)) {
-				if (Dialect.allowReservedWords)
+				if (Dialect.globalAllowReservedWords)
 					logger.warn("\"" + word + "\" is a reserved word of \"" + reservedForDB
 							+ "\", should not use it as table, column, unique or index name");
 				else
@@ -209,7 +206,6 @@ public enum Dialect implements CommonDialect {
 	}
 
 	// @formatter:off shut off eclipse's formatter
-
 
 	// @formatter:on
 
@@ -287,7 +283,7 @@ public enum Dialect implements CommonDialect {
 	public String paginAndTrans(int pageNumber, int pageSize, String... sql) {
 		return pagin(pageNumber, pageSize, trans(sql));
 	}
- 
+
 	@Override
 	public String trans(String... sql) {
 		StringBuilder sb = new StringBuilder();
@@ -307,7 +303,7 @@ public enum Dialect implements CommonDialect {
 		case SQLServer2008Dialect:
 		case SQLServer2012Dialect: {
 			result = processSQLServer(this, pageNumber, pageSize, trimedSql);
-			if (getAllowShowDialectLog())
+			if (getGlobalAllowShowSql())
 				logger.info("Paginated sql: " + result);
 			return result;
 		}
@@ -360,7 +356,7 @@ public enum Dialect implements CommonDialect {
 
 		// or only insert the body without "select "
 		result = StrUtils.replace(result, "$BODY", body);
-		if (getAllowShowDialectLog())
+		if (getGlobalAllowShowSql())
 			logger.info("Paginated sql: " + result);
 		return result;
 	}
@@ -529,31 +525,31 @@ public enum Dialect implements CommonDialect {
 		return ddlFeatures;
 	}
 
-	public static Boolean getAllowReservedWords() {
-		return allowReservedWords;
+	public static Boolean getGlobalAllowReservedWords() {
+		return globalAllowReservedWords;
 	}
 
-	/** Note! this is a global method to set allowReservedWords */
-	public static void setAllowReservedWords(Boolean allowReservedWords) {
-		Dialect.allowReservedWords = allowReservedWords;
+	/** Note! this is a global method to set globalAllowReservedWords */
+	public static void setGlobalAllowReservedWords(Boolean ifAllowReservedWords) {
+		Dialect.globalAllowReservedWords = ifAllowReservedWords;
 	}
 
-	public static Boolean getAllowShowDialectLog() {
-		return allowShowDialectLog;
+	public static Boolean getGlobalAllowShowSql() {
+		return globalAllowShowSql;
 	}
 
-	/** Note! this is a global method to set allowShowDialectLog */
-	public static void setAllowShowDialectLog(Boolean allowShowDialectLog) {
-		Dialect.allowShowDialectLog = allowShowDialectLog;
+	/** Note! this is a global method to set globalAllowShowSql */
+	public static void setGlobalAllowShowSql(Boolean ifAllowShowSql) {
+		Dialect.globalAllowShowSql = ifAllowShowSql;
 	}
 
-	public static String getSqlFunctionPrefix() {
-		return sqlFunctionPrefix;
+	public static String getGlobalSqlFunctionPrefix() {
+		return globalSqlFunctionPrefix;
 	}
 
-	/** Note! this is a global method to set sqlFunctionPrefix */
-	public static void setSqlFunctionPrefix(String sqlFunctionPrefix) {
-		Dialect.sqlFunctionPrefix = sqlFunctionPrefix;
+	/** Note! this is a global method to set globalSqlFunctionPrefix */
+	public static void setGlobalSqlFunctionPrefix(String sqlFunctionPrefix) {
+		Dialect.globalSqlFunctionPrefix = sqlFunctionPrefix;
 	}
 
 }

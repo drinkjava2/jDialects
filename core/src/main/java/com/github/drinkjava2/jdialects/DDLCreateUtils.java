@@ -89,7 +89,7 @@ public class DDLCreateUtils {// NOSONAR
 		buildTableGeneratorDDL(dialect, stringResultList, tbGeneratorList);
 		outputFKeyConstraintDDL(dialect, stringResultList, fKeyConstraintList);
 		String[] result= stringResultList.toArray(new String[stringResultList.size()]);
-		if (Dialect.getAllowShowDialectLog() )			
+		if (Dialect.getGlobalAllowShowSql() )			
 			Dialect.logger.info("Create DDL:\r"+StrUtils.arrayToString(result, "\r")); 
 		return result;
 	}

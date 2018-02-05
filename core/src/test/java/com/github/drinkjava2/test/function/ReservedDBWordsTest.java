@@ -39,8 +39,8 @@ public class ReservedDBWordsTest {
 
 	@Test
 	public void doTestNoExceptionThrow() {
-		Dialect.setAllowReservedWords(true);
+		Dialect.setGlobalAllowReservedWords(true);
 		System.out.println(Dialect.MySQL55Dialect.toCreateDDL(ReservedDBWordsTest.class)[0]);
-		Dialect.setAllowReservedWords(false);// remember to restore this global setting!
+		Dialect.setGlobalAllowReservedWords(false);// remember to restore this global setting!
 	}
 }

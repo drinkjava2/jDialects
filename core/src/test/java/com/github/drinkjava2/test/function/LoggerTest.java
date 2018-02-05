@@ -24,7 +24,7 @@ public class LoggerTest extends TestBase {
 
 	@Test
 	public void doLoggerTest() {
-		Dialect.setAllowShowDialectLog(true);
+		Dialect.setGlobalAllowShowSql(true);
 		Dialect.MySQL55Dialect.pagin(10, 10, "select * from sometable");
 		logger.info("Message1 output");
 		System.out.println("Message2 output");
