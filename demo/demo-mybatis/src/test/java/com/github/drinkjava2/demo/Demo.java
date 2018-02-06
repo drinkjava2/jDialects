@@ -36,7 +36,7 @@ import com.github.drinkjava2.jsqlbox.SqlBoxContext;
 import com.zaxxer.hikari.HikariDataSource;
 
 public class Demo {
-	protected static ThreadLocal<Object[]> paginInfo = new ThreadLocal<Object[]>();
+	public static ThreadLocal<Object[]> paginInfo = new ThreadLocal<Object[]>();
 
 	@Table(name = "users")
 	public static class User extends ActiveRecord {
@@ -88,7 +88,7 @@ public class Demo {
 		List<Map<String, Object>> getOlderThan(int age);
 	}
 
-	// See
+	// JDialectsPlugin is a MyBatis plug, referenced this article:
 	// https://github.com/pagehelper/Mybatis-PageHelper/blob/master/wikis/zh/Interceptor.md
 	@Intercepts({
 			@Signature(type = Executor.class, method = "query", args = { MappedStatement.class, Object.class,
@@ -166,8 +166,8 @@ public class Demo {
 		// dataSource.setPassword("root888");
 
 		SqlBoxContext ctx = new SqlBoxContext(dataSource);
-		SqlBoxContext.setDefaultContext(ctx);
-		ctx.setAllowShowSQL(true);
+		SqlBoxContext.setGlobalSqlBoxContext(ctx);
+		SqlBoxContext.setGlobalAllowShowSql(true);
 		String[] ddlArray = ctx.toDropAndCreateDDL(User.class);
 		for (String ddl : ddlArray)
 			ctx.quiteExecute(ddl);

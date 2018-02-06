@@ -89,8 +89,8 @@ public class Demo {
 		// ds.setPassword("root888");
 
 		SqlBoxContext ctx = new SqlBoxContext(ds);
-		SqlBoxContext.
-		// ctx.setAllowShowSQL(true);
+		SqlBoxContext.setGlobalSqlBoxContext(ctx);
+		SqlBoxContext.setGlobalAllowShowSql(true);
 
 		String[] ddlArray = ctx.toDropAndCreateDDL(User.class);
 		for (String ddl : ddlArray)
@@ -105,8 +105,9 @@ public class Demo {
 		}
 		Assert.assertEquals(100, ctx.nQueryForLongValue("select count(*) from users"));
 
-		List<Map<String, Object>> users = ctx.nQueryForMapList(ctx.pagin(2, 10,
-				"select concat(firstName, ' ', lastName) as USERNAME, age from users where age>?"), 50);
+		List<Map<String, Object>> users = ctx.nQueryForMapList(
+				ctx.pagin(2, 10, "select concat(firstName, ' ', lastName) as USERNAME, age from users where age>?"),
+				50);
 
 		Assert.assertEquals(10, users.size());
 
