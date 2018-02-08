@@ -48,13 +48,14 @@ public abstract class TableModelUtilsOfDb {
 					tableNames.add(rs.getString(TABLE_NAME));
 				rs.close();
 				pst.close();
-//			} else if (dialect.isSQLServerFamily()) {
-//				pst = con.prepareStatement("select name from sysobjects where xtype='U'");
-//				rs = pst.executeQuery();
-//				while (rs.next())
-//					tableNames.add(rs.getString(TABLE_NAME));
-//				rs.close();
-//				pst.close();
+				// } else if (dialect.isSQLServerFamily()) {
+				// pst = con.prepareStatement("select name from sysobjects where
+				// xtype='U'");
+				// rs = pst.executeQuery();
+				// while (rs.next())
+				// tableNames.add(rs.getString(TABLE_NAME));
+				// rs.close();
+				// pst.close();
 			} else {
 				rs = meta.getTables(null, null, null, new String[] { "TABLE" });
 				while (rs.next())
@@ -75,8 +76,8 @@ public abstract class TableModelUtilsOfDb {
 					try {
 						col.setColumnType(TypeUtils.javaSqlTypeToDialectType(javaSqlType));
 					} catch (Exception e1) {
-						throw new DialectException(e1,
-								"jDialect does not supported java.sql.types value " + javaSqlType);
+						throw new DialectException("jDialect does not supported java.sql.types value " + javaSqlType,
+								e1);
 					}
 					col.setLength(rs.getInt("COLUMN_SIZE"));
 					col.setNullable(rs.getInt("NULLABLE") > 0);

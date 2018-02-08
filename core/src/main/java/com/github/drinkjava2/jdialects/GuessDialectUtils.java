@@ -26,8 +26,8 @@ public class GuessDialectUtils {
 	private static final Map<DataSource, Dialect> dataSourceDialectCache = new ConcurrentHashMap<DataSource, Dialect>();
 
 	/**
-	 * Guess dialect based on given JDBC connection instance, Note: this method does
-	 * not close connection
+	 * Guess dialect based on given JDBC connection instance, Note: this method
+	 * does not close connection
 	 * 
 	 * @param jdbcConnection
 	 *            The connection
@@ -43,7 +43,7 @@ public class GuessDialectUtils {
 			majorVersion = meta.getDatabaseMajorVersion();
 			minorVersion = meta.getDatabaseMinorVersion();
 		} catch (SQLException e) {
-			return (Dialect) DialectException.throwEX(e, e.getMessage());
+			return (Dialect) DialectException.throwEX(e);
 		}
 		return guessDialect(databaseName, majorVersion, minorVersion);
 	}
@@ -56,29 +56,31 @@ public class GuessDialectUtils {
 	 * @return dialect or null if can not guess out which dialect
 	 */
 	public static Dialect guessDialect(DataSource dataSource) {
-		Dialect result=dataSourceDialectCache.get(dataSource);
-		if(result!=null)return result;
+		Dialect result = dataSourceDialectCache.get(dataSource);
+		if (result != null)
+			return result;
 		Connection con = null;
 		try {
 			con = dataSource.getConnection();
-			result= guessDialect(con);
-			if(result==null)
-				return (Dialect) DialectException.throwEX("Can not get dialect from DataSource, please submit this bug.");
+			result = guessDialect(con);
+			if (result == null)
+				return (Dialect) DialectException
+						.throwEX("Can not get dialect from DataSource, please submit this bug.");
 			dataSourceDialectCache.put(dataSource, result);
 			return result;
 		} catch (SQLException e) {
-			return (Dialect) DialectException.throwEX(e, e.getMessage());
+			return (Dialect) DialectException.throwEX(e);
 		} finally {
 			try {
 				if (con != null && !con.isClosed()) {
 					try {// NOSONAR
 						con.close();
 					} catch (SQLException e) {
-						DialectException.throwEX(e, e.getMessage());
+						DialectException.throwEX(e);
 					}
 				}
 			} catch (SQLException e) {
-				DialectException.throwEX(e, e.getMessage());
+				DialectException.throwEX(e);
 			}
 		}
 	}

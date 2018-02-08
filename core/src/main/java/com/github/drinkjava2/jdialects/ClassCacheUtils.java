@@ -70,8 +70,8 @@ public abstract class ClassCacheUtils {// NOSONAR
 	}
 
 	/**
-	 * Check if a unique method name exists in class, if exist return the method,
-	 * otherwise return null
+	 * Check if a unique method name exists in class, if exist return the
+	 * method, otherwise return null
 	 */
 	public static Method checkMethodExist(Class<?> clazz, String uniqueMethodName) {
 		if (clazz == null || StrUtils.isEmpty(uniqueMethodName))
@@ -121,7 +121,7 @@ public abstract class ClassCacheUtils {// NOSONAR
 			beanInfo = Introspector.getBeanInfo(clazz);
 			pds = beanInfo.getPropertyDescriptors();
 		} catch (Exception e) {
-			DialectException.throwEX(e, "Class '" + clazz + "' can not get bean info");
+			DialectException.throwEX("Class '" + clazz + "' can not get bean info", e);
 		}
 
 		Map<String, Method> readMethods = new HashMap<String, Method>();
@@ -206,7 +206,7 @@ public abstract class ClassCacheUtils {// NOSONAR
 		try {
 			writeMethod.invoke(entityBean, value);
 		} catch (Exception e) {
-			throw new DialectException(e);
+			throw new DialectException("fieldName '" + fieldName + "' can not write with value '" + value+"'", e);
 		}
 	}
 

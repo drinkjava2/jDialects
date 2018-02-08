@@ -28,16 +28,20 @@ public class DialectException extends RuntimeException {
 		super(cause);
 	}
 
-	public DialectException(Throwable cause, String message) {
+	public DialectException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public static Object throwEX(Exception e, String errorMsg) {
-		throw new DialectException(e, errorMsg);
+	public static Object throwEX(String errorMsg, Throwable e) {
+		throw new DialectException(errorMsg, e);
+	}
+
+	public static Object throwEX(Throwable cause) {
+		throw new DialectException(cause);
 	}
 
 	public static Object throwEX(String errorMsg) {
-		return throwEX(null, errorMsg);
+		throw new DialectException(errorMsg);
 	}
 
 	public static void eatException(Exception e) {

@@ -234,7 +234,7 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 			beanInfo = Introspector.getBeanInfo(entityClass);
 			pds = beanInfo.getPropertyDescriptors();
 		} catch (Exception e) {
-			DialectException.throwEX(e, "entity2Model can not get bean info");
+			DialectException.throwEX( "entity2Model can not get bean info",e);
 		}
 
 		for (PropertyDescriptor pd : pds) {
