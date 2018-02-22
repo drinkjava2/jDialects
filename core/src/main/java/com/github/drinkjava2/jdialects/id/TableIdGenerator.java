@@ -21,8 +21,8 @@ import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
 public class TableIdGenerator implements IdGenerator {
 
 	/**
-	 * A unique generator name that can be referenced by one or more classes to
-	 * be the generator for id values.
+	 * A unique generator name that can be referenced by one or more classes to be
+	 * the generator for id values.
 	 */
 	private String name;
 
@@ -42,14 +42,13 @@ public class TableIdGenerator implements IdGenerator {
 	private String valueColumnName = "";
 
 	/**
-	 * The primary key value in the generator table that distinguishes this set
-	 * of generated values from others that may be stored in the table.
+	 * The primary key value in the generator table that distinguishes this set of
+	 * generated values from others that may be stored in the table.
 	 */
 	private String pkColumnValue = "";
 
 	/**
-	 * The initial value to be used when allocating id numbers from the
-	 * generator.
+	 * The initial value to be used when allocating id numbers from the generator.
 	 */
 	private Integer initialValue = 0;
 
@@ -58,14 +57,8 @@ public class TableIdGenerator implements IdGenerator {
 	 */
 	private Integer allocationSize = 50;
 
-	/**
-	 * Last ID Value
-	 */
-	private Integer lastValue = -1;
-
 	public TableIdGenerator() {
 		super();
-		// default constructor
 	}
 
 	public TableIdGenerator(String name, String table, String pkColumnName, String valueColumnName,
@@ -99,47 +92,28 @@ public class TableIdGenerator implements IdGenerator {
 	public Boolean dependOnAutoIdGenerator() {
 		return false;
 	}
-	
+
 	/**
 	 * Get the next Table Generator ID
 	 */
 	@Override
 	public Object getNextID(NormalJdbcTool jdbc, Dialect dialect, Type dataType) {
-		if (lastValue == -1) {
-			int countOfRec = ((Number) jdbc //NOSONAR
-					.nQueryForObject("select count(*) from " + table + " where " + pkColumnName + "=?", pkColumnValue))
-							.intValue();
-			if (countOfRec == 0) {
-				jdbc.nUpdate("insert into " + table + "( " + pkColumnName + "," + valueColumnName + " )  values(?,?)",
-						pkColumnValue, initialValue);
-				lastValue = initialValue;
-				return lastValue;
-			} else {
-				// 70 or 99 or 100 or 101
-				int last = ((Number) jdbc.nQueryForObject( //NOSONAR
-						"select " + valueColumnName + " from " + table + " where " + pkColumnName + "=?",
-						pkColumnValue)).intValue();
-				// 101 or 101 or 101 or 151
-				last = calculateBucketFirstID(last, allocationSize);
-				// 151, 151, 151, 201
-				jdbc.nUpdate("update " + table + " set " + valueColumnName + "=? where " + pkColumnName + " =?",
-						calculateBucketFirstID(last + 1, allocationSize), pkColumnValue);
-				lastValue = last;
-				return lastValue;
-			}
+		int countOfRec = ((Number) jdbc // NOSONAR
+				.nQueryForObject("select count(*) from " + table + " where " + pkColumnName + "=?", pkColumnValue))
+						.intValue();
+		if (countOfRec == 0) {
+			jdbc.nUpdate("insert into " + table + "( " + pkColumnName + "," + valueColumnName + " )  values(?,?)",
+					pkColumnValue, initialValue);
+			return initialValue;
 		} else {
-			int last = lastValue;
-			int nextBucketFirstID = calculateBucketFirstID(last, allocationSize);
-			if (last + 1 >= nextBucketFirstID)
-				jdbc.nUpdate("update " + table + " set " + valueColumnName + "=? where " + pkColumnName + " =?",
-						calculateBucketFirstID(last + 1, allocationSize), pkColumnValue);
-			lastValue = last + 1;
-			return lastValue;
-		}
-	}
+			jdbc.nUpdate("update " + table + " set " + valueColumnName + "=" + valueColumnName + "+" + allocationSize
+					+ "  where " + pkColumnName + " =?", pkColumnValue);
 
-	private static int calculateBucketFirstID(Integer currentValue, Integer allocationSize) {
-		return ((currentValue + allocationSize - 1) / allocationSize) * allocationSize + 1;
+			int last = ((Number) jdbc.nQueryForObject( // NOSONAR
+					"select " + valueColumnName + " from " + table + " where " + pkColumnName + "=?", pkColumnValue))
+							.intValue();
+			return last;
+		}
 	}
 
 	// getter && setter=====================
