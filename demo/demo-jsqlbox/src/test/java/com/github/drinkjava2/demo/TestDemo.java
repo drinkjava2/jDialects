@@ -13,7 +13,7 @@ import com.github.drinkjava2.jsqlbox.ActiveRecord;
 import com.github.drinkjava2.jsqlbox.SqlBoxContext;
 import com.zaxxer.hikari.HikariDataSource;
 
-public class Demo {
+public class TestDemo {
 
 	@Table(name = "users")
 	public static class User extends ActiveRecord {
@@ -87,10 +87,9 @@ public class Demo {
 		// ds.setJdbcUrl("jdbc:oracle:thin:@127.0.0.1:1521:XE");
 		// ds.setUsername("root");
 		// ds.setPassword("root888");
-
+		SqlBoxContext.setGlobalAllowShowSql(true);
 		SqlBoxContext ctx = new SqlBoxContext(ds);
 		SqlBoxContext.setGlobalSqlBoxContext(ctx);
-		SqlBoxContext.setGlobalAllowShowSql(true);
 
 		String[] ddlArray = ctx.toDropAndCreateDDL(User.class);
 		for (String ddl : ddlArray)

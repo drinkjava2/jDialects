@@ -17,7 +17,7 @@ import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.model.TableModel;
 import com.zaxxer.hikari.HikariDataSource;
 
-public class Demo {
+public class TestDemo {
 
 	@SuppressWarnings("unchecked")
 	public static <T> T queryForObject(Connection conn, String sql, Object... params) {
@@ -55,7 +55,7 @@ public class Demo {
 	public static List<Map<String, Object>> queryForMapList(Connection conn, String sql, Object... params) {
 		ResultSet rs = null;
 		PreparedStatement pst = null;
-		List<Map<String, Object>> list = new ArrayList<>();
+		List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
 		try {
 			int i = 1;
 			pst = conn.prepareStatement(sql);// NOSONAR

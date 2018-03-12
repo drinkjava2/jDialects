@@ -35,7 +35,7 @@ import com.github.drinkjava2.jsqlbox.ActiveRecord;
 import com.github.drinkjava2.jsqlbox.SqlBoxContext;
 import com.zaxxer.hikari.HikariDataSource;
 
-public class Demo {
+public class TestDemo {
 	public static ThreadLocal<Object[]> paginInfo = new ThreadLocal<Object[]>();
 
 	@Table(name = "users")
@@ -117,8 +117,8 @@ public class Demo {
 			}
 			if (paginInfo.get() != null) {// if paginInfo exist in threadlocal
 				Configuration configuration = ms.getConfiguration();
-				String pageSql = ((Dialect) paginInfo.get()[0]).paginAndTrans((int) paginInfo.get()[1],
-						(int) paginInfo.get()[2], boundSql.getSql());
+				String pageSql = ((Dialect) paginInfo.get()[0]).paginAndTrans((Integer) paginInfo.get()[1],
+						(Integer) paginInfo.get()[2], boundSql.getSql());
 				BoundSql pageBoundSql = new BoundSql(configuration, pageSql, boundSql.getParameterMappings(),
 						parameter);
 				return executor.query(ms, parameter, RowBounds.DEFAULT, resultHandler, cacheKey, pageBoundSql);
