@@ -136,7 +136,7 @@ public enum Dialect implements CommonDialect {
 				else
 					DialectException.throwEX("\"" + word + "\" is a reserved word of \"" + reservedForDB
 							+ "\", should not use it as table, column, unique or index name. "
-							+ "if you really want use this reserved word, set Dialect.ALLOW_RESERVED_WORDS=true.");
+							+ "if you really want use this reserved word, set Dialect.setGlobalAllowReservedWords(true) at application starting.");
 			} else {
 				logger.warn("\"" + word + "\" is a reserved word of other database \"" + reservedForDB
 						+ "\", not recommend be used as table, column, unique or index name");

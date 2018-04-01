@@ -69,6 +69,17 @@ public class TestBase {
 		executeDDLs(ddls);
 	}
 
+	protected void testCreateAndDropDatabase(TableModel... tables) {
+		String[] ddls = guessedDialect.toCreateDDL(tables);
+		executeDDLs(ddls);
+
+		ddls = guessedDialect.toDropAndCreateDDL(tables);
+		executeDDLs(ddls);
+
+		ddls = guessedDialect.toDropDDL(tables);
+		executeDDLs(ddls);
+	}
+
 	protected void testOnCurrentRealDatabase(TableModel... tables) {
 		System.out.println("======Test on real Database of dialect: " + guessedDialect + "=====");
 

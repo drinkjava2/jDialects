@@ -122,9 +122,9 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 	}
 
 	/**
-	 * Convert a Java entity class or JPA annotated entity classes to
-	 * "TableModel" Object, if this class has a "config(TableModel tableModel)"
-	 * method, will also call it
+	 * Convert a Java entity class or JPA annotated entity classes to "TableModel"
+	 * Object, if this class has a "config(TableModel tableModel)" method, will also
+	 * call it
 	 */
 	public static TableModel oneEntity2Model(Class<?> entityClass) {
 		DialectException.assureNotNull(entityClass, "Entity class can not be null");
@@ -143,15 +143,15 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 			} catch (Exception e) {
 				throw new DialectException(e);
 			}
-
-		if (model != null)
-			tableModelCache.put(entityClass, model);
+		if (model == null)
+			throw new DialectException("Can not create TableModel for entityClass " + entityClass);
+		tableModelCache.put(entityClass, model);
 		return model.newCopy();
 	}
 
 	/**
-	 * Convert a Java entity class or JPA annotated entity classes to
-	 * "TableModel" Object, ignore config method
+	 * Convert a Java entity class or JPA annotated entity classes to "TableModel"
+	 * Object, ignore config method
 	 */
 	private static TableModel entity2ModelIgnoreConfigMethod(Class<?> entityClass) {
 		DialectException.assureNotNull(entityClass, "entity2Model method does not accept a null class");
@@ -234,7 +234,7 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 			beanInfo = Introspector.getBeanInfo(entityClass);
 			pds = beanInfo.getPropertyDescriptors();
 		} catch (Exception e) {
-			DialectException.throwEX( "entity2Model can not get bean info",e);
+			DialectException.throwEX("entity2Model can not get bean info", e);
 		}
 
 		for (PropertyDescriptor pd : pds) {
@@ -244,145 +244,146 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 				continue;
 			Class<?> propertyClass = pd.getPropertyType();
 
-			if (TypeUtils.canMapToSqlType(propertyClass)) {
-				Field field = ReflectionUtils.findField(entityClass, entityfieldName);
-				if (field == null)
-					continue;
-				// DialectException.assureNotNull(field, "Entity field '" +
-				// entityfieldName + "'
-				// found a null value");
+			Field field = ReflectionUtils.findField(entityClass, entityfieldName);
+			if (field == null)
+				continue;
+			if (!TypeUtils.canMapToSqlType(propertyClass) && getFirstEntityAnno(field, "Transient").isEmpty()) {
+				throw new DialectException("In class '" + entityClass + "',  feild '" + entityfieldName
+						+ "' can not map to a SQL type, need use @Transient annotation to disable it");
+			}
 
-				if (!getFirstEntityAnno(field, "Transient").isEmpty()) {
-					ColumnModel col = new ColumnModel(entityfieldName);
+			if (!getFirstEntityAnno(field, "Transient").isEmpty()) {
+				ColumnModel col = new ColumnModel(entityfieldName);
+				col.setColumnType(TypeUtils.toType(propertyClass));
+				col.setLengths(new Integer[] { 255, 0, 0 });
+				col.setTransientable(true);
+				col.setEntityField(entityfieldName);
+				col.setTableModel(model);
+				model.addColumn(col);
+			} else {
+
+				// SequenceGenerator
+				Map<String, Object> map = getFirstEntityAnno(field, "SequenceGenerator");
+				if (!map.isEmpty()) {
+					model.sequenceGenerator((String) map.get("name"), (String) map.get("sequenceName"),
+							(Integer) map.get("initialValue"), (Integer) map.get("allocationSize"));
+				}
+
+				// TableGenerator
+				map = getFirstEntityAnno(field, "TableGenerator");
+				if (!map.isEmpty()) {
+					model.tableGenerator((String) map.get("name"), (String) map.get("table"),
+							(String) map.get("pkColumnName"), (String) map.get("valueColumnName"),
+							(String) map.get("pkColumnValue"), (Integer) map.get("initialValue"),
+							(Integer) map.get("allocationSize"));
+				}
+
+				// UUIDAny
+				map = getFirstEntityAnno(field, "UUIDAny");
+				if (!map.isEmpty()) {
+					model.uuidAny((String) map.get("name"), (Integer) map.get("length"));
+				}
+
+				ColumnModel col = new ColumnModel(entityfieldName);
+				col.entityField(entityfieldName);
+				// Column
+				Map<String, Object> colMap = getFirstEntityAnno(field, "Column");
+				if (!colMap.isEmpty()) {
+					if (!(Boolean) colMap.get("nullable"))
+						col.setNullable(false);
+					if (!StrUtils.isEmpty(colMap.get("name")))
+						col.setColumnName((String) colMap.get("name"));
+					col.setLength((Integer) colMap.get("length"));
+					col.setPrecision((Integer) colMap.get("precision"));
+					col.setScale((Integer) colMap.get("scale"));
+					col.setLengths(new Integer[] { col.getLength(), col.getPrecision(), col.getScale() });
+					if (!StrUtils.isEmpty(colMap.get("columnDefinition")))
+						col.setColumnType(TypeUtils.toType((String) colMap.get("columnDefinition")));
+					else
+						col.setColumnType(TypeUtils.toType(propertyClass));
+					col.setInsertable((Boolean) colMap.get("insertable"));
+					col.setUpdatable((Boolean) colMap.get("updatable"));
+				} else {
 					col.setColumnType(TypeUtils.toType(propertyClass));
 					col.setLengths(new Integer[] { 255, 0, 0 });
-					col.setTransientable(true);
-					col.setTableModel(model);
-					model.addColumn(col);
-				} else {
+				}
 
-					// SequenceGenerator
-					Map<String, Object> map = getFirstEntityAnno(field, "SequenceGenerator");
-					if (!map.isEmpty()) {
-						model.sequenceGenerator((String) map.get("name"), (String) map.get("sequenceName"),
-								(Integer) map.get("initialValue"), (Integer) map.get("allocationSize"));
-					}
+				// Id
+				if (!getFirstEntityAnno(field, "Id").isEmpty() || !getFirstEntityAnno(field, "PKey").isEmpty())
+					col.pkey();
 
-					// TableGenerator
-					map = getFirstEntityAnno(field, "TableGenerator");
-					if (!map.isEmpty()) {
-						model.tableGenerator((String) map.get("name"), (String) map.get("table"),
-								(String) map.get("pkColumnName"), (String) map.get("valueColumnName"),
-								(String) map.get("pkColumnValue"), (Integer) map.get("initialValue"),
-								(Integer) map.get("allocationSize"));
-					}
+				col.setEntityField(entityfieldName);
+				col.setTableModel(model);
+				// col will also set TableModel field point to its owner
+				model.addColumn(col);
 
-					// UUIDAny
-					map = getFirstEntityAnno(field, "UUIDAny");
-					if (!map.isEmpty()) {
-						model.uuidAny((String) map.get("name"), (Integer) map.get("length"));
-					}
+				// shortcut Id generator annotations
+				if (existEntityAnno(field, "AutoId"))
+					col.autoId();
+				if (existEntityAnno(field, "IdentityId"))
+					col.identityId();
+				if (existEntityAnno(field, "TimeStampId"))
+					col.timeStampId();
+				if (existEntityAnno(field, "UUID25"))
+					col.uuid25();
+				if (existEntityAnno(field, "UUID32"))
+					col.uuid32();
+				if (existEntityAnno(field, "UUID36"))
+					col.uuid36();
 
-					ColumnModel col = new ColumnModel(entityfieldName);
-					col.entityField(entityfieldName);
-					// Column
-					Map<String, Object> colMap = getFirstEntityAnno(field, "Column");
-					if (!colMap.isEmpty()) {
-						if (!(Boolean) colMap.get("nullable"))
-							col.setNullable(false);
-						if (!StrUtils.isEmpty(colMap.get("name")))
-							col.setColumnName((String) colMap.get("name"));
-						col.setLength((Integer) colMap.get("length"));
-						col.setPrecision((Integer) colMap.get("precision"));
-						col.setScale((Integer) colMap.get("scale"));
-						col.setLengths(new Integer[] { col.getLength(), col.getPrecision(), col.getScale() });
-						if (!StrUtils.isEmpty(colMap.get("columnDefinition")))
-							col.setColumnType(TypeUtils.toType((String) colMap.get("columnDefinition")));
-						else
-							col.setColumnType(TypeUtils.toType(propertyClass));
-						col.setInsertable((Boolean) colMap.get("insertable"));
-						col.setUpdatable((Boolean) colMap.get("updatable"));
-					} else {
-						col.setColumnType(TypeUtils.toType(propertyClass));
-						col.setLengths(new Integer[] { 255, 0, 0 });
-					}
+				// GeneratedValue
+				Map<String, Object> gvMap = getFirstEntityAnno(field, "GeneratedValue");
+				if (!gvMap.isEmpty()) {
+					Object strategy = gvMap.get("strategy");
+					if (strategy != null) {
+						String strategyStr = strategy.toString();
 
-					// Id
-					if (!getFirstEntityAnno(field, "Id").isEmpty() || !getFirstEntityAnno(field, "PKey").isEmpty())
-						col.pkey();
-
-					col.setEntityField(entityfieldName);
-					col.setTableModel(model);
-					// col will also set TableModel field point to its owner
-					model.addColumn(col);
-
-					// shortcut Id generator annotations
-					if (existEntityAnno(field, "AutoId"))
-						col.autoId();
-					if (existEntityAnno(field, "IdentityId"))
-						col.identityId();
-					if (existEntityAnno(field, "TimeStampId"))
-						col.timeStampId();
-					if (existEntityAnno(field, "UUID25"))
-						col.uuid25();
-					if (existEntityAnno(field, "UUID32"))
-						col.uuid32();
-					if (existEntityAnno(field, "UUID36"))
-						col.uuid36();
-
-					// GeneratedValue
-					Map<String, Object> gvMap = getFirstEntityAnno(field, "GeneratedValue");
-					if (!gvMap.isEmpty()) {
-						Object strategy = gvMap.get("strategy");
-						if (strategy != null) {
-							String strategyStr = strategy.toString();
-
-							if ("AUTO".equals(strategyStr))
-								col.autoId();
-							else if ("IDENTITY".equals(strategyStr))
-								col.identityId();
-							else if ("UUID25".equals(strategyStr))
-								col.uuid25();
-							else if ("UUID32".equals(strategyStr))
-								col.uuid32();
-							else if ("UUID36".equals(strategyStr))
-								col.uuid36();
-							else if ("TIMESTAMP".equals(strategyStr))
-								col.timeStampId();
-							else {
-								String generator = (String) gvMap.get("generator");
-								if (StrUtils.isEmpty(generator))
-									throw new DialectException(
-											"GeneratedValue strategy '" + strategyStr + "' can not find a generator");
-								col.idGenerator(generator);
-							}
+						if ("AUTO".equals(strategyStr))
+							col.autoId();
+						else if ("IDENTITY".equals(strategyStr))
+							col.identityId();
+						else if ("UUID25".equals(strategyStr))
+							col.uuid25();
+						else if ("UUID32".equals(strategyStr))
+							col.uuid32();
+						else if ("UUID36".equals(strategyStr))
+							col.uuid36();
+						else if ("TIMESTAMP".equals(strategyStr))
+							col.timeStampId();
+						else {
+							String generator = (String) gvMap.get("generator");
+							if (StrUtils.isEmpty(generator))
+								throw new DialectException(
+										"GeneratedValue strategy '" + strategyStr + "' can not find a generator");
+							col.idGenerator(generator);
 						}
 					}
-
-					// SingleFKey is a shortcut format of FKey, only for 1
-					// column
-					Map<String, Object> refMap = getFirstEntityAnno(field, "SingleFKey");
-					if (!refMap.isEmpty()) {
-						Boolean ddl = (Boolean) refMap.get("ddl");
-						if (ddl == null)
-							ddl = true;
-						model.fkey((String) refMap.get("name")).columns(col.getColumnName())
-								.refs((String[]) refMap.get("refs")).ddl(ddl);
-					}
-
-					// SingleIndex is a ShortCut format of Index, only for 1
-					// column
-					Map<String, Object> idxMap = getFirstEntityAnno(field, "SingleIndex");
-					if (!idxMap.isEmpty())
-						model.index((String) idxMap.get("name")).columns(col.getColumnName());
-
-					// SingleUnique is a ShortCut format of Unique, only for 1
-					// column
-					Map<String, Object> uniMap = getFirstEntityAnno(field, "SingleUnique");
-					if (!uniMap.isEmpty())
-						model.unique((String) uniMap.get("name")).columns(col.getColumnName());
 				}
+
+				// SingleFKey is a shortcut format of FKey, only for 1
+				// column
+				Map<String, Object> refMap = getFirstEntityAnno(field, "SingleFKey");
+				if (!refMap.isEmpty()) {
+					Boolean ddl = (Boolean) refMap.get("ddl");
+					if (ddl == null)
+						ddl = true;
+					model.fkey((String) refMap.get("name")).columns(col.getColumnName())
+							.refs((String[]) refMap.get("refs")).ddl(ddl);
+				}
+
+				// SingleIndex is a ShortCut format of Index, only for 1
+				// column
+				Map<String, Object> idxMap = getFirstEntityAnno(field, "SingleIndex");
+				if (!idxMap.isEmpty())
+					model.index((String) idxMap.get("name")).columns(col.getColumnName());
+
+				// SingleUnique is a ShortCut format of Unique, only for 1
+				// column
+				Map<String, Object> uniMap = getFirstEntityAnno(field, "SingleUnique");
+				if (!uniMap.isEmpty())
+					model.unique((String) uniMap.get("name")).columns(col.getColumnName());
 			}
+
 		} // End of columns loop
 		return model;
 	}

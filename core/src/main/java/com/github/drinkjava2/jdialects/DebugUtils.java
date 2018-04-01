@@ -29,25 +29,26 @@ public abstract class DebugUtils {
 	public static String getColumnModelDebugInfo(ColumnModel c) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("columnName=" + c.getColumnName()).append(", ");
+		sb.append("transient=" + c.getTransientable()).append(", ");
 		sb.append("type=" + c.getColumnType()).append(", ");
 		sb.append("pkey=" + c.getPkey()).append(", ");
 		sb.append("lengths=");
 		if (c.getLengths() != null)
 			for (Integer length : c.getLengths())
 				sb.append(length).append(", ");
-		sb.append("getEntityField=" + c.getEntityField());
+		sb.append("entityField=" + c.getEntityField());
 		return sb.toString();
 	}
-	
+
 	public static String getFkeyDebugInfo(TableModel t) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Fkeys:\r");
 		for (FKeyModel k : t.getFkeyConstraints()) {
-			sb.append("FkeyName="+k.getFkeyName());
-			sb.append(", ColumnNames="+k.getColumnNames());
-			sb.append(", RefTableAndColumns="+  Arrays.deepToString(k.getRefTableAndColumns()) );
+			sb.append("FkeyName=" + k.getFkeyName());
+			sb.append(", ColumnNames=" + k.getColumnNames());
+			sb.append(", RefTableAndColumns=" + Arrays.deepToString(k.getRefTableAndColumns()));
 			sb.append("\r");
-		}  
+		}
 		return sb.toString();
 	}
 
@@ -60,15 +61,15 @@ public abstract class DebugUtils {
 		List<ColumnModel> columns = model.getColumns();
 		for (ColumnModel column : columns)
 			sb.append(getColumnModelDebugInfo(column)).append("\r");
-		 
-		return sb.toString(); 
+
+		return sb.toString();
 	}
-	
+
 	public static String getTableModelsDebugInfo(TableModel[] models) {
 		StringBuilder sb = new StringBuilder();
 		for (TableModel model : models) {
 			sb.append(getTableModelDebugInfo(model));
-		}		  
-		return sb.toString(); 
+		}
+		return sb.toString();
 	}
 }

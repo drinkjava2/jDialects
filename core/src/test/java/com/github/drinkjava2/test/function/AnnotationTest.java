@@ -7,8 +7,10 @@
  */
 package com.github.drinkjava2.test.function;
 
+import org.h2.engine.User;
 import org.junit.Test;
 
+import com.github.drinkjava2.jdialects.DebugUtils;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.TableModelUtils;
 import com.github.drinkjava2.jdialects.TypeUtils;
@@ -72,10 +74,10 @@ public class AnnotationTest extends TestBase {
 	)
 	@SequenceGenerator(name = "seqID1", sequenceName = "seqName1", initialValue = 1, allocationSize = 10)
 	@TableGenerator(name = "tableID1", table = "table1", pkColumnName = "pkCol1", valueColumnName = "vcol1", pkColumnValue = "pkcolval1", initialValue = 2, allocationSize = 20)
-	@FKey(name = "fkey1", ddl=true, columns = { "field1", "field2" }, refs = { "Entity1", "field1", "field2" })
+	@FKey(name = "fkey1", ddl = true, columns = { "field1", "field2" }, refs = { "Entity1", "field1", "field2" })
 	@FKey1(columns = { "field2", "field3" }, refs = { "Entity1", "field1", "field2" })
 	public static class Entity2 {
-		@SequenceGenerator(name = "seqID2", sequenceName = "seqName2", initialValue = 2, allocationSize = 20) 
+		@SequenceGenerator(name = "seqID2", sequenceName = "seqName2", initialValue = 2, allocationSize = 20)
 		@TableGenerator(name = "tableID2", table = "table2", pkColumnName = "pkCol1", valueColumnName = "vcol1", pkColumnValue = "pkcolval1", initialValue = 2, allocationSize = 20)
 		@Id
 		@Column(columnDefinition = TypeUtils.VARCHAR, length = 20)
@@ -86,13 +88,16 @@ public class AnnotationTest extends TestBase {
 
 		@GeneratedValue(strategy = GenerationType.TABLE, generator = "CUST_GEN")
 		@Column(name = "field3", nullable = false, columnDefinition = TypeUtils.BIGINT)
-		@SingleFKey(name = "singleFkey1", ddl=true, refs = { "Entity1", "field1" })
+		@SingleFKey(name = "singleFkey1", ddl = true, refs = { "Entity1", "field1" })
 		@SingleIndex
 		@SingleUnique
 		public Integer field3;
 
 		@Transient
-		public Integer field4;
+		public Entity1 field4;
+		
+		@Transient
+		public User user;
 
 		@Column()
 		@UUID36
@@ -131,11 +136,11 @@ public class AnnotationTest extends TestBase {
 			this.field3 = field3;
 		}
 
-		public Integer getField4() {
+		public Entity1 getField4() {
 			return field4;
 		}
 
-		public void setField4(Integer field4) {
+		public void setField4(Entity1 field4) {
 			this.field4 = field4;
 		}
 
@@ -166,10 +171,13 @@ public class AnnotationTest extends TestBase {
 
 	@Test
 	public void ddlOutTest() {
-		String[] dropAndCreateDDL = Dialect.H2Dialect.toDropAndCreateDDL(TableModelUtils.entity2Models(Entity1.class, Entity2.class));
+		String[] dropAndCreateDDL = Dialect.H2Dialect
+				.toCreateDDL(TableModelUtils.entity2Models(Entity1.class, Entity2.class));
 		for (String ddl : dropAndCreateDDL)
 			System.out.println(ddl);
 
-		testOnCurrentRealDatabase(TableModelUtils.entity2Models(Entity1.class, Entity2.class));
+		testCreateAndDropDatabase(TableModelUtils.entity2Models(Entity1.class, Entity2.class));
+		
+		System.out.println(DebugUtils.getTableModelDebugInfo(TableModelUtils.entity2Model(Entity2.class)));
 	}
 }
