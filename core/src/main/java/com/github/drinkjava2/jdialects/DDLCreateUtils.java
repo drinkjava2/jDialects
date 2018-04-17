@@ -88,9 +88,9 @@ public class DDLCreateUtils {// NOSONAR
 		buildSequenceDDL(dialect, stringResultList, sequenceList);
 		buildTableGeneratorDDL(dialect, stringResultList, tbGeneratorList);
 		outputFKeyConstraintDDL(dialect, stringResultList, fKeyConstraintList);
-		String[] result= stringResultList.toArray(new String[stringResultList.size()]);
-		if (Dialect.getGlobalAllowShowSql() )			
-			Dialect.logger.info("Create DDL:\r"+StrUtils.arrayToString(result, "\r")); 
+		String[] result = stringResultList.toArray(new String[stringResultList.size()]);
+		if (Dialect.getGlobalAllowShowSql())
+			Dialect.logger.info("Create DDL:\r" + StrUtils.arrayToString(result, "\r"));
 		return result;
 	}
 
@@ -112,7 +112,7 @@ public class DDLCreateUtils {// NOSONAR
 		List<ColumnModel> columns = t.getColumns();
 
 		// Reserved words check
-		dialect.checkNotEmptyReservedWords(tableName, "Table name can not be empty");
+		dialect.checkNotEmptyReservedWords(tableName, "Table name", tableName);
 
 		List<IndexModel> idexChks = t.getIndexConsts();// check index names
 		if (idexChks != null && !idexChks.isEmpty())
@@ -130,7 +130,8 @@ public class DDLCreateUtils {// NOSONAR
 				dialect.checkReservedWords(fkey.getFkeyName());
 
 		for (ColumnModel col : columns)// check column names
-			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
+			if (!col.getTransientable())
+				dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name", tableName);
 
 		// idGenerator
 		for (IdGenerator idGen : t.getIdGenerators())
@@ -414,8 +415,8 @@ public class DDLCreateUtils {// NOSONAR
 			return;
 		}
 		for (FKeyModel t : trueList) {
-			if(!t.getDdl()) 
-				continue; //if ddl is false, skip
+			if (!t.getDdl())
+				continue; // if ddl is false, skip
 			/*
 			 * ADD CONSTRAINT _FKEYNAME FOREIGN KEY _FKEYNAME (_FK1, _FK2) REFERENCES
 			 * _REFTABLE (_REF1, _REF2)

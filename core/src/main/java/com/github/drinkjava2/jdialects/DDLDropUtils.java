@@ -87,11 +87,11 @@ public class DDLDropUtils {
 		buildDropTableGeneratorDDL(dialect, stringResultList, tbGeneratorList);
 		outputDropFKeyConstraintDDL(dialect, stringResultList, fKeyConstraintList);
 
-		String[] result = stringResultList.toArray(new String[stringResultList.size()]); 
-		if (Dialect.getGlobalAllowShowSql() )			
-			Dialect.logger.info("Drop DDL:\r"+StrUtils.arrayToString(result, "\r")); 
+		String[] result = stringResultList.toArray(new String[stringResultList.size()]);
+		if (Dialect.getGlobalAllowShowSql())
+			Dialect.logger.info("Drop DDL:\r" + StrUtils.arrayToString(result, "\r"));
 		return result;
-		
+
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class DDLDropUtils {
 		List<ColumnModel> columns = t.getColumns();
 
 		// Reserved words check
-		dialect.checkNotEmptyReservedWords(tableName, "Table name can not be empty");
+		dialect.checkNotEmptyReservedWords(tableName, "Table name", tableName);
 
 		List<IndexModel> l = t.getIndexConsts();// check index names
 		if (l != null && !l.isEmpty())
@@ -121,7 +121,8 @@ public class DDLDropUtils {
 				dialect.checkReservedWords(fkey.getFkeyName());
 
 		for (ColumnModel col : columns)
-			dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name can not be empty");
+			if (!col.getTransientable())
+				dialect.checkNotEmptyReservedWords(col.getColumnName(), "Column name", tableName);
 
 		// idGenerator
 		for (IdGenerator idGen : t.getIdGenerators())
@@ -161,13 +162,17 @@ public class DDLDropUtils {
 	private static void buildDropTableGeneratorDDL(Dialect dialect, List<String> stringResultList,
 			List<TableIdGenerator> tbGeneratorList) {
 		for (TableIdGenerator tg : tbGeneratorList) {
-			//@formatter:off
-			DialectException.assureNotEmpty(tg.getName(), "TableGen name can not be empty"); 
-			DialectException.assureNotEmpty(tg.getTable(), "TableGen tableName can not be empty of \""+tg.getName()+"\"");
-			DialectException.assureNotEmpty(tg.getPkColumnName(), "TableGen pkColumnName can not be empty of \""+tg.getName()+"\"");
-			DialectException.assureNotEmpty(tg.getPkColumnValue(), "TableGen pkColumnValue can not be empty of \""+tg.getName()+"\"");
-			DialectException.assureNotEmpty(tg.getValueColumnName(), "TableGen valueColumnName can not be empty of \""+tg.getName()+"\""); 
-			//@formatter:on
+			// @formatter:off
+			DialectException.assureNotEmpty(tg.getName(), "TableGen name can not be empty");
+			DialectException.assureNotEmpty(tg.getTable(),
+					"TableGen tableName can not be empty of \"" + tg.getName() + "\"");
+			DialectException.assureNotEmpty(tg.getPkColumnName(),
+					"TableGen pkColumnName can not be empty of \"" + tg.getName() + "\"");
+			DialectException.assureNotEmpty(tg.getPkColumnValue(),
+					"TableGen pkColumnValue can not be empty of \"" + tg.getName() + "\"");
+			DialectException.assureNotEmpty(tg.getValueColumnName(),
+					"TableGen valueColumnName can not be empty of \"" + tg.getName() + "\"");
+			// @formatter:on
 		}
 
 		Set<String> tableExisted = new HashSet<String>();
@@ -185,8 +190,8 @@ public class DDLDropUtils {
 		if (DDLFeatures.NOT_SUPPORT.equals(dialect.ddlFeatures.addForeignKeyConstraintString))
 			return;
 		for (FKeyModel t : trueList) {
-			if(!t.getDdl()) 
-				continue; //if ddl is false, skip
+			if (!t.getDdl())
+				continue; // if ddl is false, skip
 			String dropStr = dialect.ddlFeatures.dropForeignKeyString;
 			String constName = t.getFkeyName();
 			if (StrUtils.isEmpty(constName))

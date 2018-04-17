@@ -126,19 +126,20 @@ public enum Dialect implements CommonDialect {
 	 * Check if is current dialect or ANSI reserved word, if yes throw exception. if
 	 * is other database's reserved word, log output a warning.
 	 */
-	private void checkIfReservedWord(String word) {
+	private void checkIfReservedWord(String word, String... tableName) {
 		if (ReservedDBWords.isReservedWord(word)) {
+			String inTable = tableName.length > 0 ? "In table " + tableName[0] + ", " : "";
 			String reservedForDB = ReservedDBWords.reservedForDB(word);
 			if (ReservedDBWords.isReservedWord(this, word)) {
 				if (Dialect.globalAllowReservedWords)
-					logger.warn("\"" + word + "\" is a reserved word of \"" + reservedForDB
+					logger.warn(inTable + "\"" + word + "\" is a reserved word of \"" + reservedForDB
 							+ "\", should not use it as table, column, unique or index name");
 				else
-					DialectException.throwEX("\"" + word + "\" is a reserved word of \"" + reservedForDB
+					DialectException.throwEX(inTable + "\"" + word + "\" is a reserved word of \"" + reservedForDB
 							+ "\", should not use it as table, column, unique or index name. "
-							+ "if you really want use this reserved word, set Dialect.setGlobalAllowReservedWords(true) at application starting.");
+							+ "if you really want use this reserved word, call Dialect.setGlobalAllowReservedWords() at application starting.");
 			} else {
-				logger.warn("\"" + word + "\" is a reserved word of other database \"" + reservedForDB
+				logger.warn(inTable + "\"" + word + "\" is a reserved word of other database \"" + reservedForDB
 						+ "\", not recommend be used as table, column, unique or index name");
 			}
 		}
@@ -162,14 +163,10 @@ public enum Dialect implements CommonDialect {
 	 * exception. if is other database's reserved word, log output a warning.
 	 * Otherwise return word itself.
 	 */
-	public String checkNotEmptyReservedWords(String word, String... errorMSG) {
-		if (StrUtils.isEmpty(word)) {
-			if (errorMSG.length == 0)
-				DialectException.throwEX("Empty value error");
-			else
-				DialectException.throwEX(errorMSG[0]);
-		}
-		checkIfReservedWord(word);
+	public String checkNotEmptyReservedWords(String word, String type, String tableName) {
+		if (StrUtils.isEmpty(word))
+			DialectException.throwEX(type + " can not be empty");
+		checkIfReservedWord(word, tableName);
 		return word;
 	}
 
