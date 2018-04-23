@@ -224,33 +224,36 @@ public class DialectFunctionTranslator {
 	}
 
 	/**
-	 * Item type can be: <br/>
+	 * DialectSqlItem type can be: <br/>
 	 * S:String, F:function, U:Unknow(need correct), ",":","
 	 * 
 	 * @author Yong Zhu
 	 * @since 1.7.0
 	 */
-	public static class SqlItem {
+	static class DialectSqlItem {
 		public char type;// NOSONAR
 		public Object value;// NOSONAR
 
-		SqlItem[] subItems;
+		DialectSqlItem[] subItems;
 
 		void setTypeAndValue(char type, Object value) {
 			this.type = type;
 			this.value = value;
 		}
 
+		/**
+		 * Only for debug purpose, show detail info of DialectSqlItem
+		 */
 		String getDebugInfo(int include) {
 			String result = "\r";
 			for (int i = 0; i < include; i++) {
-				result += "     ";// NOSONAR I'm debuging here da ge
+				result += "     ";
 			}
 			result += type + " ";
 			if (value != null)
 				result += value;
 			if (subItems != null) {
-				for (SqlItem Item : subItems) {
+				for (DialectSqlItem Item : subItems) {
 					result += Item.getDebugInfo(include + 1);// NOSONAR
 				}
 			}
@@ -260,11 +263,11 @@ public class DialectFunctionTranslator {
 	}
 
 	static class SearchResult {
-		SqlItem item;
+		DialectSqlItem item;
 		int leftStart;
 		int leftEnd;
 
-		SearchResult(SqlItem item, int leftStart, int leftEnd) {
+		SearchResult(DialectSqlItem item, int leftStart, int leftEnd) {
 			this.item = item;
 			this.leftStart = leftStart;
 			this.leftEnd = leftEnd;
@@ -287,12 +290,12 @@ public class DialectFunctionTranslator {
 				&& !StrUtils.containsIgnoreCase(sql, Dialect.getGlobalSqlFunctionPrefix()))
 			return sql;
 		char[] chars = (" " + sql + " ").toCharArray();
-		SqlItem[] items = seperateCharsToItems(chars, 1, chars.length - 2);
-		for (SqlItem item : items) {
+		DialectSqlItem[] items = seperateCharsToItems(chars, 1, chars.length - 2);
+		for (DialectSqlItem item : items) {
 			correctType(item);
 		}
 		if (debugMode)
-			for (SqlItem item : items)
+			for (DialectSqlItem item : items)
 				System.out.print(item.getDebugInfo(0));// NOSONAR
 		String result = join(d, true, null, items);
 		if (Dialect.getGlobalAllowShowSql())
@@ -301,18 +304,18 @@ public class DialectFunctionTranslator {
 	}
 
 	/** Separate chars to Items list */
-	SqlItem[] seperateCharsToItems(char[] chars, int start, int end) {
-		List<SqlItem> items = new ArrayList<SqlItem>();
+	DialectSqlItem[] seperateCharsToItems(char[] chars, int start, int end) {
+		List<DialectSqlItem> items = new ArrayList<DialectSqlItem>();
 		SearchResult result = findFirstResult(chars, start, end);
 		while (result != null) {
 			items.add(result.item);
 			result = findFirstResult(chars, result.leftStart, result.leftEnd);
 		}
-		return items.toArray(new SqlItem[items.size()]);
+		return items.toArray(new DialectSqlItem[items.size()]);
 	}
 
 	/** if is U type, use this method to correct type */
-	void correctType(SqlItem item) {
+	void correctType(DialectSqlItem item) {
 		if (item.type == 'U') {// correct Unknown type to other type
 			String valueStr = (String) item.value;
 			String valueUpcase = valueStr.toUpperCase();
@@ -338,7 +341,7 @@ public class DialectFunctionTranslator {
 					item.setTypeAndValue('S', valueStr);
 		}
 		if (item.subItems != null)
-			for (SqlItem t : item.subItems)
+			for (DialectSqlItem t : item.subItems)
 				correctType(t);
 	}
 
@@ -354,14 +357,14 @@ public class DialectFunctionTranslator {
 			if (!letters) {// no letters found
 
 				if (chars[i] == ' ') {
-					SqlItem item = new SqlItem();
+					DialectSqlItem item = new DialectSqlItem();
 					item.type = 'S';
 					item.value = " ";
 					return new SearchResult(item, i + 1, end);
 				}
 
 				if (chars[i] == '?') {
-					SqlItem item = new SqlItem();
+					DialectSqlItem item = new DialectSqlItem();
 					item.type = 'S';
 					item.value = "?";
 					return new SearchResult(item, i + 1, end);
@@ -370,7 +373,7 @@ public class DialectFunctionTranslator {
 				if (chars[i] == '\'') {
 					for (int j = i + 1; j <= end; j++) {
 						if (chars[j] == '\'' && chars[j - 1] != '\\') {
-							SqlItem item = new SqlItem();
+							DialectSqlItem item = new DialectSqlItem();
 							item.type = 'S';
 							item.value = sb.insert(0, '\'').append('\'').toString();
 							return new SearchResult(item, j + 1, end);
@@ -388,8 +391,8 @@ public class DialectFunctionTranslator {
 							else if (chars[j] == ')') {
 								count--;
 								if (count == 0) {
-									SqlItem[] subItems = seperateCharsToItems(chars, i + 1, j - 1);
-									SqlItem item = new SqlItem();
+									DialectSqlItem[] subItems = seperateCharsToItems(chars, i + 1, j - 1);
+									DialectSqlItem item = new DialectSqlItem();
 									item.type = '(';
 									item.subItems = subItems;
 									return new SearchResult(item, j + 1, end);
@@ -411,7 +414,7 @@ public class DialectFunctionTranslator {
 			} else {// letters found
 				if (chars[i] == '?' || chars[i] == '\'' || chars[i] == '(' || chars[i] <= ' '
 						|| isLetterNumber(chars[i]) != isLetterNumber(chars[i - 1])) {
-					SqlItem item = new SqlItem();
+					DialectSqlItem item = new DialectSqlItem();
 					item.type = 'U';
 					item.value = sb.toString();
 					return new SearchResult(item, i, end);
@@ -421,7 +424,7 @@ public class DialectFunctionTranslator {
 			}
 		}
 		if (sb.length() > 0) {
-			SqlItem item = new SqlItem();
+			DialectSqlItem item = new DialectSqlItem();
 			item.type = 'U';
 			item.value = sb.toString();
 			return new SearchResult(item, end + 1, end);
@@ -433,9 +436,9 @@ public class DialectFunctionTranslator {
 	 * Join items list into one String, if function is null, join as String,
 	 * otherwise treat as function parameters
 	 */
-	String join(Dialect d, boolean isTopLevel, SqlItem function, SqlItem[] items) {
+	String join(Dialect d, boolean isTopLevel, DialectSqlItem function, DialectSqlItem[] items) {
 		int pos = 0;
-		for (SqlItem item : items) {
+		for (DialectSqlItem item : items) {
 			if (item.subItems != null) {
 				String value;
 				if (pos > 0 && items[pos - 1] != null && items[pos - 1].type == 'F')
@@ -453,7 +456,7 @@ public class DialectFunctionTranslator {
 
 		if (function != null) {
 			List<String> l = new ArrayList<String>();
-			for (SqlItem item : items) {
+			for (DialectSqlItem item : items) {
 				if (item.type != '0')
 					l.add((String) item.value);
 			}
@@ -463,7 +466,7 @@ public class DialectFunctionTranslator {
 		StringBuilder sb = new StringBuilder();
 		if (!isTopLevel)
 			sb.append("(");
-		for (SqlItem item : items)
+		for (DialectSqlItem item : items)
 			if (item.type != '0') {
 				sb.append(item.value);
 			}
@@ -472,7 +475,7 @@ public class DialectFunctionTranslator {
 		return sb.toString();
 	}
 
-	private static String renderFunction(Dialect d, SqlItem function, String... params) {
+	private static String renderFunction(Dialect d, DialectSqlItem function, String... params) {
 		function.type = '0';
 		List<String> l = new ArrayList<String>();
 		String current = "";
@@ -489,12 +492,12 @@ public class DialectFunctionTranslator {
 		return DialectFunctionUtils.render(d, (String) function.value, l.toArray(new String[l.size()]));
 	}
 
-	public static void deleteItem(SqlItem item) {
+	public static void deleteItem(DialectSqlItem item) {
 		if (item != null)
 			item.type = '0';
 	}
 
-	public static void deleteItem(SqlItem lastItem, SqlItem nextItem) {
+	public static void deleteItem(DialectSqlItem lastItem, DialectSqlItem nextItem) {
 		if (lastItem != null)
 			lastItem.type = '0';
 		if (nextItem != null)
