@@ -87,7 +87,7 @@ public class TestDemo {
 		// ds.setJdbcUrl("jdbc:oracle:thin:@127.0.0.1:1521:XE");
 		// ds.setUsername("root");
 		// ds.setPassword("root888");
-		SqlBoxContext.setGlobalAllowShowSql(true);
+		SqlBoxContext.setGlobalNextAllowShowSql(true);
 		SqlBoxContext ctx = new SqlBoxContext(ds);
 		SqlBoxContext.setGlobalSqlBoxContext(ctx);
 

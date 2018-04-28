@@ -46,7 +46,7 @@ public abstract class ClassCacheUtils {// NOSONAR
 	protected static class ClassOrMethodNotExist {// NOSONAR
 	}
 
-	/** * Check class if exist */
+	/** * Check class if exist, if exit return it, otherwise return null */
 	public static Class<?> checkClassExist(String className) {
 		Class<?> result = classExistCache.get(className);
 		if (result != null) {
@@ -67,6 +67,10 @@ public abstract class ClassCacheUtils {// NOSONAR
 			classExistCache.put(className, ClassOrMethodNotExist.class);
 			return null;
 		}
+	}
+	
+	public static void registerClass(Class<?> clazz) {
+		classExistCache.put(clazz.getName(), clazz);
 	}
 
 	/**

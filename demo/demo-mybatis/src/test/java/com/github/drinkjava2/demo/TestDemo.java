@@ -167,7 +167,7 @@ public class TestDemo {
 
 		SqlBoxContext ctx = new SqlBoxContext(dataSource);
 		SqlBoxContext.setGlobalSqlBoxContext(ctx);
-		SqlBoxContext.setGlobalAllowShowSql(true);
+		SqlBoxContext.setGlobalNextAllowShowSql(true);
 		String[] ddlArray = ctx.toDropAndCreateDDL(User.class);
 		for (String ddl : ddlArray)
 			ctx.quiteExecute(ddl);
