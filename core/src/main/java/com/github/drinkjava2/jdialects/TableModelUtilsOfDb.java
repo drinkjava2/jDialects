@@ -1,6 +1,4 @@
 /*
- * jDialects, a tiny SQL dialect tool
- *
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
@@ -69,7 +67,7 @@ public abstract class TableModelUtilsOfDb {
 				while (rs.next()) {// NOSONAR
 					String colName = rs.getString("COLUMN_NAME");
 					oneTable.column(colName);
-					ColumnModel col = oneTable.getColumn(colName);
+					ColumnModel col = oneTable.getColumnByColName(colName);
 					int javaSqlType = rs.getInt("DATA_TYPE");
 					// col.setPropertyTypeName(rs.getString("TYPE_NAME"));
 

@@ -1,6 +1,4 @@
 /*
- * jDialects, a tiny SQL dialect tool
- *
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
@@ -473,7 +471,7 @@ public class DDLCreateUtils {// NOSONAR
 			boolean nullable = false;
 			String[] columns = unique.getColumnList();
 			for (String colNames : columns) {
-				ColumnModel vc = t.getColumn(colNames.toLowerCase());
+				ColumnModel vc = t.getColumnByColName(colNames);
 				if (vc != null && vc.getNullable())
 					nullable = true;
 			}

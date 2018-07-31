@@ -45,7 +45,7 @@ jDialects 支持多达75种数据库方言的DDL创建、分页、函数变换�
 <dependency>
     <groupId>com.github.drinkjava2</groupId>
     <artifactId>jdialects</artifactId>
-    <version>官方最新版本为准</version>
+    <version>2.0.2</version>  <!-- 或最新版本 -->
 </dependency>
 ```
 

@@ -24,14 +24,19 @@ import com.github.drinkjava2.jdialects.model.TableModel;
  * @author Yong Zhu
  * @since 1.0.0
  */
-public abstract class DebugUtils {
+public abstract class DebugUtils {//// NOSONAR
 
 	public static String getColumnModelDebugInfo(ColumnModel c) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("columnName=" + c.getColumnName()).append(", ");
+ 		sb.append("columnName=" + c.getColumnName()).append(", ");
 		sb.append("transient=" + c.getTransientable()).append(", ");
 		sb.append("type=" + c.getColumnType()).append(", ");
 		sb.append("pkey=" + c.getPkey()).append(", ");
+		sb.append("shardTable=" + c.getShardTable()).append(", ");
+		sb.append("shardDatabase=" + c.getShardDatabase()).append(", ");
+		sb.append("idGenerationType=" + c.getIdGenerationType()).append(", ");
+		sb.append("idGeneratorName=" + c.getIdGeneratorName()).append(", ");
+		sb.append("idGenerator=" + c.getIdGenerator()).append(", ");
 		sb.append("lengths=");
 		if (c.getLengths() != null)
 			for (Integer length : c.getLengths())
@@ -42,25 +47,26 @@ public abstract class DebugUtils {
 
 	public static String getFkeyDebugInfo(TableModel t) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Fkeys:\r");
+		sb.append("Fkeys:\r\n");
 		for (FKeyModel k : t.getFkeyConstraints()) {
 			sb.append("FkeyName=" + k.getFkeyName());
 			sb.append(", ColumnNames=" + k.getColumnNames());
 			sb.append(", RefTableAndColumns=" + Arrays.deepToString(k.getRefTableAndColumns()));
-			sb.append("\r");
+			sb.append("\r\n");
 		}
 		return sb.toString();
 	}
 
 	public static String getTableModelDebugInfo(TableModel model) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("\rtableName=" + model.getTableName()).append("\r");
-		sb.append("getEntityClass=" + model.getEntityClass()).append("\r");
-		sb.append("getAlias=" + model.getAlias()).append("\r");
+		StringBuilder sb = new StringBuilder("\r\n=======================================================\r\n");
+		sb.append("tableName=" + model.getTableName()).append("\r\n");
+		sb.append("getEntityClass=" + model.getEntityClass()).append("\r\n"); 
+		sb.append("readOnly=" + model.getReadOnly()).append("\r\n");
 		sb.append(getFkeyDebugInfo(model));
 		List<ColumnModel> columns = model.getColumns();
+		sb.append("Columns:\r\n");
 		for (ColumnModel column : columns)
-			sb.append(getColumnModelDebugInfo(column)).append("\r");
+			sb.append(getColumnModelDebugInfo(column)).append("\r\n");
 
 		return sb.toString();
 	}

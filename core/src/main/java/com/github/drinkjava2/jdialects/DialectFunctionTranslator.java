@@ -27,7 +27,6 @@ import java.util.Map;
 public class DialectFunctionTranslator {
 	public static final DialectFunctionTranslator instance = new DialectFunctionTranslator();
 	private Map<String, Integer> functionMap = new HashMap<String, Integer>();
-	private static boolean debugMode = false;// for debug only
 
 	/**
 	 * Register functions names need translated, values is percentage of dialects
@@ -247,7 +246,7 @@ public class DialectFunctionTranslator {
 		String getDebugInfo(int include) {
 			String result = "\r";
 			for (int i = 0; i < include; i++) {
-				result += "     ";
+				result += "     ";//NOSONAR
 			}
 			result += type + " ";
 			if (value != null)
@@ -294,9 +293,6 @@ public class DialectFunctionTranslator {
 		for (DialectSqlItem item : items) {
 			correctType(item);
 		}
-		if (debugMode)
-			for (DialectSqlItem item : items)
-				System.out.print(item.getDebugInfo(0));// NOSONAR
 		String result = join(d, true, null, items);
 		if (Dialect.getGlobalAllowShowSql())
 			Dialect.logger.info("Translated sql: " + result);
@@ -315,7 +311,7 @@ public class DialectFunctionTranslator {
 	}
 
 	/** if is U type, use this method to correct type */
-	void correctType(DialectSqlItem item) {
+	void correctType(DialectSqlItem item) {//NOSONAR
 		if (item.type == 'U') {// correct Unknown type to other type
 			String valueStr = (String) item.value;
 			String valueUpcase = valueStr.toUpperCase();
@@ -348,7 +344,7 @@ public class DialectFunctionTranslator {
 	/**
 	 * Find first item and store left start and left end position in SearchResult
 	 */
-	SearchResult findFirstResult(char[] chars, int start, int end) {
+	SearchResult findFirstResult(char[] chars, int start, int end) {//NOSONAR
 		if (start > end)
 			return null;
 		boolean letters = false;
@@ -436,7 +432,7 @@ public class DialectFunctionTranslator {
 	 * Join items list into one String, if function is null, join as String,
 	 * otherwise treat as function parameters
 	 */
-	String join(Dialect d, boolean isTopLevel, DialectSqlItem function, DialectSqlItem[] items) {
+	String join(Dialect d, boolean isTopLevel, DialectSqlItem function, DialectSqlItem[] items) {//NOSONAR
 		int pos = 0;
 		for (DialectSqlItem item : items) {
 			if (item.subItems != null) {

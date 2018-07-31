@@ -14,7 +14,6 @@ package com.github.drinkjava2.jdialects;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
 
 /**
  * ClassCacheUtils is utility class to cache some info of classes read and write
@@ -41,7 +38,8 @@ public abstract class ClassCacheUtils {// NOSONAR
 	protected static Map<Class<?>, Map<String, Object>> uniqueMethodCache = new ConcurrentHashMap<Class<?>, Map<String, Object>>();
 	protected static Map<Class<?>, Map<String, Method>> classReadMethods = new ConcurrentHashMap<Class<?>, Map<String, Method>>();
 	protected static Map<Class<?>, Map<String, Method>> classWriteMethods = new ConcurrentHashMap<Class<?>, Map<String, Method>>();
-	protected static Map<Class<?>, Field> boxFieldCache = new ConcurrentHashMap<Class<?>, Field>();
+	// protected static Map<Class<?>, Field> boxFieldCache = new
+	// ConcurrentHashMap<Class<?>, Field>();
 
 	protected static class ClassOrMethodNotExist {// NOSONAR
 	}
@@ -68,14 +66,14 @@ public abstract class ClassCacheUtils {// NOSONAR
 			return null;
 		}
 	}
-	
+
 	public static void registerClass(Class<?> clazz) {
 		classExistCache.put(clazz.getName(), clazz);
 	}
 
 	/**
-	 * Check if a unique method name exists in class, if exist return the
-	 * method, otherwise return null
+	 * Check if a unique method name exists in class, if exist return the method,
+	 * otherwise return null
 	 */
 	public static Method checkMethodExist(Class<?> clazz, String uniqueMethodName) {
 		if (clazz == null || StrUtils.isEmpty(uniqueMethodName))
@@ -140,13 +138,6 @@ public abstract class ClassCacheUtils {// NOSONAR
 		}
 		classReadMethods.put(clazz, sortMap(readMethods));
 		classWriteMethods.put(clazz, sortMap(writeMethods));
-		// if (!ActiveRecordSupport.class.isAssignableFrom(clazz)) {
-		Field boxField = ReflectionUtils.findField(clazz, "box");
-		if (boxField != null && boxField.getType().getName().equals("com.github.drinkjava2.jsqlbox.SqlBox")) {// NOSONAR
-			ReflectionUtils.makeAccessible(boxField);
-			boxFieldCache.put(clazz, boxField);
-		}
-
 	}
 
 	/** Return cached class read methods to avoid each time use reflect */
@@ -179,22 +170,12 @@ public abstract class ClassCacheUtils {// NOSONAR
 		return getClassWriteMethods(clazz).get(fieldName);
 	}
 
-	/**
-	 * Return field box, this method is used for jSqlBox to directly access box
-	 * field to bind SqlBox instance to a entity with its box field
-	 */
-	public static Field getBoxField(Class<?> clazz) {
-		Map<String, Method> writeMethods = classWriteMethods.get(clazz);
-		if (writeMethods == null)
-			cacheReadWriteMethodsAndBoxField(clazz);
-		return boxFieldCache.get(clazz);
-	}
-
 	/** Read value from entityBean field */
 	public static Object readValueFromBeanField(Object entityBean, String fieldName) {
 		Method readMethod = ClassCacheUtils.getClassFieldReadMethod(entityBean.getClass(), fieldName);
 		if (readMethod == null)
-			throw new DialectException("Can not find Java bean read method for column '" + fieldName + "'");
+			throw new DialectException("Can not find Java bean read method for column '" + fieldName + "' in '"
+					+ entityBean.getClass() + "'");
 		try {
 			return readMethod.invoke(entityBean);
 		} catch (Exception e) {
@@ -210,13 +191,13 @@ public abstract class ClassCacheUtils {// NOSONAR
 		try {
 			writeMethod.invoke(entityBean, value);
 		} catch (Exception e) {
-			throw new DialectException("fieldName '" + fieldName + "' can not write with value '" + value+"'", e);
+			throw new DialectException("fieldName '" + fieldName + "' can not write with value '" + value + "'", e);
 		}
 	}
 
 	/**
 	 * Create a new Object by given entityClass, if any exception happen, throw
-	 * {@link SqlBoxException}
+	 * {@link DialectException}
 	 */
 	public static Object createNewEntity(Class<?> entityClass) {
 		try {

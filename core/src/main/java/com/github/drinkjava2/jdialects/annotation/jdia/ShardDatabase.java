@@ -5,16 +5,21 @@
  */
 package com.github.drinkjava2.jdialects.annotation.jdia;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.lang.annotation.ElementType.FIELD;
-
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * A shortcut annotation equal to &#064;GenertedValue(strategy=GenerationType.UUID32)
+ * To mark this column is a ShardDatabase column, one table only allow 1 column
+ * be marked as ShardDatabase column
+ * 
+ * @author Yong Zhu
+ * @since 1.0.5
  */
+
 @Target(FIELD)
 @Retention(RUNTIME)
-public @interface UUID32 {
+public @interface ShardDatabase {
+	String[] value();
 }

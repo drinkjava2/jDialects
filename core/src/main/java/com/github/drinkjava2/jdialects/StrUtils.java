@@ -1,6 +1,4 @@
 /*
- * jDialects, a tiny SQL dialect tool
- *
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
@@ -318,8 +316,7 @@ public class StrUtils {
 		if (index >= 0) {
 			sb.append(originString.substring(pos, index));
 			sb.append(newPattern);
-			pos = index + patLen;
-			index = originString.indexOf(oldPattern, pos);
+			pos = index + patLen; 
 		}
 		sb.append(originString.substring(pos));
 		return sb.toString();
@@ -918,5 +915,65 @@ public class StrUtils {
 		char c = str.substring(0, 1).toCharArray()[0];
 		return c >= 'A' && c <= 'Z';
 	}
+	
+	
+    /**
+     * First letter change to lower 
+     */
+    public static String toLowerCaseFirstOne(String s){
+        if(Character.isLowerCase(s.charAt(0)))
+            return s;
+        else
+            return (new StringBuilder()).append(Character.toLowerCase(s.charAt(0))).append(s.substring(1)).toString();
+    }
+  
+    /**
+     * First letter change to capitalised 
+     */
+    public static String toUpperCaseFirstOne(String s){
+        if(Character.isUpperCase(s.charAt(0)))
+            return s;
+        else
+            return (new StringBuilder()).append(Character.toUpperCase(s.charAt(0))).append(s.substring(1)).toString();
+    }
+    
+	/**
+	 * Check if a String only have a-z,A-Z,0-9,"_" characters
+	 */
+	public static boolean isNormalLetters(char c) {
+		return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || c == '_';
+	}
+
+	/**
+	 * Return true if is an invisible Char like space, tab, return... char
+	 */
+	public static boolean isInvisibleChar(char c) {
+		return c <= ' ';
+	}
+
+	/**
+	 * Format all " ", \t, \r... , to " ",
+	 */
+	public static String formatSQL(String sql) {
+		if (sql == null || sql.length() == 0)
+			return sql;
+		StringBuilder sb = new StringBuilder();
+		char[] chars = sql.toCharArray();
+		boolean addedSpace = false;
+		for (char c : chars) {
+			if (isInvisibleChar(c)) {
+				if (!addedSpace) {
+					sb.append(" ");
+					addedSpace = true;
+				}
+			} else {
+				sb.append(c);
+				addedSpace = false;
+			}
+		}
+		sb.append(" ");
+		return sb.toString();
+	}
+
 
 }

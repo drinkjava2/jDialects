@@ -1,6 +1,4 @@
 /*
- * jDialects, a tiny SQL dialect tool
- *
  * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
  * the lgpl.txt file in the root directory or
  * <http://www.gnu.org/licenses/lgpl-2.1.html>.
@@ -29,6 +27,7 @@ import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
  * @author Yong Zhu
  * @since 1.0.6
  */
+@SuppressWarnings("all")
 public abstract class TableModelUtilsOfEntity {// NOSONAR
 
 	private static Map<Class<?>, TableModel> tableModelCache = new ConcurrentHashMap<Class<?>, TableModel>();
@@ -100,53 +99,49 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 	}
 
 	/**
-	 * Convert entity or JPA annotated entity classes to "TableModel" Object,
-	 * 
-	 * <pre>
-	 * This method support below JPA Annotations:  
-	 * Entity, Table, Column, GeneratedValue, GenerationType, Id, Index, Transient, UniqueConstraint
-	 * 
-	 * And below annotations are added by jDialects:
-	 * FKey, FKey1, FKey2, FKey3, Ref
-	 * </pre>
-	 * 
-	 * @param entityClasses
-	 * @return TableModel
+	 * Convert entity class to a read-only TableModel instance  
 	 */
-	public static TableModel[] entity2Model(Class<?>... entityClasses) {
+	public static TableModel entity2ReadOnlyModel(Class<?> entityClass) {
+		DialectException.assureNotNull(entityClass, "Entity class can not be null");
+		TableModel model = tableModelCache.get(entityClass);
+		if (model != null)
+			return model;
+		model = entity2ModelWithConfig(entityClass);
+		model.setReadOnly(true);
+		tableModelCache.put(entityClass, model);
+		return model;
+	}
+
+	/** Convert entity classes to a read-only TableModel instances */
+	public static TableModel[] entity2ReadOnlyModel(Class<?>... entityClasses) {
 		List<TableModel> l = new ArrayList<TableModel>();
 		for (Class<?> clazz : entityClasses) {
-			l.add(oneEntity2Model(clazz));
+			l.add(entity2ReadOnlyModel(clazz));
 		}
 		return l.toArray(new TableModel[l.size()]);
 	}
 
 	/**
-	 * Convert a Java entity class or JPA annotated entity classes to "TableModel"
-	 * Object, if this class has a "config(TableModel tableModel)" method, will also
-	 * call it
+	 * Convert entity class to a Editable TableModel instance  
 	 */
-	public static TableModel oneEntity2Model(Class<?> entityClass) {
+	public static TableModel entity2EditableModel(Class<?> entityClass) {
 		DialectException.assureNotNull(entityClass, "Entity class can not be null");
 		TableModel model = tableModelCache.get(entityClass);
 		if (model != null)
 			return model.newCopy();
-		model = entity2ModelIgnoreConfigMethod(entityClass);
-		Method method = null;
-		try {
-			method = entityClass.getMethod("config", TableModel.class);
-		} catch (Exception e) {// NOSONAR
-		}
-		if (method != null)
-			try {
-				method.invoke(null, model);
-			} catch (Exception e) {
-				throw new DialectException(e);
-			}
-		if (model == null)
-			throw new DialectException("Can not create TableModel for entityClass " + entityClass);
+		model = entity2ModelWithConfig(entityClass);
+		model.setReadOnly(true);
 		tableModelCache.put(entityClass, model);
 		return model.newCopy();
+	}
+
+	/** Convert entity classes to a editable TableModel instances */
+	public static TableModel[] entity2EditableModels(Class<?>... entityClasses) {
+		List<TableModel> l = new ArrayList<TableModel>();
+		for (Class<?> clazz : entityClasses) {
+			l.add(entity2EditableModel(clazz));
+		}
+		return l.toArray(new TableModel[l.size()]);
 	}
 
 	/**
@@ -168,7 +163,7 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 		if (StrUtils.isEmpty(tableName))
 			tableName = entityClass.getSimpleName();
 		TableModel model = new TableModel(tableName); // Build the tableModel
-
+		model.setEntityClass(entityClass);
 		if (!tableMap.isEmpty()) {
 			// Index
 			Annotation[] indexes = (Annotation[]) tableMap.get("indexes");
@@ -240,19 +235,15 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 		for (PropertyDescriptor pd : pds) {
 			String entityfieldName = pd.getName();
 			if ("class".equals(entityfieldName) || "simpleName".equals(entityfieldName)
-					|| "canonicalName".equals(entityfieldName) || "box".equals(entityfieldName))
+					|| "canonicalName".equals(entityfieldName) )
 				continue;
 			Class<?> propertyClass = pd.getPropertyType();
 
 			Field field = ReflectionUtils.findField(entityClass, entityfieldName);
 			if (field == null)
 				continue;
-			if (!TypeUtils.canMapToSqlType(propertyClass) && getFirstEntityAnno(field, "Transient").isEmpty()) {
-				throw new DialectException("In class '" + entityClass + "',  feild '" + entityfieldName
-						+ "' can not map to a SQL type, need use @Transient annotation to disable it");
-			}
 
-			if (!getFirstEntityAnno(field, "Transient").isEmpty()) {
+			if (!getFirstEntityAnno(field, "Transient").isEmpty() || !TypeUtils.canMapToSqlType(propertyClass)) {
 				ColumnModel col = new ColumnModel(entityfieldName);
 				col.setColumnType(TypeUtils.toType(propertyClass));
 				col.setLengths(new Integer[] { 255, 0, 0 });
@@ -312,6 +303,16 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 				if (!getFirstEntityAnno(field, "Id").isEmpty() || !getFirstEntityAnno(field, "PKey").isEmpty())
 					col.pkey();
 
+				// Is a ShardTable column?
+				Map<String, Object> shardTableMap = getFirstEntityAnno(field, "ShardTable");
+				if (!shardTableMap.isEmpty())
+					col.shardTable((String[]) shardTableMap.get("value"));
+
+				// Is ShardDatabase?
+				Map<String, Object> shardDatabaseMap = getFirstEntityAnno(field, "ShardDatabase");
+				if (!shardDatabaseMap.isEmpty())
+					col.shardDatabase((String[]) shardDatabaseMap.get("value"));
+
 				col.setEntityField(entityfieldName);
 				col.setTableModel(model);
 				// col will also set TableModel field point to its owner
@@ -330,6 +331,8 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 					col.uuid32();
 				if (existEntityAnno(field, "UUID36"))
 					col.uuid36();
+				if (existEntityAnno(field, "Snowflake"))
+					col.snowflake();
 
 				// GeneratedValue
 				Map<String, Object> gvMap = getFirstEntityAnno(field, "GeneratedValue");
@@ -385,6 +388,29 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 			}
 
 		} // End of columns loop
+		return model;
+	}
+
+	/**
+	 * Convert entity class to a Editable TableModel instance , if this class has a
+	 * "config(TableModel tableModel)" method, will also call it
+	 */
+	private static TableModel entity2ModelWithConfig(Class<?> entityClass) {
+		TableModel model;
+		model = entity2ModelIgnoreConfigMethod(entityClass);
+		Method method = null;
+		try {
+			method = entityClass.getMethod("config", TableModel.class);
+		} catch (Exception e) {// NOSONAR
+		}
+		if (method != null)
+			try {
+				method.invoke(null, model);
+			} catch (Exception e) {
+				throw new DialectException(e);
+			}
+		if (model == null)
+			throw new DialectException("Can not create TableModel for entityClass " + entityClass);
 		return model;
 	}
 
