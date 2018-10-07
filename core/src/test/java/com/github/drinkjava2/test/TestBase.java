@@ -13,6 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 
 import com.github.drinkjava2.jbeanbox.BeanBox;
+import com.github.drinkjava2.jbeanbox.JBEANBOX;
 import com.github.drinkjava2.jdialects.Dialect;
 import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.test.DataSourceConfig.DataSourceBox;
@@ -38,7 +39,7 @@ public class TestBase {
 
 	@After
 	public void closeDataSource() {
-		BeanBox.defaultContext.close();// close dataSource
+		JBEANBOX.close();// close dataSource
 	}
 
 	protected static void printDDLs(String[] ddl) {

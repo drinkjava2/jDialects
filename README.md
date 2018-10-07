@@ -10,17 +10,18 @@
 
 # 简介 | Intro
 
-jDialects 支持多达75种数据库方言的DDL创建、分页、函数变换、主键生成。
+jDialects支持多达80种数据库方言的DDL创建、分页、函数变换、类型变换、主键生成等功能。
 
 # 优点 | Advantages
 
-- **无侵入**：jDialects只对SQL文本进行变换，不会对您现有的持久层工具产生任何影响。
-- **依赖少**：仅依赖单个文件约260k。
-- **从Annotation创建DDL**：提供对主要JPA注解的支持，且无需添加JPA库依赖。
+- **无侵入**：jDialects工作原理基于对SQL文本进行变换，不会对您现有的持久层工具产生任何影响。
+- **依赖少**：仅依赖单个jar文件, 大小约280k。
+- **从Annotation创建DDL**：提供对一些主要JPA注解的支持
 - **从Java方法创建DDL**：提供Java方法配置来创建DDL，同样的语法也可以在运行期修改配置。
 - **主键生成器**：支持十种主键生成器，并可方便地自定义。
 - **分页**：提供跨数据库的物理分页方法。
-- **函数解析**：对不同的数据库解析成对应方言的函数，尽量做到一次SQL到处运行。
+- **函数变换**：对不同的数据库解析成对应方言的函数，尽量做到一次SQL到处运行。
+- **类型变换**：对不同的数据库字段类型，提供解析与Java类型的互相变换。
 - **保留字检查**：提供数据库保留字检查功能。
 
 # 文档 | Documentation
@@ -45,7 +46,7 @@ jDialects 支持多达75种数据库方言的DDL创建、分页、函数变换�
 <dependency>
     <groupId>com.github.drinkjava2</groupId>
     <artifactId>jdialects</artifactId>
-    <version>2.0.2</version>  <!-- 或最新版本 -->
+    <version>2.0.4</version>  <!-- 或最新版本 -->
 </dependency>
 ```
 
@@ -53,7 +54,7 @@ jDialects 支持多达75种数据库方言的DDL创建、分页、函数变换�
 
 - [基于DbUtils和jDialects的持久层工具 jSqlBox](https://gitee.com/drinkjava2/jSqlBox)
 - [一个独立的声明式事务工具 jTransactions](https://gitee.com/drinkjava2/jTransactions)
-- [基于Java初始化块配置的IOC/AOP工具 jBeanBox](https://gitee.com/drinkjava2/jBeanBox)
+- [一个微型IOC/AOP工具 jBeanBox](https://gitee.com/drinkjava2/jBeanBox)
 
 # 期望 | Futures
 

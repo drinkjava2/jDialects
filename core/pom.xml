@@ -4,11 +4,11 @@
  
  <groupId>com.github.drinkjava2</groupId>
  <artifactId>jdialects</artifactId>
- <version>2.0.2</version>
+ <version>2.0.4</version>
  <packaging>jar</packaging> 
  
  <name>jdialects</name>
- <description>jDialects is a Pagination and DDL tool support ~70 databases, run on Java1.6 and above</description>
+ <description>jDialects is a pagination and DDL tool support ~80 databases, run on JDK6 or above</description>
  <url>https://github.com/drinkjava2/jDialects</url>
   
  <issueManagement>
@@ -85,11 +85,11 @@
       <scope>test</scope> 
     </dependency>  
     
-    <!-- jBeanBox is a small IOC/AOP tool to manage DataSource setting for unit test -->
+    <!-- jBeanBox is a small IOC/AOP tool -->
     <dependency>
     	<groupId>com.github.drinkjava2</groupId>
     	<artifactId>jbeanbox</artifactId>
-    	<version>2.4.7</version>
+    	<version>2.4.8</version>
     	<scope>test</scope>
 	</dependency>  
     
