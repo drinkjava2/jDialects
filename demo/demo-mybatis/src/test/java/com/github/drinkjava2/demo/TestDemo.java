@@ -39,7 +39,7 @@ public class TestDemo {
 	public static ThreadLocal<Object[]> paginInfo = new ThreadLocal<Object[]>();
 
 	@Table(name = "users")
-	public static class User extends ActiveRecord {
+	public static class User extends ActiveRecord<User> {
 		@UUID25
 		@Id
 		private String id;
@@ -172,7 +172,7 @@ public class TestDemo {
 		for (String ddl : ddlArray)
 			ctx.quiteExecute(ddl);
 		for (int i = 1; i <= 100; i++)
-			new User().put("firstName", "Foo" + i, "lastName", "Bar" + i, "age", i).insert();
+			new User().putField("firstName", "Foo" + i, "lastName", "Bar" + i, "age", i).insert();
 
 		TransactionFactory transactionFactory = new JdbcTransactionFactory();
 		Environment environment = new Environment("demo", transactionFactory, dataSource);

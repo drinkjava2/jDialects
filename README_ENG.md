@@ -63,7 +63,7 @@ Welcome post issue to help improve jDialects.
 
 # License
 
-[LGPL 2.1](https://www.gnu.org/licenses/lgpl-2.1)
+[Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
 # About Me
 [Github](https://github.com/drinkjava2)  

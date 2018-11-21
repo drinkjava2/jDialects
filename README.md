@@ -15,7 +15,7 @@
 
 # 简介 | Intro
 
-jDialects支持多达80种数据库方言的DDL创建、分页、函数变换、类型变换及主要的JPA注解解析功能。  
+jDialects支持多达80种数据库方言的DDL创建、实体源码生成、分页、函数变换、类型变换及主要的JPA注解解析功能。  
 它通常与JDBC工具组合使用，也可以作为其它Dao工具(如jSqlBox)的一个组成部分。    
 
 # 优点 | Advantages
@@ -24,7 +24,8 @@ jDialects支持多达80种数据库方言的DDL创建、分页、函数变换、
 - **依赖少**：仅依赖单个jar文件, 大小约280k。
 - **从Annotation创建DDL**：提供对一些主要的JPA注解的支持
 - **从Java方法创建DDL**：提供Java方法配置来创建DDL，同样的语法也可以在运行期修改配置。
-- **主键生成器**：提供十种主键生成器，支持自定义主键生成器。并提供一个分布式主键生成器。
+- **从数据库生成实体类源码**：可以读取数据库结构，生成注解风格的实体类POJO或ActiveRecord实体类源码
+- **主键生成器**：提供十种主键生成器，和一个分布式主键生成器。
 - **分页**：提供跨数据库的分页方法。
 - **函数变换**：对不同的数据库解析成对应方言的函数，尽量做到一次SQL到处运行。
 - **类型变换**：对不同的数据库字段类型，提供与Java类型的互相变换。
@@ -68,7 +69,7 @@ jDialects支持多达80种数据库方言的DDL创建、分页、函数变换、
 
 # 版权 | License
 
-[LGPL 2.1](https://www.gnu.org/licenses/lgpl-2.1)
+[Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
 # 关注我 | About Me
 [Github](https://github.com/drinkjava2)  
