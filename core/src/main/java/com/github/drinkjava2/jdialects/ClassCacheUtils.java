@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Yong Zhu.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
 
 /**
  * ClassCacheUtils is utility class to cache some info of classes read and write
@@ -133,8 +135,14 @@ public abstract class ClassCacheUtils {// NOSONAR
 			if ("class".equals(fieldName) || "simpleName".equals(fieldName) || "canonicalName".equals(fieldName)
 					|| "box".equals(fieldName))
 				continue;
-			readMethods.put(fieldName, pd.getReadMethod());
-			writeMethods.put(fieldName, pd.getWriteMethod());
+			Method readMtd = pd.getReadMethod();
+			readMethods.put(fieldName, readMtd);
+			Method writeMtd = pd.getWriteMethod();
+			if (writeMtd == null) {
+				writeMtd = ReflectionUtils.findMethod(clazz, "set" + StrUtils.toUpperCaseFirstOne(fieldName),
+						readMtd.getReturnType());
+			}
+			writeMethods.put(fieldName, writeMtd);
 		}
 		classReadMethods.put(clazz, sortMap(readMethods));
 		classWriteMethods.put(clazz, sortMap(writeMethods));
@@ -173,26 +181,28 @@ public abstract class ClassCacheUtils {// NOSONAR
 	/** Read value from entityBean field */
 	public static Object readValueFromBeanField(Object entityBean, String fieldName) {
 		Method readMethod = ClassCacheUtils.getClassFieldReadMethod(entityBean.getClass(), fieldName);
-		if (readMethod == null)
-			throw new DialectException("Can not find Java bean read method for column '" + fieldName + "' in '"
-					+ entityBean.getClass() + "'");
-		try {
-			return readMethod.invoke(entityBean);
-		} catch (Exception e) {
-			throw new DialectException(e);
-		}
+		if (readMethod == null) {
+			throw new DialectException(
+					"No mapping found for field '" + fieldName + "' in '" + entityBean.getClass() + "'");
+		} else
+			try {
+				return readMethod.invoke(entityBean);
+			} catch (Exception e) {
+				throw new DialectException(e);
+			}
 	}
 
 	/** write value to entityBean field */
 	public static void writeValueToBeanField(Object entityBean, String fieldName, Object value) {
 		Method writeMethod = ClassCacheUtils.getClassFieldWriteMethod(entityBean.getClass(), fieldName);
-		if (writeMethod == null)
-			throw new DialectException("Can not find Java bean read method for column '" + fieldName + "'");
-		try {
-			writeMethod.invoke(entityBean, value);
-		} catch (Exception e) {
-			throw new DialectException("fieldName '" + fieldName + "' can not write with value '" + value + "'", e);
-		}
+		if (writeMethod == null) {
+			throw new DialectException("Can not find Java bean read method '" + fieldName + "'");
+		} else
+			try {
+				writeMethod.invoke(entityBean, value);
+			} catch (Exception e) {
+				throw new DialectException("FieldName '" + fieldName + "' can not write with value '" + value + "'", e);
+			}
 	}
 
 	/**

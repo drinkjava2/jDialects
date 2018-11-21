@@ -1,13 +1,20 @@
 /*
- * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
- * the lgpl.txt file in the root directory or
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Copyright 2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by
+ * applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
+ * OF ANY KIND, either express or implied. See the License for the specific
+ * language governing permissions and limitations under the License.
  */
 package com.github.drinkjava2.jdialects;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * String Utilities usually used inside of framework
@@ -16,6 +23,7 @@ import java.util.List;
  * @since 1.0.0
  */
 public class StrUtils {
+	public static final String WHITESPACE = " \n\r\f\t";
 
 	private StrUtils() {
 		// default constructor
@@ -316,7 +324,7 @@ public class StrUtils {
 		if (index >= 0) {
 			sb.append(originString.substring(pos, index));
 			sb.append(newPattern);
-			pos = index + patLen; 
+			pos = index + patLen;
 		}
 		sb.append(originString.substring(pos));
 		return sb.toString();
@@ -472,6 +480,20 @@ public class StrUtils {
 			list.add(str.substring(start, i));
 		}
 		return list.toArray(new String[list.size()]);
+	}
+
+	public static String[] split(String separators, String list) {
+		return split(separators, list, false);
+	}
+
+	public static String[] split(String separators, String list, boolean include) {
+		StringTokenizer tokens = new StringTokenizer(list, separators, include);
+		String[] result = new String[tokens.countTokens()];
+		int i = 0;
+		while (tokens.hasMoreTokens()) {
+			result[i++] = tokens.nextToken();
+		}
+		return result;
 	}
 
 	/**
@@ -915,28 +937,27 @@ public class StrUtils {
 		char c = str.substring(0, 1).toCharArray()[0];
 		return c >= 'A' && c <= 'Z';
 	}
-	
-	
-    /**
-     * First letter change to lower 
-     */
-    public static String toLowerCaseFirstOne(String s){
-        if(Character.isLowerCase(s.charAt(0)))
-            return s;
-        else
-            return (new StringBuilder()).append(Character.toLowerCase(s.charAt(0))).append(s.substring(1)).toString();
-    }
-  
-    /**
-     * First letter change to capitalised 
-     */
-    public static String toUpperCaseFirstOne(String s){
-        if(Character.isUpperCase(s.charAt(0)))
-            return s;
-        else
-            return (new StringBuilder()).append(Character.toUpperCase(s.charAt(0))).append(s.substring(1)).toString();
-    }
-    
+
+	/**
+	 * First letter change to lower
+	 */
+	public static String toLowerCaseFirstOne(String s) {
+		if (Character.isLowerCase(s.charAt(0)))
+			return s;
+		else
+			return (new StringBuilder()).append(Character.toLowerCase(s.charAt(0))).append(s.substring(1)).toString();
+	}
+
+	/**
+	 * First letter change to capitalised
+	 */
+	public static String toUpperCaseFirstOne(String s) {
+		if (Character.isUpperCase(s.charAt(0)))
+			return s;
+		else
+			return (new StringBuilder()).append(Character.toUpperCase(s.charAt(0))).append(s.substring(1)).toString();
+	}
+
 	/**
 	 * Check if a String only have a-z,A-Z,0-9,"_" characters
 	 */
@@ -974,6 +995,5 @@ public class StrUtils {
 		sb.append(" ");
 		return sb.toString();
 	}
-
 
 }

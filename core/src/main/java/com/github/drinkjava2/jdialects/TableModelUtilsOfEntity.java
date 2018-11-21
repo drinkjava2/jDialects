@@ -1,7 +1,13 @@
 /*
- * License: GNU Lesser General Public License (LGPL), version 2.1 or later. See
- * the lgpl.txt file in the root directory or
- * <http://www.gnu.org/licenses/lgpl-2.1.html>.
+ * Copyright 2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by
+ * applicable law or agreed to in writing, software distributed under the
+ * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
+ * OF ANY KIND, either express or implied. See the License for the specific
+ * language governing permissions and limitations under the License.
  */
 package com.github.drinkjava2.jdialects;
 
@@ -30,7 +36,7 @@ import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
 @SuppressWarnings("all")
 public abstract class TableModelUtilsOfEntity {// NOSONAR
 
-	private static Map<Class<?>, TableModel> tableModelCache = new ConcurrentHashMap<Class<?>, TableModel>();
+	public static Map<Class<?>, TableModel> globalTableModelCache = new ConcurrentHashMap<Class<?>, TableModel>();
 
 	private static boolean matchNameCheck(String annotationName, String cName) {
 		if (("javax.persistence." + annotationName).equals(cName))
@@ -39,15 +45,14 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 			return true;
 		if (("com.github.drinkjava2.jdialects.annotation.jdia." + annotationName).equals(cName))
 			return true;
-		if (("com.github.drinkjava2.jdialects.annotation.jdia." + annotationName + "1").equals(cName))
-			return true;
-		if (("com.github.drinkjava2.jdialects.annotation.jdia." + annotationName + "2").equals(cName))
-			return true;
-		if (("com.github.drinkjava2.jdialects.annotation.jdia." + annotationName + "3").equals(cName))
-			return true;
+		for (int i = 0; i <= 9; i++) {
+			if (("com.github.drinkjava2.jdialects.annotation.jdia." + annotationName + i).equals(cName))
+				return true;
+		}
 		return false;
 	}
 
+	/** Get all entity annotations started with annotationName */
 	private static List<Map<String, Object>> getEntityAnnos(Object targetClass, String annotationName) {
 		Annotation[] anno = null;
 		if (targetClass instanceof Field)
@@ -99,16 +104,16 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 	}
 
 	/**
-	 * Convert entity class to a read-only TableModel instance  
+	 * Convert entity class to a read-only TableModel instance
 	 */
 	public static TableModel entity2ReadOnlyModel(Class<?> entityClass) {
 		DialectException.assureNotNull(entityClass, "Entity class can not be null");
-		TableModel model = tableModelCache.get(entityClass);
+		TableModel model = globalTableModelCache.get(entityClass);
 		if (model != null)
 			return model;
 		model = entity2ModelWithConfig(entityClass);
 		model.setReadOnly(true);
-		tableModelCache.put(entityClass, model);
+		globalTableModelCache.put(entityClass, model);
 		return model;
 	}
 
@@ -122,16 +127,16 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 	}
 
 	/**
-	 * Convert entity class to a Editable TableModel instance  
+	 * Convert entity class to a Editable TableModel instance
 	 */
 	public static TableModel entity2EditableModel(Class<?> entityClass) {
 		DialectException.assureNotNull(entityClass, "Entity class can not be null");
-		TableModel model = tableModelCache.get(entityClass);
+		TableModel model = globalTableModelCache.get(entityClass);
 		if (model != null)
 			return model.newCopy();
 		model = entity2ModelWithConfig(entityClass);
 		model.setReadOnly(true);
-		tableModelCache.put(entityClass, model);
+		globalTableModelCache.put(entityClass, model);
 		return model.newCopy();
 	}
 
@@ -235,7 +240,7 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 		for (PropertyDescriptor pd : pds) {
 			String entityfieldName = pd.getName();
 			if ("class".equals(entityfieldName) || "simpleName".equals(entityfieldName)
-					|| "canonicalName".equals(entityfieldName) )
+					|| "canonicalName".equals(entityfieldName))
 				continue;
 			Class<?> propertyClass = pd.getPropertyType();
 

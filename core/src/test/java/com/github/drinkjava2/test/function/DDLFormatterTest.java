@@ -8,7 +8,7 @@ package com.github.drinkjava2.test.function;
 
 import org.junit.Test;
 
-import com.github.drinkjava2.jdialects.hibernatesrc.utils.DDLFormatter;
+import com.github.drinkjava2.jdialects.DDLFormatter;
 
 /**
  * This is for DDLFormatter Test
