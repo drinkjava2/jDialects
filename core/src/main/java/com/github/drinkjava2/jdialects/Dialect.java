@@ -20,6 +20,9 @@ import javax.sql.DataSource;
 
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.id.IdGenerator;
+import com.github.drinkjava2.jdialects.log.DialectLog;
+import com.github.drinkjava2.jdialects.log.DialectLogFactory;
+import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.TableModel;
 
 /**
@@ -34,10 +37,6 @@ import com.github.drinkjava2.jdialects.model.TableModel;
  */
 @SuppressWarnings("all")
 public enum Dialect implements CommonDialect {
-	// Below dialects found on Internet
-	SQLiteDialect, AccessDialect, ExcelDialect, TextDialect, ParadoxDialect, CobolDialect, XMLDialect, DbfDialect, // NOSONAR
-
-	// Below dialects found in Hibernate 5.2.9.final
 	/** Use Derby instead */
 	@Deprecated
 	DerbyDialect,
@@ -50,13 +49,97 @@ public enum Dialect implements CommonDialect {
 	@Deprecated
 	Oracle9Dialect, //
 
-	Cache71Dialect, CUBRIDDialect, DerbyTenFiveDialect, DataDirectOracle9Dialect, DB2Dialect, DB2390Dialect, DB2400Dialect, DerbyTenSevenDialect, DerbyTenSixDialect, FirebirdDialect, FrontBaseDialect, H2Dialect, HANAColumnStoreDialect, HANARowStoreDialect, HSQLDialect, InformixDialect, Informix10Dialect, IngresDialect, Ingres10Dialect, Ingres9Dialect, InterbaseDialect, JDataStoreDialect, MariaDBDialect, MariaDB53Dialect, MckoiDialect, MimerSQLDialect, MySQLDialect, MySQL5Dialect, MySQL55Dialect, MySQL57Dialect, MySQL57InnoDBDialect, MySQL5InnoDBDialect, MySQLInnoDBDialect, MySQLMyISAMDialect, Oracle8iDialect, Oracle9iDialect, Oracle10gDialect, Oracle12cDialect, PointbaseDialect, PostgresPlusDialect, PostgreSQLDialect, PostgreSQL81Dialect, PostgreSQL82Dialect, PostgreSQL9Dialect, PostgreSQL91Dialect, PostgreSQL92Dialect, PostgreSQL93Dialect, PostgreSQL94Dialect, PostgreSQL95Dialect, ProgressDialect, RDMSOS2200Dialect, SAPDBDialect, SQLServerDialect, SQLServer2005Dialect, SQLServer2008Dialect, SQLServer2012Dialect, SybaseDialect, Sybase11Dialect, SybaseAnywhereDialect, SybaseASE15Dialect, SybaseASE157Dialect, TeradataDialect, Teradata14Dialect, TimesTenDialect,
+	//below added by hand
+	DamengDialect,// equal to InformixDialect
+	GBaseDialect,// equal to Oracle8iDialect
+	
+	// Below dialects found on Internet
+	AccessDialect, //
+	CobolDialect, //
+	DbfDialect, //
+	ExcelDialect, //
+	ParadoxDialect, //
+	SQLiteDialect, //
+	TextDialect, //
+	XMLDialect, //
 
-	// Below dialects imported from Hibernate 5.3.6.final
-	DB2390V8Dialect, DB297Dialect, MariaDB102Dialect, MariaDB103Dialect, MariaDB10Dialect, MySQL8Dialect;
+	// Below dialects imported from Hibernate
+	Cache71Dialect,//
+	CUBRIDDialect,//
+	DataDirectOracle9Dialect,//
+	DB2390Dialect,//
+	DB2390V8Dialect,//
+	DB2400Dialect,//
+	DB297Dialect,//
+	DB2Dialect,//
+	DerbyTenFiveDialect,//
+	DerbyTenSevenDialect,//
+	DerbyTenSixDialect,//
+	FirebirdDialect,//
+	FrontBaseDialect,//
+	H2Dialect,//
+	HANAColumnStoreDialect,//
+	HANARowStoreDialect,//
+	HSQLDialect,//
+	Informix10Dialect,//
+	InformixDialect,//
+	Ingres10Dialect,//
+	Ingres9Dialect,//
+	IngresDialect,//
+	InterbaseDialect,//
+	JDataStoreDialect,//
+	MariaDB102Dialect,//
+	MariaDB103Dialect,//
+	MariaDB10Dialect,//
+	MariaDB53Dialect,//
+	MariaDBDialect,//
+	MckoiDialect,//
+	MimerSQLDialect,//
+	MySQL55Dialect,//
+	MySQL57Dialect,//
+	MySQL57InnoDBDialect,//
+	MySQL5Dialect,//
+	MySQL5InnoDBDialect,//
+	MySQL8Dialect,//
+	MySQLDialect,//
+	MySQLInnoDBDialect,//
+	MySQLMyISAMDialect,//
+	Oracle10gDialect,//
+	Oracle12cDialect,//
+	Oracle8iDialect,//
+	Oracle9iDialect,//
+	PointbaseDialect,//
+	PostgresPlusDialect,//
+	PostgreSQL81Dialect,//
+	PostgreSQL82Dialect,//
+	PostgreSQL91Dialect,//
+	PostgreSQL92Dialect,//
+	PostgreSQL93Dialect,//
+	PostgreSQL94Dialect,//
+	PostgreSQL95Dialect,//
+	PostgreSQL9Dialect,//
+	PostgreSQLDialect,//
+	ProgressDialect,//
+	RDMSOS2200Dialect,//
+	SAPDBDialect,//
+	SQLServer2005Dialect,//
+	SQLServer2008Dialect,//
+	SQLServer2012Dialect,//
+	SQLServerDialect,//
+	Sybase11Dialect,//
+	SybaseAnywhereDialect,//
+	SybaseASE157Dialect,//
+	SybaseASE15Dialect,//
+	SybaseDialect,//
+	Teradata14Dialect,//
+	TeradataDialect,//
+	TimesTenDialect;//
+
 
 	/** If set true will allow use reserved words in DDL, default value is false */
 	private static Boolean globalAllowReservedWords = false;
+
+	private static final DialectLog logger = DialectLogFactory.getLog(Dialect.class);
 
 	/**
 	 * If set true will output log for each paginate, translate, paginAndTranslate,
@@ -73,7 +156,6 @@ public enum Dialect implements CommonDialect {
 	private static final String PAGESIZE = "$PAGESIZE";
 	private static final String TOTAL_ROWS = "$TOTAL_ROWS";
 	private static final String DISTINCT_TAG = "($DISTINCT)";
-	protected static final DialectLogger logger = DialectLogger.getLog(Dialect.class);
 	private String sqlTemplate = null;
 	private String topLimitTemplate = null;
 	protected final Map<Type, String> typeMappings = new EnumMap<Type, String>(Type.class);
@@ -163,32 +245,30 @@ public enum Dialect implements CommonDialect {
 	 * Transfer com.github.drinkjava2.jdialects.Type to a real dialect's type
 	 * definition DDL String, lengths is optional for some types
 	 */
-	public String translateToDDLType(Type type, Integer... lengths) {// NOSONAR
+	public String translateToDDLType(ColumnModel col) {// NOSONAR
+		Type type = col.getColumnType();
 		String value = this.typeMappings.get(type);
 		if (StrUtils.isEmpty(value) || "N/A".equals(value) || "n/a".equals(value))
 			DialectException.throwEX("Type \"" + type + "\" is not supported by dialect \"" + this + "\"");
 
 		if (value.contains("|")) {
 			// format example: varchar($l)<255|lvarchar($l)<32739|varchar($l)
-			String[] mappings = StrUtils.split("|", value);
-
-			for (String mapping : mappings) {
-				if (mapping.contains("<")) {// varchar($l)<255
-					String[] limitType = StrUtils.split("<", mapping);
-					if (lengths.length > 0 && lengths[0] < Integer.parseInt(limitType[1]))// NOSONAR
-						return putParamters(type, limitType[0], lengths);
+			String[] typeTempls = StrUtils.split("|", value);
+			for (String templ : typeTempls) {
+				if (templ.contains("<")) {// varchar($l)<255
+					String[] limitType = StrUtils.split("<", templ);
+					if (col.getLength() > 0 && col.getLength() < Integer.parseInt(limitType[1]))// NOSONAR
+						return replacePlaceHolders(type, limitType[0], col);
 				} else {// varchar($l)
-					return putParamters(type, mapping, lengths);
+					return replacePlaceHolders(type, templ, col);
 				}
 			}
-		} else {
-			if (value.contains("$")) {
-				// always this order: $l, $p, $s
-				return putParamters(type, value, lengths);
-			} else
-				return value;
-		}
-		return "";
+			return (String) DialectException
+					.throwEX("Type \"" + type + "\" is not supported by dialect \"" + this + "\" of template:" + value);
+		} else if (value.contains("$"))
+			return replacePlaceHolders(type, value, col);
+		else
+			return value;
 	}
 
 	// @formatter:off shut off eclipse's formatter
@@ -198,18 +278,12 @@ public enum Dialect implements CommonDialect {
 	/**
 	 * inside function
 	 */
-	private String putParamters(Type type, String value, Integer... lengths) {
-		if (lengths.length < StrUtils.countMatches(value, '$'))
-			DialectException.throwEX("In Dialect \"" + this + "\", Type \"" + type + "\" should have "
-					+ StrUtils.countMatches(value, '$') + " parameters");
-		int i = 0;
-		String newValue = value;
-		if (newValue.contains("$l"))
-			newValue = StrUtils.replace(newValue, "$l", String.valueOf(lengths[i++]));
+	private String replacePlaceHolders(Type type, String value, ColumnModel col) {
+		String newValue = StrUtils.replace(value, "$l", String.valueOf(col.getLength()));
 		if (newValue.contains("$p"))
-			newValue = StrUtils.replace(newValue, "$p", String.valueOf(lengths[i++]));
+			newValue = StrUtils.replace(newValue, "$p", String.valueOf(col.getPrecision()));
 		if (newValue.contains("$s"))
-			newValue = StrUtils.replace(newValue, "$s", String.valueOf(lengths[i]));
+			newValue = StrUtils.replace(newValue, "$s", String.valueOf(col.getScale()));
 		return newValue;
 	}
 
@@ -226,7 +300,6 @@ public enum Dialect implements CommonDialect {
 		return result;
 	}
 
- 
 	// ====================================================
 	// ====================================================
 
@@ -289,10 +362,10 @@ public enum Dialect implements CommonDialect {
 			}
 		}
 
-		// if have $XXX tag, replaced by real values 
+		// if have $XXX tag, replaced by real values
 		result = StrUtils.replaceIgnoreCase(useTemplate, SKIP_ROWS, String.valueOf(skipRows));
 		result = StrUtils.replaceIgnoreCase(result, PAGESIZE, String.valueOf(pageSize));
-		result = StrUtils.replaceIgnoreCase(result, TOTAL_ROWS, String.valueOf(totalRows)); 
+		result = StrUtils.replaceIgnoreCase(result, TOTAL_ROWS, String.valueOf(totalRows));
 
 		// now insert the customer's real full SQL here
 		result = StrUtils.replace(result, "$SQL", trimedSql);

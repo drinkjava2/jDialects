@@ -65,7 +65,7 @@ public abstract class TableModelUtilsOfDb {
 			// Build Columns
 			for (TableModel model : tableModels) {
 				String tableName = model.getTableName();
-				rs = meta.getColumns(null, null, tableName, null);
+				rs = meta.getColumns(null, null, tableName, null); // detail see meta.getC alt + /
 				while (rs.next()) {// NOSONAR
 					String colName = rs.getString("COLUMN_NAME");
 					ColumnModel col = new ColumnModel(colName);
@@ -78,10 +78,13 @@ public abstract class TableModelUtilsOfDb {
 						throw new DialectException("jDialect does not supported java.sql.types value " + javaSqlType,
 								e1);
 					}
-					col.setLength(rs.getInt("COLUMN_SIZE"));
+
+					col.setLength(rs.getInt("CHAR_OCTET_LENGTH"));
+					col.setPrecision(rs.getInt("COLUMN_SIZE"));
+					col.setScale(rs.getInt("DECIMAL_DIGITS"));
 					col.setNullable(rs.getInt("NULLABLE") > 0);
-					col.setPrecision(rs.getInt("DECIMAL_DIGITS"));
-					col.setLengths(new Integer[] { col.getLength(), col.getPrecision(), col.getPrecision() });
+					col.setDefaultValue(rs.getString("COLUMN_DEF"));
+					col.setComment(rs.getString("REMARKS"));
 
 					try {
 						if (((Boolean) (true)).equals(rs.getBoolean("IS_AUTOINCREMENT")))

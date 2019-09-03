@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.github.drinkjava2.jdialects.model.ColumnModel;
@@ -37,6 +38,26 @@ import com.github.drinkjava2.jdialects.springsrc.utils.ReflectionUtils;
 public abstract class TableModelUtilsOfEntity {// NOSONAR
 
 	public static Map<Class<?>, TableModel> globalTableModelCache = new ConcurrentHashMap<Class<?>, TableModel>();
+
+	public static Map<String, Class<?>> globalTableToEntityCache = new ConcurrentHashMap<String, Class<?>>();
+
+	/**
+	 * Convert tableName to entity class, note: before use this method
+	 * entity2Models() method should be called first to cache talbeModels in memory
+	 */
+	public static Class<?> tableNameToEntityClass(String tableName) {
+		String lowCase = tableName.toLowerCase();
+		Class<?> result = globalTableToEntityCache.get(lowCase);
+		if (result != null)
+			return result;
+		for (Entry<Class<?>, TableModel> entry : globalTableModelCache.entrySet()) {
+			if (lowCase.equalsIgnoreCase(entry.getValue().getTableName())) {
+				globalTableToEntityCache.put(lowCase, entry.getKey());
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
 
 	private static boolean matchNameCheck(String annotationName, String cName) {
 		if (("javax.persistence." + annotationName).equals(cName))
@@ -248,24 +269,43 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 			if (field == null)
 				continue;
 
-			if (!getFirstEntityAnno(field, "Transient").isEmpty() || !TypeUtils.canMapToSqlType(propertyClass)) {
+			Object convertClassOrName = null;
+			Map<String, Object> convertMap = getFirstEntityAnno(field, "Version"); // @Version
+			if (!convertMap.isEmpty())
+				convertClassOrName = "Version";
+			else {
+				convertMap = getFirstEntityAnno(field, "Convert");
+				if (!convertMap.isEmpty()) {
+					convertClassOrName = (Class<?>) convertMap.get("value");// jdia's annotation
+					if (convertClassOrName == null || convertClassOrName == void.class)
+						convertClassOrName = (Class<?>) convertMap.get("converter");// JPA's annotation
+					if (convertClassOrName == void.class)
+						convertClassOrName = null;
+				}
+
+				convertMap = getFirstEntityAnno(field, "Enumerated"); // @Enumerated
+				if (!convertMap.isEmpty())
+					convertClassOrName = "EnumType." + convertMap.get("value"); // ORDINAL or String
+			}
+
+			if (!getFirstEntityAnno(field, "Transient").isEmpty()
+					|| (convertClassOrName == null && !TypeUtils.canMapToSqlType(propertyClass))) {
 				ColumnModel col = new ColumnModel(entityfieldName);
 				col.setColumnType(TypeUtils.toType(propertyClass));
-				col.setLengths(new Integer[] { 255, 0, 0 });
 				col.setTransientable(true);
 				col.setEntityField(entityfieldName);
 				col.setTableModel(model);
 				model.addColumn(col);
 			} else {
 
-				// SequenceGenerator
+				// @SequenceGenerator
 				Map<String, Object> map = getFirstEntityAnno(field, "SequenceGenerator");
 				if (!map.isEmpty()) {
 					model.sequenceGenerator((String) map.get("name"), (String) map.get("sequenceName"),
 							(Integer) map.get("initialValue"), (Integer) map.get("allocationSize"));
 				}
 
-				// TableGenerator
+				// @TableGenerator
 				map = getFirstEntityAnno(field, "TableGenerator");
 				if (!map.isEmpty()) {
 					model.tableGenerator((String) map.get("name"), (String) map.get("table"),
@@ -274,14 +314,17 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 							(Integer) map.get("allocationSize"));
 				}
 
-				// UUIDAny
+				// @UUIDAny
 				map = getFirstEntityAnno(field, "UUIDAny");
 				if (!map.isEmpty()) {
 					model.uuidAny((String) map.get("name"), (Integer) map.get("length"));
 				}
 
+				// @Version annotation
 				ColumnModel col = new ColumnModel(entityfieldName);
 				col.entityField(entityfieldName);
+				col.setConverterClassOrName(convertClassOrName);// @Convert's value
+
 				// Column
 				Map<String, Object> colMap = getFirstEntityAnno(field, "Column");
 				if (!colMap.isEmpty()) {
@@ -292,7 +335,6 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 					col.setLength((Integer) colMap.get("length"));
 					col.setPrecision((Integer) colMap.get("precision"));
 					col.setScale((Integer) colMap.get("scale"));
-					col.setLengths(new Integer[] { col.getLength(), col.getPrecision(), col.getScale() });
 					if (!StrUtils.isEmpty(colMap.get("columnDefinition")))
 						col.setColumnType(TypeUtils.toType((String) colMap.get("columnDefinition")));
 					else
@@ -300,20 +342,23 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 					col.setInsertable((Boolean) colMap.get("insertable"));
 					col.setUpdatable((Boolean) colMap.get("updatable"));
 				} else {
-					col.setColumnType(TypeUtils.toType(propertyClass));
-					col.setLengths(new Integer[] { 255, 0, 0 });
+					col.setColumnType(TypeUtils.toType(propertyClass));// TODO check
 				}
+				if ("EnumType.ORDINAL".equals(col.getConverterClassOrName()))
+					col.setColumnType(Type.INTEGER);
+				else if ("EnumType.STRING".equals(col.getConverterClassOrName()))
+					col.setColumnType(Type.VARCHAR);
 
-				// Id
+				// @Id
 				if (!getFirstEntityAnno(field, "Id").isEmpty() || !getFirstEntityAnno(field, "PKey").isEmpty())
 					col.pkey();
 
-				// Is a ShardTable column?
+				// @ShardTable
 				Map<String, Object> shardTableMap = getFirstEntityAnno(field, "ShardTable");
 				if (!shardTableMap.isEmpty())
 					col.shardTable((String[]) shardTableMap.get("value"));
 
-				// Is ShardDatabase?
+				// @ShardDatabase
 				Map<String, Object> shardDatabaseMap = getFirstEntityAnno(field, "ShardDatabase");
 				if (!shardDatabaseMap.isEmpty())
 					col.shardDatabase((String[]) shardDatabaseMap.get("value"));
@@ -345,7 +390,6 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 					Object strategy = gvMap.get("strategy");
 					if (strategy != null) {
 						String strategyStr = strategy.toString();
-
 						if ("AUTO".equals(strategyStr))
 							col.autoId();
 						else if ("IDENTITY".equals(strategyStr))
@@ -416,6 +460,7 @@ public abstract class TableModelUtilsOfEntity {// NOSONAR
 			}
 		if (model == null)
 			throw new DialectException("Can not create TableModel for entityClass " + entityClass);
+		TableModel.sortColumns(model.getColumns());
 		return model;
 	}
 

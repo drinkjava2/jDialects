@@ -10,7 +10,8 @@ package com.github.drinkjava2.test.function;
 import org.junit.Test;
 
 import com.github.drinkjava2.jdialects.Dialect;
-import com.github.drinkjava2.jdialects.DialectLogger;
+import com.github.drinkjava2.jdialects.log.DialectLog;
+import com.github.drinkjava2.jdialects.log.DialectLogFactory;
 import com.github.drinkjava2.test.TestBase;
 
 /**
@@ -20,7 +21,7 @@ import com.github.drinkjava2.test.TestBase;
  * @since 1.0.2
  */
 public class LoggerTest extends TestBase {
-	DialectLogger logger = DialectLogger.getLog(LoggerTest.class);
+	DialectLog logger = DialectLogFactory.getLog(LoggerTest.class);
 
 	@Test
 	public void doLoggerTest() {
