@@ -21,36 +21,18 @@
       <artifactId>junit</artifactId>
       <version>4.11</version>
       <scope>test</scope>
-    </dependency>
-    
+    </dependency>  
+ 
+    <!-- In this demo use jSqlBox as the plugin for MyBatis, jSqlBox is a micro scale ORM 
+         tool, it already has dependency of jDialects, so no need add jDialects dependency. -->
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.2</version>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>  
-      <groupId>log4j</groupId>  
-      <artifactId>log4j</artifactId>  
-      <version>1.2.17</version> 
-      <scope>test</scope> 
-    </dependency> 
-    
-    <!-- Some dependency use slf4j, so here add the slf4j & slf4j adapter  -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.25</version>
-      <scope>test</scope> 
-    </dependency> 
-    <dependency>
-       <groupId>org.slf4j</groupId>
-       <artifactId>slf4j-log4j12</artifactId>
-       <version>1.7.25</version>
-       <scope>test</scope> 
-     </dependency>
-    
+        <groupId>com.github.drinkjava2</groupId>
+        <artifactId>jsqlbox</artifactId>
+        <version>4.0</version>
+        <scope>test</scope> 
+    </dependency>   
+
+
     <!-- MyBatis 3.4.5 -->
     <dependency>
         <groupId>org.mybatis</groupId>
@@ -58,15 +40,7 @@
         <version>3.4.5</version>
         <scope>test</scope>
     </dependency>
- 
-    <!-- In this demo use jSqlBox as the plugin for MyBatis, jSqlBox is a micro scale ORM 
-         tool, it already has dependency of jDialects, so no need add jDialects dependency. -->
-    <dependency>
-        <groupId>com.github.drinkjava2</groupId>
-        <artifactId>jsqlbox</artifactId>
-        <version>2.0.4</version>
-        <scope>test</scope> 
-    </dependency>   
+   
   
    <!-- HikariCP is a dataSource pool quicker than c3p0 -->
     <dependency>

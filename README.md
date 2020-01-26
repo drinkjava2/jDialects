@@ -53,7 +53,7 @@ jDialects支持多达80多种数据库方言的DDL创建、实体源码生成、
 <dependency>
     <groupId>com.github.drinkjava2</groupId>
     <artifactId>jdialects</artifactId>
-    <version>3.0.0</version>  <!-- 或最新版本 -->
+    <version>4.0</version>  <!-- 或最新版本 -->
 </dependency>
 ```
 

@@ -13,29 +13,42 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.github.drinkjava2.jdialects.log;
+package com.github.drinkjava2.jlogs;
 
 /**
- * DialectLog used for jDialects project, if a "DialectLog.properties" file
- * found on class root folder (main/resources), will try load the designated
- * DialectLog implementation, otherwise use default DialectPrintLog as log
- * output. <br/>
- * 
- * An example of "DbProLog.properties": <br/>
- * log=com.github.drinkjava2.jdbpro.log.DbProSLF4JLog
- * 
+ * EmptyLog is the default logger of jSqlBox project
  * 
  * @author Yong Zhu
- * @since 2.0.5
+ * @since 1.7.0
  */
-public interface DialectLog {
+@SuppressWarnings("all")
+public class EmptyLog implements Log {
 
-	public abstract void info(String msg);
+	public EmptyLog(Class<?> clazz) {
+	}
 
-	public abstract void warn(String msg);
+	@Override
+	public void info(String msg) {
+	}
 
-	public abstract void error(String msg);
+	@Override
+	public void warn(String msg) {
+	}
 
-	public abstract void debug(String msg);
+	@Override
+	public void warn(String msg, Throwable t) {
+	}
 
+	@Override
+	public void error(String msg) {
+
+	}
+
+	@Override
+	public void error(String msg, Throwable t) {
+	}
+
+	@Override
+	public void debug(String msg) {
+	}
 }
