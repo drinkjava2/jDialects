@@ -16,6 +16,7 @@ import java.util.UUID;
 
 import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.Dialect;
+import com.github.drinkjava2.jdialects.StrUtils;
 import com.github.drinkjava2.jdialects.Type;
 import com.github.drinkjava2.jdialects.annotation.jpa.GenerationType;
 
@@ -56,11 +57,11 @@ public class UUID25Generator implements IdGenerator {
 	}
 
 	public static String getUUID25() {
-		String uuidHex = UUID.randomUUID().toString().replaceAll("-", "");
+		String uuidHex = UUID.randomUUID().toString().replace("-", "");
 		BigInteger b = new BigInteger(uuidHex, 16);
 		String s = b.toString(36);
 		while (s.length() < 25)
-			s = s + "0";// NOSONAR
+			s = s + StrUtils.getRandomChar(); // NOSONAR
 		return s;
 	}
 

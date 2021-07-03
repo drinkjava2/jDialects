@@ -16,9 +16,9 @@
 package com.github.drinkjava2.jdbpro;
 
 /**
- * Interface of Normal JDBC methods, this interface is used for other projects
- * to eliminate jar dependency, other projects need copy this interface into
- * there source code folder but always use name
+ * Interface of Normal JDBC methods, this interface is a bridge between jDbPro
+ * and jTransactions to eliminate jar dependency, other projects need copy this
+ * interface into there source code folder but always use name
  * "com.github.drinkjava2.jdbpro.NormalJdbcTool"
  * 
  * @author Yong Zhu
@@ -36,7 +36,7 @@ public interface NormalJdbcTool {// NOSONAR
 	 * @param params
 	 * @return An Object or null, Object type determined by SQL content
 	 */
-	public <T> T nQueryForObject(String sql, Object... params);
+	public <T> T jdbcQueryForObject(String sql, Object... params);
 
 	/**
 	 * Executes the given INSERT, UPDATE, or DELETE SQL statement.
@@ -47,7 +47,7 @@ public interface NormalJdbcTool {// NOSONAR
 	 *            the parameters if have
 	 * @return The number of rows updated.
 	 */
-	public int nUpdate(String sql, Object... params);
+	public int jdbcUpdate(String sql, Object... params);
 
 	/**
 	 * Execute an statement, including a stored procedure call, which does not
@@ -66,5 +66,5 @@ public interface NormalJdbcTool {// NOSONAR
 	 *            the SQL
 	 * @return The number of rows updated.
 	 */
-	public int nExecute(String sql, Object... params);
+	public int jdbcExecute(String sql, Object... params);
 }

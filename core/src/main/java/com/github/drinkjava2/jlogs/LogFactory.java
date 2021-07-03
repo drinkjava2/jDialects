@@ -28,10 +28,10 @@ import java.util.Properties;
  * 
  * JLog used for inside of jSqlBox project, if a "jlogs.properties" file if
  * found on class root folder (main/resources), will try load the designated
- * JLog implementation, otherwise use default EmptyLog<br/>
+ * JLog implementation, otherwise use default ConsoleLog as logger<br/>
  * 
  * An example of "jlogs.properties": <br/>
- * log=com.github.drinkjava2.jlogs.ConsoleLog
+ * log=com.github.drinkjava2.jlogs.SimpleSLF4JLog
  * 
  * @author Yong Zhu
  * @since 1.7.0
@@ -55,7 +55,7 @@ public abstract class LogFactory {// NOSONAR
 				return (Log) constr.newInstance(clazz);
 			} catch (Exception e) {
 				if (!printed())
-					System.err.println("Can not load log class: " + dbProLogClass
+					System.err.println("Can not load log class: " + dbProLogClass // NOSONAR
 							+ ", will use ConsoleLog JLog logger. \r\n" + e.getMessage());
 				dbProLogClass = void.class;
 				return new ConsoleLog(clazz);
@@ -64,7 +64,7 @@ public abstract class LogFactory {// NOSONAR
 		InputStream is = Log.class.getClassLoader().getResourceAsStream("jlogs.properties");
 		if (is == null) {
 			if (!printed())
-				System.out.println("Not found jlogs.properties,  will use ConsoleLog as JLog logger.");
+				System.out.println("Not found jlogs.properties for jSqlBox,  will use ConsoleLog as default logger.");// NOSONAR
 			dbProLogClass = void.class;
 			return new ConsoleLog(clazz);
 		}
@@ -76,11 +76,11 @@ public abstract class LogFactory {// NOSONAR
 			className = prop.getProperty("log");
 			dbProLogClass = Class.forName(className);
 			if (!printed())
-				System.out.print("jlog.properties found, will use " + className + " as JLog logger.");
+				System.out.print("jlog.properties found, will use " + className + " as JLog logger."); // NOSONAR
 			return getLog(clazz);
 		} catch (Exception e) {
 			if (!printed())
-				System.err.println("No or wrong jlog.properties file: " + className
+				System.err.println("No or wrong jlog.properties file: " + className // NOSONAR
 						+ ", will use ConsoleLog as JLog logger. \r\n" + e.getMessage());
 			dbProLogClass = void.class;
 			return new ConsoleLog(clazz);
@@ -99,8 +99,4 @@ public abstract class LogFactory {// NOSONAR
 		return old;
 	}
 
-	public static void main(String[] args) { 
-		Log log = LogFactory.getLog(LogFactory.class);
-		log.info("log test");
-	}
 }

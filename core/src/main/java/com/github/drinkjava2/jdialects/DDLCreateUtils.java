@@ -181,7 +181,9 @@ public class DDLCreateUtils {// NOSONAR
 						+ c.getColumnName() + "\" at table \"" + tableName + "\"");
 
 			// Column type definition
-			if (GenerationType.IDENTITY.equals(c.getIdGenerationType())) {
+			if (!StrUtils.isEmpty(c.getColumnDefinition()))
+				buf.append(c.getColumnDefinition());
+			else if (GenerationType.IDENTITY.equals(c.getIdGenerationType())) {
 				if (features.hasDataTypeInIdentityColumn)
 					buf.append(dialect.translateToDDLType(c));
 				buf.append(' ');
@@ -191,13 +193,11 @@ public class DDLCreateUtils {// NOSONAR
 					buf.append(features.identityColumnString);
 			} else {
 				buf.append(dialect.translateToDDLType(c));
-
 				// Default
 				String defaultValue = c.getDefaultValue();
 				if (defaultValue != null) {
 					buf.append(" default ").append(defaultValue);
 				}
-
 				// Not null
 				if (!c.getNullable())
 					buf.append(" not null");
@@ -215,7 +215,7 @@ public class DDLCreateUtils {// NOSONAR
 			}
 
 			// Comments
-			if (c.getComment() != null) {
+			if (!StrUtils.isEmpty(c.getComment())) {
 				if (StrUtils.isEmpty(features.columnComment) && !features.supportsCommentOn)
 					logger.warn("Ignore unsupported comment setting for dialect \"" + dialect + "\" on column \""
 							+ c.getColumnName() + "\" at table \"" + tableName + "\" with value: " + c.getComment());
@@ -259,7 +259,7 @@ public class DDLCreateUtils {// NOSONAR
 		objectResultList.add(buf.toString());
 
 		// table comment on
-		if (t.getComment() != null) {
+		if (!StrUtils.isEmpty(t.getComment())) {
 			if (features.supportsCommentOn)
 				objectResultList.add("comment on table " + t.getTableName() + " is '" + t.getComment() + "'");
 			else
@@ -269,7 +269,8 @@ public class DDLCreateUtils {// NOSONAR
 
 		// column comment on
 		for (ColumnModel c : columns) {
-			if (features.supportsCommentOn && c.getComment() != null && StrUtils.isEmpty(features.columnComment))
+			if (!c.getTransientable() && features.supportsCommentOn && c.getComment() != null
+					&& StrUtils.isEmpty(features.columnComment))
 				objectResultList.add(
 						"comment on column " + tableName + '.' + c.getColumnName() + " is '" + c.getComment() + "'");
 		}
@@ -377,8 +378,9 @@ public class DDLCreateUtils {// NOSONAR
 			notRepeatedSeq.add(tab);
 	}
 
-	private static final ColumnModel VARCHAR100=new ColumnModel("VARCHAR100").VARCHAR(100);
-	private static final ColumnModel BINGINT=new ColumnModel("BINGINT").BIGINT();
+	private static final ColumnModel VARCHAR100 = new ColumnModel("VARCHAR100").VARCHAR(100);
+	private static final ColumnModel BINGINT = new ColumnModel("BINGINT").BIGINT();
+
 	private static void buildTableGeneratorDDL(Dialect dialect, List<String> stringList,
 			List<TableIdGenerator> tbGeneratorList) {
 		Set<TableIdGenerator> notRepeatedTab = new HashSet<TableIdGenerator>();
@@ -388,10 +390,7 @@ public class DDLCreateUtils {// NOSONAR
 
 		Set<String> tableExisted = new HashSet<String>();
 		Set<String> columnExisted = new HashSet<String>();
-		
-		
-		
-		
+
 		for (TableIdGenerator tg : tbGeneratorList)
 			if (tg.getAllocationSize() != 0) {
 				String tableName = tg.getTable().toLowerCase();
@@ -438,6 +437,7 @@ public class DDLCreateUtils {// NOSONAR
 			if (StrUtils.isEmpty(constName))
 				constName = "fk_" + t.getTableName().toLowerCase() + "_"
 						+ StrUtils.replace(StrUtils.listToString(t.getColumnNames()), ",", "_");
+			constName = StrUtils.clearQuote(constName);
 			String[] refTableAndColumns = t.getRefTableAndColumns();
 			DialectException.assureNotNull(refTableAndColumns);
 			String fkeyTemplate;

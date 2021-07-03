@@ -4,11 +4,11 @@
  
  <groupId>com.github.drinkjava2</groupId>
  <artifactId>jdialects</artifactId>
- <version>4.0</version>
+ <version>5.0.5.jre8</version>
  <packaging>jar</packaging> 
  
  <name>jdialects</name>
- <description>jDialects is a pagination and DDL tool support ~80 databases, run on JDK6 or above</description>
+ <description>jDialects is a pagination and DDL tool support ~80 databases, run on JDK8 or above</description>
  <url>https://github.com/drinkjava2/jDialects</url>
   
  <issueManagement>
@@ -18,8 +18,8 @@
 
  <licenses>
    <license>
-     <name>GNU LESSER GENERAL PUBLIC LICENSE (LGPL), Version 2.1</name>
-     <url>http://www.gnu.org/licenses/lgpl-2.1.html</url>
+     <name>The Apache Software License, Version 2.0</name>
+     <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
    </license>
  </licenses>
 
@@ -42,9 +42,9 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding> 
-	<!-- Release on JDK1.6 -->
-        <version.java>1.6</version.java>
-        <version.javadoc>6</version.javadoc>
+	<!-- Release on JDK1.8 -->
+        <version.java>1.8</version.java>
+        <version.javadoc>8</version.javadoc>
         <version.compiler-plugin>3.3</version.compiler-plugin>
         <version.war-plugin>2.6</version.war-plugin>
         <version.clean-plugin>3.0.0</version.clean-plugin>
@@ -196,11 +196,13 @@
                             <links>
                                 <link>http://docs.oracle.com/javase/${version.javadoc}/docs/api</link>
                             </links>
-							<!-- close doc line check, for Java6,7 only, if run on Java8 will get a Javadoc-plugin error -->
-							<properties>
-								<javadoc.opts>-Xdoclint:none</javadoc.opts>
-							</properties>
-							<!-- close doc lint check for JAVA8 is additionalparam>-Xdoclint:none</additionalparam-->
+                                        <!-- Close doc check, for Java6 only -->
+					<!--properties>
+						<javadoc.opts>-Xdoclint:none</javadoc.opts>
+					</properties-->
+							
+                                       <!-- Close doc check, for Java8 only -->
+                                       <additionalparam>-Xdoclint:none</additionalparam>  
                         </configuration>
                     </plugin>
                     <plugin>

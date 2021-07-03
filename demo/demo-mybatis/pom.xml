@@ -24,11 +24,11 @@
     </dependency>  
  
     <!-- In this demo use jSqlBox as the plugin for MyBatis, jSqlBox is a micro scale ORM 
-         tool, it already has dependency of jDialects, so no need add jDialects dependency. -->
+         tool, it already included jDialects, so no need add jDialects dependency. -->
     <dependency>
         <groupId>com.github.drinkjava2</groupId>
         <artifactId>jsqlbox</artifactId>
-        <version>4.0</version>
+        <version>5.0.5.jre8</version>
         <scope>test</scope> 
     </dependency>   
 

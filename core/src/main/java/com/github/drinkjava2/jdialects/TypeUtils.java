@@ -23,6 +23,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 public abstract class TypeUtils {// NOSONAR
+
 	public static final String BIGINT = "BIGINT";
 	public static final String BINARY = "BINARY";
 	public static final String BIT = "BIT";
@@ -35,6 +36,7 @@ public abstract class TypeUtils {// NOSONAR
 	public static final String DOUBLE = "DOUBLE";
 	public static final String FLOAT = "FLOAT";
 	public static final String INTEGER = "INTEGER";
+	public static final String INT = "INT";
 	public static final String JAVA_OBJECT = "JAVA_OBJECT";
 	public static final String LONGNVARCHAR = "LONGNVARCHAR";
 	public static final String LONGVARBINARY = "LONGVARBINARY";
@@ -58,70 +60,93 @@ public abstract class TypeUtils {// NOSONAR
 		JAVA_TO_TYPE_MAP.put(BigDecimal.class, Type.NUMERIC);
 		JAVA_TO_TYPE_MAP.put(BigInteger.class, Type.BIGINT);
 		JAVA_TO_TYPE_MAP.put(Boolean.class, Type.BOOLEAN);
+		JAVA_TO_TYPE_MAP.put(boolean.class, Type.BOOLEAN);
 		JAVA_TO_TYPE_MAP.put(Byte.class, Type.TINYINT);
+		JAVA_TO_TYPE_MAP.put(byte.class, Type.TINYINT);
 		JAVA_TO_TYPE_MAP.put(Character.class, Type.CHAR);
-		JAVA_TO_TYPE_MAP.put(java.util.Date.class, Type.DATE);
-		JAVA_TO_TYPE_MAP.put(java.sql.Date.class, Type.DATE);
-		JAVA_TO_TYPE_MAP.put(java.sql.Time.class, Type.TIME);
-		JAVA_TO_TYPE_MAP.put(java.sql.Timestamp.class, Type.TIMESTAMP);
+		JAVA_TO_TYPE_MAP.put(char.class, Type.CHAR);
+		JAVA_TO_TYPE_MAP.put(Double.class, Type.DOUBLE);
+		JAVA_TO_TYPE_MAP.put(double.class, Type.DOUBLE);
+		JAVA_TO_TYPE_MAP.put(Float.class, Type.FLOAT);
+		JAVA_TO_TYPE_MAP.put(float.class, Type.FLOAT);
+		JAVA_TO_TYPE_MAP.put(Integer.class, Type.INTEGER);
+		JAVA_TO_TYPE_MAP.put(int.class, Type.INTEGER);
+		JAVA_TO_TYPE_MAP.put(Long.class, Type.BIGINT);
+		JAVA_TO_TYPE_MAP.put(long.class, Type.BIGINT);
+		JAVA_TO_TYPE_MAP.put(Short.class, Type.SMALLINT);
+		JAVA_TO_TYPE_MAP.put(short.class, Type.SMALLINT);
+		JAVA_TO_TYPE_MAP.put(String.class, Type.VARCHAR);
+		JAVA_TO_TYPE_MAP.put(char.class, Type.VARCHAR);
 		JAVA_TO_TYPE_MAP.put(java.sql.Clob.class, Type.CLOB);
 		JAVA_TO_TYPE_MAP.put(java.sql.Blob.class, Type.BLOB);
-		JAVA_TO_TYPE_MAP.put(Double.class, Type.DOUBLE);
-		JAVA_TO_TYPE_MAP.put(Float.class, Type.FLOAT);
-		JAVA_TO_TYPE_MAP.put(Integer.class, Type.INTEGER);
-		JAVA_TO_TYPE_MAP.put(Long.class, Type.BIGINT);
-		JAVA_TO_TYPE_MAP.put(Short.class, Type.SMALLINT);
-		JAVA_TO_TYPE_MAP.put(String.class, Type.VARCHAR);
+		JAVA_TO_TYPE_MAP.put(java.util.Date.class, Type.DATE);
+		JAVA_TO_TYPE_MAP.put(java.sql.Date.class, Type.DATE);
+		JAVA_TO_TYPE_MAP.put(java.util.Calendar.class, Type.DATE);
+		JAVA_TO_TYPE_MAP.put(java.sql.Time.class, Type.TIME);
+		JAVA_TO_TYPE_MAP.put(java.sql.Timestamp.class, Type.TIMESTAMP);
+
+		/*- JAVA8_BEGIN */
+		JAVA_TO_TYPE_MAP.put(java.time.LocalDate.class, Type.DATE);
+		JAVA_TO_TYPE_MAP.put(java.time.LocalTime.class, Type.TIME);
+		JAVA_TO_TYPE_MAP.put(java.time.OffsetTime.class, Type.TIME);
+		JAVA_TO_TYPE_MAP.put(java.time.Instant.class, Type.TIMESTAMP);
+		JAVA_TO_TYPE_MAP.put(java.time.LocalDateTime.class, Type.TIMESTAMP);
+		JAVA_TO_TYPE_MAP.put(java.time.OffsetDateTime.class, Type.TIMESTAMP);
+		JAVA_TO_TYPE_MAP.put(java.time.ZonedDateTime.class, Type.TIMESTAMP);
+		/* JAVA8_END */
 
 		TYPE_TO_JAVA_MAP.put(Type.NUMERIC, BigDecimal.class);
-		TYPE_TO_JAVA_MAP.put(Type.BIGINT, BigInteger.class);
+		TYPE_TO_JAVA_MAP.put(Type.BIGINT, Long.class);
 		TYPE_TO_JAVA_MAP.put(Type.BOOLEAN, Boolean.class);
 		TYPE_TO_JAVA_MAP.put(Type.TINYINT, Byte.class);
-		TYPE_TO_JAVA_MAP.put(Type.CHAR, Character.class);
-		TYPE_TO_JAVA_MAP.put(Type.DATE, java.util.Date.class);
-		TYPE_TO_JAVA_MAP.put(Type.DATE, java.sql.Date.class);
-		TYPE_TO_JAVA_MAP.put(Type.TIME, java.sql.Time.class);
-		TYPE_TO_JAVA_MAP.put(Type.TIMESTAMP, java.sql.Timestamp.class);
-		TYPE_TO_JAVA_MAP.put(Type.CLOB, java.sql.Clob.class);
+		TYPE_TO_JAVA_MAP.put(Type.SMALLINT, Short.class);
+		TYPE_TO_JAVA_MAP.put(Type.VARCHAR, String.class);
+		TYPE_TO_JAVA_MAP.put(Type.BINARY, java.sql.Blob.class);
+		TYPE_TO_JAVA_MAP.put(Type.BIT, Boolean.class);
 		TYPE_TO_JAVA_MAP.put(Type.BLOB, java.sql.Blob.class);
+		//JDBC的CHAR类型可能是有长度的，还是映射成 实体的String类型比较安全 
+		TYPE_TO_JAVA_MAP.put(Type.CHAR, String.class);
+		TYPE_TO_JAVA_MAP.put(Type.CLOB, java.sql.Clob.class);
+		TYPE_TO_JAVA_MAP.put(Type.DECIMAL, BigDecimal.class);
 		TYPE_TO_JAVA_MAP.put(Type.DOUBLE, Double.class);
 		TYPE_TO_JAVA_MAP.put(Type.FLOAT, Float.class);
 		TYPE_TO_JAVA_MAP.put(Type.INTEGER, Integer.class);
-		TYPE_TO_JAVA_MAP.put(Type.BIGINT, Long.class);
-		TYPE_TO_JAVA_MAP.put(Type.SMALLINT, Short.class);
-		TYPE_TO_JAVA_MAP.put(Type.VARCHAR, String.class);
-
+		TYPE_TO_JAVA_MAP.put(Type.JAVA_OBJECT, Object.class);
+		TYPE_TO_JAVA_MAP.put(Type.LONGNVARCHAR, String.class);
+		TYPE_TO_JAVA_MAP.put(Type.LONGVARBINARY, String.class);
+		TYPE_TO_JAVA_MAP.put(Type.LONGVARCHAR, String.class);
+		TYPE_TO_JAVA_MAP.put(Type.NCHAR, String.class);
+		TYPE_TO_JAVA_MAP.put(Type.NCLOB, java.sql.Clob.class);
+		TYPE_TO_JAVA_MAP.put(Type.NVARCHAR, String.class);
+		TYPE_TO_JAVA_MAP.put(Type.UNKNOW, Object.class);
+		TYPE_TO_JAVA_MAP.put(Type.REAL, Float.class);
+		TYPE_TO_JAVA_MAP.put(Type.VARBINARY, java.sql.Blob.class);
+		TYPE_TO_JAVA_MAP.put(Type.DATE, java.util.Date.class);
+		TYPE_TO_JAVA_MAP.put(Type.TIME, java.sql.Time.class);
+		TYPE_TO_JAVA_MAP.put(Type.TIMESTAMP, java.sql.Timestamp.class);
 	}
  
-	/** Check if a class type can map to a SQL type */
-	public static boolean canMapToSqlType(Class<?> clazz) {// NOSONAR
-		if (clazz == null)
-			return false;
+
+	/** Check if a Java class type can map to a Dialect type */
+	public static boolean canMapToDialectType(Class<?> clazz) {// NOSONAR
 		return JAVA_TO_TYPE_MAP.containsKey(clazz);
 	}
 
-
 	public static Class<?> dialectTypeToJavaType(Type type) {// NOSONAR
-		if (type == null)
-			return null;
 		return TYPE_TO_JAVA_MAP.get(type);
 	}
 
-	
 	/** Convert a Class type to Dialect's Type */
-	public static Type toType(Class<?> clazz) {
-		Type t = JAVA_TO_TYPE_MAP.get(clazz);
-		if (t == null)
-			return Type.UNKNOW;
-		else
-			return t;
+	public static Type javaType2DialectType(Class<?> clazz) {
+		return JAVA_TO_TYPE_MAP.get(clazz);
 	}
 
-	// @formatter:off shut off eclipse's formatter
+
 	/**
 	 * Convert column definition String to Dialect's Type
 	 */
-	public static Type toType(String columnDef) {
+	public static Type colDef2DialectType(String columnDefination) {
+		String columnDef = StrUtils.substringBefore(columnDefination, "(");
 		if (BIGINT.equalsIgnoreCase(columnDef))
 			return Type.BIGINT;
 		if (BINARY.equalsIgnoreCase(columnDef))
@@ -145,6 +170,8 @@ public abstract class TypeUtils {// NOSONAR
 		if (FLOAT.equalsIgnoreCase(columnDef))
 			return Type.FLOAT;
 		if (INTEGER.equalsIgnoreCase(columnDef))
+			return Type.INTEGER;
+		if (INT.equalsIgnoreCase(columnDef))
 			return Type.INTEGER;
 		if (JAVA_OBJECT.equalsIgnoreCase(columnDef))
 			return Type.JAVA_OBJECT;
@@ -178,14 +205,13 @@ public abstract class TypeUtils {// NOSONAR
 			return Type.VARBINARY;
 		if (VARCHAR.equalsIgnoreCase(columnDef))
 			return Type.VARCHAR;
+	      if ("TEXT".equalsIgnoreCase(columnDef))
+	            return Type.VARCHAR;
 		// @formatter:on
-		throw new DialectException("'" + columnDef + "' is not a legal SQL column definition name");
+		throw new DialectException("'" + columnDef + "' can not be map to a dialect type");
 	}
 
-	// @formatter:off shut off eclipse's formatter
-	/**
-	 * Convert java.sql.Types.xxx type to Dialect's Type
-	 */
+	/** Convert java.sql.Types.xxx type to Dialect's Type */
 	public static Type javaSqlTypeToDialectType(int javaSqlType) {
 		switch (javaSqlType) {
 		case java.sql.Types.BIT:
@@ -226,20 +252,16 @@ public abstract class TypeUtils {// NOSONAR
 			return Type.VARBINARY;
 		case java.sql.Types.LONGVARBINARY:
 			return Type.LONGVARBINARY;
-
 		case java.sql.Types.OTHER:
 			return Type.UNKNOW;
 		case java.sql.Types.JAVA_OBJECT:
 			return Type.JAVA_OBJECT;
-
 		case java.sql.Types.BLOB:
 			return Type.BLOB;
 		case java.sql.Types.CLOB:
 			return Type.CLOB;
-
 		case java.sql.Types.BOOLEAN:
 			return Type.BOOLEAN;
-
 		case java.sql.Types.NCHAR:
 			return Type.NCHAR;
 		case java.sql.Types.NVARCHAR:
@@ -248,16 +270,9 @@ public abstract class TypeUtils {// NOSONAR
 			return Type.LONGNVARCHAR;
 		case java.sql.Types.NCLOB:
 			return Type.NCLOB;
-		// case java.sql.Types.SQLXML:return Type.UNSUPPORT;
-		// case java.sql.Types.NULL:return Type.UNSUPPORT;
-		// case java.sql.Types.ROWID:return Type.UNSUPPORT;
-		// case java.sql.Types.DISTINCT:return Type.UNSUPPORT;
-		// case java.sql.Types.STRUCT:return Type.UNSUPPORT;
-		// case java.sql.Types.ARRAY:return Type.UNSUPPORT;
-		// case java.sql.Types.REF:return Type.UNSUPPORT;
-		// case java.sql.Types.DATALINK:return Type.UNSUPPORT;
 		default:
-			throw new DialectException("Not supported java.sql.Types value:" + javaSqlType);
+			throw new DialectException("Unsupported java.sql.Types:" + javaSqlType);
 		}
 	}
+ 
 }

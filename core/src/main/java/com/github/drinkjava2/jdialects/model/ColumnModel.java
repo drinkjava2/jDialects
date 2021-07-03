@@ -40,6 +40,8 @@ public class ColumnModel {
 
 	private Type columnType;// See com.github.drinkjava2.jdialects.Type
 
+	private String columnDefinition;// if not empty, will use it to create DDL
+
 	private Boolean pkey = false; // if is primary key
 
 	private Boolean nullable = true; // if nullable
@@ -53,8 +55,16 @@ public class ColumnModel {
 	/** Optional, put an extra tail String at end of column definition DDL */
 	private String tail;
 
-	/** Comment of this column */
+	/** Optional, Comment of this column */
 	private String comment;
+
+	boolean createTimestamp;
+
+	boolean updateTimestamp;
+
+	boolean createdBy;
+
+	boolean LastModifiedBy;
 
 	// =======================================================================
 	private GenerationType idGenerationType;
@@ -73,8 +83,8 @@ public class ColumnModel {
 	/** Map to a Java entity field, for DDL and ORM tool use */
 	private String entityField;
 
-	/** The column length, for DDL and ORM tool use */
-	private Integer length = 250;
+	/** The column length, for DDL and ORM tool use, defalut is 255 */
+	private Integer length = 255;
 
 	/** The numeric precision, for DDL and ORM tool use */
 	private Integer precision = 0;
@@ -144,6 +154,11 @@ public class ColumnModel {
 		col.converterClassOrName = converterClassOrName;
 		col.value = value;
 		col.valueExist = valueExist;
+		col.columnDefinition = columnDefinition;
+		col.createTimestamp = createTimestamp;
+		col.updateTimestamp = updateTimestamp;
+		col.createdBy = createdBy;
+		col.LastModifiedBy = LastModifiedBy;
 		return col;
 	}
 
@@ -262,6 +277,13 @@ public class ColumnModel {
 	public ColumnModel uuid25() {
 		makeSureTableModelExist();
 		this.idGenerationType = GenerationType.UUID25;
+		this.idGeneratorName = null;
+		return this;
+	}
+	
+	public ColumnModel uuid26() {
+		makeSureTableModelExist();
+		this.idGenerationType = GenerationType.UUID26;
 		this.idGeneratorName = null;
 		return this;
 	}
@@ -461,6 +483,10 @@ public class ColumnModel {
 	
 	//@formatter:on
 
+	public String getClearQuoteColumnName() {
+		return StrUtils.clearQuote(columnName);
+	}
+
 	// getter & setters==============
 	public String getColumnName() {
 		return columnName;
@@ -647,6 +673,47 @@ public class ColumnModel {
 	public ColumnModel setValueExist(Boolean valueExist) {
 		this.valueExist = valueExist;
 		return this;
+	}
+
+	public String getColumnDefinition() {
+		return columnDefinition;
+	}
+
+	public ColumnModel setColumnDefinition(String columnDefinition) {
+		this.columnDefinition = columnDefinition;
+		return this;
+	}
+
+	public boolean isCreateTimestamp() {
+		return createTimestamp;
+	}
+
+	public void setCreateTimestamp(boolean createTimestamp) {
+		this.createTimestamp = createTimestamp;
+	}
+
+	public boolean isUpdateTimestamp() {
+		return updateTimestamp;
+	}
+
+	public void setUpdateTimestamp(boolean updateTimestamp) {
+		this.updateTimestamp = updateTimestamp;
+	}
+
+	public boolean isCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(boolean createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public boolean isLastModifiedBy() {
+		return LastModifiedBy;
+	}
+
+	public void setLastModifiedBy(boolean lastModifiedBy) {
+		LastModifiedBy = lastModifiedBy;
 	}
 
 }

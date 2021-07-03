@@ -13,6 +13,7 @@ package com.github.drinkjava2.jdialects;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -36,6 +37,29 @@ public class StrUtils {
 		return str == null || "".equals(str);
 	}
 
+	/** Judge if is or not white space characters*/
+	public static boolean isBlank(String str) {
+		int strLen;
+		if (str == null || (strLen = str.length()) == 0) {
+			return true;
+		}
+		for (int i = 0; i < strLen; i++) {
+			if ((Character.isWhitespace(str.charAt(i)) == false)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+    /** Return true if is null object or blank string */
+    public static boolean isBlankObject(Object obj) {
+        if (obj == null)
+            return true;
+        if (obj instanceof String)
+            return isBlank((String) obj);
+        return false;
+    }
+    
 	/**
 	 * Check that the given CharSequence is neither {@code null} nor of length 0.
 	 * Note: Will return {@code true} for a CharSequence that purely consists of
@@ -835,6 +859,10 @@ public class StrUtils {
 
 	private static final SecureRandom random = new SecureRandom();
 	private static final char[] ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz".toCharArray();
+	
+	public static char getRandomChar() {
+		return ALPHABET[random.nextInt(32)];
+	}
 
 	public static String getRandomString(int length) {
 		StringBuilder sb = new StringBuilder();
@@ -923,10 +951,8 @@ public class StrUtils {
 	 */
 	public static String[] joinStringArray(String[] array1, String[] array2) {
 		List<String> l = new ArrayList<String>();
-		for (String string : array1)
-			l.add(string);
-		for (String string : array2)
-			l.add(string);
+		Collections.addAll(l, array1);
+		Collections.addAll(l, array2);
 		return l.toArray(new String[l.size()]);
 	}
 
@@ -958,6 +984,30 @@ public class StrUtils {
 			return (new StringBuilder()).append(Character.toUpperCase(s.charAt(0))).append(s.substring(1)).toString();
 	}
 
+	 
+	/**
+	 * underScore String convert to camel format, for example: HELLO_WORLD->HelloWorld
+	 */
+	public static String underScoreToCamel(String name) {
+		StringBuilder result = new StringBuilder();
+		if (name == null || name.isEmpty()) {
+			return "";
+		} else if (!name.contains("_")) // 不含下划线，仅将首字母小写
+			return name.substring(0, 1).toLowerCase() + name.substring(1);
+		String camels[] = name.split("_");
+		for (String camel : camels) {
+			if (camel.isEmpty()) // 跳过原始字符串中开头、结尾的下换线或双重下划线
+				continue;
+			if (result.length() == 0) {// 处理真正的驼峰片段
+				result.append(camel.toLowerCase());// 第一个驼峰片段，全部字母都小写
+			} else {
+				result.append(camel.substring(0, 1).toUpperCase());// 其他的驼峰片段，首字母大写
+				result.append(camel.substring(1).toLowerCase());
+			}
+		}
+		return result.toString();
+	}
+	
 	/**
 	 * Check if a String only have a-z,A-Z,0-9,"_" characters
 	 */
@@ -994,6 +1044,59 @@ public class StrUtils {
 		}
 		sb.append(" ");
 		return sb.toString();
+	}
+
+	/**
+	 * Some column has quote chars, like `someCol` or "someCol" or [someCol] use
+	 * this method to clear quote chars
+	 */
+	public static String clearQuote(String columnName) {
+		if (StrUtils.isEmpty(columnName))
+			return columnName;
+		String s = StrUtils.replace(columnName, "`", "");
+		s = StrUtils.replace(s, "\"", "");
+		s = StrUtils.replace(s, "[", "");
+		s = StrUtils.replace(s, "]", "");
+		return s;
+	}
+
+	/** Simple replace danderous chars in String to avoid SQL injection attack */
+	public static String simpleReplaceDangerous(String str) {
+		str = str.replace(";", "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+				.replace("'", "''").replace("--", "").replace("/", "").replace("%", "");
+		return str;
+	}
+
+	/**
+	 * Build a ('xxx',xxx,xxx, ..., xxx) format String based on a object array,
+	 * usually used for an "in" condition SQL String, for example: <br/>
+	 * 
+	 * array("a","b",1,2) return String ('a','b',1,2)
+	 * array() return String (null)
+	 */
+	public static String array(Object... arr) {
+		if (arr==null || arr.length == 0) {
+			return "(null)";
+		}
+		StringBuilder builder = new StringBuilder(200);
+		builder.append("(");
+		for (Object obj : arr) {
+			if (obj == null)
+				continue;
+			Class<?> c = obj.getClass();
+			if (String.class == c) {
+				builder.append("'").append(simpleReplaceDangerous((String) obj)).append("',");
+			} else {
+				if (int.class == c || Integer.class == c || long.class == c || Long.class == c || short.class == c
+						|| Short.class == c || byte.class == c || Byte.class == c)
+					builder.append(obj).append(",");
+			}
+		}
+		if (builder.length() > 1) {
+			builder.setLength(builder.length() - 1);
+			return builder.append(")").toString();
+		}
+		return "(null)";
 	}
 
 }

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -13,42 +13,18 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.github.drinkjava2.jlogs;
+package com.github.drinkjava2.jdialects.converter;
 
 /**
- * EmptyLog is an empty implementation of Log
+ * JavaToJdbcConverter used to convert Java value to JDBC value
  * 
- * @author Yong Zhu
- * @since 1.7.0
+ * @author yongz
+ * @since 5.0.0
+ *
  */
-@SuppressWarnings("all")
-public class EmptyLog implements Log {
+public interface JavaToJdbcConverter {
 
-	public EmptyLog(Class<?> clazz) {
-	}
+	/** Convert Java value to JDBC value  */
+	public Object convert(Object value);
 
-	@Override
-	public void info(String msg) {
-	}
-
-	@Override
-	public void warn(String msg) {
-	}
-
-	@Override
-	public void warn(String msg, Throwable t) {
-	}
-
-	@Override
-	public void error(String msg) {
-
-	}
-
-	@Override
-	public void error(String msg, Throwable t) {
-	}
-
-	@Override
-	public void debug(String msg) {
-	}
 }
