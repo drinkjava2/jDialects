@@ -4,7 +4,7 @@
  
  <groupId>com.github.drinkjava2</groupId>
  <artifactId>jdialects</artifactId>
- <version>5.0.5.jre8</version>
+ <version>5.0.6.jre8</version> 
  <packaging>jar</packaging> 
  
  <name>jdialects</name>
