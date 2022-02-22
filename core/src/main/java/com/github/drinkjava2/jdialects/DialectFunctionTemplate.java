@@ -63,6 +63,7 @@ public class DialectFunctionTemplate {
         }
     }
     
+    
     private static void copyTo(Map lastMap, Dialect d) {
         Map<String, String> target = d.functions;
         target.clear();
