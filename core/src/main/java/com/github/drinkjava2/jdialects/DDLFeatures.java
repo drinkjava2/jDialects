@@ -56,196 +56,12 @@ public class DDLFeatures {
     protected Boolean supportsIfExistsAfterConstraintName;
     protected String openQuote; // for quote column which used keywords
     protected String closeQuote; // for quote column which used keywords
-
-    public String getAddColumnString() {
-        return addColumnString;
+    
+    protected static void initDDLFeatures() {
+        for (Dialect d : Dialect.dialects) 
+            initDDLFeatures(d); 
     }
-
-    public String getAddColumnSuffixString() {
-        return addColumnSuffixString;
-    }
-
-    public String getAddForeignKeyConstraintString() {
-        return addForeignKeyConstraintString;
-    }
-
-    public String getAddFKeyRefPkeyString() {
-        return addFKeyRefPkeyString;
-    }
-
-    public String getAddPrimaryKeyConstraintString() {
-        return addPrimaryKeyConstraintString;
-    }
-
-    public String getColumnComment() {
-        return columnComment;
-    }
-
-    public String getCreateCatalogCommand() {
-        return createCatalogCommand;
-    }
-
-    public String getCreateMultisetTableString() {
-        return createMultisetTableString;
-    }
-
-    public String getCreatePooledSequenceStrings() {
-        return createPooledSequenceStrings;
-    }
-
-    public String getCreateSchemaCommand() {
-        return createSchemaCommand;
-    }
-
-    public String getCreateSequenceStrings() {
-        return createSequenceStrings;
-    }
-
-    public String getCreateTableString() {
-        return createTableString;
-    }
-
-    public String getCurrentSchemaCommand() {
-        return currentSchemaCommand;
-    }
-
-    public String getDropCatalogCommand() {
-        return dropCatalogCommand;
-    }
-
-    public String getDropForeignKeyString() {
-        return dropForeignKeyString;
-    }
-
-    public String getDropSchemaCommand() {
-        return dropSchemaCommand;
-    }
-
-    public String getDropSequenceStrings() {
-        return dropSequenceStrings;
-    }
-
-    public String getDropTableString() {
-        return dropTableString;
-    }
-
-    public Boolean getHasAlterTable() {
-        return hasAlterTable;
-    }
-
-    public Boolean getHasDataTypeInIdentityColumn() {
-        return hasDataTypeInIdentityColumn;
-    }
-
-    public String getIdentityColumnString() {
-        return identityColumnString;
-    }
-
-    public String getIdentitySelectString() {
-        return identitySelectString;
-    }
-
-    public Boolean getNeedDropConstraintsBeforeDropTable() {
-        return needDropConstraintsBeforeDropTable;
-    }
-
-    public String getNullColumnString() {
-        return nullColumnString;
-    }
-
-    public Boolean getRequiresParensForTupleDistinctCounts() {
-        return requiresParensForTupleDistinctCounts;
-    }
-
-    public String getSelectSequenceNextValString() {
-        return selectSequenceNextValString;
-    }
-
-    public String getSequenceNextValString() {
-        return sequenceNextValString;
-    }
-
-    public Boolean getSupportsColumnCheck() {
-        return supportsColumnCheck;
-    }
-
-    public Boolean getSupportsCommentOn() {
-        return supportsCommentOn;
-    }
-
-    public Boolean getSupportsIdentityColumns() {
-        return supportsIdentityColumns;
-    }
-
-    public Boolean getSupportsIfExistsAfterConstraintName() {
-        return supportsIfExistsAfterConstraintName;
-    }
-
-    public Boolean getSupportsIfExistsAfterTableName() {
-        return supportsIfExistsAfterTableName;
-    }
-
-    public Boolean getSupportsIfExistsBeforeConstraintName() {
-        return supportsIfExistsBeforeConstraintName;
-    }
-
-    public Boolean getSupportsIfExistsBeforeTableName() {
-        return supportsIfExistsBeforeTableName;
-    }
-
-    public Boolean getSupportsInsertSelectIdentity() {
-        return supportsInsertSelectIdentity;
-    }
-
-    public Boolean getSupportsPooledSequences() {
-        return supportsPooledSequences;
-    }
-
-    public Boolean getSupportsSequences() {
-        return supportsSequences;
-    }
-
-    public Boolean getSupportsTableCheck() {
-        return supportsTableCheck;
-    }
-
-    public String getTableTypeString() {
-        return tableTypeString;
-    }
-
-    public String getIdentityColumnStringBigINT() {
-        return identityColumnStringBigINT;
-    }
-
-    public String getIdentitySelectStringBigINT() {
-        return identitySelectStringBigINT;
-    }
-
-    public String getOpenQuote() {
-        return openQuote;
-    }
-
-    public String getCloseQuote() {
-        return closeQuote;
-    }
-
-    /**
-     * For dropping a table, can the phrase "if exists" be applied beforeQuery the
-     * table name
-     */
-    protected Boolean supportsIfExistsAfterTableName;
-    protected Boolean supportsIfExistsBeforeConstraintName;
-    /**
-     * For dropping a table, can the phrase "if exists" be applied afterQuery the
-     * table name?
-     */
-    protected Boolean supportsIfExistsBeforeTableName;
-    protected Boolean supportsInsertSelectIdentity;
-    protected Boolean supportsPooledSequences; // support initial & increment
-    protected Boolean supportsSequences; // basic sequence
-    protected Boolean supportsTableCheck;
-    protected String tableTypeString;
-
+    
     protected static boolean isValidDDLTemplate(String featureValue) {
         return !(StrUtils.isEmpty(featureValue) || NOT_SUPPORT.equals(featureValue));
     }
@@ -253,11 +69,23 @@ public class DDLFeatures {
     public boolean supportBasicOrPooledSequence() {
         return supportsSequences || supportsPooledSequences;
     }
+     
+    /** For dropping a table, can the phrase "if exists" be applied beforeQuery the table name */
+    protected Boolean supportsIfExistsAfterTableName;
+    protected Boolean supportsIfExistsBeforeConstraintName;
+    /** For dropping a table, can the phrase "if exists" be applied afterQuery the table name   */
+    protected Boolean supportsIfExistsBeforeTableName;
+    protected Boolean supportsInsertSelectIdentity;
+    protected Boolean supportsPooledSequences; // support initial & increment
+    protected Boolean supportsSequences; // basic sequence
+    protected Boolean supportsTableCheck;
+    protected String tableTypeString;
 
-    // ===========bellow is generated by tool ============
-
-    protected static void initDDLFeatures(Dialect dia) {
-        DDLFeatures ddl = dia.ddlFeatures;
+    /**
+     * For given dialect, set its DDLFeatures with default common DDL templates 
+     */
+    public static DDLFeatures createDefaultDDLFeatures() {
+        DDLFeatures ddl=new DDLFeatures(); 
         ddl.addColumnString = "add";
         ddl.addColumnSuffixString = "";
         ddl.addFKeyRefPkeyString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
@@ -298,7 +126,14 @@ public class DDLFeatures {
         ddl.supportsSequences = true;
         ddl.supportsTableCheck = true;
         ddl.tableTypeString = "";
-        switch (dia.type){
+        return ddl;
+    }
+    
+    /** Initialize each dialect's DDL features    */
+    protected static void initDDLFeatures(Dialect dia) { 
+        DDLFeatures ddl=createDefaultDDLFeatures();
+        dia.ddlFeatures=ddl;
+        switch (DialectType.getDialectType(dia)){//then modify each dialect if features not same as default features
         case SQLiteDialect: {
             ddl.addColumnString = "add column";
             ddl.addFKeyRefPkeyString = NOT_SUPPORT;
@@ -1745,4 +1580,350 @@ public class DDLFeatures {
         }
     }
 
+    //==========Garbage code below: getter & setters=========
+    
+    public String getAddColumnString() {
+        return addColumnString;
+    }
+
+    public void setAddColumnString(String addColumnString) {
+        this.addColumnString = addColumnString;
+    }
+
+    public String getAddColumnSuffixString() {
+        return addColumnSuffixString;
+    }
+
+    public void setAddColumnSuffixString(String addColumnSuffixString) {
+        this.addColumnSuffixString = addColumnSuffixString;
+    }
+
+    public String getAddForeignKeyConstraintString() {
+        return addForeignKeyConstraintString;
+    }
+
+    public void setAddForeignKeyConstraintString(String addForeignKeyConstraintString) {
+        this.addForeignKeyConstraintString = addForeignKeyConstraintString;
+    }
+
+    public String getAddFKeyRefPkeyString() {
+        return addFKeyRefPkeyString;
+    }
+
+    public void setAddFKeyRefPkeyString(String addFKeyRefPkeyString) {
+        this.addFKeyRefPkeyString = addFKeyRefPkeyString;
+    }
+
+    public String getAddPrimaryKeyConstraintString() {
+        return addPrimaryKeyConstraintString;
+    }
+
+    public void setAddPrimaryKeyConstraintString(String addPrimaryKeyConstraintString) {
+        this.addPrimaryKeyConstraintString = addPrimaryKeyConstraintString;
+    }
+
+    public String getColumnComment() {
+        return columnComment;
+    }
+
+    public void setColumnComment(String columnComment) {
+        this.columnComment = columnComment;
+    }
+
+    public String getCreateCatalogCommand() {
+        return createCatalogCommand;
+    }
+
+    public void setCreateCatalogCommand(String createCatalogCommand) {
+        this.createCatalogCommand = createCatalogCommand;
+    }
+
+    public String getCreateMultisetTableString() {
+        return createMultisetTableString;
+    }
+
+    public void setCreateMultisetTableString(String createMultisetTableString) {
+        this.createMultisetTableString = createMultisetTableString;
+    }
+
+    public String getCreatePooledSequenceStrings() {
+        return createPooledSequenceStrings;
+    }
+
+    public void setCreatePooledSequenceStrings(String createPooledSequenceStrings) {
+        this.createPooledSequenceStrings = createPooledSequenceStrings;
+    }
+
+    public String getCreateSchemaCommand() {
+        return createSchemaCommand;
+    }
+
+    public void setCreateSchemaCommand(String createSchemaCommand) {
+        this.createSchemaCommand = createSchemaCommand;
+    }
+
+    public String getCreateSequenceStrings() {
+        return createSequenceStrings;
+    }
+
+    public void setCreateSequenceStrings(String createSequenceStrings) {
+        this.createSequenceStrings = createSequenceStrings;
+    }
+
+    public String getCreateTableString() {
+        return createTableString;
+    }
+
+    public void setCreateTableString(String createTableString) {
+        this.createTableString = createTableString;
+    }
+
+    public String getCurrentSchemaCommand() {
+        return currentSchemaCommand;
+    }
+
+    public void setCurrentSchemaCommand(String currentSchemaCommand) {
+        this.currentSchemaCommand = currentSchemaCommand;
+    }
+
+    public String getDropCatalogCommand() {
+        return dropCatalogCommand;
+    }
+
+    public void setDropCatalogCommand(String dropCatalogCommand) {
+        this.dropCatalogCommand = dropCatalogCommand;
+    }
+
+    public String getDropForeignKeyString() {
+        return dropForeignKeyString;
+    }
+
+    public void setDropForeignKeyString(String dropForeignKeyString) {
+        this.dropForeignKeyString = dropForeignKeyString;
+    }
+
+    public String getDropSchemaCommand() {
+        return dropSchemaCommand;
+    }
+
+    public void setDropSchemaCommand(String dropSchemaCommand) {
+        this.dropSchemaCommand = dropSchemaCommand;
+    }
+
+    public String getDropSequenceStrings() {
+        return dropSequenceStrings;
+    }
+
+    public void setDropSequenceStrings(String dropSequenceStrings) {
+        this.dropSequenceStrings = dropSequenceStrings;
+    }
+
+    public String getDropTableString() {
+        return dropTableString;
+    }
+
+    public void setDropTableString(String dropTableString) {
+        this.dropTableString = dropTableString;
+    }
+
+    public Boolean getHasAlterTable() {
+        return hasAlterTable;
+    }
+
+    public void setHasAlterTable(Boolean hasAlterTable) {
+        this.hasAlterTable = hasAlterTable;
+    }
+
+    public Boolean getHasDataTypeInIdentityColumn() {
+        return hasDataTypeInIdentityColumn;
+    }
+
+    public void setHasDataTypeInIdentityColumn(Boolean hasDataTypeInIdentityColumn) {
+        this.hasDataTypeInIdentityColumn = hasDataTypeInIdentityColumn;
+    }
+
+    public String getIdentityColumnString() {
+        return identityColumnString;
+    }
+
+    public void setIdentityColumnString(String identityColumnString) {
+        this.identityColumnString = identityColumnString;
+    }
+
+    public String getIdentityColumnStringBigINT() {
+        return identityColumnStringBigINT;
+    }
+
+    public void setIdentityColumnStringBigINT(String identityColumnStringBigINT) {
+        this.identityColumnStringBigINT = identityColumnStringBigINT;
+    }
+
+    public String getIdentitySelectString() {
+        return identitySelectString;
+    }
+
+    public void setIdentitySelectString(String identitySelectString) {
+        this.identitySelectString = identitySelectString;
+    }
+
+    public String getIdentitySelectStringBigINT() {
+        return identitySelectStringBigINT;
+    }
+
+    public void setIdentitySelectStringBigINT(String identitySelectStringBigINT) {
+        this.identitySelectStringBigINT = identitySelectStringBigINT;
+    }
+
+    public Boolean getNeedDropConstraintsBeforeDropTable() {
+        return needDropConstraintsBeforeDropTable;
+    }
+
+    public void setNeedDropConstraintsBeforeDropTable(Boolean needDropConstraintsBeforeDropTable) {
+        this.needDropConstraintsBeforeDropTable = needDropConstraintsBeforeDropTable;
+    }
+
+    public String getNullColumnString() {
+        return nullColumnString;
+    }
+
+    public void setNullColumnString(String nullColumnString) {
+        this.nullColumnString = nullColumnString;
+    }
+
+    public Boolean getRequiresParensForTupleDistinctCounts() {
+        return requiresParensForTupleDistinctCounts;
+    }
+
+    public void setRequiresParensForTupleDistinctCounts(Boolean requiresParensForTupleDistinctCounts) {
+        this.requiresParensForTupleDistinctCounts = requiresParensForTupleDistinctCounts;
+    }
+
+    public String getSelectSequenceNextValString() {
+        return selectSequenceNextValString;
+    }
+
+    public void setSelectSequenceNextValString(String selectSequenceNextValString) {
+        this.selectSequenceNextValString = selectSequenceNextValString;
+    }
+
+    public String getSequenceNextValString() {
+        return sequenceNextValString;
+    }
+
+    public void setSequenceNextValString(String sequenceNextValString) {
+        this.sequenceNextValString = sequenceNextValString;
+    }
+
+    public Boolean getSupportsColumnCheck() {
+        return supportsColumnCheck;
+    }
+
+    public void setSupportsColumnCheck(Boolean supportsColumnCheck) {
+        this.supportsColumnCheck = supportsColumnCheck;
+    }
+
+    public Boolean getSupportsCommentOn() {
+        return supportsCommentOn;
+    }
+
+    public void setSupportsCommentOn(Boolean supportsCommentOn) {
+        this.supportsCommentOn = supportsCommentOn;
+    }
+
+    public Boolean getSupportsIdentityColumns() {
+        return supportsIdentityColumns;
+    }
+
+    public void setSupportsIdentityColumns(Boolean supportsIdentityColumns) {
+        this.supportsIdentityColumns = supportsIdentityColumns;
+    }
+
+    public Boolean getSupportsIfExistsAfterConstraintName() {
+        return supportsIfExistsAfterConstraintName;
+    }
+
+    public void setSupportsIfExistsAfterConstraintName(Boolean supportsIfExistsAfterConstraintName) {
+        this.supportsIfExistsAfterConstraintName = supportsIfExistsAfterConstraintName;
+    }
+
+    public String getOpenQuote() {
+        return openQuote;
+    }
+
+    public void setOpenQuote(String openQuote) {
+        this.openQuote = openQuote;
+    }
+
+    public String getCloseQuote() {
+        return closeQuote;
+    }
+
+    public void setCloseQuote(String closeQuote) {
+        this.closeQuote = closeQuote;
+    }
+
+    public Boolean getSupportsIfExistsAfterTableName() {
+        return supportsIfExistsAfterTableName;
+    }
+
+    public void setSupportsIfExistsAfterTableName(Boolean supportsIfExistsAfterTableName) {
+        this.supportsIfExistsAfterTableName = supportsIfExistsAfterTableName;
+    }
+
+    public Boolean getSupportsIfExistsBeforeConstraintName() {
+        return supportsIfExistsBeforeConstraintName;
+    }
+
+    public void setSupportsIfExistsBeforeConstraintName(Boolean supportsIfExistsBeforeConstraintName) {
+        this.supportsIfExistsBeforeConstraintName = supportsIfExistsBeforeConstraintName;
+    }
+
+    public Boolean getSupportsIfExistsBeforeTableName() {
+        return supportsIfExistsBeforeTableName;
+    }
+
+    public void setSupportsIfExistsBeforeTableName(Boolean supportsIfExistsBeforeTableName) {
+        this.supportsIfExistsBeforeTableName = supportsIfExistsBeforeTableName;
+    }
+
+    public Boolean getSupportsInsertSelectIdentity() {
+        return supportsInsertSelectIdentity;
+    }
+
+    public void setSupportsInsertSelectIdentity(Boolean supportsInsertSelectIdentity) {
+        this.supportsInsertSelectIdentity = supportsInsertSelectIdentity;
+    }
+
+    public Boolean getSupportsPooledSequences() {
+        return supportsPooledSequences;
+    }
+
+    public void setSupportsPooledSequences(Boolean supportsPooledSequences) {
+        this.supportsPooledSequences = supportsPooledSequences;
+    }
+
+    public Boolean getSupportsSequences() {
+        return supportsSequences;
+    }
+
+    public void setSupportsSequences(Boolean supportsSequences) {
+        this.supportsSequences = supportsSequences;
+    }
+
+    public Boolean getSupportsTableCheck() {
+        return supportsTableCheck;
+    }
+
+    public void setSupportsTableCheck(Boolean supportsTableCheck) {
+        this.supportsTableCheck = supportsTableCheck;
+    }
+
+    public String getTableTypeString() {
+        return tableTypeString;
+    }
+
+    public void setTableTypeString(String tableTypeString) {
+        this.tableTypeString = tableTypeString;
+    } 
+    
 }
