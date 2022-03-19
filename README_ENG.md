@@ -47,7 +47,7 @@ Or put below in pom.xml:
 <dependency>
     <groupId>com.github.drinkjava2</groupId>
     <artifactId>jdialects</artifactId>
-    <version>5.0.8.jre8</version>  <!-- Or newest version -->
+    <version>5.0.12.jre8</version>  <!-- Or newest version -->
 </dependency>
 ```
 
