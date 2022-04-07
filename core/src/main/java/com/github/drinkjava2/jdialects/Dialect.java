@@ -18,7 +18,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import com.github.drinkjava2.jdbpro.NormalJdbcTool;
 import com.github.drinkjava2.jdialects.converter.BasicJavaConverter;
 import com.github.drinkjava2.jdialects.converter.JavaConverter;
 import com.github.drinkjava2.jdialects.id.IdGenerator;
@@ -300,7 +299,7 @@ public class Dialect {
 			for (String templ : typeTempls) {
 				if (templ.contains("<")) {// varchar($l)<255
 					String[] limitType = StrUtils.split("<", templ);
-					if (col.getLength() > 0 && col.getLength() < Integer.parseInt(limitType[1]))// NOSONAR
+					if (col.getLength() > 0 && col.getLength() <= Integer.parseInt(limitType[1]))// NOSONAR
 						return replacePlaceHolders(type, limitType[0], col);
 				} else {// varchar($l)
 					return replacePlaceHolders(type, templ, col);
@@ -589,8 +588,8 @@ public class Dialect {
 	/**
 	 * Return next ID by given IdGenerator and NormalJdbcStyle instance
 	 */
-	public Object getNexID(IdGenerator idGenerator, NormalJdbcTool jdbc, Type dataType) {
-		return idGenerator.getNextID(jdbc, this, dataType);
+	public Object getNexID(IdGenerator idGenerator, Connection con, Type dataType) {
+		return idGenerator.getNextID(con, this, dataType);
 	}
 
 	// getter & setter====
