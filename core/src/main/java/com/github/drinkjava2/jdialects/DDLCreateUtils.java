@@ -59,6 +59,22 @@ public class DDLCreateUtils {// NOSONAR
         return result.toArray(new String[result.size()]);
     }
 
+	public static String[] toModifyColumnDDL(Dialect dialect, ColumnModel... columnModels) {
+		DDLFeatures f = dialect.getDdlFeatures();
+		List<String> result = new ArrayList<>();
+		for (ColumnModel c : columnModels) {
+			DialectException.assureNotNull(c.getTableModel(), "columnModel's tableModel can not be null");
+			String tableName=c.getTableModel().getTableName();
+			DialectException.assureNotEmpty(tableName, "tableModel's tableName can not be null or empty");
+			StringBuilder sb = new StringBuilder();
+			sb.append("alter table ").append(tableName).append(" ");//
+			sb.append(f.modifyColumnString).append(" ");
+			appendColumnDDLinBuf(dialect, sb, tableName, c);;
+			result.add(sb.toString());
+		}
+		return result.toArray(new String[result.size()]);
+	}
+
 	/**
 	 * Transfer tables to DDL by given dialect and without format it, if want get a
 	 * formatted DDL, use DDLFormatter.format(DDLs) method to format it
