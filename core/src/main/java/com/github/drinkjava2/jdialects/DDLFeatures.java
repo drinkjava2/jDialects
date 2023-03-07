@@ -90,9 +90,8 @@ public class DDLFeatures {
         DDLFeatures ddl = new DDLFeatures();
         ddl.addColumnString = "add";
         ddl.addColumnSuffixString = "";
-        ddl.dropColumnString = NOT_SUPPORT;
         ddl.columnSuffixString = NOT_SUPPORT;
-        ddl.modifyColumnString = NOT_SUPPORT;
+        ddl.modifyColumnString = "modify ";
         ddl.addFKeyRefPkeyString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE";
         ddl.addForeignKeyConstraintString = " add constraint _FKEYNAME foreign key (_FK1, _FK2) references _REFTABLE (_REF1, _REF2)";
         ddl.addPrimaryKeyConstraintString = " add constraint _PKEYNAME primary key ";

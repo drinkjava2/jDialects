@@ -11,13 +11,6 @@
  */
 package com.github.drinkjava2.jdialects;
 
-import java.sql.Connection;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import com.github.drinkjava2.jdialects.converter.BasicJavaConverter;
 import com.github.drinkjava2.jdialects.converter.JavaConverter;
 import com.github.drinkjava2.jdialects.id.IdGenerator;
@@ -25,6 +18,12 @@ import com.github.drinkjava2.jdialects.model.ColumnModel;
 import com.github.drinkjava2.jdialects.model.TableModel;
 import com.github.drinkjava2.jlogs.Log;
 import com.github.drinkjava2.jlogs.LogFactory;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * jDialects is a small Java tool collect all databases' dialect, most data are
@@ -533,19 +532,26 @@ public class Dialect {
 	}
 
 	/**
-     * Transfer columnModels to add column DDL String array
-     */
-    public String[] toAddColumnDDL(ColumnModel... columnModels) {
-        return DDLCreateUtils.toAddColumnDDL(this, columnModels);
-    }
+	 * Transfer columnModels to add column DDL String array
+	 */
+	public String[] toAddColumnDDL(ColumnModel... columnModels) {
+		return DDLCreateUtils.toAddColumnDDL(this, columnModels);
+	}
 
-    /**
-     * Transfer columnModels to drop column DDL String array
-     */
-    public String[] toDropColumnDDL(ColumnModel... columnModels) {
-        return DDLDropUtils.toDropColumnDDL(this, columnModels);
-    } 
-	
+	/**
+	 * Transfer columnModels to modify column DDL String array
+	 */
+	public String[] toModifyColumnDDL(ColumnModel... columnModels) {
+		return DDLCreateUtils.toModifyColumnDDL(this, columnModels);
+	}
+
+	/**
+	 * Transfer columnModels to drop column DDL String array
+	 */
+	public String[] toDropColumnDDL(ColumnModel... columnModels) {
+		return DDLDropUtils.toDropColumnDDL(this, columnModels);
+	}
+
 	/**
 	 * Transfer tables to drop and create DDL String array
 	 */
