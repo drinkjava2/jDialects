@@ -921,12 +921,12 @@ public class DialectTypeMappingTemplate {
 
         //================MySQLDialect family===============
         m = Dialect.MySQLDialect.typeMappings;
-        m.put(Type.BINARY, "binary($l)");
+        m.put(Type.BINARY, "binary($p)");
         m.put(Type.BIT, "bit");
         m.put(Type.LONGBLOB,"longblob");
         m.put(Type.BLOB, "blob");
         m.put(Type.BOOLEAN, "bit");
-        m.put(Type.CHAR, "char($l)");
+        m.put(Type.CHAR, "char($p)");
         m.put(Type.CLOB, "longtext");
         m.put(Type.DATE, "date");
         m.put(Type.DOUBLE, "double precision");
@@ -941,17 +941,17 @@ public class DialectTypeMappingTemplate {
         m.put(Type.VARBINARY, "tinyblob<255|blob<65535|mediumblob<16777215|longblob");
         
         m.put(DECIMAL, "decimal($p,$s)");
-        m.put(Type.SMALLINT, "smallint($l)");
-        m.put(Type.MEDIUMINT, "MEDIUMINT($l)");
-        m.put(Type.TINYINT, "tinyint($l)");
-        m.put(Type.BIGINT, "bigint($l)");
+        m.put(Type.SMALLINT, "smallint");
+        m.put(Type.MEDIUMINT, "MEDIUMINT");
+        m.put(Type.TINYINT, "tinyint");
+        m.put(Type.BIGINT, "bigint");
         m.put(Type.YEAR, "year($l)");
-        m.put(Type.VARCHAR, "varchar($l)<65535|longtext");
+        m.put(Type.VARCHAR, "varchar($p)<65535|longtext");
         m.put(Type.TIMESTAMP, "timestamp");
-        m.put(Type.INT, "INT($l)");
+        m.put(Type.INT, "INT");
         m.put(Type.TINYBLOB, "TINYBLOB");
         m.put(Type.TINYTEXT, "TINYTEXT");
-        m.put(Type.TEXT, "TEXT($l)");
+        m.put(Type.TEXT, "TEXT");
         m.put(Type.MEDIUMBLOB, "MEDIUMBLOB");
         m.put(Type.MEDIUMTEXT, "MEDIUMTEXT");
         m.put(Type.LONGTEXT, "LONGTEXT");
@@ -959,27 +959,27 @@ public class DialectTypeMappingTemplate {
 
         m = Dialect.MySQL5Dialect.typeMappings;
         m.putAll(Dialect.MySQLDialect.typeMappings);//extends from MySQLDialect
-        m.put(VARCHAR, "varchar($l)<65535|longtext");
+        m.put(VARCHAR, "varchar($p)<65535|longtext");
 
         m = Dialect.MySQL55Dialect.typeMappings;
         m.putAll(Dialect.MySQLDialect.typeMappings);//extends from MySQLDialect
-        m.put(VARCHAR, "varchar($l)<65535|longtext");
+        m.put(VARCHAR, "varchar($p)<65535|longtext");
 
         m = Dialect.MySQL57Dialect.typeMappings;
         m.putAll(Dialect.MySQLDialect.typeMappings);//extends from MySQLDialect
         m.put(JAVA_OBJECT, "json");
         m.put(TIMESTAMP, "datetime(6)");
-        m.put(VARCHAR, "varchar($l)<65535|longtext");
+        m.put(VARCHAR, "varchar($p)<65535|longtext");
 
         m = Dialect.MySQL57InnoDBDialect.typeMappings;
         m.putAll(Dialect.MySQLDialect.typeMappings);//extends from MySQLDialect
         m.put(JAVA_OBJECT, "json");
         m.put(TIMESTAMP, "datetime(6)");
-        m.put(VARCHAR, "varchar($l)<65535|longtext");
+        m.put(VARCHAR, "varchar($p)<65535|longtext");
 
         m = Dialect.MySQL5InnoDBDialect.typeMappings;
         m.putAll(Dialect.MySQLDialect.typeMappings);//extends from MySQLDialect
-        m.put(VARCHAR, "varchar($l)<65535|longtext");
+        m.put(VARCHAR, "varchar($p)<65535|longtext");
 
         m = Dialect.MySQLInnoDBDialect.typeMappings;
         m.putAll(Dialect.MySQLDialect.typeMappings);//extends from MySQLDialect
@@ -991,7 +991,7 @@ public class DialectTypeMappingTemplate {
         m.putAll(Dialect.MySQLDialect.typeMappings);//extends from MySQLDialect
         m.put(JAVA_OBJECT, "json");
         m.put(TIMESTAMP, "datetime(6)");
-        m.put(VARCHAR, "varchar($l)<65535|longtext");
+        m.put(VARCHAR, "varchar($p)<65535|longtext");
 
         //================OracleDialect family===============
         m = Dialect.OracleDialect.typeMappings;
