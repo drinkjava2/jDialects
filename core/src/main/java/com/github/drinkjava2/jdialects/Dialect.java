@@ -358,7 +358,7 @@ public class Dialect {
 		String trimedSql = sql.trim();
 		DialectException.assureNotEmpty(trimedSql, "sql string can not be empty");
 
-		if (!StrUtils.startsWithIgnoreCase(trimedSql, "select "))
+		if (!StrUtils.startsWithIgnoreCase(trimedSql, "select ")&&!StrUtils.startsWithIgnoreCase(trimedSql, "select\n"))
 			return (String) DialectException.throwEX("SQL should start with \"select \".");
 		String body = trimedSql.substring(7).trim();
 		DialectException.assureNotEmpty(body, "SQL body can not be empty");
